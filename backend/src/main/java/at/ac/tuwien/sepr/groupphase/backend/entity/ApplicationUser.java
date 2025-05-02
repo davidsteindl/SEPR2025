@@ -53,6 +53,30 @@ public class ApplicationUser {
         this.loginTries = 0;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public LocalDateTime getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDateTime dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -69,11 +93,27 @@ public class ApplicationUser {
         this.password = password;
     }
 
-    public Boolean getIsAdmin() {
+    public boolean isLocked() {
+        return isLocked;
+    }
+
+    public void setLocked(boolean locked) {
+        isLocked = locked;
+    }
+
+    public Boolean isAdmin() {
         return isAdmin;
     }
 
-    public void setIsAdmin(Boolean isAdmin) {
+    public void setAdmin(Boolean isAdmin) {
         this.isAdmin = isAdmin;
+    }
+
+    public int getLoginTries() {
+        return loginTries;
+    }
+
+    public void setLoginTries(int loginTries) {
+        this.loginTries = loginTries;
     }
 }
