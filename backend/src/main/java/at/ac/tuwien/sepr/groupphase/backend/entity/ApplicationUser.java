@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class ApplicationUser {
 
@@ -115,5 +116,34 @@ public class ApplicationUser {
 
     public void setLoginTries(int loginTries) {
         this.loginTries = loginTries;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ApplicationUser applicationUser)) {
+            return false;
+        }
+        return Objects.equals(id, applicationUser.id)
+            && Objects.equals(name, applicationUser.name)
+            && Objects.equals(dateOfBirth, applicationUser.dateOfBirth)
+            && Objects.equals(email, applicationUser.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, dateOfBirth, email);
+    }
+
+    @Override
+    public String toString() {
+        return "Message{"
+            + "id=" + id
+            + ", name=" + name
+            + ", dateOfBirth='" + dateOfBirth + '\''
+            + ", email='" + email + '\''
+            + '}';
     }
 }
