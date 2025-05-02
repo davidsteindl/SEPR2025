@@ -43,6 +43,16 @@ public class ApplicationUser {
         this.isAdmin = isAdmin;
     }
 
+    public ApplicationUser(String firstName, String lastName, LocalDateTime dateOfBirth, String email, String password, Boolean isAdmin) {
+        this.name = firstName + " " + lastName;
+        this.dateOfBirth = dateOfBirth;
+        this.email = email;
+        this.password = password;  //TODO missing Hashing!
+        this.isLocked = false;
+        this.isAdmin = isAdmin;
+        this.loginTries = 0;
+    }
+
     public String getEmail() {
         return email;
     }
