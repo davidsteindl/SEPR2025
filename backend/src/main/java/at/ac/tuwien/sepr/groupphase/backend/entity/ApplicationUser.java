@@ -1,19 +1,46 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
-//TODO: replace this class with a correct ApplicationUser Entity implementation
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+import java.time.LocalDateTime;
+
 public class ApplicationUser {
 
-    private String email;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 100)
+    private String name;
+
+    @Column(nullable = false, length = 100)
     private String password;
-    private Boolean admin;
+
+    @Column(nullable = false, name = "dateOfBirth")
+    private LocalDateTime dateOfBirth;
+
+    @Column(nullable = false, length = 100)
+    private String email;
+
+    @Column(nullable = false, length = 100)
+    private boolean isLocked;
+
+    @Column(nullable = false, length = 100)
+    private boolean isAdmin;
+
+    @Column(nullable = false, length = 100)
+    private int loginTries;
 
     public ApplicationUser() {
     }
 
-    public ApplicationUser(String email, String password, Boolean admin) {
+    public ApplicationUser(String email, String password, Boolean isAdmin) {
         this.email = email;
         this.password = password;
-        this.admin = admin;
+        this.isAdmin = isAdmin;
     }
 
     public String getEmail() {
@@ -32,11 +59,11 @@ public class ApplicationUser {
         this.password = password;
     }
 
-    public Boolean getAdmin() {
-        return admin;
+    public Boolean getIsAdmin() {
+        return isAdmin;
     }
 
-    public void setAdmin(Boolean admin) {
-        this.admin = admin;
+    public void setIsAdmin(Boolean isAdmin) {
+        this.isAdmin = isAdmin;
     }
 }
