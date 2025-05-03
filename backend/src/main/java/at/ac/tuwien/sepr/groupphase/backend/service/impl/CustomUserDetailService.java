@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.exception.LoginAttemptException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
@@ -9,7 +10,6 @@ import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
@@ -17,6 +17,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import static at.ac.tuwien.sepr.groupphase.backend.config.SecurityConstants.MAX_LOGIN_TRIES;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -30,7 +32,8 @@ public class CustomUserDetailService implements UserService {
     private final JwtTokenizer jwtTokenizer;
 
     @Autowired
-    public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenizer jwtTokenizer) {
+    public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+            JwtTokenizer jwtTokenizer) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenizer = jwtTokenizer;
@@ -41,7 +44,6 @@ public class CustomUserDetailService implements UserService {
         LOGGER.debug("Load all user by email");
         try {
             ApplicationUser applicationUser = findApplicationUserByEmail(email);
-
             List<GrantedAuthority> grantedAuthorities;
             if (applicationUser.isAdmin()) {
                 grantedAuthorities = AuthorityUtils.createAuthorityList("ROLE_ADMIN", "ROLE_USER");
@@ -49,7 +51,8 @@ public class CustomUserDetailService implements UserService {
                 grantedAuthorities = AuthorityUtils.createAuthorityList("ROLE_USER");
             }
 
-            return new User(applicationUser.getEmail(), applicationUser.getPassword(), grantedAuthorities);
+            return new User(applicationUser.getEmail(), applicationUser.getPassword(), true, true, true,
+                    !applicationUser.isLocked(), grantedAuthorities);
         } catch (NotFoundException e) {
             throw new UsernameNotFoundException(e.getMessage(), e);
         }
@@ -58,7 +61,7 @@ public class CustomUserDetailService implements UserService {
     @Override
     public ApplicationUser findApplicationUserByEmail(String email) {
         LOGGER.debug("Find application user by email");
-        ApplicationUser applicationUser = userRepository.findUserByEmail(email);
+        ApplicationUser applicationUser = userRepository.findByEmail(email);
         if (applicationUser != null) {
             return applicationUser;
         }
@@ -67,19 +70,41 @@ public class CustomUserDetailService implements UserService {
 
     @Override
     public String login(UserLoginDto userLoginDto) {
-        UserDetails userDetails = loadUserByUsername(userLoginDto.getEmail());
-        if (userDetails != null
-            && userDetails.isAccountNonExpired()
-            && userDetails.isAccountNonLocked()
-            && userDetails.isCredentialsNonExpired()
-            && passwordEncoder.matches(userLoginDto.getPassword(), userDetails.getPassword())
-        ) {
-            List<String> roles = userDetails.getAuthorities()
+        ApplicationUser user = userRepository.findByEmail(userLoginDto.getEmail());
+
+        if (user == null) {
+            throw new LoginAttemptException("Username or password is incorrect", 0);
+        }
+
+        if (user.isLocked()) {
+            throw new LoginAttemptException(
+                    "Your account is locked due to too many failed login attempts, please contact an administrator",
+                    user.getLoginTries());
+        }
+
+        int currentTry = user.getLoginTries() + 1;
+
+        if (!passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) { // login failed (password wrong)
+            user.setLoginTries(currentTry);
+            if (currentTry >= MAX_LOGIN_TRIES) {
+                user.setLocked(true);
+                userRepository.save(user);
+                throw new LoginAttemptException(
+                        "Your account is locked due to too many failed login attempts, please contact an administrator",
+                        user.getLoginTries());
+            }
+            userRepository.save(user);
+            throw new LoginAttemptException("Username or password is incorrect", user.getLoginTries());
+        }
+        user.setLoginTries(0);
+        userRepository.save(user);
+
+        List<String> roles = loadUserByUsername(user.getEmail())
+                .getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
-            return jwtTokenizer.getAuthToken(userDetails.getUsername(), roles);
-        }
-        throw new BadCredentialsException("Username or password is incorrect or account is locked");
+
+        return jwtTokenizer.getAuthToken(user.getEmail(), roles);
     }
 }
