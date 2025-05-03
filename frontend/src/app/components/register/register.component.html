@@ -1,1 +1,58 @@
-<p>register works!</p>
+<div class="pt-5">
+  <div class="row">
+    <div class="col-md-6 mx-auto">
+      <span class="anchor" id="formRegister"></span>
+
+      <div class="card rounded-0">
+        <div class="card-header">
+          <h3 class="mb-0">Register</h3>
+        </div>
+
+        <div class="card-body">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div class="form-group">
+              <label for="inputFirstName">First Name</label>
+              <input type="text" name="firstName" class="form-control" id="inputFirstName"
+                     aria-describedby="firstNameHelp" placeholder="Enter firstName">
+            </div>
+
+            <div class="form-group">
+              <label for="inputLastName">Last Name</label>
+              <input type="text" name="lastName" class="form-control" id="inputLastName"
+                     aria-describedby="lastNameHelp" placeholder="Enter lastName">
+            </div>
+
+          </div>
+          <div class="form-group">
+            <label for="inputBirthDate">Birth Date</label>
+            <input type="date" id="inputBirthDate" name="DateOfBirth" class="form-control"
+                   aria-describedby="BirthDateHelp" placeholder="MM.DD.YYYY" style="width: 250px">
+          </div>
+
+          <div class="form-group">
+            <label for="inputEmail">Email</label>
+            <input type="text" name="email" class="form-control" id="inputEmail"
+                   aria-describedby="emailHelp">
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" name="password" class="form-control" id="password">
+          </div>
+
+          <div class="form-group">
+            <label for="repeatPassword">Repeat Password</label>
+            <input type="password" name="repeatPassword" class="form-control" id="repeatPassword">
+          </div>
+          <p> I accept <u>Terms and Conditions</u>
+            <input type="checkbox" id="termsAndConditions" name="checkboxForTermsAndConditions"
+                   value="true" style="margin: 10px;">
+          </p>
+
+          <button type="button" class="btn btn-success float-right">Register </button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
