@@ -22,9 +22,18 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static at.ac.tuwien.sepr.groupphase.backend.config.SecurityConstants.MAX_LOGIN_TRIES;
+
+/**
+ * Register all your Java exceptions here to map them into meaningful HTTP
+ * exceptions.
+ * If you have special cases which are only important for specific endpoints,
+ * use ResponseStatusExceptions
+ * https://www.baeldung.com/exception-handling-for-rest-with-spring#responsestatusexception
+ */
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -39,6 +48,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return pd;
     }
 
+    /**
+     * Use the @ExceptionHandler annotation to write handler for custom exceptions.
+     */
     @ExceptionHandler({ NotFoundException.class, UsernameNotFoundException.class })
     public ResponseEntity<ProblemDetail> handleNotFound(RuntimeException ex, ServletWebRequest req) {
         LOG.warn("Not found: {}", ex.getMessage());
@@ -62,16 +74,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(LoginAttemptException.class)
     public ResponseEntity<ProblemDetail> handleLoginAttempt(LoginAttemptException ex, ServletWebRequest req) {
-        HttpStatus status = ex.getLoginTries() >= MAX_LOGIN_TRIES
+        int tries = ex.getLoginTries();
+        HttpStatus status = tries >= MAX_LOGIN_TRIES
                 ? HttpStatus.LOCKED
                 : HttpStatus.UNAUTHORIZED;
-
-        LOG.warn("Login attempt {} → status {}", ex.getLoginTries(), status);
+        LOG.warn("Login attempt {} → status {}", tries, status);
         ProblemDetail pd = toProblemDetail(status, ex.getMessage(), req);
-        pd.setProperty("loginTries", ex.getLoginTries());
+        pd.setProperty("loginTries", tries);
         return ResponseEntity.status(status).body(pd);
     }
 
+    /**
+     * Override methods from ResponseEntityExceptionHandler to send a customized
+     * HTTP response for a know exception
+     * from e.g. Spring
+     */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
@@ -79,25 +96,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatusCode statusCode,
             WebRequest request) {
 
-        ServletWebRequest req = (ServletWebRequest) request;
-
-        String summary = ex.getBindingResult()
+        List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(err -> err.getField() + " " + err.getDefaultMessage())
-                .collect(Collectors.joining("; "));
-
-        ProblemDetail pd = toProblemDetail(HttpStatus.BAD_REQUEST, "Validation failed: " + summary, req);
-        pd.setProperty("fieldErrors", ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .collect(Collectors.toMap(
-                        FieldError::getField,
-                        FieldError::getDefaultMessage)));
+                .map(FieldError::getDefaultMessage)
+                .collect(Collectors.toList());
 
         return ResponseEntity
                 .status(statusCode.value())
                 .headers(headers)
-                .body(pd);
+                .body(errors);
     }
 }
