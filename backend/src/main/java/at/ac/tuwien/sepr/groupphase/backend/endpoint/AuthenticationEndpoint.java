@@ -29,6 +29,6 @@ public class AuthenticationEndpoint {
     @PermitAll
     @PostMapping("/register")
     public String register(@Valid @RequestBody UserRegisterDto userRegisterDto) {
-        return "";
+        return userService.register(userRegisterDto);
     }
 }
