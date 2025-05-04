@@ -5,13 +5,13 @@ import {LoginComponent} from './components/login/login.component';
 import {AuthGuard} from './guards/auth.guard';
 import {MessageComponent} from './components/message/message.component';
 import {RegisterComponent} from "./components/register/register.component";
-import {TermsandserviceComponent} from "./components/termsandservice/termsandservice.component";
+import {TermsandconditionsComponent} from "./components/termsandconditions/termsandconditions.component";
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
   {path: 'login', component: LoginComponent},
   {path: 'register', component: RegisterComponent},
-  {path: 'termsandservice', component: TermsandserviceComponent},
+  {path: 'termsandservice', component: TermsandconditionsComponent},
   {path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent}
 ];
 
