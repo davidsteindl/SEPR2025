@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity
@@ -17,13 +17,16 @@ public class ApplicationUser {
     private Long id;
 
     @Column(nullable = false, length = 100)
-    private String name;
+    private String firstName;
+
+    @Column(nullable = false, length = 100)
+    private String lastName;
 
     @Column(nullable = false, length = 100)
     private String password;
 
     @Column(nullable = false, name = "dateOfBirth")
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @Column(nullable = false, length = 100)
     private String email;
@@ -40,23 +43,6 @@ public class ApplicationUser {
     public ApplicationUser() {
     }
 
-    public ApplicationUser(String email, String password, Boolean isAdmin) {
-        this.email = email;
-        this.password = password;
-        this.isAdmin = isAdmin;
-    }
-
-    public ApplicationUser(String firstName, String lastName, LocalDateTime dateOfBirth, String email, String password,
-            Boolean isAdmin) {
-        this.name = firstName + " " + lastName;
-        this.dateOfBirth = dateOfBirth;
-        this.email = email;
-        this.password = password;
-        this.isLocked = false;
-        this.isAdmin = isAdmin;
-        this.loginTries = 0;
-    }
-
     public Long getId() {
         return id;
     }
@@ -65,19 +51,27 @@ public class ApplicationUser {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String name) {
+        this.firstName = firstName;
     }
 
-    public LocalDateTime getDateOfBirth() {
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDateTime dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -130,21 +124,23 @@ public class ApplicationUser {
             return false;
         }
         return Objects.equals(id, applicationUser.id)
-                && Objects.equals(name, applicationUser.name)
+                && Objects.equals(firstName, applicationUser.firstName)
+                && Objects.equals(lastName, applicationUser.lastName)
                 && Objects.equals(dateOfBirth, applicationUser.dateOfBirth)
                 && Objects.equals(email, applicationUser.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, dateOfBirth, email);
+        return Objects.hash(id, firstName, lastName, dateOfBirth, email);
     }
 
     @Override
     public String toString() {
         return "Message{"
                 + "id=" + id
-                + ", name=" + name
+                + ", Firstname=" + firstName
+                + ", Lastname=" + lastName
                 + ", dateOfBirth='" + dateOfBirth + '\''
                 + ", email='" + email + '\''
                 + '}';
@@ -152,9 +148,10 @@ public class ApplicationUser {
 
     public static final class ApplicationUserBuilder {
         private Long id;
-        private String name;
+        private String firstName;
+        private String lastName;
         private String password;
-        private LocalDateTime dateOfBirth;
+        private LocalDate dateOfBirth;
         private String email;
         private boolean isLocked;
         private boolean isAdmin;
@@ -172,8 +169,13 @@ public class ApplicationUser {
             return this;
         }
 
-        public ApplicationUserBuilder withName(String name) {
-            this.name = name;
+        public ApplicationUserBuilder withFirstName(String firstName) {
+            this.firstName = firstName;
+            return this;
+        }
+
+        public ApplicationUserBuilder withLastName(String lastName) {
+            this.lastName = lastName;
             return this;
         }
 
@@ -182,7 +184,7 @@ public class ApplicationUser {
             return this;
         }
 
-        public ApplicationUserBuilder withDateOfBirth(LocalDateTime dateOfBirth) {
+        public ApplicationUserBuilder withDateOfBirth(LocalDate dateOfBirth) {
             this.dateOfBirth = dateOfBirth;
             return this;
         }
@@ -210,7 +212,8 @@ public class ApplicationUser {
         public ApplicationUser build() {
             ApplicationUser user = new ApplicationUser();
             user.setId(id);
-            user.setName(name);
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
             user.setPassword(password);
             user.setDateOfBirth(dateOfBirth);
             user.setEmail(email);
