@@ -9,7 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import org.hibernate.annotations.Formula;
 
 import java.util.Objects;
 
@@ -30,17 +29,8 @@ public class Event {
     @JoinColumn(name = "location_id", nullable = false)
     private EventLocation location;
 
-
     @Column(length = 500)
     private String description;
-
-    @Formula(
-        "("
-            + "  SELECT DATEDIFF('MINUTE', MIN(s.date), MAX(DATEADD('MINUTE', s.duration, s.date)))"
-            + "    FROM show s"
-            + "   WHERE s.event_id = id"
-            + ")"
-    )
 
     @Column(insertable = false, updatable = false)
     private int totalDuration;
@@ -89,8 +79,6 @@ public class Event {
         return totalDuration;
     }
 
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -117,6 +105,7 @@ public class Event {
             + ", name='" + name + '\''
             + ", category='" + (category != null ? category.getDisplayName() : "null") + '\''
             + ", location ID='" + (location != null ? location.getId() : "null") + '\''
+            + ", description='" + (description != null ? description : "null") + '\''
             + '}';
     }
 
@@ -179,7 +168,6 @@ public class Event {
             this.location = location;
             return this;
         }
-
 
         public Event build() {
             Event event = new Event();
