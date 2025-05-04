@@ -15,6 +15,7 @@
           <h3 class="mb-0">Login</h3>
         </div>
 
+
         <div class="card-body">
           <form class="form" [formGroup]="loginForm" (ngSubmit)="loginUser()">
 
@@ -44,7 +45,15 @@
               </div>
             </div>
 
-            <button type="button" (click)="loginUser()" class="btn btn-success float-right">Login</button>
+            <div style="display: flex;" >
+              <button type="button" (click)="loginUser()" class="btn btn-success float-right">Login</button>
+              <p style="margin: 10px;"> Forgot password? </p>
+            </div>
+
+            <p> If you don't have an account:
+            <button type="button" (click)="loginUser()" class="btn btn-success float-right">Register </button>
+            </p>
+
 
           </form>
         </div>
