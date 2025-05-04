@@ -25,7 +25,7 @@ public class ApplicationUser {
     @Column(nullable = false, length = 100)
     private String password;
 
-    @Column(nullable = false, name = "dateOfBirth")
+    @Column(nullable = false)
     private LocalDateTime dateOfBirth;
 
     @Column(nullable = false, length = 100)
