@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/v1/authentication")
-public class LoginEndpoint {
+public class UserEndpoint {
 
     private final UserService userService;
 
-    public LoginEndpoint(UserService userService) {
+    public UserEndpoint(UserService userService) {
         this.userService = userService;
     }
 
