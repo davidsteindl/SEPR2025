@@ -1,10 +1,15 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.List;
 
 public interface UserService extends UserDetailsService {
 
@@ -38,4 +43,19 @@ public interface UserService extends UserDetailsService {
      * @throws BadCredentialsException if credentials are bad
      */
     String login(UserLoginDto userLoginDto);
+
+    /**
+     * Returns all locked users, only administrators
+     * should be able to access this method.
+     *
+     * @return all blocked users
+     */
+    List<LockedUserDto> getLockedUsers();
+
+    /**
+     * Unlocks the user account with the given ID by setting its 'locked' status to false.
+     *
+     * @param id the ID of the user to unlock
+     */
+    void unlockUser(Long id);
 }

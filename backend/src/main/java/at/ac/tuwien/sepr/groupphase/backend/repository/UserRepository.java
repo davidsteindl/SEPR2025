@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserRepository extends JpaRepository<ApplicationUser, Long> {
 
@@ -17,4 +19,10 @@ public interface UserRepository extends JpaRepository<ApplicationUser, Long> {
      */
     ApplicationUser findByEmail(String email);
 
+    /**
+     * Return all locked user accounts in the persistent datastore.
+     *
+     * @return all blocked users
+     */
+    List<ApplicationUser> findAllByLockedTrue();
 }
