@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
@@ -20,8 +21,14 @@ public class UserEndpoint {
     }
 
     @PermitAll
-    @PostMapping
+    @PostMapping("/login")
     public String login(@Valid @RequestBody UserLoginDto userLoginDto) {
         return userService.login(userLoginDto);
+    }
+
+    @PermitAll
+    @PostMapping("/register")
+    public String register(@Valid @RequestBody UserRegisterDto userRegisterDto) {
+        return "";
     }
 }
