@@ -32,9 +32,9 @@ public class UserEndpoint {
         return userService.getLockedUsers();
     }
 
-    @PutMapping("/{id}/lock")
+    @PutMapping("/{id}/unlock")
     @Secured("ROLE_ADMIN")
-    public ResponseEntity<Void> unlockUser(@PathVariable Long id) {
+    public ResponseEntity<Void> unlockUser(@PathVariable("id") Long id) {
         LOGGER.info("getLockedUsers()");
         userService.unlockUser(id);
         return ResponseEntity.noContent().build();
