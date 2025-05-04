@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import java.lang.invoke.MethodHandles;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ public class UserDataGenerator {
                     .withPassword(passwordEncoder.encode(PASSWORD))
                     .withFirstName("Max")
                     .withLastName("Mustermann")
-                    .withDateOfBirth(LocalDate.of(1972, 2, 3))
+                    .withDateOfBirth(LocalDateTime.of(1972, 2, 3, 0, 0))
                     .isLocked(false)
                     .isAdmin(true)
                     .withLoginTries(0)
@@ -57,7 +57,7 @@ public class UserDataGenerator {
                     .withPassword(passwordEncoder.encode(PASSWORD))
                     .withFirstName("Magdalena")
                     .withLastName("Musterfrau")
-                    .withDateOfBirth(LocalDate.of(1980, 7, 15))
+                    .withDateOfBirth(LocalDateTime.of(1980, 7, 15, 0, 0))
                     .isLocked(false)
                     .isAdmin(false)
                     .withLoginTries(0)

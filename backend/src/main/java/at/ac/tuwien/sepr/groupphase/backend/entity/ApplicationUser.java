@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -26,7 +26,7 @@ public class ApplicationUser {
     private String password;
 
     @Column(nullable = false, name = "dateOfBirth")
-    private LocalDate dateOfBirth;
+    private LocalDateTime dateOfBirth;
 
     @Column(nullable = false, length = 100)
     private String email;
@@ -55,7 +55,7 @@ public class ApplicationUser {
         return firstName;
     }
 
-    public void setFirstName(String name) {
+    public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
@@ -67,11 +67,11 @@ public class ApplicationUser {
         this.lastName = lastName;
     }
 
-    public LocalDate getDateOfBirth() {
+    public LocalDateTime getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
+    public void setDateOfBirth(LocalDateTime dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -151,7 +151,7 @@ public class ApplicationUser {
         private String firstName;
         private String lastName;
         private String password;
-        private LocalDate dateOfBirth;
+        private LocalDateTime dateOfBirth;
         private String email;
         private boolean isLocked;
         private boolean isAdmin;
@@ -184,7 +184,7 @@ public class ApplicationUser {
             return this;
         }
 
-        public ApplicationUserBuilder withDateOfBirth(LocalDate dateOfBirth) {
+        public ApplicationUserBuilder withDateOfBirth(LocalDateTime dateOfBirth) {
             this.dateOfBirth = dateOfBirth;
             return this;
         }
