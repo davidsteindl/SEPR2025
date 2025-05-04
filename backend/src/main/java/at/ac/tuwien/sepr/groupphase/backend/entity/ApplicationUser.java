@@ -46,11 +46,12 @@ public class ApplicationUser {
         this.isAdmin = isAdmin;
     }
 
-    public ApplicationUser(String firstName, String lastName, LocalDateTime dateOfBirth, String email, String password, Boolean isAdmin) {
+    public ApplicationUser(String firstName, String lastName, LocalDateTime dateOfBirth, String email, String password,
+            Boolean isAdmin) {
         this.name = firstName + " " + lastName;
         this.dateOfBirth = dateOfBirth;
         this.email = email;
-        this.password = password;  //TODO missing Hashing!
+        this.password = password;
         this.isLocked = false;
         this.isAdmin = isAdmin;
         this.loginTries = 0;
@@ -129,9 +130,9 @@ public class ApplicationUser {
             return false;
         }
         return Objects.equals(id, applicationUser.id)
-            && Objects.equals(name, applicationUser.name)
-            && Objects.equals(dateOfBirth, applicationUser.dateOfBirth)
-            && Objects.equals(email, applicationUser.email);
+                && Objects.equals(name, applicationUser.name)
+                && Objects.equals(dateOfBirth, applicationUser.dateOfBirth)
+                && Objects.equals(email, applicationUser.email);
     }
 
     @Override
@@ -142,10 +143,81 @@ public class ApplicationUser {
     @Override
     public String toString() {
         return "Message{"
-            + "id=" + id
-            + ", name=" + name
-            + ", dateOfBirth='" + dateOfBirth + '\''
-            + ", email='" + email + '\''
-            + '}';
+                + "id=" + id
+                + ", name=" + name
+                + ", dateOfBirth='" + dateOfBirth + '\''
+                + ", email='" + email + '\''
+                + '}';
+    }
+
+    public static final class ApplicationUserBuilder {
+        private Long id;
+        private String name;
+        private String password;
+        private LocalDateTime dateOfBirth;
+        private String email;
+        private boolean isLocked;
+        private boolean isAdmin;
+        private int loginTries;
+
+        private ApplicationUserBuilder() {
+        }
+
+        public static ApplicationUserBuilder aUser() {
+            return new ApplicationUserBuilder();
+        }
+
+        public ApplicationUserBuilder withId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public ApplicationUserBuilder withName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public ApplicationUserBuilder withPassword(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public ApplicationUserBuilder withDateOfBirth(LocalDateTime dateOfBirth) {
+            this.dateOfBirth = dateOfBirth;
+            return this;
+        }
+
+        public ApplicationUserBuilder withEmail(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public ApplicationUserBuilder isLocked(boolean isLocked) {
+            this.isLocked = isLocked;
+            return this;
+        }
+
+        public ApplicationUserBuilder isAdmin(boolean isAdmin) {
+            this.isAdmin = isAdmin;
+            return this;
+        }
+
+        public ApplicationUserBuilder withLoginTries(int loginTries) {
+            this.loginTries = loginTries;
+            return this;
+        }
+
+        public ApplicationUser build() {
+            ApplicationUser user = new ApplicationUser();
+            user.setId(id);
+            user.setName(name);
+            user.setPassword(password);
+            user.setDateOfBirth(dateOfBirth);
+            user.setEmail(email);
+            user.setLocked(isLocked);
+            user.setAdmin(isAdmin);
+            user.setLoginTries(loginTries);
+            return user;
+        }
     }
 }

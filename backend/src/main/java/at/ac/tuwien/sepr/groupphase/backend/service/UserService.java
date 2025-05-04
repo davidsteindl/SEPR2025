@@ -16,7 +16,8 @@ public interface UserService extends UserDetailsService {
      *
      * @param email the email address
      * @return a Spring Security user
-     * @throws UsernameNotFoundException is thrown if the specified user does not exists
+     * @throws UsernameNotFoundException is thrown if the specified user does not
+     *                                   exists
      */
     @Override
     UserDetails loadUserByUsername(String email) throws UsernameNotFoundException;
@@ -34,7 +35,7 @@ public interface UserService extends UserDetailsService {
      *
      * @param userLoginDto login credentials
      * @return the JWT, if successful
-     * @throws org.springframework.security.authentication.BadCredentialsException if credentials are bad
+     * @throws BadCredentialsException if credentials are bad
      */
     String login(UserLoginDto userLoginDto);
 }
