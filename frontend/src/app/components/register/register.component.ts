@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {AuthService} from "../../services/auth.service";
 import {Router} from "@angular/router";
+import {AuthRequest} from "../../dtos/auth-request";
 
 
 
@@ -28,6 +29,18 @@ export class RegisterComponent {
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(8)]]
     });
+  }
+
+  /**
+   * Form validation will start after the method is called, additionally an AuthRequest will be sent
+   */
+  registerUser() {
+    this.submitted = true;
+    if (this.registerForm.valid) {
+
+    } else {
+      console.log('Invalid input');
+    }
   }
 
 }
