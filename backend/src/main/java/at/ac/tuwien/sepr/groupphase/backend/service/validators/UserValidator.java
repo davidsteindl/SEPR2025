@@ -4,7 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import jakarta.validation.ValidationException;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Component
 public class UserValidator {
@@ -20,7 +20,7 @@ public class UserValidator {
             throw new ValidationException("The email must contain a @");
         }
 
-        if (user.getDateOfBirth().isAfter(LocalDateTime.now())) {
+        if (user.getDateOfBirth().isAfter(LocalDate.now())) {
             throw new ValidationException("The Birthdate must be in the past");
         }
 

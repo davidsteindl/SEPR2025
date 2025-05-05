@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class UserRegisterDto {
@@ -24,7 +23,7 @@ public class UserRegisterDto {
 
     @NotNull(message =  "DateOfBirth must not be null")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @NotNull(message = "Email must not be null")
     @Email
@@ -50,11 +49,11 @@ public class UserRegisterDto {
         this.lastName = lastName;
     }
 
-    public LocalDateTime getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDateTime dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -189,7 +188,7 @@ public class UserRegisterDto {
             UserRegisterDto userRegisterDto = new UserRegisterDto();
             userRegisterDto.setFirstName(firstName);
             userRegisterDto.setLastName(lastName);
-            userRegisterDto.setDateOfBirth(dateOfBirth.atStartOfDay());
+            userRegisterDto.setDateOfBirth(dateOfBirth);
             userRegisterDto.setEmail(email);
             userRegisterDto.setPassword(password);
             userRegisterDto.setConfirmPassword(confirmPassword);
