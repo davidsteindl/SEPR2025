@@ -29,9 +29,9 @@ public class UserRegisterDto {
     @Email
     private String email;
 
-    private boolean isLocked;
-    private boolean isAdmin;
-    private int loginTries;
+    //private boolean isLocked;
+    //private boolean isAdmin;
+    //private int loginTries;
 
     public String getFirstName() {
         return firstName;
@@ -57,7 +57,7 @@ public class UserRegisterDto {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public boolean isLocked() {
+    /*public boolean isLocked() {
         return isLocked;
     }
 
@@ -79,7 +79,7 @@ public class UserRegisterDto {
 
     public void setLoginTries(int loginTries) {
         this.loginTries = loginTries;
-    }
+    }*/
 
     public String getEmail() {
         return email;
@@ -192,9 +192,9 @@ public class UserRegisterDto {
             userRegisterDto.setEmail(email);
             userRegisterDto.setPassword(password);
             userRegisterDto.setConfirmPassword(confirmPassword);
-            userRegisterDto.setLocked(false);
-            userRegisterDto.setAdmin(false);
-            userRegisterDto.setLoginTries(0);
+            //userRegisterDto.setLocked(false);
+            //userRegisterDto.setAdmin(false);
+            //userRegisterDto.setLoginTries(0);
             return userRegisterDto;
         }
     }

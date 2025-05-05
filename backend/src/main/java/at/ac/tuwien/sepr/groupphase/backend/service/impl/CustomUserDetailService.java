@@ -127,6 +127,9 @@ public class CustomUserDetailService implements UserService {
             .withDateOfBirth(userRegisterDto.getDateOfBirth())
             .withEmail(userRegisterDto.getEmail())
             .withPassword(userRegisterDto.getPassword())
+            .withLoginTries(0)
+            .isAdmin(false)
+            .isLocked(false)
             .build();
 
         userValidator.validateForRegistration(user);
