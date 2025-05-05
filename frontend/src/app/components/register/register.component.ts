@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {AuthService} from "../../services/auth.service";
 import {Router, RouterLink} from "@angular/router";
 import {AuthRequest} from "../../dtos/auth-request";
 import {NgIf} from "@angular/common";
 import {RegisterUser} from "../../dtos/register-user";
-
 
 
 @Component({
@@ -81,7 +80,7 @@ export class RegisterComponent {
     });
   }
 
-  goToPage(){
+  goToPage() {
     this.router.navigate(['/login']);
   }
 
