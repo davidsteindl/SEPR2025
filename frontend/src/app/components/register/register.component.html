@@ -9,14 +9,44 @@
         </div>
 
         <div class="card-body">
-          <div style="display: flex; align-items: center; justify-content: space-between;">
+          <form class="form" [formGroup]="registerForm" (ngSubmit)="registerUser()">
+
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" name="firstName" formControlName="firstName" class="form-control" id="firstName"
+                       aria-describedby="firstNameHelp" placeholder="Enter firstName">
+                <div *ngIf="submitted && registerForm.controls.firstName.errors" class="error">
+                  <small class="form-text text-warning" *ngIf="registerForm.controls.firstName.errors.required">Your
+                    Firstname
+                    is
+                    required!
+                  </small>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" name="lastName" formControlName="lastName" class="form-control" id="lastName"
+                       aria-describedby="lastNameHelp" placeholder="Enter lastName">
+                <div *ngIf="submitted && registerForm.controls.lastName.errors" class="error">
+                  <small class="form-text text-warning" *ngIf="registerForm.controls.lastName.errors.required">Your
+                    Lastname
+                    is
+                    required!
+                  </small>
+                </div>
+              </div>
+            </div>
+
+
             <div class="form-group">
-              <label for="inputFirstName">First Name</label>
-              <input type="text" name="firstName" class="form-control" id="inputFirstName"
-                     aria-describedby="firstNameHelp" placeholder="Enter firstName">
-              <div *ngIf="submitted && registerForm.controls.firstName.errors" class="error">
-                <small class="form-text text-warning" *ngIf="registerForm.controls.firstName.errors.required">Your
-                  Firstname
+              <label for="dateOfBirth">Birth Date</label>
+              <input type="date" id="dateOfBirth" name="dateOfBirth" formControlName="dateOfBirth" class="form-control"
+                     aria-describedby="BirthDateHelp" style="width: 250px">
+              <div *ngIf="submitted && registerForm.controls.dateOfBirth.errors" class="error">
+                <small class="form-text text-warning" *ngIf="registerForm.controls.dateOfBirth.errors.required">Your
+                  birthdate
                   is
                   required!
                 </small>
@@ -24,63 +54,40 @@
             </div>
 
             <div class="form-group">
-              <label for="inputLastName">Last Name</label>
-              <input type="text" name="lastName" class="form-control" id="inputLastName"
-                     aria-describedby="lastNameHelp" placeholder="Enter lastName">
-              <div *ngIf="submitted && registerForm.controls.lastName.errors" class="error">
-                <small class="form-text text-warning" *ngIf="registerForm.controls.lastName.errors.required">Your
-                  Lastname
+              <label for="email">Email</label>
+              <input type="text" name="email" formControlName="email" class="form-control" id="email"
+                     aria-describedby="emailHelp">
+              <div *ngIf="submitted && registerForm.controls.email.errors" class="error">
+                <small class="form-text text-warning" *ngIf="registerForm.controls.email.errors.required">Your email
                   is
                   required!
                 </small>
               </div>
             </div>
 
-          </div>
-          <div class="form-group">
-            <label for="inputBirthDate">Birth Date</label>
-            <input type="date" id="inputBirthDate" name="DateOfBirth" class="form-control"
-                   aria-describedby="BirthDateHelp" style="width: 250px">
-            <div *ngIf="submitted && registerForm.controls.dateOfBirth.errors" class="error">
-              <small class="form-text text-warning" *ngIf="registerForm.controls.dateOfBirth.errors.required">Your
-                birthdate
-                is
-                required!
-              </small>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="inputEmail">Email</label>
-            <input type="text" name="email" class="form-control" id="inputEmail"
-                   aria-describedby="emailHelp">
-            <div *ngIf="submitted && registerForm.controls.email.errors" class="error">
-              <small class="form-text text-warning" *ngIf="registerForm.controls.email.errors.required">Your email
-                is
-                required!
-              </small>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" name="password" class="form-control" id="password">
-            <div *ngIf="submitted && registerForm.controls.password.errors" class="error">
-              <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.required">Your password
-                is
-                required!
-              </small>
-              <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.minlength">Your
-                password
-                must be at least 8 characters long!
-              </small>
-            </div>
-
             <div class="form-group">
-              <label for="repeatPassword">Repeat Password</label>
-              <input type="password" name="repeatPassword" class="form-control" id="repeatPassword">
-              <div *ngIf="submitted && registerForm.controls.confirmPassword.errors" class="error">
+              <label for="password">Password</label>
+              <input type="password" name="password" formControlName="password" class="form-control" id="password"
+                     placeholder="Password">
+              <div *ngIf="submitted && registerForm.controls.password.errors" class="error">
                 <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.required">Your
+                  password
+                  is
+                  required!
+                </small>
+                <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.minlength">Your
+                  password
+                  must be at least 8 characters long!
+                </small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Repeat Password</label>
+              <input type="password" name="confirmPassword" formControlName="confirmPassword" class="form-control"
+                     id="confirmPassword">
+              <div *ngIf="submitted && registerForm.controls.confirmPassword.errors" class="error">
+                <small class="form-text text-warning" *ngIf="registerForm.controls.confirmPassword.errors.required">Your
                   password
                   is
                   required!
@@ -90,24 +97,25 @@
                   must be at least 8 characters long!
                 </small>
               </div>
-
-              <p> I accept <u>Terms and Conditions</u>
-                <input type="checkbox" id="termsAndConditions" name="checkboxForTermsAndConditions"
-                       value="true" style="margin: 10px;">
-              </p>
-
-              <button type="button" (click)="registerUser()" class="btn btn-success float-right">Register</button>
-
             </div>
-          </div>
-        </div>
-      </div>
+
+            <p> I accept <u>Terms and Conditions</u>
+              <input type="checkbox" id="termsAndConditions" name="checkboxForTermsAndConditions"
+                     value="true" style="margin: 10px;">
+            </p>
+
+            <button type="button" (click)="registerUser()" class="btn btn-success float-right">Register</button>
+
+
       <br>
+
       <div *ngIf="registerd" (click)="goToPage()" id="registerSuccessful" class="registerSuccessful btn">
         <p> Your Account was created. </p>
         <p> You can now login with your Email & Password. </p>
+      </div>
 
-
+          </form>
+        </div>
       </div>
     </div>
   </div>

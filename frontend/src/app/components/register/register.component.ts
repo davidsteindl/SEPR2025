@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
+import {ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {AuthService} from "../../services/auth.service";
 import {Router, RouterLink} from "@angular/router";
 import {AuthRequest} from "../../dtos/auth-request";
@@ -13,6 +13,7 @@ import {RegisterUser} from "../../dtos/register-user";
   templateUrl: './register.component.html',
   imports: [
     NgIf,
+    ReactiveFormsModule
   ],
   styleUrl: './register.component.scss'
 })
@@ -43,6 +44,7 @@ export class RegisterComponent {
   registerUser() {
     this.submitted = true;
     if (this.registerForm.valid) {
+      console.log("valid input");
       const registerUser: RegisterUser = new RegisterUser(
         this.registerForm.controls.firstName.value,
         this.registerForm.controls.lastName.value,

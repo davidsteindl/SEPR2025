@@ -4,7 +4,7 @@ export class RegisterUser {
     lastName: string,
     password: string,
     confirmPassword: string,
-    DateOfBirth: string,
+    dateOfBirth: string,
     email: string
 ) {}
 }
