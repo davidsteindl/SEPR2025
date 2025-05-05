@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -45,6 +46,14 @@ public interface UserService extends UserDetailsService {
     String login(UserLoginDto userLoginDto);
 
     /**
+     * Register a new user.
+     *
+     * @param userRegisterDto registration information
+     * @return the JWT, if successful
+     */
+    String register(UserRegisterDto userRegisterDto);
+
+    /**
      * Returns all locked users, only administrators
      * should be able to access this method.
      *
@@ -58,4 +67,5 @@ public interface UserService extends UserDetailsService {
      * @param id the ID of the user to unlock
      */
     void unlockUser(Long id);
+
 }

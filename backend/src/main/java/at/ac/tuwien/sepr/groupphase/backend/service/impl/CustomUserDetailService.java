@@ -2,12 +2,15 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.exception.LoginAttemptException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
+import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
+import jakarta.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +34,15 @@ public class CustomUserDetailService implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenizer jwtTokenizer;
+    private final UserValidator userValidator;
 
     @Autowired
     public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-            JwtTokenizer jwtTokenizer) {
+            JwtTokenizer jwtTokenizer, UserValidator userValidator) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenizer = jwtTokenizer;
+        this.userValidator = userValidator;
     }
 
     @Override
@@ -110,6 +115,37 @@ public class CustomUserDetailService implements UserService {
     }
 
     @Override
+    public String register(UserRegisterDto userRegisterDto) throws ValidationException {
+
+        if (!userRegisterDto.getPassword().equals(userRegisterDto.getConfirmPassword())) {
+            throw new ValidationException("Passwords do not match");
+        }
+
+        ApplicationUser user = ApplicationUser.ApplicationUserBuilder.aUser()
+            .withFirstName(userRegisterDto.getFirstName())
+            .withLastName(userRegisterDto.getLastName())
+            .withDateOfBirth(userRegisterDto.getDateOfBirth())
+            .withEmail(userRegisterDto.getEmail())
+            .withPassword(userRegisterDto.getPassword())
+            .build();
+
+        userValidator.validateForRegistration(user);
+
+        if (userRepository.findByEmail(user.getEmail()) != null) {
+            throw new IllegalArgumentException("Their is already a user with that email.");
+        }
+
+        userRepository.save(user);
+
+        List<String> roles = loadUserByUsername(user.getEmail())
+            .getAuthorities()
+            .stream()
+            .map(GrantedAuthority::getAuthority)
+            .toList();
+
+        return jwtTokenizer.getAuthToken(user.getEmail(), roles);
+    }
+
     public List<LockedUserDto> getLockedUsers() {
         LOGGER.debug("Fetching locked users");
         List<ApplicationUser> lockedUsers = userRepository.findAllByLockedTrue();

@@ -88,6 +88,7 @@ public class ApplicationUser {
         this.password = password;
     }
 
+
     public boolean isLocked() {
         return locked;
     }
