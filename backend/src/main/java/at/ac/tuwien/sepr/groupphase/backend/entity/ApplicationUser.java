@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity
@@ -26,22 +26,19 @@ public class ApplicationUser {
     private String password;
 
     @Column(nullable = false)
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @Column(nullable = false, length = 100)
     private String email;
 
     @Column(nullable = false, length = 100)
-    private boolean isLocked;
+    private boolean locked;
 
     @Column(nullable = false, length = 100)
-    private boolean isAdmin;
+    private boolean admin;
 
     @Column(nullable = false, length = 100)
     private int loginTries;
-
-    public ApplicationUser() {
-    }
 
     public Long getId() {
         return id;
@@ -67,11 +64,19 @@ public class ApplicationUser {
         this.lastName = lastName;
     }
 
-    public LocalDateTime getDateOfBirth() {
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDateTime dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -93,19 +98,19 @@ public class ApplicationUser {
 
 
     public boolean isLocked() {
-        return isLocked;
+        return locked;
     }
 
     public void setLocked(boolean locked) {
-        isLocked = locked;
+        this.locked = locked;
     }
 
     public Boolean isAdmin() {
-        return isAdmin;
+        return admin;
     }
 
     public void setAdmin(Boolean isAdmin) {
-        this.isAdmin = isAdmin;
+        this.admin = isAdmin;
     }
 
     public int getLoginTries() {
@@ -125,10 +130,10 @@ public class ApplicationUser {
             return false;
         }
         return Objects.equals(id, applicationUser.id)
-                && Objects.equals(firstName, applicationUser.firstName)
-                && Objects.equals(lastName, applicationUser.lastName)
-                && Objects.equals(dateOfBirth, applicationUser.dateOfBirth)
-                && Objects.equals(email, applicationUser.email);
+            && Objects.equals(firstName, applicationUser.firstName)
+            && Objects.equals(lastName, applicationUser.lastName)
+            && Objects.equals(dateOfBirth, applicationUser.dateOfBirth)
+            && Objects.equals(email, applicationUser.email);
     }
 
     @Override
@@ -139,12 +144,12 @@ public class ApplicationUser {
     @Override
     public String toString() {
         return "Message{"
-                + "id=" + id
-                + ", Firstname=" + firstName
-                + ", Lastname=" + lastName
-                + ", dateOfBirth='" + dateOfBirth + '\''
-                + ", email='" + email + '\''
-                + '}';
+            + "id=" + id
+            + ", firstName=" + firstName
+            + ", lastName=" + lastName
+            + ", dateOfBirth='" + dateOfBirth + '\''
+            + ", email='" + email + '\''
+            + '}';
     }
 
     public static final class ApplicationUserBuilder {
@@ -152,7 +157,7 @@ public class ApplicationUser {
         private String firstName;
         private String lastName;
         private String password;
-        private LocalDateTime dateOfBirth;
+        private LocalDate dateOfBirth;
         private String email;
         private boolean isLocked;
         private boolean isAdmin;
@@ -185,7 +190,7 @@ public class ApplicationUser {
             return this;
         }
 
-        public ApplicationUserBuilder withDateOfBirth(LocalDateTime dateOfBirth) {
+        public ApplicationUserBuilder withDateOfBirth(LocalDate dateOfBirth) {
             this.dateOfBirth = dateOfBirth;
             return this;
         }

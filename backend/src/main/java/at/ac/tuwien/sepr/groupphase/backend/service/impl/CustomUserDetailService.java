@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
@@ -144,4 +145,29 @@ public class CustomUserDetailService implements UserService {
 
         return jwtTokenizer.getAuthToken(user.getEmail(), roles);
     }
+
+    public List<LockedUserDto> getLockedUsers() {
+        LOGGER.debug("Fetching locked users");
+        List<ApplicationUser> lockedUsers = userRepository.findAllByLockedTrue();
+
+        return lockedUsers.stream()
+            .map(user -> LockedUserDto.LockedUserDtoBuilder.aLockedUserDto()
+                .withId(user.getId())
+                .withFirstName(user.getFirstName())
+                .withLastName(user.getLastName())
+                .withEmail(user.getEmail())
+                .build()
+            )
+            .toList();
+    }
+
+    @Override
+    public void unlockUser(Long id) {
+        ApplicationUser user = userRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("User not found"));
+        user.setLocked(false);
+        user.setLoginTries(0);
+        userRepository.save(user);
+    }
+
 }
