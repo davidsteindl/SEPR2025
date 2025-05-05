@@ -63,6 +63,18 @@ public class UserDataGenerator {
                 .withLoginTries(0)
                 .build();
             userRepository.save(user);
+
+            ApplicationUser lockedUser = ApplicationUserBuilder.aUser()
+                .withEmail("locked@email.com")
+                .withPassword(passwordEncoder.encode(PASSWORD))
+                .withFirstName("Locked")
+                .withLastName("User")
+                .withDateOfBirth(LocalDate.of(1980, 7, 15))
+                .isLocked(true)
+                .isAdmin(false)
+                .withLoginTries(5)
+                .build();
+            userRepository.save(lockedUser);
         }
     }
 }
