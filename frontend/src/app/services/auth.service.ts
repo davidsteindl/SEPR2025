@@ -35,6 +35,7 @@ export class AuthService {
    * @param registerUser User data
    */
   registerUser(registerUser: RegisterUser): Observable<string> {
+    console.log("register");
     return this.httpClient.post(this.authBaseUri + '/register', registerUser, {responseType: 'text'})
       .pipe(
         tap((authResponse: string) => this.setToken(authResponse))

@@ -1,8 +1,7 @@
 import {Component} from '@angular/core';
 import {ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {AuthService} from "../../services/auth.service";
-import {Router, RouterLink} from "@angular/router";
-import {AuthRequest} from "../../dtos/auth-request";
+import {Router} from "@angular/router";
 import {NgIf} from "@angular/common";
 import {RegisterUser} from "../../dtos/register-user";
 
@@ -63,9 +62,10 @@ export class RegisterComponent {
    * @param registerUser authentication data from the user login form
    */
   authenticateUser(registerUser: RegisterUser) {
+    console.log("authenticate")
     this.authService.registerUser(registerUser).subscribe({
       next: () => {
-        this.registerd = true;
+        this.router.navigate(['/login']);
       },
       error: error => {
         console.log('Could not register in due to:');
