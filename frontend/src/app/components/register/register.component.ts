@@ -3,12 +3,16 @@ import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {AuthService} from "../../services/auth.service";
 import {Router} from "@angular/router";
 import {AuthRequest} from "../../dtos/auth-request";
+import {NgIf} from "@angular/common";
 
 
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
+  imports: [
+    NgIf
+  ],
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent {
