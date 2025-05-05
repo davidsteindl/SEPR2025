@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {AuthService} from "../../services/auth.service";
-import {Router} from "@angular/router";
+import {Router, RouterLink} from "@angular/router";
 import {AuthRequest} from "../../dtos/auth-request";
 import {NgIf} from "@angular/common";
+import {RegisterUser} from "../../dtos/register-user";
 
 
 
@@ -11,7 +12,7 @@ import {NgIf} from "@angular/common";
   selector: 'app-register',
   templateUrl: './register.component.html',
   imports: [
-    NgIf
+    NgIf,
   ],
   styleUrl: './register.component.scss'
 })
@@ -23,6 +24,7 @@ export class RegisterComponent {
   // Error flag
   error = false;
   errorMessage = '';
+  registerd = false;
 
   constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, private router: Router) {
     this.registerForm = this.formBuilder.group({
@@ -41,10 +43,44 @@ export class RegisterComponent {
   registerUser() {
     this.submitted = true;
     if (this.registerForm.valid) {
-
+      const registerUser: RegisterUser = new RegisterUser(
+        this.registerForm.controls.firstName.value,
+        this.registerForm.controls.lastName.value,
+        this.registerForm.controls.password.value,
+        this.registerForm.controls.confirmPassword.value,
+        this.registerForm.controls.dateOfBirth.value,
+        this.registerForm.controls.email.value);
+      this.authenticateUser(registerUser);
     } else {
       console.log('Invalid input');
     }
+  }
+
+  /**
+   * Send authentication data to the authService. If the authentication was successfully, the user will be forwarded to the message page
+   *
+   * @param registerUser authentication data from the user login form
+   */
+  authenticateUser(registerUser: RegisterUser) {
+    this.authService.registerUser(registerUser).subscribe({
+      next: () => {
+        this.registerd = true;
+      },
+      error: error => {
+        console.log('Could not register in due to:');
+        console.log(error);
+        this.error = true;
+        if (typeof error.error === 'object') {
+          this.errorMessage = error.error.error;
+        } else {
+          this.errorMessage = error.error;
+        }
+      }
+    });
+  }
+
+  goToPage(){
+    this.router.navigate(['/login']);
   }
 
 }
