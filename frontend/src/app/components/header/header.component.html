@@ -17,5 +17,11 @@
       <a class="nav-link" *ngIf="!authService.isLoggedIn()" routerLink="/login" routerLinkActive="active">Login</a>
       <a class="nav-link" *ngIf="authService.isLoggedIn()" routerLink="/" (click)="authService.logoutUser()">Logout</a>
     </ul>
+
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link" *ngIf="authService.isLoggedIn()" routerLink="/user" routerLinkActive="active"> Profile</a>
+      </li>
+    </ul>
   </div>
 </nav>

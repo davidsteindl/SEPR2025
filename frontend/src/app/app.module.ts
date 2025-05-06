@@ -12,6 +12,7 @@ import {LoginComponent} from './components/login/login.component';
 import {MessageComponent} from './components/message/message.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {httpInterceptorProviders} from './interceptors';
+import {ToastrModule} from "ngx-toastr";
 
 @NgModule({ declarations: [
         AppComponent,
@@ -25,6 +26,7 @@ import {httpInterceptorProviders} from './interceptors';
         AppRoutingModule,
         ReactiveFormsModule,
         NgbModule,
+        ToastrModule.forRoot(),
         FormsModule], providers: [httpInterceptorProviders, provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {
 }
