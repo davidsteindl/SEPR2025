@@ -36,10 +36,6 @@ public class Show {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public int getDuration() {
         return duration;
     }
@@ -110,7 +106,6 @@ public class Show {
     }
 
     public static final class ShowBuilder {
-        private Long id;
         private int duration;
         private LocalDateTime date;
         private Event event;
@@ -121,11 +116,6 @@ public class Show {
 
         public static ShowBuilder aShow() {
             return new ShowBuilder();
-        }
-
-        public ShowBuilder withId(Long id) {
-            this.id = id;
-            return this;
         }
 
         public ShowBuilder withDuration(int duration) {
@@ -150,7 +140,6 @@ public class Show {
 
         public Show build() {
             Show show = new Show();
-            show.setId(id);
             show.setDuration(duration);
             show.setDateTime(date);
             show.setEvent(event);

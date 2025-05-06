@@ -33,10 +33,6 @@ public class Event {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
@@ -124,7 +120,6 @@ public class Event {
     }
 
     public static final class EventBuilder {
-        private Long id;
         private String name;
         private EventCategory category;
         private EventLocation location;
@@ -134,11 +129,6 @@ public class Event {
 
         public static EventBuilder anEvent() {
             return new EventBuilder();
-        }
-
-        public EventBuilder withId(Long id) {
-            this.id = id;
-            return this;
         }
 
         public EventBuilder withName(String name) {
@@ -158,7 +148,6 @@ public class Event {
 
         public Event build() {
             Event event = new Event();
-            event.setId(id);
             event.setName(name);
             event.setCategory(category);
             event.setLocation(location);

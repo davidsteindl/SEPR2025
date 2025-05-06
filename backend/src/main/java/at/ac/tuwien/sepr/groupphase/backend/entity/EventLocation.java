@@ -39,10 +39,6 @@ public class EventLocation {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
@@ -147,7 +143,6 @@ public class EventLocation {
     }
 
     public static final class EventLocationBuilder {
-        private Long id;
         private String name;
         private LocationType type;
         private String country;
@@ -160,11 +155,6 @@ public class EventLocation {
 
         public static EventLocationBuilder anEventLocation() {
             return new EventLocationBuilder();
-        }
-
-        public EventLocationBuilder withId(Long id) {
-            this.id = id;
-            return this;
         }
 
         public EventLocationBuilder withName(String name) {
@@ -199,7 +189,6 @@ public class EventLocation {
 
         public EventLocation build() {
             EventLocation eventLocation = new EventLocation();
-            eventLocation.setId(id);
             eventLocation.setName(name);
             eventLocation.setType(type);
             eventLocation.setCountry(country);
