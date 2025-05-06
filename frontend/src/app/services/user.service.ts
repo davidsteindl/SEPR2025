@@ -23,7 +23,7 @@ export class UserService {
    * @return user found by id.
    */
   getById(id: string): Observable<User> {
-    return this.http.get<User>(`${baseUri}/${id}`)
+    return this.httpClient.get<User>(`${baseUri}/${id}`)
       .pipe(
         map(this.fixUserDate)
       );
@@ -57,7 +57,7 @@ export class UserService {
     })], { type: 'application/json' }));
 
 
-    return this.http.put<User>(`${baseUri}/${id}`, formData).pipe(
+    return this.httpClient.put<User>(`${baseUri}/${id}`, formData).pipe(
       map(this.fixUserDate)
     );
   }
@@ -71,7 +71,7 @@ export class UserService {
    * @return Observable, to confirm that deleting was successful.
    */
   deleteUser(id: number): Observable<void> {
-    return this.http.delete<void>(
+    return this.httpClient.delete<void>(
       `${baseUri}/${id}`);
   }
 
