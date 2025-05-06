@@ -86,7 +86,7 @@ public class Event {
             + "id=" + id
             + ", name='" + name + '\''
             + ", category='" + (category != null ? category.getDisplayName() : "null") + '\''
-            + ", location='" + (location != null ? location : "null") + '\''
+            + ", location ID='" + (location != null ? location.getId() : "null") + '\''
             + '}';
     }
 
