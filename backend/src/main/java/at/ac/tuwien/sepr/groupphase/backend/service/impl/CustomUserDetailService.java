@@ -115,7 +115,9 @@ public class CustomUserDetailService implements UserService {
     }
 
     @Override
-    public String register(UserRegisterDto userRegisterDto) throws ValidationException {
+    public void register(UserRegisterDto userRegisterDto) throws ValidationException {
+
+        System.out.println("register-Service");
 
         if (!userRegisterDto.getPassword().equals(userRegisterDto.getConfirmPassword())) {
             throw new ValidationException("Passwords do not match");
@@ -126,7 +128,7 @@ public class CustomUserDetailService implements UserService {
             .withLastName(userRegisterDto.getLastName())
             .withDateOfBirth(userRegisterDto.getDateOfBirth())
             .withEmail(userRegisterDto.getEmail())
-            .withPassword(userRegisterDto.getPassword())
+            .withPassword(passwordEncoder.encode(userRegisterDto.getPassword()))
             .withLoginTries(0)
             .isAdmin(false)
             .isLocked(false)
@@ -139,14 +141,6 @@ public class CustomUserDetailService implements UserService {
         }
 
         userRepository.save(user);
-
-        List<String> roles = loadUserByUsername(user.getEmail())
-            .getAuthorities()
-            .stream()
-            .map(GrantedAuthority::getAuthority)
-            .toList();
-
-        return jwtTokenizer.getAuthToken(user.getEmail(), roles);
     }
 
     public List<LockedUserDto> getLockedUsers() {

@@ -38,6 +38,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws IOException, ServletException {
         try {
+            if (request.getRequestURI().equals("/api/v1/authentication/register")) {
+                chain.doFilter(request, response);  // Request geht ohne JWT-Überprüfung durch
+                return;
+            }
+
             UsernamePasswordAuthenticationToken authToken = getAuthToken(request);
             if (authToken != null) {
                 SecurityContextHolder.getContext().setAuthentication(authToken);

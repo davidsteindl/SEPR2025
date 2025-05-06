@@ -49,9 +49,8 @@ public interface UserService extends UserDetailsService {
      * Register a new user.
      *
      * @param userRegisterDto registration information
-     * @return the JWT, if successful
      */
-    String register(UserRegisterDto userRegisterDto);
+    void register(UserRegisterDto userRegisterDto);
 
     /**
      * Returns all locked users, only administrators

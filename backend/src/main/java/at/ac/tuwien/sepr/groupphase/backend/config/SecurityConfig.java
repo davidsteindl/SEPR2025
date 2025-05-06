@@ -31,11 +31,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-          .csrf(AbstractHttpConfigurer::disable)
-          .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-          .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-          .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
-          .build();
+            .cors(Customizer.withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+            .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
     }
 
     @Configuration
@@ -44,7 +45,8 @@ public class SecurityConfig {
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/**")
                 .allowedOriginPatterns("http://localhost:4200", "https://*.apps.student.inso-w.at")
-                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD");
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD")
+                .allowCredentials(true);
         }
     }
 }
