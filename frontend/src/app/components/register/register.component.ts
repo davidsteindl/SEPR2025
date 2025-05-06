@@ -43,14 +43,15 @@ export class RegisterComponent {
     this.submitted = true;
     if (this.registerForm.valid) {
       console.log("valid input");
-      const registerUser: RegisterUser = new RegisterUser(
-        this.registerForm.controls.firstName.value,
-        this.registerForm.controls.lastName.value,
-        this.registerForm.controls.password.value,
-        this.registerForm.controls.confirmPassword.value,
-        this.registerForm.controls.dateOfBirth.value,
-        this.registerForm.controls.email.value);
-      this.authenticateUser(registerUser);
+      const registerUser: RegisterUser = {
+        firstName: this.registerForm.controls.firstName.value,
+        lastName: this.registerForm.controls.lastName.value,
+        password: this.registerForm.controls.password.value,
+        confirmPassword: this.registerForm.controls.confirmPassword.value,
+        dateOfBirth: this.registerForm.controls.dateOfBirth.value,
+        email: this.registerForm.controls.email.value,
+      };
+      this.regUser(registerUser);
     } else {
       console.log('Invalid input');
     }
@@ -61,8 +62,9 @@ export class RegisterComponent {
    *
    * @param registerUser authentication data from the user login form
    */
-  authenticateUser(registerUser: RegisterUser) {
+  regUser(registerUser: RegisterUser) {
     console.log("authenticate")
+    console.log("Register payload", registerUser);
     this.authService.registerUser(registerUser).subscribe({
       next: () => {
         this.router.navigate(['/login']);

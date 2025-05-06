@@ -1,10 +1,10 @@
 export class RegisterUser {
   constructor(
-    firstName: string,
-    lastName: string,
-    password: string,
-    confirmPassword: string,
-    dateOfBirth: string,
-    email: string
-) {}
+    public firstName: string,
+    public lastName: string,
+    public password: string,
+    public confirmPassword: string,
+    public dateOfBirth: string,
+    public email: string
+  ) {}
 }
