@@ -39,10 +39,6 @@ public class Artist {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getFirstname() {
         return firstname;
     }
@@ -113,7 +109,6 @@ public class Artist {
     }
 
     public static final class ArtistBuilder {
-        private Long id;
         private String firstname;
         private String lastname;
         private String stagename;
@@ -124,11 +119,6 @@ public class Artist {
 
         public static ArtistBuilder anArtist() {
             return new ArtistBuilder();
-        }
-
-        public ArtistBuilder withId(Long id) {
-            this.id = id;
-            return this;
         }
 
         public ArtistBuilder withFirstname(String firstname) {
@@ -153,7 +143,6 @@ public class Artist {
 
         public Artist build() {
             Artist artist = new Artist();
-            artist.setId(id);
             artist.setFirstname(firstname);
             artist.setLastname(lastname);
             artist.setStagename(stagename);
