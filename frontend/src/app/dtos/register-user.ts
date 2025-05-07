@@ -5,6 +5,7 @@ export class RegisterUser {
     public password: string,
     public confirmPassword: string,
     public dateOfBirth: string,
-    public email: string
+    public email: string,
+    public termsAccepted: boolean
   ) {}
 }

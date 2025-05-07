@@ -23,7 +23,6 @@ export class RegisterComponent {
   // Error flag
   error = false;
   errorMessage = '';
-  registerd = false;
 
   constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, private router: Router) {
     this.registerForm = this.formBuilder.group({
@@ -32,7 +31,8 @@ export class RegisterComponent {
       dateOfBirth: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.maxLength(100), Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', [Validators.required, Validators.minLength(8)]]
+      confirmPassword: ['', [Validators.required, Validators.minLength(8)]],
+      termsAccepted: [false, Validators.requiredTrue]
     });
   }
 
@@ -50,6 +50,7 @@ export class RegisterComponent {
         confirmPassword: this.registerForm.controls.confirmPassword.value,
         dateOfBirth: this.registerForm.controls.dateOfBirth.value,
         email: this.registerForm.controls.email.value,
+        termsAccepted: this.registerForm.controls.termsAccepted.value
       };
       this.regUser(registerUser);
     } else {

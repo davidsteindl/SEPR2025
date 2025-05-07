@@ -99,19 +99,17 @@
               </div>
             </div>
 
-            <p> I accept <u>Terms and Conditions</u>
-              <input type="checkbox" id="termsAndConditions" name="checkboxForTermsAndConditions"
-                     value="true" style="margin: 10px;">
-            </p>
-
-            <button type="button" (click)="registerUser()" class="btn btn-success float-right">Register</button>
+            <label for="termsAccepted">I accept <u> Terms and Conditions </u></label>
+            <input type="checkbox" name="termsAccepted" formControlName="termsAccepted"
+                   id="termsAccepted" style="margin: 10px">
+            <div *ngIf="submitted && registerForm.controls.termsAccepted.errors" class="error">
+              <small class="form-text text-warning" *ngIf="registerForm.controls.termsAccepted.errors.required">
+                The Checkbox must be checked!
+              </small>
+            </div>
 
             <br>
-
-            <div *ngIf="registerd" (click)="goToPage()" id="registerSuccessful" class="registerSuccessful btn">
-              <p> Your Account was created. </p>
-              <p> You can now login with your Email & Password. </p>
-            </div>
+            <button type="button" (click)="registerUser()" class="btn btn-success float-right">Register</button>
 
           </form>
         </div>
