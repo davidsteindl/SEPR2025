@@ -1,0 +1,95 @@
+package at.ac.tuwien.sepr.groupphase.backend.endpoint;
+
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventLocationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventLocationMapper;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
+import at.ac.tuwien.sepr.groupphase.backend.service.EventService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+
+@RestController
+@RequestMapping("api/v1/events")
+public class EventEndpoint {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private final EventService eventService;
+    private final EventMapper eventMapper;
+    private final EventLocationMapper eventLocationMapper;
+
+    @Autowired
+    public EventEndpoint(EventService eventService, EventMapper eventMapper, EventLocationMapper eventLocationMapper) {
+        this.eventService = eventService;
+        this.eventMapper = eventMapper;
+        this.eventLocationMapper = eventLocationMapper;
+    }
+
+    @GetMapping("/{id}")
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get event by id", security = @SecurityRequirement(name = "apiKey"))
+    public EventDto getEventById(@PathVariable Long id) {
+        LOGGER.info("GET /api/v1/events/{}", id);
+        return eventMapper.eventToEventDtoWithLocation(eventService.getEventById(id));
+    }
+
+    @GetMapping()
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get all events", security = @SecurityRequirement(name = "apiKey"))
+    public List<EventDto> getAllEvents() {
+        LOGGER.info("GET /api/v1/events");
+        return eventMapper.eventsToEventDtos(eventService.getAllEvents());
+    }
+
+    @PostMapping()
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create a new event", security = @SecurityRequirement(name = "apiKey"))
+    public EventDto createEvent(@RequestBody @Valid EventDto eventDto) {
+        LOGGER.info("POST /api/v1/events");
+        return eventMapper.eventToEventDtoWithLocation(eventService.createEvent(eventMapper.eventDtoToEvent(eventDto)));
+    }
+
+    @GetMapping("/locations/{id}")
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get event location by id", security = @SecurityRequirement(name = "apiKey"))
+    public EventLocationDto getEventLocationById(@PathVariable Long id) {
+        LOGGER.info("GET /api/v1/events/locations/{}", id);
+        return eventLocationMapper.eventLocationToEventLocationDto(eventService.getEventLocationById(id));
+    }
+
+    @GetMapping("/locations")
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get all event locations", security = @SecurityRequirement(name = "apiKey"))
+    public List<EventLocationDto> getAllEventLocations() {
+        LOGGER.info("GET /api/v1/events/locations");
+        return eventLocationMapper.eventLocationsToEventLocationDtos(eventService.getAllEventLocations());
+    }
+
+    @PostMapping("/locations")
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create a new event location", security = @SecurityRequirement(name = "apiKey"))
+    public EventLocationDto createEventLocation(@RequestBody @Valid EventLocationDto eventLocationDto) {
+        LOGGER.info("POST /api/v1/events/locations");
+        return eventLocationMapper.eventLocationToEventLocationDto(eventService.createEventLocation(eventLocationMapper.eventLocationDtoToEventLocation(eventLocationDto)));
+    }
+}
