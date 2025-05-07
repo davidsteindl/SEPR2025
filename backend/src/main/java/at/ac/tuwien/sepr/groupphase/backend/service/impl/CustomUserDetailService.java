@@ -117,7 +117,7 @@ public class CustomUserDetailService implements UserService {
     @Override
     public void register(UserRegisterDto userRegisterDto) throws ValidationException {
 
-        System.out.println("register-Service");
+
 
         if (!userRegisterDto.getPassword().equals(userRegisterDto.getConfirmPassword())) {
             throw new ValidationException("Passwords do not match");

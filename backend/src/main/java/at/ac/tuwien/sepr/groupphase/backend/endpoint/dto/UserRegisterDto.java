@@ -29,9 +29,9 @@ public class UserRegisterDto {
     @Email
     private String email;
 
-    //private boolean isLocked;
-    //private boolean isAdmin;
-    //private int loginTries;
+    @NotNull(message =  "TermsAccepted must not be null")
+    private Boolean termsAccepted;
+
 
     public String getFirstName() {
         return firstName;
@@ -57,30 +57,6 @@ public class UserRegisterDto {
         this.dateOfBirth = dateOfBirth;
     }
 
-    /*public boolean isLocked() {
-        return isLocked;
-    }
-
-    public void setLocked(boolean locked) {
-        isLocked = locked;
-    }
-
-    public boolean isAdmin() {
-        return isAdmin;
-    }
-
-    public void setAdmin(boolean admin) {
-        isAdmin = admin;
-    }
-
-    public int getLoginTries() {
-        return loginTries;
-    }
-
-    public void setLoginTries(int loginTries) {
-        this.loginTries = loginTries;
-    }*/
-
     public String getEmail() {
         return email;
     }
@@ -105,6 +81,14 @@ public class UserRegisterDto {
         this.confirmPassword = confirmPassword;
     }
 
+    public Boolean getTermsAccepted() {
+        return termsAccepted;
+    }
+
+    public void setTermsAccepted(Boolean termsAccepted) {
+        this.termsAccepted = termsAccepted;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -118,12 +102,13 @@ public class UserRegisterDto {
             && Objects.equals(confirmPassword, userRegisterDto.confirmPassword)
             && Objects.equals(firstName, userRegisterDto.firstName)
             && Objects.equals(lastName, userRegisterDto.lastName)
-            && Objects.equals(dateOfBirth, userRegisterDto.dateOfBirth);
+            && Objects.equals(dateOfBirth, userRegisterDto.dateOfBirth)
+            && Objects.equals(termsAccepted, userRegisterDto.termsAccepted);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, lastName, dateOfBirth, email, password, confirmPassword);
+        return Objects.hash(firstName, lastName, dateOfBirth, email, password, confirmPassword, termsAccepted);
     }
 
     @Override
@@ -145,6 +130,7 @@ public class UserRegisterDto {
         private String email;
         private String password;
         private String confirmPassword;
+        private boolean termsAccepted;
 
 
         private UserRegisterDtoBuilder() {
@@ -184,6 +170,11 @@ public class UserRegisterDto {
             return this;
         }
 
+        public UserRegisterDto.UserRegisterDtoBuilder withTermsAccepted(boolean termsAccepted) {
+            this.termsAccepted = termsAccepted;
+            return this;
+        }
+
         public UserRegisterDto build() {
             UserRegisterDto userRegisterDto = new UserRegisterDto();
             userRegisterDto.setFirstName(firstName);
@@ -192,9 +183,7 @@ public class UserRegisterDto {
             userRegisterDto.setEmail(email);
             userRegisterDto.setPassword(password);
             userRegisterDto.setConfirmPassword(confirmPassword);
-            //userRegisterDto.setLocked(false);
-            //userRegisterDto.setAdmin(false);
-            //userRegisterDto.setLoginTries(0);
+            userRegisterDto.setTermsAccepted(termsAccepted);
             return userRegisterDto;
         }
     }
