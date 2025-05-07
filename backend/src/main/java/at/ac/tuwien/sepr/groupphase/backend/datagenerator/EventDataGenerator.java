@@ -51,7 +51,6 @@ public class EventDataGenerator {
         List<EventLocation> eventLocations = new ArrayList<>();
         List<Event> events = new ArrayList<>();
         List<Artist> artists = new ArrayList<>();
-        List<Show> shows = new ArrayList<>();
 
         // EventLocations
         if (eventLocationRepository.count() > 0) {
@@ -110,6 +109,7 @@ public class EventDataGenerator {
         }
 
         // Shows
+        List<Show> shows = new ArrayList<>();
         if (showRepository.count() > 0) {
             LOGGER.debug("shows already generated");
         } else {
