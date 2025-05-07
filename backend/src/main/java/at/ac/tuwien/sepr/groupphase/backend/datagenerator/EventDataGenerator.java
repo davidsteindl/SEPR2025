@@ -8,7 +8,6 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
-import io.jsonwebtoken.lang.Collections;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,9 @@ import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Profile("generateData")
@@ -47,8 +48,14 @@ public class EventDataGenerator {
 
     @PostConstruct
     private void generateEvents() {
+        List<EventLocation> eventLocations = new ArrayList<>();
+        List<Event> events = new ArrayList<>();
+        List<Artist> artists = new ArrayList<>();
+        List<Show> shows = new ArrayList<>();
+
         // EventLocations
-        if (!eventLocationRepository.findAll().isEmpty()) {
+        if (eventLocationRepository.count() > 0) {
+            eventLocations.addAll(eventLocationRepository.findAll());
             LOGGER.debug("locations already generated");
         } else {
             LOGGER.debug("generating {} EventLocation entries", NUMBER_OF_LOCATIONS_TO_GENERATE);
@@ -62,34 +69,32 @@ public class EventDataGenerator {
                     .withPostalCode("PostalCode " + i)
                     .build();
                 LOGGER.debug("saving event location {}", eventLocation);
-                eventLocationRepository.save(eventLocation);
+                eventLocations.add(eventLocation);
             }
+            eventLocationRepository.saveAll(eventLocations);
         }
 
         // Events
-        if (!eventRepository.findAll().isEmpty()) {
+        if (eventRepository.count() > 0) {
             LOGGER.debug("events already generated");
         } else {
             LOGGER.debug("generating {} Event entries", NUMBER_OF_EVENTS_TO_GENERATE);
             for (int i = 0; i < NUMBER_OF_EVENTS_TO_GENERATE; i++) {
-                String locationName = "Location " + (i % NUMBER_OF_LOCATIONS_TO_GENERATE);
-                Optional<EventLocation> eventLocationOpt = eventLocationRepository.findByName(locationName);
-                if (eventLocationOpt.isPresent()) {
-                    Event event = Event.EventBuilder.anEvent()
-                        .withName("Event " + i)
-                        .withCategory(Event.EventCategory.CLASSICAL)
-                        .withLocation(eventLocationOpt.get())
-                        .build();
-                    LOGGER.debug("saving event {}", event);
-                    eventRepository.save(event);
-                } else {
-                    LOGGER.warn("EventLocation '{}' not found!", locationName);
-                }
+                Event event = Event.EventBuilder.anEvent()
+                    .withName("Event " + i)
+                    .withCategory(Event.EventCategory.CLASSICAL)
+                    .withLocation(eventLocations.get(i % eventLocations.size()))
+                    .build();
+                LOGGER.debug("saving event {}", event);
+                events.add(event);
             }
+            eventRepository.saveAll(events);
         }
 
+
         // Artists
-        if (!artistRepository.findAll().isEmpty()) {
+        if (artistRepository.count() > 0) {
+            artists.addAll(artistRepository.findAll());
             LOGGER.debug("artists already generated");
         } else {
             LOGGER.debug("generating {} Artist entries", NUMBER_OF_ARTISTS_TO_GENERATE);
@@ -100,53 +105,48 @@ public class EventDataGenerator {
                     .withStagename("Stagename " + i)
                     .build();
                 LOGGER.debug("saving artist {}", artist);
-                artistRepository.save(artist);
+                artists.add(artist);
             }
         }
 
         // Shows
-        if (!showRepository.findAll().isEmpty()) {
+        if (showRepository.count() > 0) {
             LOGGER.debug("shows already generated");
         } else {
             LOGGER.debug("generating {} Show entries", NUMBER_OF_SHOWS_TO_GENERATE);
             int artistIndex = 0;
-            for (int i = 0; i < NUMBER_OF_EVENTS_TO_GENERATE; i++) {
-                String eventName = "Event " + i;
-                Optional<Event> eventOpt = eventRepository.findByName(eventName);
-                if (eventOpt.isPresent()) {
-                    Event event = eventOpt.get();
-                    for (int j = 0; j < 2; j++) { // 2 shows per event
-                        String artist1StageName = "Stagename " + artistIndex;
-                        String artist2StageName = "Stagename " + (artistIndex + 1);
-                        Optional<Artist> artist1Opt = artistRepository.findByStagename(artist1StageName);
-                        Optional<Artist> artist2Opt = artistRepository.findByStagename(artist2StageName);
-                        if (artist1Opt.isPresent() && artist2Opt.isPresent()) {
-                            Artist artist1 = artist1Opt.get();
-                            Artist artist2 = artist2Opt.get();
+            List<Artist> artistsWithShows = new ArrayList<>();
+            for (int i = 0; i < NUMBER_OF_SHOWS_TO_GENERATE; i++) {
+                for (int j = 0; j < 2; j++) { // 2 shows per event
+                    Artist artist1 = artists.get(artistIndex % artists.size());
+                    Artist artist2 = artists.get((artistIndex + 1) % artists.size());
 
-                            Show show = Show.ShowBuilder.aShow()
-                                .withDuration(120)
-                                .withDateTime(LocalDateTime.of(2025, 6, i + 1, 12 + j * 4, 0))
-                                .withEvent(event)
-                                .withArtists(Set.of(artist1, artist2))
-                                .build();
+                    Show show = Show.ShowBuilder.aShow()
+                        .withDuration(120)
+                        .withDateTime(LocalDateTime.of(2025, 6, i + 1, 12 + j * 4, 0))
+                        .withEvent(events.get(i % events.size()))
+                        .withArtists(Set.of(artist1, artist2))
+                        .build();
 
-                            artist1.setShows(Set.of(show));
-                            artist2.setShows(Set.of(show));
-
-                            LOGGER.debug("saving show {}", show);
-                            showRepository.save(show);
-                            artistRepository.save(artist1);
-                            artistRepository.save(artist2);
-                        } else {
-                            LOGGER.warn("Artists '{}' and/or '{}' not found!", artist1StageName, artist2StageName);
-                        }
-                        artistIndex += 2;
+                    if (artist1.getShows() == null) {
+                        artist1.setShows(new HashSet<>());
                     }
-                } else {
-                    LOGGER.warn("Event '{}' not found!", eventName);
+                    artist1.getShows().add(show);
+
+                    if (artist2.getShows() == null) {
+                        artist2.setShows(new HashSet<>());
+                    }
+                    artist2.getShows().add(show);
+
+                    LOGGER.debug("saving show {}", show);
+                    shows.add(show);
+                    artistsWithShows.add(artist1);
+                    artistsWithShows.add(artist2);
                 }
+                artistIndex += 2;
             }
+            showRepository.saveAll(shows);
+            artistRepository.saveAll(artistsWithShows);
         }
     }
 }
