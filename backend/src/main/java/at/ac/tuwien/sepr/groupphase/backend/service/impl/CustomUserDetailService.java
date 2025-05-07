@@ -117,7 +117,9 @@ public class CustomUserDetailService implements UserService {
     @Override
     public void register(UserRegisterDto userRegisterDto) throws ValidationException {
 
-
+        if (!userRegisterDto.getTermsAccepted()) {
+            throw new ValidationException("Terms and Condition must be accepted");
+        }
 
         if (!userRegisterDto.getPassword().equals(userRegisterDto.getConfirmPassword())) {
             throw new ValidationException("Passwords do not match");
