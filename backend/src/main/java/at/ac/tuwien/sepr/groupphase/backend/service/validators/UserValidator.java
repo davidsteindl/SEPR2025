@@ -15,17 +15,18 @@ public class UserValidator {
         "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
     );
 
+
     public UserValidator() {
     }
 
 
     public void validateForRegistration(ApplicationUser user) throws ValidationException {
 
-        if (user.getFirstName().isEmpty() || user.getFirstName().length() > 100 || user.getFirstName() == null) {
+        if (user.getFirstName().length() >= 100) {
             throw new ValidationException("First name is required");
         }
 
-        if (user.getLastName().isEmpty() || user.getLastName().length() > 100 || user.getLastName() == null) {
+        if (user.getLastName().length() >= 100) {
             throw new ValidationException("Last name is required");
         }
 
@@ -33,12 +34,12 @@ public class UserValidator {
             throw new ValidationException("Email is not valid");
         }
 
-        if (!user.getEmail().contains("@")) {
-            throw new ValidationException("The email must contain a @");
-        }
-
         if (user.getDateOfBirth().isAfter(LocalDate.now())) {
             throw new ValidationException("The Birthdate must be in the past");
+        }
+
+        if (user.getPassword() == null || user.getPassword().length() < 8) {
+            throw new ValidationException("Password must be at least 8 characters");
         }
 
 

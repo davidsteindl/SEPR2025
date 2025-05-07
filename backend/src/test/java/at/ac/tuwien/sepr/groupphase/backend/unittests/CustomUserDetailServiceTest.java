@@ -1,12 +1,15 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.exception.LoginAttemptException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
+import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
+import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -24,6 +27,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 
 @ExtendWith(MockitoExtension.class)
 class CustomUserDetailServiceTest {
@@ -35,12 +40,27 @@ class CustomUserDetailServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
+    private UserValidator userValidator;
+
+    @Mock
     private JwtTokenizer jwtTokenizer;
 
     @InjectMocks
     private CustomUserDetailService userDetailService;
 
     private ApplicationUser testUser;
+    private UserRegisterDto testUserInvalidCauseFirstNameTooLong;
+    private UserRegisterDto testUserInvalidCauseFirstNameMissing;
+    private UserRegisterDto testUserInvalidCauseLastNameTooLong;
+    private UserRegisterDto testUserInvalidCauseLastNameMissing;
+    private UserRegisterDto testUserInvalidCauseEmail;
+    private UserRegisterDto testUserInvalidCauseFutureDate;
+    private UserRegisterDto testUserInvalidConfirmPasswordTooShort;
+    private UserRegisterDto testUserInvalidPasswordsNotEqual;
+    private UserRegisterDto testUserInvalidCheckBoxUnticked;
+    private UserRegisterDto testUserInvalidCausePasswordTooShort;
+    private UserRegisterDto testUserValid;
+    private UserRegisterDto testUserEmpty;
 
     @BeforeEach
     void setUp() {
@@ -55,6 +75,128 @@ class CustomUserDetailServiceTest {
             .isAdmin(false)
             .withLoginTries(0)
             .build();
+
+        testUserInvalidCauseFirstNameTooLong = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+            .withFirstName("A".repeat(101))
+            .withLastName("ValidLastName")
+            .withEmail("valid@example.com")
+            .withPassword("ValidPass123")
+            .withConfirmPassword("ValidPass123")
+            .withDateOfBirth(LocalDate.of(1990, 1, 1))
+            .withTermsAccepted(true)
+            .build();
+
+        testUserInvalidCauseFirstNameMissing = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+            .withFirstName(null)
+            .withLastName("ValidLastName")
+            .withEmail("valid@example.com")
+            .withPassword("ValidPass123")
+            .withConfirmPassword("ValidPass123")
+            .withDateOfBirth(LocalDate.of(1990, 1, 1))
+            .withTermsAccepted(true)
+            .build();
+
+        testUserInvalidCauseLastNameTooLong = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+            .withFirstName("ValidFirstName")
+            .withLastName("B".repeat(101))
+            .withEmail("valid@example.com")
+            .withPassword("ValidPass123")
+            .withConfirmPassword("ValidPass123")
+            .withDateOfBirth(LocalDate.of(1990, 1, 1))
+            .withTermsAccepted(true)
+            .build();
+
+        testUserInvalidCauseLastNameMissing = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+            .withFirstName("ValidFirstName")
+            .withLastName(null)
+            .withEmail("valid@example.com")
+            .withPassword("ValidPass123")
+            .withConfirmPassword("ValidPass123")
+            .withDateOfBirth(LocalDate.of(1990, 1, 1))
+            .withTermsAccepted(true)
+            .build();
+
+        testUserInvalidCauseEmail = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+            .withFirstName("Valid")
+            .withLastName("User")
+            .withEmail("invalidemail")
+            .withPassword("ValidPass123")
+            .withConfirmPassword("ValidPass123")
+            .withDateOfBirth(LocalDate.of(1990, 1, 1))
+            .withTermsAccepted(true)
+            .build();
+
+        testUserInvalidCauseFutureDate = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+            .withFirstName("Valid")
+            .withLastName("User")
+            .withEmail("valid@example.com")
+            .withPassword("ValidPass123")
+            .withConfirmPassword("ValidPass123")
+            .withDateOfBirth(LocalDate.now().plusDays(1))
+            .withTermsAccepted(true)
+            .build();
+
+        testUserInvalidCheckBoxUnticked = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+            .withFirstName("Valid")
+            .withLastName("User")
+            .withEmail("valid@example.com")
+            .withPassword("ValidPass123")
+            .withConfirmPassword("ValidPass123")
+            .withDateOfBirth(LocalDate.of(1990, 1, 1))
+            .withTermsAccepted(false)
+            .build();
+
+        testUserInvalidPasswordsNotEqual = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+            .withFirstName("Valid")
+            .withLastName("User")
+            .withEmail("valid@example.com")
+            .withPassword("ValidPass123")
+            .withConfirmPassword("DifferentPass123")
+            .withDateOfBirth(LocalDate.of(1990, 1, 1))
+            .withTermsAccepted(true)
+            .build();
+
+        testUserInvalidCausePasswordTooShort = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+            .withFirstName("Valid")
+            .withLastName("User")
+            .withEmail("valid@example.com")
+            .withPassword("short")
+            .withConfirmPassword("short")
+            .withDateOfBirth(LocalDate.of(1990, 1, 1))
+            .withTermsAccepted(true)
+            .build();
+
+        testUserInvalidConfirmPasswordTooShort = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+            .withFirstName("Valid")
+            .withLastName("User")
+            .withEmail("valid@example.com")
+            .withPassword("short")
+            .withConfirmPassword("short")
+            .withDateOfBirth(LocalDate.of(1990, 1, 1))
+            .withTermsAccepted(true)
+            .build();
+
+        testUserValid = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+            .withFirstName("Valid")
+            .withLastName("User")
+            .withEmail("valid@example.com")
+            .withPassword("ValidPass")
+            .withConfirmPassword("ValidPass")
+            .withDateOfBirth(LocalDate.of(1990, 1, 1))
+            .withTermsAccepted(true)
+            .build();
+
+        testUserEmpty = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+            .withFirstName("")
+            .withLastName("")
+            .withEmail("")
+            .withPassword("")
+            .withConfirmPassword("")
+            .withDateOfBirth(null)
+            .withTermsAccepted(false)
+            .build();
+
+
     }
 
     @Test
@@ -237,5 +379,66 @@ class CustomUserDetailServiceTest {
         assertThrows(NotFoundException.class,
             () -> userDetailService.unlockUser(99L));
         verify(userRepository, never()).save(any());
+    }
+
+
+    @Test
+    void validateUserWithTooLongFirstNameThrowsException() {
+        assertThrows(ValidationException.class, () -> userDetailService.register(testUserInvalidCauseFirstNameTooLong));
+    }
+
+    @Test
+    void validateUserWithMissingFirstNameThrowsException() {
+        assertThrows(ValidationException.class, () -> userDetailService.register(testUserInvalidCauseFirstNameMissing));
+    }
+
+    @Test
+    void validateUserWithTooLongLastNameThrowsException() {
+        assertThrows(ValidationException.class, () -> userDetailService.register(testUserInvalidCauseLastNameTooLong));
+    }
+
+    @Test
+    void validateUserWithMissingLastNameThrowsException() {
+        assertThrows(ValidationException.class, () -> userDetailService.register(testUserInvalidCauseLastNameMissing));
+    }
+
+    @Test
+    void validateUserWithInvalidEmailThrowsException() {
+        assertThrows(ValidationException.class, () -> userDetailService.register(testUserInvalidCauseEmail));
+    }
+
+    @Test
+    void validateUserWithFutureBirthDateThrowsException() {
+        assertThrows(ValidationException.class, () -> userDetailService.register(testUserInvalidCauseFutureDate));
+    }
+
+    @Test
+    void validateUserWithTooShortPasswordThrowsException() {
+        assertThrows(ValidationException.class, () -> userDetailService.register(testUserInvalidCausePasswordTooShort));
+    }
+
+    @Test
+    void validateUserWithTooShortConfirmPasswordThrowsException() {
+        assertThrows(ValidationException.class, () -> userDetailService.register(testUserInvalidConfirmPasswordTooShort));
+    }
+
+    @Test
+    void validateUserWithPasswordsNotEqualThrowsException() {
+        assertThrows(ValidationException.class, () -> userDetailService.register(testUserInvalidPasswordsNotEqual));
+    }
+
+    @Test
+    void validateUserCheckBoxUntickedThrowsException() {
+        assertThrows(ValidationException.class, () -> userDetailService.register(testUserInvalidCheckBoxUnticked));
+    }
+
+    @Test
+    void validateEmptyUserThrowsException() {
+        assertThrows(ValidationException.class, () -> userDetailService.register(testUserEmpty));
+    }
+
+    @Test
+    void validateValidUserDoesNotThrowException() {
+        assertDoesNotThrow(() -> userDetailService.register(testUserValid));
     }
 }
