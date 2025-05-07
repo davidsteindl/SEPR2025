@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import {tap} from 'rxjs/operators';
 import {jwtDecode} from 'jwt-decode';
 import {Globals} from '../global/globals';
+import {RegisterUser} from "../dtos/register-user";
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +27,17 @@ export class AuthService {
       .pipe(
         tap((authResponse: string) => this.setToken(authResponse))
       );
+  }
+
+  /**
+   * Register a new user. If it was successful, a valid JWT token will be stored
+   *
+   * @param registerUser User data
+   */
+  registerUser(registerUser: RegisterUser): Observable<void> {
+    console.log("register");
+    return this.httpClient.post<void>(this.authBaseUri + '/register', registerUser)
+
   }
 
 
