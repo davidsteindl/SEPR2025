@@ -47,7 +47,7 @@ public class EventEndpoint {
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get event by id", security = @SecurityRequirement(name = "apiKey"))
-    public EventDetailDto getEventById(@PathVariable Long id) {
+    public EventDetailDto getEventById(@PathVariable("id") Long id) {
         LOGGER.info("GET /api/v1/events/{}", id);
         return eventMapper.eventToEventDetailDto(eventService.getEventById(id));
     }
@@ -75,7 +75,7 @@ public class EventEndpoint {
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get event location by id", security = @SecurityRequirement(name = "apiKey"))
-    public EventLocationDetailDto getEventLocationById(@PathVariable Long id) {
+    public EventLocationDetailDto getEventLocationById(@PathVariable("id") Long id) {
         LOGGER.info("GET /api/v1/events/locations/{}", id);
         return eventLocationMapper.eventLocationToEventLocationDetailDto(eventService.getEventLocationById(id));
     }
