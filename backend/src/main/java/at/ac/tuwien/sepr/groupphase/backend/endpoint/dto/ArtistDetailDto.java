@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
 
-import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Objects;
@@ -17,8 +16,8 @@ public class ArtistDetailDto {
 
     private String stagename;
 
-    @NotNull(message = "Shows must not be null")
-    private Set<Show> shows;
+    @NotNull(message = "Show IDs must not be null")
+    private Set<Long> showIds;
 
     public Long getId() {
         return id;
@@ -52,12 +51,12 @@ public class ArtistDetailDto {
         this.stagename = stagename;
     }
 
-    public Set<Show> getShows() {
-        return shows;
+    public Set<Long> getShowIds() {
+        return showIds;
     }
 
-    public void setShows(Set<Show> shows) {
-        this.shows = shows;
+    public void setShowIds(Set<Long> showIds) {
+        this.showIds = showIds;
     }
 
     @Override
@@ -72,12 +71,12 @@ public class ArtistDetailDto {
             && firstname.equals(that.firstname)
             && lastname.equals(that.lastname)
             && stagename.equals(that.stagename)
-            && shows.equals(that.shows);
+            && showIds.equals(that.showIds);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstname, lastname, stagename, shows);
+        return Objects.hash(id, firstname, lastname, stagename, showIds);
     }
 
     @Override
@@ -87,7 +86,7 @@ public class ArtistDetailDto {
             + ", firstname='" + firstname + '\''
             + ", lastname='" + lastname + '\''
             + ", stagename='" + stagename + '\''
-            + ", shows=" + shows
+            + ", shows=" + showIds
             + '}';
     }
 
@@ -96,7 +95,7 @@ public class ArtistDetailDto {
         private String firstname;
         private String lastname;
         private String stagename;
-        private Set<Show> shows;
+        private Set<Long> showIds;
 
         private ArtistDetailDtoBuilder() {
         }
@@ -125,8 +124,8 @@ public class ArtistDetailDto {
             return this;
         }
 
-        public ArtistDetailDtoBuilder shows(Set<Show> shows) {
-            this.shows = shows;
+        public ArtistDetailDtoBuilder showIds(Set<Long> shows) {
+            this.showIds = shows;
             return this;
         }
 
@@ -136,7 +135,7 @@ public class ArtistDetailDto {
             artistDetailDto.setFirstname(firstname);
             artistDetailDto.setLastname(lastname);
             artistDetailDto.setStagename(stagename);
-            artistDetailDto.setShows(shows);
+            artistDetailDto.setShowIds(showIds);
             return artistDetailDto;
         }
     }

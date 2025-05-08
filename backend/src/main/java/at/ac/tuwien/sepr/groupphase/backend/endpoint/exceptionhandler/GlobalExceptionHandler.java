@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.exceptionhandler;
 
 import at.ac.tuwien.sepr.groupphase.backend.exception.LoginAttemptException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -82,6 +83,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemDetail pd = toProblemDetail(status, ex.getMessage(), req);
         pd.setProperty("loginTries", tries);
         return ResponseEntity.status(status).body(pd);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ProblemDetail> handleValidationException(ValidationException ex, ServletWebRequest req) {
+        LOG.warn("Validation failed: {}", ex.getMessage());
+        ProblemDetail pd = toProblemDetail(HttpStatus.BAD_REQUEST, ex.getMessage(), req);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(pd);
     }
 
     /**
