@@ -20,7 +20,7 @@ public interface ArtistMapper {
     @Mapping(target = "shows", source = "showIds", qualifiedByName = "mapIdsToShows")
     Artist createArtistDtoToArtist(CreateArtistDto createArtistDto);
 
-    List<ArtistDetailDto> artistsToArtistDetailDtoList(List<Artist> artists);
+    List<ArtistDetailDto> artistsToArtistDetailDtos(List<Artist> artists);
 
     @Named("mapShowsToIds")
     default Set<Long> mapShowsToIds(Set<Show> shows) {
