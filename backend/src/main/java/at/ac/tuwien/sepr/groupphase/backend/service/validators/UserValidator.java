@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
-import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import jakarta.validation.ValidationException;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +19,12 @@ public class UserValidator {
     public UserValidator() {
     }
 
-
+    /**
+     * The method to validate an UserRegisterDto for the registration.
+     *
+     * @param userRegisterDto the information for the new user
+     * @throws ValidationException if a Validation is wrong
+     */
     public void validateForRegistration(UserRegisterDto userRegisterDto) throws ValidationException {
 
         if (userRegisterDto.getFirstName() == null || userRegisterDto.getFirstName().isEmpty()) {
@@ -65,7 +69,12 @@ public class UserValidator {
     }
 
 
-
+    /**
+     * The method to check if the email is valid via Pattern.
+     *
+     * @param email the email to be checked
+     * @return true or false - depends on if the email is valid
+     */
     public static boolean isValidEmail(String email) {
         if (email == null) {
             return false;
