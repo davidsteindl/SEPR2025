@@ -36,6 +36,10 @@ public class Show {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public int getDuration() {
         return duration;
     }
