@@ -1,25 +1,27 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateEventDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface EventMapper {
 
-    EventDto eventToEventDto(Event event);
+    @Mapping(target = "locationId", source = "location.id")
+    EventDetailDto eventToEventDetailDto(Event event);
 
-    Event eventDtoToEvent(EventDto eventDto);
+    @Mapping(target = "category", source = "category", qualifiedByName = "mapStringToEventCategory")
+    Event createEventDtoToEvent(CreateEventDto createEventDto);
 
-    List<EventDto> eventsToEventDtos(List<Event> events);
+    List<EventDetailDto> eventsToEventDetailDtos(List<Event> events);
 
-    default EventDto eventToEventDtoWithLocation(Event event) {
-        EventDto eventDto = eventToEventDto(event);
-        if (event.getLocation() != null) {
-            eventDto.setLocationId(event.getLocation().getId());
-        }
-        return eventDto;
+    @Named("mapStringToEventCategory")
+    default Event.EventCategory mapStringToEventCategory(String category) {
+        return Event.EventCategory.valueOf(category.toUpperCase());
     }
 }
