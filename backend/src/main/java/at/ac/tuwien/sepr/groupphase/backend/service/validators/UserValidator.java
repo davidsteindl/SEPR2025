@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import jakarta.validation.ValidationException;
 import org.springframework.stereotype.Component;
@@ -20,29 +21,47 @@ public class UserValidator {
     }
 
 
-    public void validateForRegistration(ApplicationUser user) throws ValidationException {
+    public void validateForRegistration(UserRegisterDto userRegisterDto) throws ValidationException {
 
-        if (user.getFirstName().length() >= 100) {
+        if (userRegisterDto.getFirstName() == null || userRegisterDto.getFirstName().isEmpty()) {
             throw new ValidationException("First name is required");
         }
 
-        if (user.getLastName().length() >= 100) {
+        if (userRegisterDto.getFirstName().length() >= 100) {
+            throw new ValidationException("First name is too long");
+        }
+
+        if (userRegisterDto.getLastName() == null) {
             throw new ValidationException("Last name is required");
         }
 
-        if (!isValidEmail(user.getEmail())) {
+        if (userRegisterDto.getLastName().length() >= 100) {
+            throw new  ValidationException("Last name is too long");
+        }
+
+        if (!isValidEmail(userRegisterDto.getEmail())) {
             throw new ValidationException("Email is not valid");
         }
 
-        if (user.getDateOfBirth().isAfter(LocalDate.now())) {
+        if (userRegisterDto.getDateOfBirth().isAfter(LocalDate.now())) {
             throw new ValidationException("The Birthdate must be in the past");
         }
 
-        if (user.getPassword() == null || user.getPassword().length() < 8) {
+        if (userRegisterDto.getPassword() == null || userRegisterDto.getPassword().length() < 8) {
             throw new ValidationException("Password must be at least 8 characters");
         }
 
+        if (userRegisterDto.getConfirmPassword() == null || userRegisterDto.getConfirmPassword().length() < 8) {
+            throw new ValidationException("ConfirmPassword must be at least 8 characters");
+        }
 
+        if (!userRegisterDto.getPassword().equals(userRegisterDto.getConfirmPassword())) {
+            throw new ValidationException("Passwords do not match");
+        }
+
+        if (!userRegisterDto.getTermsAccepted()) {
+            throw new ValidationException("Terms and Condition must be accepted");
+        }
     }
 
 

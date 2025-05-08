@@ -117,13 +117,7 @@ public class CustomUserDetailService implements UserService {
     @Override
     public void register(UserRegisterDto userRegisterDto) throws ValidationException {
 
-        if (!userRegisterDto.getTermsAccepted()) {
-            throw new ValidationException("Terms and Condition must be accepted");
-        }
-
-        if (!userRegisterDto.getPassword().equals(userRegisterDto.getConfirmPassword())) {
-            throw new ValidationException("Passwords do not match");
-        }
+        userValidator.validateForRegistration(userRegisterDto);
 
         ApplicationUser user = ApplicationUser.ApplicationUserBuilder.aUser()
             .withFirstName(userRegisterDto.getFirstName())
@@ -136,7 +130,6 @@ public class CustomUserDetailService implements UserService {
             .isLocked(false)
             .build();
 
-        userValidator.validateForRegistration(user);
 
         if (userRepository.findByEmail(user.getEmail()) != null) {
             throw new IllegalArgumentException("Their is already a user with that email.");
