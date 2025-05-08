@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
@@ -15,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -49,6 +52,13 @@ public class EventServiceImpl implements EventService {
     @Override
     public Event createEvent(Event event) {
         LOGGER.info("Save event {}", event);
+        if (event.getLocation() != null) {
+            EventLocation location = eventLocationRepository.findById(event.getLocation().getId())
+                .orElseThrow(() -> new ValidationException("Event location not found"));
+            event.setLocation(location);
+        } else {
+            throw new ValidationException("Event location must not be null");
+        }
         return eventRepository.save(event);
     }
 
@@ -85,6 +95,15 @@ public class EventServiceImpl implements EventService {
     @Override
     public Artist createArtist(Artist artist) {
         LOGGER.info("Save artist {}", artist);
+        Set<Show> existingShows = new HashSet<>();
+        if (artist.getShows() != null) {
+            for (Show show : artist.getShows()) {
+                Show existingShow = showRepository.findById(show.getId())
+                    .orElseThrow(() -> new ValidationException("Show with id " + show.getId() + " not found"));
+                existingShows.add(existingShow);
+            }
+        }
+        artist.setShows(existingShows);
         return artistRepository.save(artist);
     }
 
