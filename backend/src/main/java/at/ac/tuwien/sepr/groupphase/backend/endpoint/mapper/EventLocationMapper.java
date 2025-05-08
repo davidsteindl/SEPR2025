@@ -1,16 +1,27 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventLocationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateEventLocationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventLocationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
+import jakarta.validation.Valid;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface EventLocationMapper {
-    EventLocationDto eventLocationToEventLocationDto(EventLocation eventLocation);
 
-    EventLocation eventLocationDtoToEventLocation(EventLocationDto eventLocationDto);
+    EventLocationDetailDto eventLocationToEventLocationDetailDto(EventLocation eventLocation);
 
-    List<EventLocationDto> eventLocationsToEventLocationDtos(List<EventLocation> eventLocations);
+    @Mapping(target = "type", source = "type", qualifiedByName = "mapStringToLocationType")
+    EventLocation createEventLocationDtoToEventLocation(@Valid CreateEventLocationDto createEventDto);
+
+    List<EventLocationDetailDto> eventLocationsToEventLocationDtos(List<EventLocation> eventLocations);
+
+    @Named("mapStringToLocationType")
+    default EventLocation.LocationType mapStringToLocationType(String type) {
+        return EventLocation.LocationType.valueOf(type.toUpperCase());
+    }
 }

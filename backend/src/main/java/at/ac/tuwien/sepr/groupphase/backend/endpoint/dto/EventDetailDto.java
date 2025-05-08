@@ -1,14 +1,19 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public class EventDto {
+public class EventDetailDto {
+
     @NotNull(message = "ID must not be null")
     private Long id;
-    @NotNull(message = "Name must not be null")
+
+    @NotBlank(message = "Name must not be blank")
     private String name;
-    @NotNull(message = "Category must not be null")
+
+    @NotBlank(message = "Category must not be blank")
     private String category;
+
     @NotNull(message = "Location ID must not be null")
     private Long locationId;
 
@@ -49,7 +54,7 @@ public class EventDto {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof EventDto that)) {
+        if (!(o instanceof EventDetailDto that)) {
             return false;
         }
         return id.equals(that.id)
@@ -106,13 +111,13 @@ public class EventDto {
             return this;
         }
 
-        public EventDto build() {
-            EventDto eventDto = new EventDto();
-            eventDto.setId(id);
-            eventDto.setName(name);
-            eventDto.setCategory(category);
-            eventDto.setLocationId(locationId);
-            return eventDto;
+        public EventDetailDto build() {
+            EventDetailDto eventDetailDto = new EventDetailDto();
+            eventDetailDto.setId(id);
+            eventDetailDto.setName(name);
+            eventDetailDto.setCategory(category);
+            eventDetailDto.setLocationId(locationId);
+            return eventDetailDto;
         }
     }
 }

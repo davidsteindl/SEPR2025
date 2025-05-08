@@ -1,21 +1,22 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public class EventLocationDto {
+public class EventLocationDetailDto {
     @NotNull(message = "ID must not be null")
     private Long id;
-    @NotNull(message = "Name must not be null")
+    @NotBlank(message = "Name must not be blank")
     private String name;
-    @NotNull(message = "Type must not be null")
+    @NotBlank(message = "Type must not be blank")
     private String type;
-    @NotNull(message = "Country must not be null")
+    @NotBlank(message = "Country must not be blank")
     private String country;
-    @NotNull(message = "City must not be null")
+    @NotBlank(message = "City must not be blank")
     private String city;
-    @NotNull(message = "Street must not be null")
+    @NotBlank(message = "Street must not be blank")
     private String street;
-    @NotNull(message = "Postal code must not be null")
+    @NotBlank(message = "Postal code must not be blank")
     private String postalCode;
 
     public Long getId() {
@@ -79,7 +80,7 @@ public class EventLocationDto {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof EventLocationDto that)) {
+        if (!(o instanceof EventLocationDetailDto that)) {
             return false;
         }
         return id.equals(that.id)
@@ -160,16 +161,16 @@ public class EventLocationDto {
             return this;
         }
 
-        public EventLocationDto build() {
-            EventLocationDto eventLocationDto = new EventLocationDto();
-            eventLocationDto.setId(id);
-            eventLocationDto.setName(name);
-            eventLocationDto.setType(type);
-            eventLocationDto.setCountry(country);
-            eventLocationDto.setCity(city);
-            eventLocationDto.setStreet(street);
-            eventLocationDto.setPostalCode(postalCode);
-            return eventLocationDto;
+        public EventLocationDetailDto build() {
+            EventLocationDetailDto eventLocationDetailDto = new EventLocationDetailDto();
+            eventLocationDetailDto.setId(id);
+            eventLocationDetailDto.setName(name);
+            eventLocationDetailDto.setType(type);
+            eventLocationDetailDto.setCountry(country);
+            eventLocationDetailDto.setCity(city);
+            eventLocationDetailDto.setStreet(street);
+            eventLocationDetailDto.setPostalCode(postalCode);
+            return eventLocationDetailDto;
         }
     }
 }

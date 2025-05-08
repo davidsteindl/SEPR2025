@@ -1,9 +1,13 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventLocationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateEventDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateEventLocationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventLocationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventLocationMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
+import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -43,43 +47,44 @@ public class EventEndpoint {
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get event by id", security = @SecurityRequirement(name = "apiKey"))
-    public EventDto getEventById(@PathVariable Long id) {
+    public EventDetailDto getEventById(@PathVariable Long id) {
         LOGGER.info("GET /api/v1/events/{}", id);
-        return eventMapper.eventToEventDtoWithLocation(eventService.getEventById(id));
+        return eventMapper.eventToEventDetailDto(eventService.getEventById(id));
     }
 
-    @GetMapping()
+    @GetMapping
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get all events", security = @SecurityRequirement(name = "apiKey"))
-    public List<EventDto> getAllEvents() {
+    public List<EventDetailDto> getAllEvents() {
         LOGGER.info("GET /api/v1/events");
-        return eventMapper.eventsToEventDtos(eventService.getAllEvents());
+        return eventMapper.eventsToEventDetailDtos(eventService.getAllEvents());
     }
 
-    @PostMapping()
+    @PostMapping
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create a new event", security = @SecurityRequirement(name = "apiKey"))
-    public EventDto createEvent(@RequestBody @Valid EventDto eventDto) {
+    public EventDetailDto createEvent(@RequestBody @Valid CreateEventDto createEventDto) {
         LOGGER.info("POST /api/v1/events");
-        return eventMapper.eventToEventDtoWithLocation(eventService.createEvent(eventMapper.eventDtoToEvent(eventDto)));
+        Event event = eventService.createEvent(eventMapper.createEventDtoToEvent(createEventDto));
+        return eventMapper.eventToEventDetailDto(event);
     }
 
     @GetMapping("/locations/{id}")
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get event location by id", security = @SecurityRequirement(name = "apiKey"))
-    public EventLocationDto getEventLocationById(@PathVariable Long id) {
+    public EventLocationDetailDto getEventLocationById(@PathVariable Long id) {
         LOGGER.info("GET /api/v1/events/locations/{}", id);
-        return eventLocationMapper.eventLocationToEventLocationDto(eventService.getEventLocationById(id));
+        return eventLocationMapper.eventLocationToEventLocationDetailDto(eventService.getEventLocationById(id));
     }
 
     @GetMapping("/locations")
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get all event locations", security = @SecurityRequirement(name = "apiKey"))
-    public List<EventLocationDto> getAllEventLocations() {
+    public List<EventLocationDetailDto> getAllEventLocations() {
         LOGGER.info("GET /api/v1/events/locations");
         return eventLocationMapper.eventLocationsToEventLocationDtos(eventService.getAllEventLocations());
     }
@@ -88,8 +93,9 @@ public class EventEndpoint {
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create a new event location", security = @SecurityRequirement(name = "apiKey"))
-    public EventLocationDto createEventLocation(@RequestBody @Valid EventLocationDto eventLocationDto) {
+    public EventLocationDetailDto createEventLocation(@RequestBody @Valid CreateEventLocationDto createEventLocationDetailDto) {
         LOGGER.info("POST /api/v1/events/locations");
-        return eventLocationMapper.eventLocationToEventLocationDto(eventService.createEventLocation(eventLocationMapper.eventLocationDtoToEventLocation(eventLocationDto)));
+        EventLocation eventLocation = eventService.createEventLocation(eventLocationMapper.createEventLocationDtoToEventLocation(createEventLocationDetailDto));
+        return eventLocationMapper.eventLocationToEventLocationDetailDto(eventLocation);
     }
 }
