@@ -1,6 +1,15 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LocationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LocationSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PerformanceDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PerformanceSearchDto;
+
 import java.util.List;
 
 
@@ -11,6 +20,7 @@ public interface SearchService {
 
     /**
      * Search artists by first name, last name, or band names or pseudonyms.
+     *
      * @param criteria the search criteria
      * @return list of matching artists
      */
@@ -18,6 +28,7 @@ public interface SearchService {
 
     /**
      * Search locations by name, street, city, country, or postal code.
+     *
      * @param criteria the search criteria
      * @return list of matching locations
      */
@@ -25,6 +36,7 @@ public interface SearchService {
 
     /**
      * Search events by title, type, duration (± 30min), or content.
+     *
      * @param criteria the search criteria
      * @return list of matching events
      */
@@ -32,6 +44,7 @@ public interface SearchService {
 
     /**
      * Search performances by date/time, price (± tolerance), event, or hall.
+     *
      * @param criteria the search criteria
      * @return list of matching performances
      */
