@@ -1,25 +1,31 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public class CreateEventLocationDto {
 
     @NotBlank(message = "Name must not be blank")
+    @Size(max = 50, message = "Name must not exceed 50 characters")
     private String name;
 
     @NotBlank(message = "Type must not be blank")
     private String type;
 
     @NotBlank(message = "Country must not be blank")
+    @Size(max = 50, message = "Country must not exceed 50 characters")
     private String country;
 
     @NotBlank(message = "City must not be blank")
+    @Size(max = 50, message = "City must not exceed 50 characters")
     private String city;
 
     @NotBlank(message = "Street must not be blank")
+    @Size(max = 50, message = "Street must not exceed 50 characters")
     private String street;
 
     @NotBlank(message = "Postal code must not be blank")
+    @Size(max = 50, message = "Postal code must not exceed 50 characters")
     private String postalCode;
 
     public String getName() {

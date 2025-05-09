@@ -1,6 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
 
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -9,15 +11,19 @@ import java.util.Set;
 public class CreateShowDto {
 
     @NotNull(message = "Duration must not be null")
+    @Size(min = 10, message = "Show must have a duration of at least 10 minutes")
+    @Size(max = 600, message = "Show must have a duration of at most 600 minutes")
     private int duration;
 
     @NotNull(message = "Date must not be null")
+    @FutureOrPresent(message = "Date must be in the present or future")
     private LocalDateTime date;
 
     @NotNull(message = "Event ID must not be null")
     private Long eventId;
 
     @NotNull(message = "Artist IDs must not be null")
+    @Size(min = 1, message = "Show must have at least one artist")
     private Set<Long> artistIds;
 
     public int getDuration() {
