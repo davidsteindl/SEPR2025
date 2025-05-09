@@ -1,19 +1,25 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.annotation.ValidNameCombination;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 import java.util.Set;
 
+@ValidNameCombination
 public class ArtistDetailDto {
 
     @NotNull(message = "ID must not be null")
     private Long id;
 
+    @Size(max = 50, message = "Firstname must not exceed 50 characters")
     private String firstname;
 
+    @Size(max = 50, message = "Lastname must not exceed 50 characters")
     private String lastname;
 
+    @Size(max = 50, message = "Stagename must not exceed 50 characters")
     private String stagename;
 
     private Set<Long> showIds;
