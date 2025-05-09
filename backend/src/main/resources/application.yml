@@ -44,11 +44,11 @@ management:
     port: 8081
   endpoint:
     shutdown:
-      access: unrestricted
+      enabled: true
     metrics:
-      access: unrestricted
+      enabled: true
     prometheus:
-      access: unrestricted
+      enabled: true
     health:
       probes:
         enabled: true
