@@ -1,12 +1,14 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.exception.LoginAttemptException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
+import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,6 +27,7 @@ import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 
+
 @ExtendWith(MockitoExtension.class)
 class CustomUserDetailServiceTest {
 
@@ -35,12 +38,16 @@ class CustomUserDetailServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
+    private UserValidator userValidator;
+
+    @Mock
     private JwtTokenizer jwtTokenizer;
 
     @InjectMocks
     private CustomUserDetailService userDetailService;
 
     private ApplicationUser testUser;
+
 
     @BeforeEach
     void setUp() {
@@ -55,6 +62,7 @@ class CustomUserDetailServiceTest {
             .isAdmin(false)
             .withLoginTries(0)
             .build();
+
     }
 
     @Test
@@ -238,4 +246,25 @@ class CustomUserDetailServiceTest {
             () -> userDetailService.unlockUser(99L));
         verify(userRepository, never()).save(any());
     }
+
+    @Test
+    void validateUserWithValidDataRegistersSuccessfully() {
+        UserRegisterDto validUser = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+            .withFirstName("Test")
+            .withLastName("User")
+            .withEmail("test@example.com")
+            .withDateOfBirth(LocalDate.of(1990, 1, 1))
+            .withPassword("abc12345")
+            .withConfirmPassword("abc12345")
+            .withTermsAccepted(true)
+            .build();
+
+        when(passwordEncoder.encode("abc12345")).thenReturn("encodedPassword");
+
+        userDetailService.register(validUser);
+
+        verify(userRepository).save(any(ApplicationUser.class));
+    }
+
+
 }

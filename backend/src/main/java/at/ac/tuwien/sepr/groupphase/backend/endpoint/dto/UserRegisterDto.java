@@ -165,8 +165,8 @@ public class UserRegisterDto {
             return this;
         }
 
-        public UserRegisterDto.UserRegisterDtoBuilder withConfirmPassword(String password) {
-            this.password = password;
+        public UserRegisterDto.UserRegisterDtoBuilder withConfirmPassword(String confirmPassword) {
+            this.confirmPassword = confirmPassword;
             return this;
         }
 
