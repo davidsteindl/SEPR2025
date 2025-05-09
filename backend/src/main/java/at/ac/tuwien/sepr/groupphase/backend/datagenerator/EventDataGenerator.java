@@ -106,6 +106,7 @@ public class EventDataGenerator {
                 LOGGER.debug("saving artist {}", artist);
                 artists.add(artist);
             }
+            artistRepository.saveAll(artists);
         }
 
         // Shows
