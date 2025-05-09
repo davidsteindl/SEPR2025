@@ -83,4 +83,3 @@ public class ShowServiceImpl implements ShowService {
         return showRepository.findByEventOrderByDateAsc(event);
     }
 }
-

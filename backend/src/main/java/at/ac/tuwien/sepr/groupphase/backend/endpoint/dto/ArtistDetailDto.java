@@ -16,7 +16,6 @@ public class ArtistDetailDto {
 
     private String stagename;
 
-    @NotNull(message = "Show IDs must not be null")
     private Set<Long> showIds;
 
     public Long getId() {
