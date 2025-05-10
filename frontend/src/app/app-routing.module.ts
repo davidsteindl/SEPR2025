@@ -10,6 +10,7 @@ import { ManageAccountsComponent } from './components/manage-accounts/manage-acc
 import { AdminGuard } from './guards/admin.guard';
 import {UserComponent} from "./components/user/user.component";
 import {UserEditComponent} from "./components/user/user-edit/user-edit.component";
+import {UserOrdersComponent} from "./components/user/user-orders/user-orders.component";
 
 
 const routes: Routes = [
@@ -24,7 +25,8 @@ const routes: Routes = [
   { path: 'termsandconditions', component: TermsandconditionsComponent },
   { path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent },
   {path: 'user', component: UserComponent},
-  {path: 'user-edit', component: UserEditComponent}
+  {path: 'user-edit', component: UserEditComponent},
+  {path: 'user-orders', component: UserOrdersComponent}
 ];
 
 @NgModule({
