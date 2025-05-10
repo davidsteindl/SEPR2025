@@ -2,7 +2,7 @@
 
 <form #form="ngForm" (ngSubmit)="onSubmit(form)">
 
-<div class="row">
+ <div class="row">
     <div class="mb-2 col-lg-6">
       <div class="row">
         <label for="userFirstName" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
@@ -73,29 +73,26 @@
     </div>
 
 
-  <div class="row">
-    <div class="mb-2 col-lg-6">
-      <div class="row">
-        <label for="userSex" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
-          Sex
-        </label>
-        <div class="col-md-10 col-lg-8">
-          <select
-            class="form-select"
-            id="userSex"
-            name="userSex"
-            [(ngModel)]="user.sex"
-            required>
-            <option value="FEMALE">Female</option>
-            <option value="MALE">Male</option>
-          </select>
-        </div>
-      </div>
-    </div>
+
+  <div class="mb-2 col-lg-6">
+     <div class="row">
+       <label for="userSex" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+         Sex
+       </label>
        <div class="col-md-10 col-lg-8">
+         <select
            class="form-select"
+           id="userSex"
            name="userSex"
+           [(ngModel)]="user.sex"
+           required>
+           <option value="FEMALE">Female</option>
+           <option value="MALE">Male</option>
+           <option value="OTHER">Other</option>
+         </select>
        </div>
+     </div>
+  </div>
 
   <div class="mb-2 col-lg-6">
      <div class="row">
@@ -119,7 +116,7 @@
        </div>
      </div>
   </div>
-</div>
+ </div>
 
   <div class="row mb-2">
      <label for="address" class="col-form-label text-md-end text-muted col-md-2">

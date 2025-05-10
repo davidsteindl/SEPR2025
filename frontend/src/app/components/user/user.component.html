@@ -47,7 +47,11 @@
     <div class="col-md-6">
       <div class="mb-2">
         <label class="col-form-label" style="font-weight: bold;">Sex</label>
-        <p>{{ user.sex === 'FEMALE' ? 'Female' : 'Male' }}</p>
+        <p>   {{
+            user.sex === 'FEMALE' ? 'Female' :
+              user.sex === 'MALE' ? 'Male' :
+                'Other'
+          }}</p>
       </div>
     </div>
   </div>
