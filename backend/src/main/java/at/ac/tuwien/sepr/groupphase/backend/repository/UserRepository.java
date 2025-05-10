@@ -1,11 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.repository;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
 @Repository
@@ -25,4 +22,19 @@ public interface UserRepository extends JpaRepository<ApplicationUser, Long> {
      * @return all blocked users
      */
     List<ApplicationUser> findAllByLockedTrue();
+
+    /**
+     * Delete user by Email.
+     *
+     * @param email of user to delete
+     */
+    void deleteByEmail(String email);
+
+    /**
+     * Email of existing user.
+     *
+     * @param email of user
+     */
+    boolean existsByEmail(String email);
+
 }
