@@ -2,14 +2,13 @@ package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDate;
-
+import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser.ApplicationUserBuilder;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
@@ -45,7 +44,10 @@ public class UserDataGenerator {
                 .withPassword(passwordEncoder.encode(PASSWORD))
                 .withFirstName("Max")
                 .withLastName("Mustermann")
+                .withAddress("")
+                .withPaymentData("")
                 .withDateOfBirth(LocalDate.of(1972, 2, 3))
+                .withSex(Sex.MALE)
                 .isLocked(false)
                 .isAdmin(true)
                 .withLoginTries(0)
@@ -57,7 +59,10 @@ public class UserDataGenerator {
                 .withPassword(passwordEncoder.encode(PASSWORD))
                 .withFirstName("Magdalena")
                 .withLastName("Musterfrau")
+                .withAddress("")
+                .withPaymentData("")
                 .withDateOfBirth(LocalDate.of(1980, 7, 15))
+                .withSex(Sex.FEMALE)
                 .isLocked(false)
                 .isAdmin(false)
                 .withLoginTries(0)
@@ -69,7 +74,10 @@ public class UserDataGenerator {
                 .withPassword(passwordEncoder.encode(PASSWORD))
                 .withFirstName("Locked")
                 .withLastName("User")
+                .withAddress("")
+                .withPaymentData("")
                 .withDateOfBirth(LocalDate.of(1980, 7, 15))
+                .withSex(Sex.MALE)
                 .isLocked(true)
                 .isAdmin(false)
                 .withLoginTries(5)
