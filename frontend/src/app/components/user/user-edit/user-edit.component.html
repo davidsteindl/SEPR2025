@@ -1,9 +1,8 @@
-
 <h1 class="display-4">Edit Profile</h1>
 
-
 <form #form="ngForm" (ngSubmit)="onSubmit(form)">
-  <div class="row">
+
+<div class="row">
     <div class="mb-2 col-lg-6">
       <div class="row">
         <label for="userFirstName" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
@@ -50,6 +49,7 @@
       </div>
     </div>
 
+
     <div class="mb-2 col-lg-6">
       <div class="row">
         <label for="userDateOfBirth" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
@@ -71,7 +71,7 @@
         </div>
       </div>
     </div>
-  </div>
+
 
   <div class="row">
     <div class="mb-2 col-lg-6">
@@ -92,20 +92,48 @@
         </div>
       </div>
     </div>
+       <div class="col-md-10 col-lg-8">
+           class="form-select"
+           name="userSex"
+       </div>
 
-    <div class="row mb-2">
-      <label for="address" class="col-form-label text-md-end text-muted col-md-2">
-        Postal Address
-      </label>
-      <div class="col-md-10">
-        <textarea
-          class="form-control"
-          id="address"
-          name="address"
-          [(ngModel)]="user.address">
-        </textarea>
-      </div>
-    </div>
+  <div class="mb-2 col-lg-6">
+     <div class="row">
+       <label for="userEmail" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+         E-Mail
+       </label>
+       <div class="col-md-10 col-lg-8">
+         <input
+           type="text"
+           id="userEmail"
+           name="userEmail"
+           placeholder="E-Mail"
+           class="form-control"
+           [class]="dynamicCssClassesForInput(userNameModel)"
+           [(ngModel)]="user.email"
+           #userNameModel="ngModel"
+           required>
+         <div class="invalid-feedback">
+           E-Mail is required
+         </div>
+       </div>
+     </div>
+  </div>
+</div>
+
+  <div class="row mb-2">
+     <label for="address" class="col-form-label text-md-end text-muted col-md-2">
+       Postal Address
+     </label>
+     <div class="col-md-10">
+       <textarea
+         class="form-control"
+         id="address"
+         name="address"
+         [(ngModel)]="user.address">
+       </textarea>
+     </div>
+  </div>
 
   <div class="row mb-2">
     <label for="paymentData" class="col-form-label text-md-end text-muted col-md-2">
@@ -130,7 +158,5 @@
      {{ submitButtonText }}
    </button>
  </div>
-</div>
+
 </form>
-
-

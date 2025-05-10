@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthService} from '../../services/auth.service';
-import {ActivatedRoute, Router, RouterLink} from "@angular/router";
+import {Router, RouterLink} from "@angular/router";
 import { ToastrService } from 'ngx-toastr';
 import { User } from "../../dtos/user";
 import {Sex} from "../../dtos/sex";
@@ -14,60 +14,53 @@ import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-del
   styleUrls: ['./user.component.scss'],
   imports: [DatePipe, RouterLink, ConfirmDeleteDialogComponent, NgIf]
 })
+
 export class UserComponent implements OnInit {
   user: User | undefined;
   userForDeletion: User | undefined;
-  userId: string | null = null;
   loading = false;
 
   constructor(
     public authService: AuthService,
-    private route: ActivatedRoute,
     private service: UserService,
     private notification: ToastrService,
     private router: Router
   ) { }
 
-ngOnInit(): void {
-  this.user = {
-    dateOfBirth: new Date(),
-    sex: Sex.female,
-    email: "",
-    address: "",
-    paymentData: "",
-    id: 0,
-    firstName: "",
-    lastName: ""
-  };
+  ngOnInit(): void {
+    this.user = {
+      dateOfBirth: new Date(),
+      sex: Sex.female,
+      email: "",
+      address: "",
+      paymentData: "",
+      firstName: "",
+      lastName: ""
+    };
 
-  this.route.paramMap.subscribe((params) => {
-    this.userId = params.get('id');
-    if (this.userId) {
-      this.loadUserData(this.userId);
-    }
-  });
-}
+    this.loadUserData();
+  }
 
-private loadUserData(id: string): void {
-  this.loading = true;
-  this.service.getById(id).subscribe({
-    next: (user) => {
-      if (user) {
-        this.user = user;
-    //    console.log(user.image);
-      } else {
-        this.notification.error('User not found!', 'Error');
-        this.router.navigate(['/users']);
-      }
-      this.loading = false;
-    },
-    error: (err) => {
-      console.error('Error loading user data', err);
-      this.notification.error('Could not load horse data', 'Error');
-      this.loading = false;
-    },
-  });
-}
+  private loadUserData(): void {
+    this.loading = true;
+    this.service.getCurrentUser().subscribe({
+      next: (user) => {
+        if (user) {
+          this.user = user;
+    //     console.log(user.image);
+        } else {
+          this.notification.error('User not found!', 'Error');
+          this.router.navigate(['/users']);
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading user data', err);
+        this.notification.error('Could not load user data', 'Error');
+        this.loading = false;
+      },
+    });
+  }
 
 
 deleteUser(): void {

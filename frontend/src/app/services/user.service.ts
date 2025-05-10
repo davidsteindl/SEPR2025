@@ -33,35 +33,16 @@ export class UserService {
   /**
    * Edit an existing user in the system.
    *
-   * @param id the ID of the user to be updated
    * @param user the data for the user that should be updated
    * @return an Observable for the updated user
    */
-  edit(id: string, user: UserEdit): Observable<User> {
+  edit(user: UserEdit): Observable<void> {
     console.log(user);
-    // Cast the object to any, so that we can circumvent the type checker.
-    // We _need_ the date to be a string here, and just passing the object with the
-    // “type error” to the HTTP client is unproblematic
+
     (user as any).dateOfBirth = formatIsoDate(user.dateOfBirth);
 
-    const formData = new FormData();
-    formData.append('user', new Blob([JSON.stringify({
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      dateOfBirth: user.dateOfBirth,
-      sex: user.sex,
-      email: user.email,
-      address: user.address,
-      paymentData: user.paymentData
-    })], { type: 'application/json' }));
-
-
-    return this.httpClient.put<User>(`${baseUri}/${id}`, formData).pipe(
-      map(this.fixUserDate)
-    );
+      return this.httpClient.put<void>(`${this.userBaseUri}/me`, user);
   }
-
 
 
   /**
@@ -91,8 +72,9 @@ export class UserService {
     return user;
   }
 
+
   /**
-   * Loads all locked users from the backend
+   * Loads all locked users from the backend.
    */
   getLockedUsers(): Observable<LockedUser[]> {
     console.log("getting locked users")
@@ -101,7 +83,7 @@ export class UserService {
 
 
   /**
-   * Unlocks a user by ID
+   * Unlocks a user by ID.
    */
   unlockUser(id: number): Observable<void> {
     console.log('Unlock User with id ' + id);
@@ -109,5 +91,12 @@ export class UserService {
   }
 
 
+  /**
+   *  Get current user.
+   */
+  getCurrentUser(): Observable<User> {
+    console.log(' current User ' );
+    return this.httpClient.get<User>(`${this.userBaseUri}/me`);
+  }
 
 }

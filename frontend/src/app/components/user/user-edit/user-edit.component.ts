@@ -1,33 +1,26 @@
 import {Component, OnInit} from '@angular/core';
 import {FormsModule, NgForm, NgModel} from '@angular/forms';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import {Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
-import {Observable, of} from 'rxjs';
+import {Observable} from 'rxjs';
 import {Sex} from 'src/app/dtos/sex';
 import {formatIsoDate} from "../../../utils/date-helper";
-import {environment} from "../../../../environments/environment";
 import {convertFromUserToEdit, User} from 'src/app/dtos/user';
 import {UserService} from "../../../services/user.service";
-import { AutocompleteComponent } from '../../autocomplete/autocomplete.component';
 import {ErrorFormatterService} from "../../../services/error-formatter.service";
-import {NgIf} from "@angular/common";
-
-const baseUri = environment.backendUrl + '/users';
 
 @Component({
   selector: 'app-user-edit',
   templateUrl: './user-edit.component.html',
   imports: [
     FormsModule,
-    AutocompleteComponent,
-    FormsModule,
-    NgIf,
-    RouterLink
+    FormsModule
   ],
   standalone: true,
   styleUrls: ['./user-edit.component.scss']
 })
 export class UserEditComponent implements OnInit {
+  loading = false;
 
   user: User = {
     firstName: '',
@@ -39,20 +32,13 @@ export class UserEditComponent implements OnInit {
     paymentData: ''
   };
   userBirthDateIsSet = false;
-  userId: string | null = null;
-
 
   constructor(
     private service: UserService,
     private router: Router,
-    private route: ActivatedRoute,
     private notification: ToastrService,
     private errorFormatter: ErrorFormatterService
   ) {
-  }
-
-  public get heading(): string {
-        return 'Edit my Profile'
   }
 
   public get submitButtonText(): string {
@@ -60,11 +46,7 @@ export class UserEditComponent implements OnInit {
   }
 
   public get userBirthDateText(): string {
-    if (!this.userBirthDateIsSet) {
-      return '';
-    } else {
       return formatIsoDate(this.user.dateOfBirth);
-    }
   }
 
   public set userBirthDateText(date: string) {
@@ -76,43 +58,37 @@ export class UserEditComponent implements OnInit {
     }
   }
 
-  get sex(): string {
-    switch (this.user.sex) {
-      case Sex.male:
-        return 'Male';
-      case Sex.female:
-        return 'Female';
-      default:
-        return '';
-    }
-  }
-
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      this.userId = params.get('id');
-      if (this.userId) {
-        this.loadUserData(this.userId);
-      }
-    });
+    this.user = {
+      dateOfBirth: new Date(),
+      sex: Sex.female,
+      email: "",
+      address: "",
+      paymentData: "",
+      firstName: "",
+      lastName: ""
+    };
+
+    this.loadUserData();
   }
 
-  private loadUserData(id: string): void {
-    this.service.getById(id).subscribe({
+  private loadUserData(): void {
+    this.loading = true;
+    this.service.getCurrentUser().subscribe({
       next: (user) => {
         if (user) {
           this.user = user;
-          this.userBirthDateIsSet = !!this.user.dateOfBirth;
-          console.log(user);
-        } else {
-          this.notification.error('Profile not found!', 'Error');
-          this.router.navigate(['/user']);
-        }
 
+        } else {
+          this.notification.error('User not found!', 'Error');
+          this.router.navigate(['/users']);
+        }
+        this.loading = false;
       },
       error: (err) => {
         console.error('Error loading user data', err);
-        this.notification.error('Could not load profile data', 'Error');
-
+        this.notification.error('Could not load user data', 'Error');
+        this.loading = false;
       },
     });
   }
@@ -123,12 +99,6 @@ export class UserEditComponent implements OnInit {
     };
   }
 
-  public formatUserName(user: User | null | undefined): string {
-    return (user == null)
-      ? ''
-      : `${user.lastName}`;
-  }
-
   public onSubmit(form: NgForm): void {
     console.log('is form valid?', form.valid, this.user);
     if (form.valid) {
@@ -136,12 +106,13 @@ export class UserEditComponent implements OnInit {
         delete this.user.address;
       }
 
-      let observable: Observable<User>;
-        if (this.userId) {
-            observable = this.service.edit(this.userId,
+      let observable: Observable<void>;
+        if (this.service.getCurrentUser()) {
+
+            observable = this.service.edit(
               convertFromUserToEdit(this.user));
           } else {
-          console.error('No user ID provided for editing');
+          console.error('No user email provided for editing');
           return;
         }
 
@@ -149,7 +120,7 @@ export class UserEditComponent implements OnInit {
         next: data => {
            this.notification.success(`User ${this.user.firstName}
            successfully updated.`);
-           this.router.navigate(['/users']);
+           this.router.navigate(['/user']);
         },
         error: error => {
            console.error('Error saving user', error);
@@ -162,4 +133,3 @@ export class UserEditComponent implements OnInit {
   }
 
 }
-

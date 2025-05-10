@@ -1,7 +1,6 @@
 import {Sex} from './sex';
 
 export interface User {
-  id?: number;
   firstName: string;
   lastName: string;
   dateOfBirth: Date;
@@ -11,12 +10,7 @@ export interface User {
   paymentData?: string;
 }
 
-
-/*export interface UserCreate {
- } */
-
 export interface UserEdit {
-  id: number;
   firstName: string;
   lastName: string;
   dateOfBirth: Date;
@@ -27,12 +21,8 @@ export interface UserEdit {
 }
 
 export function convertFromUserToEdit(user: User): UserEdit {
-  if (!user.id) {
-    throw new Error("User must have an id for editing");
-  }
 
   return {
-    id: user.id,
     firstName: user.firstName,
     lastName: user.lastName,
     dateOfBirth: user.dateOfBirth,
@@ -42,4 +32,3 @@ export function convertFromUserToEdit(user: User): UserEdit {
     paymentData: user.paymentData,
   };
 }
-
