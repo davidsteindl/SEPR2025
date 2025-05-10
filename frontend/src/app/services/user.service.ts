@@ -48,12 +48,11 @@ export class UserService {
   /**
    * Deleting an existing user.
    *
-   * @param id the ID of the user to delete.
    * @return Observable, to confirm that deleting was successful.
    */
-  deleteUser(id: number): Observable<void> {
+  deleteUser( ): Observable<void> {
     return this.httpClient.delete<void>(
-      `${baseUri}/${id}`);
+      `${this.userBaseUri}/me`);
   }
 
 

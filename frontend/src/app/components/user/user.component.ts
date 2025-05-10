@@ -62,19 +62,20 @@ export class UserComponent implements OnInit {
     });
   }
 
+  deleteUser(): void {
 
-deleteUser(): void {
-  if (this.user && this.user.id) {
-  this.service.deleteUser(this.user.id).subscribe({
-    next: () => {
-      this.notification.success('Account irretiveble deleted!', 'Deleted');
-      this.router.navigate(['/home']);
-    },
-    error: (error) => {
-      this.notification.error('Error while deleting user.', 'Error');
-    },
-  });
-}
-}
+    this.service.deleteUser().subscribe({
+      next: () => {
+        this.notification.success('Account irreversibly deleted!', 'Deleted');
+        this.authService.logoutUser();
+        this.router.navigate(['/login']);
+
+      },
+      error: (error) => {
+        this.notification.error('Error while deleting user.', 'Error');
+        console.error(error);
+      },
+    });
+  }
 
 }
