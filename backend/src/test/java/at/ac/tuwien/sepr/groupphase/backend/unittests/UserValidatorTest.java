@@ -14,231 +14,231 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserValidatorTest {
 
-    private UserValidator userValidator;
+  private UserValidator userValidator;
 
-    @BeforeEach
-    void setUp() {
-        userValidator = new UserValidator();
-    }
+  @BeforeEach
+  void setUp() {
+    userValidator = new UserValidator();
+  }
 
-    @Test
-    void validateUserWithTooLongFirstNameThrowsException() {
-        UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
-            .withFirstName("A".repeat(101))
-            .withLastName("ValidLastName")
-            .withEmail("valid@example.com")
-            .withPassword("ValidPass123")
-            .withConfirmPassword("ValidPass123")
-            .withDateOfBirth(LocalDate.of(1990, 1, 1))
-            .withTermsAccepted(true)
-            .build();
+  @Test
+  void validateUserWithTooLongFirstNameThrowsException() {
+    UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+        .withFirstName("A".repeat(101))
+        .withLastName("ValidLastName")
+        .withEmail("valid@example.com")
+        .withPassword("ValidPass123")
+        .withConfirmPassword("ValidPass123")
+        .withDateOfBirth(LocalDate.of(1990, 1, 1))
+        .withTermsAccepted(true)
+        .build();
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            userValidator.validateForRegistration(dto);
-        });
+    ValidationException exception = assertThrows(ValidationException.class, () -> {
+      userValidator.validateForRegistration(dto);
+    });
 
-        assertEquals("First name is too long", exception.getMessage());
-    }
+    assertEquals("First name is too long", exception.getMessage());
+  }
 
-    @Test
-    void validateUserWithMissingFirstNameThrowsException() {
-        UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
-            .withFirstName(null)
-            .withLastName("ValidLastName")
-            .withEmail("valid@example.com")
-            .withPassword("ValidPass123")
-            .withConfirmPassword("ValidPass123")
-            .withDateOfBirth(LocalDate.of(1990, 1, 1))
-            .withTermsAccepted(true)
-            .build();
+  @Test
+  void validateUserWithMissingFirstNameThrowsException() {
+    UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+        .withFirstName(null)
+        .withLastName("ValidLastName")
+        .withEmail("valid@example.com")
+        .withPassword("ValidPass123")
+        .withConfirmPassword("ValidPass123")
+        .withDateOfBirth(LocalDate.of(1990, 1, 1))
+        .withTermsAccepted(true)
+        .build();
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            userValidator.validateForRegistration(dto);
-        });
+    ValidationException exception = assertThrows(ValidationException.class, () -> {
+      userValidator.validateForRegistration(dto);
+    });
 
-        assertEquals("First name is required", exception.getMessage());
-    }
+    assertEquals("First name is required", exception.getMessage());
+  }
 
-    @Test
-    void validateUserWithTooLongLastNameThrowsException() {
-        UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
-            .withFirstName("ValidFirstName")
-            .withLastName("B".repeat(101))
-            .withEmail("valid@example.com")
-            .withPassword("ValidPass123")
-            .withConfirmPassword("ValidPass123")
-            .withDateOfBirth(LocalDate.of(1990, 1, 1))
-            .withTermsAccepted(true)
-            .build();
+  @Test
+  void validateUserWithTooLongLastNameThrowsException() {
+    UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+        .withFirstName("ValidFirstName")
+        .withLastName("B".repeat(101))
+        .withEmail("valid@example.com")
+        .withPassword("ValidPass123")
+        .withConfirmPassword("ValidPass123")
+        .withDateOfBirth(LocalDate.of(1990, 1, 1))
+        .withTermsAccepted(true)
+        .build();
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            userValidator.validateForRegistration(dto);
-        });
+    ValidationException exception = assertThrows(ValidationException.class, () -> {
+      userValidator.validateForRegistration(dto);
+    });
 
-        assertEquals("Last name is too long", exception.getMessage());
-    }
+    assertEquals("Last name is too long", exception.getMessage());
+  }
 
-    @Test
-    void validateUserWithMissingLastNameThrowsException() {
-        UserRegisterDto  dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
-            .withFirstName("ValidFirstName")
-            .withLastName(null)
-            .withEmail("valid@example.com")
-            .withPassword("ValidPass123")
-            .withConfirmPassword("ValidPass123")
-            .withDateOfBirth(LocalDate.of(1990, 1, 1))
-            .withTermsAccepted(true)
-            .build();
+  @Test
+  void validateUserWithMissingLastNameThrowsException() {
+    UserRegisterDto  dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+        .withFirstName("ValidFirstName")
+        .withLastName(null)
+        .withEmail("valid@example.com")
+        .withPassword("ValidPass123")
+        .withConfirmPassword("ValidPass123")
+        .withDateOfBirth(LocalDate.of(1990, 1, 1))
+        .withTermsAccepted(true)
+        .build();
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            userValidator.validateForRegistration(dto);
-        });
+    ValidationException exception = assertThrows(ValidationException.class, () -> {
+      userValidator.validateForRegistration(dto);
+    });
 
-        assertEquals("Last name is required", exception.getMessage());
-    }
+    assertEquals("Last name is required", exception.getMessage());
+  }
 
-    @Test
-    void validateUserWithInvalidEmailThrowsException() {
-        UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
-            .withFirstName("Valid")
-            .withLastName("User")
-            .withEmail("invalidemail")
-            .withPassword("ValidPass123")
-            .withConfirmPassword("ValidPass123")
-            .withDateOfBirth(LocalDate.of(1990, 1, 1))
-            .withTermsAccepted(true)
-            .build();
+  @Test
+  void validateUserWithInvalidEmailThrowsException() {
+    UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+        .withFirstName("Valid")
+        .withLastName("User")
+        .withEmail("invalidemail")
+        .withPassword("ValidPass123")
+        .withConfirmPassword("ValidPass123")
+        .withDateOfBirth(LocalDate.of(1990, 1, 1))
+        .withTermsAccepted(true)
+        .build();
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            userValidator.validateForRegistration(dto);
-        });
+    ValidationException exception = assertThrows(ValidationException.class, () -> {
+      userValidator.validateForRegistration(dto);
+    });
 
-        assertEquals("Email is not valid", exception.getMessage());
-    }
+    assertEquals("Email is not valid", exception.getMessage());
+  }
 
-    @Test
-    void validateUserWithFutureBirthDateThrowsException() {
-        UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
-            .withFirstName("Valid")
-            .withLastName("User")
-            .withEmail("valid@example.com")
-            .withPassword("ValidPass123")
-            .withConfirmPassword("ValidPass123")
-            .withDateOfBirth(LocalDate.now().plusDays(1))
-            .withTermsAccepted(true)
-            .build();
+  @Test
+  void validateUserWithFutureBirthDateThrowsException() {
+    UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+        .withFirstName("Valid")
+        .withLastName("User")
+        .withEmail("valid@example.com")
+        .withPassword("ValidPass123")
+        .withConfirmPassword("ValidPass123")
+        .withDateOfBirth(LocalDate.now().plusDays(1))
+        .withTermsAccepted(true)
+        .build();
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            userValidator.validateForRegistration(dto);
-        });
+    ValidationException exception = assertThrows(ValidationException.class, () -> {
+      userValidator.validateForRegistration(dto);
+    });
 
-        assertEquals("The Birthdate must be in the past", exception.getMessage());
-    }
+    assertEquals("The Birthdate must be in the past", exception.getMessage());
+  }
 
-    @Test
-    void validateUserWithTooShortPasswordThrowsException() {
-        UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
-            .withFirstName("Valid")
-            .withLastName("User")
-            .withEmail("valid@example.com")
-            .withPassword("short")
-            .withConfirmPassword("short")
-            .withDateOfBirth(LocalDate.of(1990, 1, 1))
-            .withTermsAccepted(true)
-            .build();
+  @Test
+  void validateUserWithTooShortPasswordThrowsException() {
+    UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+        .withFirstName("Valid")
+        .withLastName("User")
+        .withEmail("valid@example.com")
+        .withPassword("short")
+        .withConfirmPassword("short")
+        .withDateOfBirth(LocalDate.of(1990, 1, 1))
+        .withTermsAccepted(true)
+        .build();
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            userValidator.validateForRegistration(dto);
-        });
+    ValidationException exception = assertThrows(ValidationException.class, () -> {
+      userValidator.validateForRegistration(dto);
+    });
 
-        assertEquals("Password must be at least 8 characters", exception.getMessage());
-    }
+    assertEquals("Password must be at least 8 characters", exception.getMessage());
+  }
 
-    @Test
-    void validateUserWithTooShortConfirmPasswordThrowsException() {
-        UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
-            .withFirstName("Valid")
-            .withLastName("User")
-            .withEmail("valid@example.com")
-            .withPassword("tooshort")
-            .withConfirmPassword("short")
-            .withDateOfBirth(LocalDate.of(1990, 1, 1))
-            .withTermsAccepted(true)
-            .build();
+  @Test
+  void validateUserWithTooShortConfirmPasswordThrowsException() {
+    UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+        .withFirstName("Valid")
+        .withLastName("User")
+        .withEmail("valid@example.com")
+        .withPassword("tooshort")
+        .withConfirmPassword("short")
+        .withDateOfBirth(LocalDate.of(1990, 1, 1))
+        .withTermsAccepted(true)
+        .build();
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            userValidator.validateForRegistration(dto);
-        });
+    ValidationException exception = assertThrows(ValidationException.class, () -> {
+      userValidator.validateForRegistration(dto);
+    });
 
-        assertEquals("ConfirmPassword must be at least 8 characters", exception.getMessage());
-    }
+    assertEquals("ConfirmPassword must be at least 8 characters", exception.getMessage());
+  }
 
-    @Test
-    void validateUserWithPasswordsNotEqualThrowsException() {
-        UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
-            .withFirstName("Valid")
-            .withLastName("User")
-            .withEmail("valid@example.com")
-            .withPassword("ValidPass123")
-            .withConfirmPassword("DifferentPass123")
-            .withDateOfBirth(LocalDate.of(1990, 1, 1))
-            .withTermsAccepted(true)
-            .build();
+  @Test
+  void validateUserWithPasswordsNotEqualThrowsException() {
+    UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+        .withFirstName("Valid")
+        .withLastName("User")
+        .withEmail("valid@example.com")
+        .withPassword("ValidPass123")
+        .withConfirmPassword("DifferentPass123")
+        .withDateOfBirth(LocalDate.of(1990, 1, 1))
+        .withTermsAccepted(true)
+        .build();
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            userValidator.validateForRegistration(dto);
-        });
+    ValidationException exception = assertThrows(ValidationException.class, () -> {
+      userValidator.validateForRegistration(dto);
+    });
 
-        assertEquals("Passwords do not match", exception.getMessage());
-    }
+    assertEquals("Passwords do not match", exception.getMessage());
+  }
 
-    @Test
-    void validateUserCheckBoxUntickedThrowsException() {
-        UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
-            .withFirstName("Valid")
-            .withLastName("User")
-            .withEmail("valid@example.com")
-            .withPassword("ValidPass123")
-            .withConfirmPassword("ValidPass123")
-            .withDateOfBirth(LocalDate.of(1990, 1, 1))
-            .withTermsAccepted(false)
-            .build();
+  @Test
+  void validateUserCheckBoxUntickedThrowsException() {
+    UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+        .withFirstName("Valid")
+        .withLastName("User")
+        .withEmail("valid@example.com")
+        .withPassword("ValidPass123")
+        .withConfirmPassword("ValidPass123")
+        .withDateOfBirth(LocalDate.of(1990, 1, 1))
+        .withTermsAccepted(false)
+        .build();
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
-            userValidator.validateForRegistration(dto);
-        });
+    ValidationException exception = assertThrows(ValidationException.class, () -> {
+      userValidator.validateForRegistration(dto);
+    });
 
-        assertEquals("Terms and Condition must be accepted", exception.getMessage());
-    }
+    assertEquals("Terms and Condition must be accepted", exception.getMessage());
+  }
 
-    @Test
-    void validateEmptyUserThrowsException() {
-        UserRegisterDto  dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
-            .withFirstName("")
-            .withLastName("")
-            .withEmail("")
-            .withPassword("")
-            .withConfirmPassword("")
-            .withDateOfBirth(null)
-            .withTermsAccepted(false)
-            .build();
+  @Test
+  void validateEmptyUserThrowsException() {
+    UserRegisterDto  dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+        .withFirstName("")
+        .withLastName("")
+        .withEmail("")
+        .withPassword("")
+        .withConfirmPassword("")
+        .withDateOfBirth(null)
+        .withTermsAccepted(false)
+        .build();
 
 
-        assertThrows(ValidationException.class, () -> userValidator.validateForRegistration(dto));
-    }
+    assertThrows(ValidationException.class, () -> userValidator.validateForRegistration(dto));
+  }
 
-    @Test
-    void validateValidUserDoesNotThrowException() {
-        UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
-            .withFirstName("Valid")
-            .withLastName("User")
-            .withEmail("valid@example.com")
-            .withPassword("ValidPass")
-            .withConfirmPassword("ValidPass")
-            .withDateOfBirth(LocalDate.of(1990, 1, 1))
-            .withTermsAccepted(true)
-            .build();
+  @Test
+  void validateValidUserDoesNotThrowException() {
+    UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+        .withFirstName("Valid")
+        .withLastName("User")
+        .withEmail("valid@example.com")
+        .withPassword("ValidPass")
+        .withConfirmPassword("ValidPass")
+        .withDateOfBirth(LocalDate.of(1990, 1, 1))
+        .withTermsAccepted(true)
+        .build();
 
-        assertDoesNotThrow(() -> userValidator.validateForRegistration(dto));
-    }
+    assertDoesNotThrow(() -> userValidator.validateForRegistration(dto));
+  }
 }
