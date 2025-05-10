@@ -3,14 +3,17 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.LoginAttemptException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
-import jakarta.validation.ValidationException;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +24,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import static at.ac.tuwien.sepr.groupphase.backend.config.SecurityConstants.MAX_LOGIN_TRIES;
-
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustomUserDetailService implements UserService {
@@ -72,6 +74,17 @@ public class CustomUserDetailService implements UserService {
             return applicationUser;
         }
         throw new NotFoundException(String.format("Could not find the user with the email address %s", email));
+    }
+
+    @Override
+    public ApplicationUser findUserById(Long id) {
+        LOGGER.debug("Find user by id");
+        Optional<ApplicationUser> applicationUser = userRepository.findById(id);
+        if (applicationUser.isPresent()) {
+            return applicationUser.get();
+        }
+        throw new NotFoundException(String.format("Could not find the user with the id %d", id));
+
     }
 
     @Override
@@ -161,5 +174,46 @@ public class CustomUserDetailService implements UserService {
         user.setLoginTries(0);
         userRepository.save(user);
     }
+
+
+    @Transactional
+    @Override
+    public void delete(String email) {
+        ApplicationUser user = userRepository.findByEmail(email);
+
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+
+        userRepository.deleteByEmail(email);
+    }
+
+
+    @Transactional
+    @Override
+    public void update(String email, UserUpdateDto userToUpdate) throws ValidationException {
+        var userInDatabase = userRepository.findByEmail(email);
+
+        if (userInDatabase == null) {
+            throw new NotFoundException("User not found");
+        }
+
+        if (!email.equals(userToUpdate.getEmail()) && userRepository.existsByEmail(userToUpdate.getEmail())) {
+            throw new ConflictException("User with Email already exists");
+        }
+
+        userValidator.validateForUpdate(userToUpdate);
+
+        userInDatabase.setFirstName(userToUpdate.getFirstName());
+        userInDatabase.setLastName(userToUpdate.getLastName());
+        userInDatabase.setDateOfBirth(userToUpdate.getDateOfBirth());
+        userInDatabase.setEmail(userToUpdate.getEmail());
+        userInDatabase.setSex(userToUpdate.getSex());
+        userInDatabase.setAddress(userToUpdate.getAddress());
+        userInDatabase.setPaymentData(userToUpdate.getPaymentData());
+
+        userRepository.save(userInDatabase);
+    }
+
 
 }
