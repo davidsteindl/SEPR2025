@@ -2,7 +2,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {HeaderComponent} from './components/header/header.component';
@@ -26,6 +26,7 @@ import {ToastrModule} from "ngx-toastr";
         AppRoutingModule,
         ReactiveFormsModule,
         NgbModule,
+        BrowserAnimationsModule,
         ToastrModule.forRoot(),
         FormsModule], providers: [httpInterceptorProviders, provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {
