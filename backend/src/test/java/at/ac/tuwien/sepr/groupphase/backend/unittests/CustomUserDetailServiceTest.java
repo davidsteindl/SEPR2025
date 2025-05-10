@@ -1,10 +1,13 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.exception.LoginAttemptException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
@@ -16,11 +19,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -33,6 +34,9 @@ class CustomUserDetailServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private UserValidator userValidator;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -266,5 +270,72 @@ class CustomUserDetailServiceTest {
         verify(userRepository).save(any(ApplicationUser.class));
     }
 
+
+    @Test
+    void delete_Success() {
+        String email = "user@email.com";
+        ApplicationUser mockUser = new ApplicationUser();
+        when(userRepository.findByEmail(email)).thenReturn(mockUser);
+
+        userDetailService.delete(email);
+
+        verify(userRepository).deleteByEmail(email);
+    }
+
+
+    @Test
+    void delete_UserNotFound() {
+        String email = "user@email.com";
+        when(userRepository.findByEmail(email)).thenReturn(null);
+
+        assertThrows(NotFoundException.class, () -> userDetailService.delete(email));  // Expecting NotFoundException
+        verify(userRepository, never()).deleteByEmail(any());  // Ensure delete was never called
+    }
+
+
+    @Test
+    void update_Success() throws ValidationException {
+        String email = "user@email.com";
+        UserUpdateDto userUpdateDto = new UserUpdateDto();
+        userUpdateDto.setFirstName("NewFirstName");
+        userUpdateDto.setLastName("NewLastName");
+        userUpdateDto.setDateOfBirth(LocalDate.of(1990, 1, 1));
+        userUpdateDto.setSex(Sex.MALE);
+        userUpdateDto.setAddress("New Address");
+        userUpdateDto.setPaymentData("New Payment Data");
+
+        when(userRepository.findByEmail(email)).thenReturn(testUser);
+        doNothing().when(userValidator).validateForUpdate(userUpdateDto);
+
+        userDetailService.update(email, userUpdateDto);
+
+        assertAll(
+            () -> assertEquals("NewFirstName", testUser.getFirstName()),
+            () -> assertEquals("NewLastName", testUser.getLastName()),
+            () -> assertEquals(LocalDate.of(1990, 1, 1), testUser.getDateOfBirth()),
+            () -> assertEquals(Sex.MALE, testUser.getSex()),
+            () -> assertEquals("New Address", testUser.getAddress()),
+            () -> assertEquals("New Payment Data", testUser.getPaymentData())
+        );
+        verify(userRepository).save(testUser);
+    }
+
+
+    @Test
+    void update_UserNotFound() {
+        String email = "user@email.com";
+        UserUpdateDto userUpdateDto = new UserUpdateDto();
+        userUpdateDto.setFirstName("NewFirstName");
+        userUpdateDto.setLastName("NewLastName");
+        userUpdateDto.setDateOfBirth(LocalDate.of(1990, 1, 1));
+        userUpdateDto.setSex(Sex.MALE);
+        userUpdateDto.setAddress("New Address");
+        userUpdateDto.setPaymentData("New Payment Data");
+
+        when(userRepository.findByEmail(email)).thenReturn(null);
+
+        assertThrows(NotFoundException.class, () -> userDetailService.update(email, userUpdateDto));
+        verify(userRepository, never()).save(any());
+    }
 
 }
