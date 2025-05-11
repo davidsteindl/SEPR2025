@@ -10,7 +10,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PerformanceDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PerformanceSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.SearchService;
 import at.ac.tuwien.sepr.groupphase.backend.service.specifications.EventSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SearchValidator;
