@@ -98,7 +98,7 @@ public class EventServiceTest {
     }
 
     @Test
-    public void testCreateEvent_validEvent_savesSuccessfully() {
+    public void testCreateEvent_validEvent_savesSuccessfully() throws ValidationException {
         Event newEvent = Event.EventBuilder.anEvent()
             .withName("New Event")
             .withCategory(Event.EventCategory.CLASSICAL)

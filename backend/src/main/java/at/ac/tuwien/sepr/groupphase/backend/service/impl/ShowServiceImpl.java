@@ -45,29 +45,29 @@ public class ShowServiceImpl implements ShowService {
     }
 
     @Override
-    public Show createShow(Show show) {
+    public Show createShow(Show show) throws ValidationException {
         LOGGER.info("Save show {}", show);
         if (show.getEvent().getId() == null) {
             LOGGER.error("Event ID must not be null");
-            throw new ValidationException("Event ID must not be null");
+            throw new ValidationException("Event ID must not be null", List.of("Event ID must not be null"));
         } else {
             Event event = eventRepository.findById(show.getEvent().getId())
-                .orElseThrow(() -> new ValidationException("Event with ID " + show.getEvent().getId() + " not found"));
+                .orElseThrow(() -> new ValidationException("Event ID must not be null", List.of("Event ID must not be null")));
             show.setEvent(event);
         }
 
         if (show.getArtists() == null || show.getArtists().isEmpty()) {
             LOGGER.error("Show must have at least one artist");
-            throw new ValidationException("Show must have at least one artist");
+            throw new ValidationException("Show must have at least one artist", List.of("Artist list is empty"));
         } else {
             Set<Artist> existingArtists = new HashSet<>();
             for (Artist artist : show.getArtists()) {
                 if (artist.getId() == null) {
                     LOGGER.error("Artist ID must not be null");
-                    throw new ValidationException("Artist ID must not be null");
+                    throw new ValidationException("Artist ID must not be null", List.of("Artist ID must not be null"));
                 }
                 Artist existingArtist = artistRepository.findById(artist.getId())
-                    .orElseThrow(() -> new ValidationException("Artist with ID " + artist.getId() + " not found"));
+                    .orElseThrow(() -> new ValidationException("Artist not found", List.of("Artist not found")));
                 existingArtists.add(existingArtist);
             }
             show.setArtists(existingArtists);

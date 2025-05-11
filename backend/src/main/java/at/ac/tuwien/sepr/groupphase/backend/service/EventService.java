@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 
 import java.util.List;
 
@@ -26,5 +27,5 @@ public interface EventService {
      * @param event the event to save
      * @return the saved event
      */
-    Event createEvent(Event event);
+    Event createEvent(Event event) throws ValidationException;
 }

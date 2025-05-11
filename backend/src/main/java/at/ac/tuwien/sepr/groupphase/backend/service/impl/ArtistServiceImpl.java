@@ -41,13 +41,13 @@ public class ArtistServiceImpl implements ArtistService {
     }
 
     @Override
-    public Artist createArtist(Artist artist) {
+    public Artist createArtist(Artist artist) throws ValidationException {
         LOGGER.info("Save artist {}", artist);
         Set<Show> existingShows = new HashSet<>();
         if (artist.getShows() != null) {
             for (Show show : artist.getShows()) {
                 Show existingShow = showRepository.findById(show.getId())
-                    .orElseThrow(() -> new ValidationException("Show with id " + show.getId() + " not found"));
+                    .orElseThrow(() -> new ValidationException("Show not found", List.of("Show not found")));
                 existingShows.add(existingShow);
             }
         }

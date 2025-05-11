@@ -119,7 +119,7 @@ public class ShowServiceTest {
     }
 
     @Test
-    public void testCreateShow_validInput_savesSuccessfully() {
+    public void testCreateShow_validInput_savesSuccessfully() throws ValidationException {
         Show newShow = Show.ShowBuilder.aShow()
             .withDuration(120)
             .withDateTime(LocalDateTime.now().plusDays(2))

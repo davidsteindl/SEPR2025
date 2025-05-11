@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -59,7 +60,7 @@ public class EventEndpoint {
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create a new event", security = @SecurityRequirement(name = "apiKey"))
-    public EventDetailDto createEvent(@RequestBody @Valid CreateEventDto createEventDto) {
+    public EventDetailDto createEvent(@RequestBody @Valid CreateEventDto createEventDto) throws ValidationException {
         LOGGER.info("POST /api/v1/events");
         Event event = eventService.createEvent(eventMapper.createEventDtoToEvent(createEventDto));
         return eventMapper.eventToEventDetailDto(event);

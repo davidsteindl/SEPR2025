@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 
 import java.util.List;
 
@@ -26,5 +27,5 @@ public interface ShowService {
      * @param show the show to save
      * @return the saved show
      */
-    Show createShow(Show show);
+    Show createShow(Show show) throws ValidationException;
 }

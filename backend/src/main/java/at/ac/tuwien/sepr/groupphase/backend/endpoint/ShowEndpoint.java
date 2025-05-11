@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateShowDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -59,7 +60,7 @@ public class ShowEndpoint {
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create a new show", security = @SecurityRequirement(name = "apiKey"))
-    public ShowDetailDto createShow(@RequestBody @Valid CreateShowDto createShowDto) {
+    public ShowDetailDto createShow(@RequestBody @Valid CreateShowDto createShowDto) throws ValidationException {
         LOGGER.info("POST /api/v1/shows");
         Show show = showService.createShow(showMapper.createShowDtoToShow(createShowDto));
         return showMapper.showToShowDetailDto(show);
