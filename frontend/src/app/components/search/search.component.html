@@ -53,15 +53,14 @@
     <div class="mt-4" *ngIf="results.length > 0">
         <h5 class="text-primary">Results:</h5>
 
-        <div class="list-group">
-            <div *ngFor="let artist of results"
-                 class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                    <strong>{{ artist.stagename || (artist.firstname + ' ' + artist.lastname) }}</strong>
-                </div>
-                <button class="btn btn-outline-secondary btn-sm">View artist</button>
-            </div>
-        </div>
+      <ul class="list-group">
+        <li *ngFor="let artist of results" class="list-group-item d-flex justify-content-between align-items-center">
+          <div style="font-weight: bold">
+            {{ artist.stagename || (artist.firstname + ' ' + artist.lastname) }}
+          </div>
+          <button class="view-button">View artist</button>
+        </li>
+      </ul>
     </div>
 
 </div>
