@@ -55,7 +55,7 @@ public class CustomSearchService implements SearchService {
 
     @Override
     public Page<EventSearchResultDto> searchEvents(EventSearchDto eventSearchDto) {
-        LOGGER.debug("Search events with criteria: {}");
+        LOGGER.debug("Search events with criteria: {}", eventSearchDto);
 
         searchValidator.validateForEvents(eventSearchDto);
 
