@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 
 import java.util.List;
 
@@ -26,5 +27,5 @@ public interface ArtistService {
      * @param artist the artist to save
      * @return the saved artist
      */
-    Artist createArtist(Artist artist);
+    Artist createArtist(Artist artist) throws ValidationException;
 }

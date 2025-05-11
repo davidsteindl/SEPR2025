@@ -28,9 +28,9 @@ public interface ShowMapper {
     List<ShowDetailDto> showsToShowDetailDtos(List<Show> shows);
 
     @Named("mapEventIdToEvent")
-    default Event mapEventIdToEvent(Long eventId) {
+    default Event mapEventIdToEvent(Long eventId) throws ValidationException {
         if (eventId == null) {
-            throw new ValidationException("Event ID must not be null");
+            throw new ValidationException("Event ID must not be null", List.of("Event ID is null"));
         }
         Event event = new Event();
         event.setId(eventId);
@@ -48,9 +48,9 @@ public interface ShowMapper {
     }
 
     @Named("mapIdsToArtists")
-    default Set<Artist> mapIdsToArtists(Set<Long> artistIds) {
+    default Set<Artist> mapIdsToArtists(Set<Long> artistIds) throws ValidationException {
         if (artistIds == null) {
-            throw new ValidationException("Artist IDs must not be null");
+            throw new ValidationException("Artist IDs must not be null", List.of("Event ID is null"));
         }
         return artistIds.stream()
             .map(id -> {

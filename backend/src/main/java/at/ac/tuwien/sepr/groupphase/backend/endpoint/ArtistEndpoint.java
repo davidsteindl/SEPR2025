@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateArtistDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ArtistMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.service.ArtistService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -59,8 +60,9 @@ public class ArtistEndpoint {
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create a new artist", security = @SecurityRequirement(name = "apiKey"))
-    public ArtistDetailDto createArtist(@RequestBody @Valid CreateArtistDto createArtistDto) {
+    public ArtistDetailDto createArtist(@RequestBody @Valid CreateArtistDto createArtistDto) throws ValidationException {
         LOGGER.info("POST /api/v1/artists");
+
         Artist artist = artistService.createArtist(artistMapper.createArtistDtoToArtist(createArtistDto));
         return artistMapper.artistToArtistDetailDto(artist);
     }

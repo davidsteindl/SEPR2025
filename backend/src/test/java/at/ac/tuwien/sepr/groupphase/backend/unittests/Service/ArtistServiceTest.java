@@ -126,7 +126,7 @@ public class ArtistServiceTest {
     }
 
     @Test
-    public void testCreateArtist_validArtist_savesSuccessfully() {
+    public void testCreateArtist_validArtist_savesSuccessfully() throws ValidationException {
         Artist newArtist = Artist.ArtistBuilder.anArtist()
             .withFirstname("Justin")
             .withLastname("Bieber")
@@ -167,7 +167,7 @@ public class ArtistServiceTest {
     }
 
     @Test
-    public void testCreateArtist_withNoShows_savesSuccessfully() {
+    public void testCreateArtist_withNoShows_savesSuccessfully() throws ValidationException {
         Artist soloArtist = Artist.ArtistBuilder.anArtist()
             .withFirstname("Solo")
             .withLastname("Artist")

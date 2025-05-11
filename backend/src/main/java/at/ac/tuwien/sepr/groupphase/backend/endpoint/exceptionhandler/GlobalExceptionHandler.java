@@ -88,13 +88,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(status).body(pd);
     }
 
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ProblemDetail> handleValidationException(ValidationException ex, ServletWebRequest req) {
-        LOG.warn("Validation failed: {}", ex.getMessage());
-        ProblemDetail pd = toProblemDetail(HttpStatus.BAD_REQUEST, ex.getMessage(), req);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(pd);
-    }
-
     /**
      * Handles {@link ValidationException} by returning a 422 Unprocessable Entity response.
      *
