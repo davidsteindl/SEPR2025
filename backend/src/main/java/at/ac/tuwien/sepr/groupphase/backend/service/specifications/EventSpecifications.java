@@ -1,4 +1,4 @@
-package at.ac.tuwien.sepr.groupphase.backend.service.impl;
+package at.ac.tuwien.sepr.groupphase.backend.service.specifications;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import org.springframework.data.jpa.domain.Specification;
