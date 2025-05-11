@@ -1,13 +1,7 @@
-package at.ac.tuwien.sepr.groupphase.backend.unittests;
+package at.ac.tuwien.sepr.groupphase.backend.unittests.Repository;
 
-import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
-import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
-import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
+import at.ac.tuwien.sepr.groupphase.backend.entity.*;
+import at.ac.tuwien.sepr.groupphase.backend.repository.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +12,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.HashSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,10 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 @ActiveProfiles("test")
-public class ArtistRepositoryTest {
-
-    @Autowired
-    private ArtistRepository artistRepository;
+public class ShowRepositoryTest {
 
     @Autowired
     private ShowRepository showRepository;
@@ -41,42 +33,49 @@ public class ArtistRepositoryTest {
     @Autowired
     private EventLocationRepository eventLocationRepository;
 
-    private Artist savedArtist;
+    @Autowired
+    private ArtistRepository artistRepository;
 
     @BeforeEach
     public void setUp() {
         EventLocation location = EventLocation.EventLocationBuilder.anEventLocation()
-            .withName("Club X")
+            .withName("Festival Ground")
             .withCountry("Austria")
-            .withCity("Vienna")
-            .withStreet("Party Street")
-            .withPostalCode("1020")
-            .withType(EventLocation.LocationType.CLUB)
+            .withCity("Salzburg")
+            .withStreet("Festival Street")
+            .withPostalCode("5020")
+            .withType(EventLocation.LocationType.FESTIVAL_GROUND)
             .build();
         eventLocationRepository.save(location);
 
         Event event = Event.EventBuilder.anEvent()
-            .withName("Electronic Night")
-            .withCategory(Event.EventCategory.ELECTRONIC)
+            .withName("Summer Fest")
+            .withCategory(Event.EventCategory.POP)
             .withLocation(location)
             .build();
         eventRepository.save(event);
 
         Show show = Show.ShowBuilder.aShow()
-            .withDuration(90)
+            .withDuration(150)
             .withDateTime(LocalDateTime.now())
             .withEvent(event)
             .build();
         showRepository.save(show);
 
         Artist artist = Artist.ArtistBuilder.anArtist()
-            .withFirstname("Anna")
-            .withLastname("Smith")
-            .withStagename("DJ Anna")
-            .withShows(Set.of(show))
+            .withFirstname("Max")
+            .withLastname("Mustermann")
+            .withStagename("MaxStar")
             .build();
-        savedArtist = artistRepository.save(artist);
+        artistRepository.save(artist);
+
+        artist.setShows(new HashSet<>(List.of(show)));
+        artistRepository.save(artist);
+
+        show.setArtists(new HashSet<>(List.of(artist)));
+        showRepository.save(show);
     }
+
 
     @AfterEach
     public void deleteData() {
@@ -88,19 +87,19 @@ public class ArtistRepositoryTest {
 
     @Test
     public void findAllAndGetSize1() {
-        assertEquals(1, artistRepository.findAll().size());
+        assertEquals(1, showRepository.findAll().size());
     }
 
     @Test
     public void findById() {
-        Artist artist = artistRepository.findAll().getFirst();
+        Show show = showRepository.findAll().getFirst();
         assertAll(
-            () -> assertNotNull(artistRepository.findById(artist.getId())),
-            () -> assertNotNull(artist.getId()),
-            () -> assertEquals("Anna", artist.getFirstname()),
-            () -> assertEquals("Smith", artist.getLastname()),
-            () -> assertEquals("DJ Anna", artist.getStagename()),
-            () -> assertEquals(1, artist.getShows().size())
+            () -> assertNotNull(showRepository.findById(show.getId())),
+            () -> assertNotNull(show.getId()),
+            () -> assertEquals(150, show.getDuration()),
+            () -> assertEquals("Summer Fest", show.getEvent().getName()),
+            () -> assertEquals("Festival Ground", show.getEvent().getLocation().getName()),
+            () -> assertEquals(1, show.getArtists().size())
         );
     }
 }
