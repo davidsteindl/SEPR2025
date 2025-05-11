@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
@@ -43,7 +44,7 @@ public class AuthenticationEndpoint {
      */
     @PermitAll
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@Valid @RequestBody UserRegisterDto userRegisterDto) {
+    public ResponseEntity<Void> register(@Valid @RequestBody UserRegisterDto userRegisterDto) throws ValidationException {
 
         userService.register(userRegisterDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();

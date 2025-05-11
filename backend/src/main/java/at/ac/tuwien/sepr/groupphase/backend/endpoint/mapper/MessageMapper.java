@@ -31,4 +31,3 @@ public interface MessageMapper {
 
     MessageInquiryDto messageToMessageInquiryDto(Message message);
 }
-
