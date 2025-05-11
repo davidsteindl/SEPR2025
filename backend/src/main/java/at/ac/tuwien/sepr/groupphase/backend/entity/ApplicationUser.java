@@ -1,11 +1,11 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -28,8 +28,17 @@ public class ApplicationUser {
     @Column(nullable = false)
     private LocalDate dateOfBirth;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
+    private Sex sex;
+
+    @Column(nullable = false, length = 100, unique = true)
     private String email;
+
+    @Column(nullable = true, length = 200)
+    private String address;
+
+    @Column(nullable = true, length = 200)
+    private String paymentData;
 
     @Column(nullable = false, length = 100)
     private boolean locked;
@@ -70,6 +79,30 @@ public class ApplicationUser {
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    public Sex getSex() {
+        return sex;
+    }
+
+    public void setSex(Sex sex) {
+        this.sex = sex;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getPaymentData() {
+        return paymentData;
+    }
+
+    public void setPaymentData(String paymentData) {
+        this.paymentData = paymentData;
     }
 
     public String getEmail() {
@@ -114,32 +147,36 @@ public class ApplicationUser {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof ApplicationUser applicationUser)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        return Objects.equals(id, applicationUser.id)
-            && Objects.equals(firstName, applicationUser.firstName)
-            && Objects.equals(lastName, applicationUser.lastName)
-            && Objects.equals(dateOfBirth, applicationUser.dateOfBirth)
-            && Objects.equals(email, applicationUser.email);
+        ApplicationUser that = (ApplicationUser) o;
+        return locked == that.locked && admin == that.admin && loginTries == that.loginTries
+            && Objects.equals(id, that.id) && Objects.equals(firstName, that.firstName)
+            && Objects.equals(lastName, that.lastName) && Objects.equals(password, that.password)
+            && Objects.equals(dateOfBirth, that.dateOfBirth) && sex == that.sex
+            && Objects.equals(email, that.email) && Objects.equals(address, that.address)
+            && Objects.equals(paymentData, that.paymentData);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, dateOfBirth, email);
+        return Objects.hash(id, firstName, lastName, password, dateOfBirth, sex, email, address, paymentData, locked, admin, loginTries);
     }
 
     @Override
     public String toString() {
-        return "Message{"
+        return "ApplicationUser{"
             + "id=" + id
-            + ", firstName=" + firstName
-            + ", lastName=" + lastName
-            + ", dateOfBirth='" + dateOfBirth + '\''
+            +  ", firstName='" + firstName + '\''
+            + ", lastName='" + lastName + '\''
+            + ", dateOfBirth=" + dateOfBirth
+            + ", sex=" + sex
             + ", email='" + email + '\''
+            + ", address='" + address + '\''
+            + ", locked=" + locked
+            + ", admin=" + admin
+            + ", loginTries=" + loginTries
             + '}';
     }
 
@@ -149,7 +186,10 @@ public class ApplicationUser {
         private String lastName;
         private String password;
         private LocalDate dateOfBirth;
+        private Sex sex;
         private String email;
+        private String address;
+        private String paymentData;
         private boolean isLocked;
         private boolean isAdmin;
         private int loginTries;
@@ -186,8 +226,23 @@ public class ApplicationUser {
             return this;
         }
 
+        public ApplicationUserBuilder withSex(Sex sex) {
+            this.sex = sex;
+            return this;
+        }
+
         public ApplicationUserBuilder withEmail(String email) {
             this.email = email;
+            return this;
+        }
+
+        public ApplicationUserBuilder withAddress(String address) {
+            this.address = address;
+            return this;
+        }
+
+        public ApplicationUserBuilder withPaymentData(String paymentData) {
+            this.paymentData = paymentData;
             return this;
         }
 
@@ -213,7 +268,10 @@ public class ApplicationUser {
             user.setLastName(lastName);
             user.setPassword(password);
             user.setDateOfBirth(dateOfBirth);
+            user.setSex(sex);
             user.setEmail(email);
+            user.setAddress(address);
+            user.setPaymentData(paymentData);
             user.setLocked(isLocked);
             user.setAdmin(isAdmin);
             user.setLoginTries(loginTries);

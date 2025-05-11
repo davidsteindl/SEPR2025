@@ -2,8 +2,10 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
-import jakarta.persistence.EntityNotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -44,6 +46,22 @@ public interface UserService extends UserDetailsService {
      */
     String login(UserLoginDto userLoginDto);
 
+
+    /**
+     * Find an application user based on the id.
+     *
+     * @param id the id of the user
+     * @return an application user
+     */
+    ApplicationUser findUserById(Long id);
+
+    /**
+     * Register a new user.
+     *
+     * @param userRegisterDto registration information
+     */
+    void register(UserRegisterDto userRegisterDto) throws ValidationException;
+
     /**
      * Returns all locked users, only administrators
      * should be able to access this method.
@@ -58,4 +76,22 @@ public interface UserService extends UserDetailsService {
      * @param id the ID of the user to unlock
      */
     void unlockUser(Long id);
+
+    /**
+     * Delete user.
+     *
+     * @param email of user to delete
+     */
+    void delete(String email);
+
+    /**
+     * Update user.
+     *
+     * @param email of user
+     * @param userToUpdate updated user details
+     */
+    void update(String email, UserUpdateDto userToUpdate) throws ValidationException;
+
+
+
 }
