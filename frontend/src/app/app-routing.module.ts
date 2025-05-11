@@ -13,6 +13,7 @@ import {UserEditComponent} from "./components/user/user-edit/user-edit.component
 import {UserOrdersComponent} from "./components/user/user-orders/user-orders.component";
 import { SearchComponent } from "./components/search/search.component";
 import {AdminComponent} from "./components/admin/admin.component";
+import {ArtistEventsComponent} from "./components/artist-events/artist-events.component";
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -29,7 +30,8 @@ const routes: Routes = [
   {path: 'user-edit', component: UserEditComponent},
   {path: 'user-orders', component: UserOrdersComponent},
   {path: 'search', component: SearchComponent},
-  {path: 'admin', component: AdminComponent}
+  {path: 'admin', component: AdminComponent},
+  {path: 'artists/:id/events', component: ArtistEventsComponent}
 ];
 
 @NgModule({
