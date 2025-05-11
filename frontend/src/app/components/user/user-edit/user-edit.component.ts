@@ -8,6 +8,7 @@ import {formatIsoDate} from "../../../utils/date-helper";
 import {convertFromUserToEdit, User} from 'src/app/dtos/user';
 import {UserService} from "../../../services/user.service";
 import {ErrorFormatterService} from "../../../services/error-formatter.service";
+import {AuthService} from "../../../services/auth.service";
 
 @Component({
   selector: 'app-user-edit',
@@ -22,6 +23,8 @@ import {ErrorFormatterService} from "../../../services/error-formatter.service";
 export class UserEditComponent implements OnInit {
   loading = false;
 
+  email : string = '';
+
   user: User = {
     firstName: '',
     lastName: '',
@@ -35,6 +38,7 @@ export class UserEditComponent implements OnInit {
 
   constructor(
     private service: UserService,
+    public authService: AuthService,
     private router: Router,
     private notification: ToastrService,
     private errorFormatter: ErrorFormatterService
@@ -59,6 +63,7 @@ export class UserEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
     this.user = {
       dateOfBirth: new Date(),
       sex: Sex.female,
@@ -78,6 +83,7 @@ export class UserEditComponent implements OnInit {
       next: (user) => {
         if (user) {
           this.user = user;
+          this.email = user.email;
 
         } else {
           this.notification.error('User not found!', 'Error');
@@ -105,8 +111,12 @@ export class UserEditComponent implements OnInit {
       if (this.user.address === '') {
         delete this.user.address;
       }
+      if (this.user.paymentData === '') {
+        delete this.user.paymentData;
+      }
 
       let observable: Observable<void>;
+
         if (this.service.getCurrentUser()) {
 
             observable = this.service.edit(
@@ -118,9 +128,16 @@ export class UserEditComponent implements OnInit {
 
       observable.subscribe({
         next: data => {
-           this.notification.success(`User ${this.user.firstName}
+
+          if (this.user.email !== this.email) {
+            this.notification.success('Please login again with your new Email.', 'Email has been updated.');
+            this.authService.logoutUser();
+            this.router.navigate(['/login']);
+          } else {
+            this.notification.success(`User ${this.user.firstName}
            successfully updated.`);
-           this.router.navigate(['/user']);
+            this.router.navigate(['/user']);
+          }
         },
         error: error => {
            console.error('Error saving user', error);

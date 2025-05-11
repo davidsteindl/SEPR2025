@@ -42,9 +42,6 @@ class CustomUserDetailServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private UserValidator userValidator;
-
-    @Mock
     private JwtTokenizer jwtTokenizer;
 
     @InjectMocks
@@ -252,7 +249,7 @@ class CustomUserDetailServiceTest {
     }
 
     @Test
-    void validateUserWithValidDataRegistersSuccessfully() {
+    void validateUserWithValidDataRegistersSuccessfully() throws ValidationException {
         UserRegisterDto validUser = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
             .withFirstName("Test")
             .withLastName("User")

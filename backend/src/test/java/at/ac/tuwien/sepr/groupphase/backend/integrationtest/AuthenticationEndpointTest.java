@@ -3,7 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.AuthenticationEndpoint;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
-import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +46,7 @@ public class AuthenticationEndpointTest {
     }
 
     @Test
-    void registerUser() {
+    void registerUser() throws ValidationException {
 
         assert(Objects.equals(authenticationEndpoint.register(testUserRegisterDto), ResponseEntity.status(HttpStatus.CREATED).build()));
 

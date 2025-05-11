@@ -1,13 +1,13 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
-import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.time.LocalDate;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -37,7 +37,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("First name is too long", exception.getMessage());
+    assertEquals("Validation of user for update failed. Failed validations: First name is too long.", exception.getMessage());
   }
 
   @Test
@@ -56,7 +56,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("First name is required", exception.getMessage());
+    assertEquals("Validation of user for update failed. Failed validations: First name is required.", exception.getMessage());
   }
 
   @Test
@@ -75,7 +75,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Last name is too long", exception.getMessage());
+    assertEquals("Validation of user for update failed. Failed validations: Last name is too long.", exception.getMessage());
   }
 
   @Test
@@ -94,7 +94,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Last name is required", exception.getMessage());
+    assertEquals("Validation of user for update failed. Failed validations: Last name is required.", exception.getMessage());
   }
 
   @Test
@@ -113,7 +113,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Email is not valid", exception.getMessage());
+    assertEquals("Validation of user for update failed. Failed validations: Email is not valid.", exception.getMessage());
   }
 
   @Test
@@ -132,7 +132,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("The Birthdate must be in the past", exception.getMessage());
+    assertEquals("Validation of user for update failed. Failed validations: The Birthdate must be in the past.", exception.getMessage());
   }
 
   @Test
@@ -151,7 +151,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Password must be at least 8 characters", exception.getMessage());
+    assertEquals("Validation of user for update failed. Failed validations: Password must be at least 8 characters, ConfirmPassword must be at least 8 characters.", exception.getMessage());
   }
 
   @Test
@@ -170,7 +170,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("ConfirmPassword must be at least 8 characters", exception.getMessage());
+    assertEquals("Validation of user for update failed. Failed validations: ConfirmPassword must be at least 8 characters, Passwords do not match.", exception.getMessage());
   }
 
   @Test
@@ -189,7 +189,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Passwords do not match", exception.getMessage());
+    assertEquals("Validation of user for update failed. Failed validations: Passwords do not match.", exception.getMessage());
   }
 
   @Test
@@ -208,7 +208,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Terms and Condition must be accepted", exception.getMessage());
+    assertEquals("Validation of user for update failed. Failed validations: Terms and Condition must be accepted.", exception.getMessage());
   }
 
   @Test
@@ -241,4 +241,35 @@ public class UserValidatorTest {
 
     assertDoesNotThrow(() -> userValidator.validateForRegistration(dto));
   }
+
+  @Test
+  void validateUpdateWithAcceptedUserData() {
+    UserUpdateDto dto = new UserUpdateDto();
+    dto.setFirstName("Valid");
+    dto.setLastName("User");
+    dto.setEmail("valid@example.com");
+    dto.setDateOfBirth(LocalDate.of(1990, 1, 1));
+    dto.setSex(Sex.FEMALE);
+    dto.setAddress(null);
+    dto.setPaymentData(null);
+
+    assertDoesNotThrow(() -> userValidator.validateForUpdate(dto));
+  }
+
+  @Test
+  void validateUpdateWithInvalidUserData() throws ValidationException {
+    UserUpdateDto dto = new UserUpdateDto();
+    dto.setFirstName("Valid");
+    dto.setLastName("User");
+    dto.setEmail("valid@example.com");
+    dto.setDateOfBirth(LocalDate.of(2030, 1, 1));
+    dto.setSex(Sex.FEMALE);
+    dto.setAddress(null);
+    dto.setPaymentData(null);
+
+    assertThrows(ValidationException.class, () -> userValidator.validateForUpdate(dto));
+
+  }
+
+
 }
