@@ -28,5 +28,4 @@ export class ArtistEventsComponent implements OnInit{
       error: (err) => console.error('Fehler beim Laden des Künstlers:', err)
     });
   }
-
 }

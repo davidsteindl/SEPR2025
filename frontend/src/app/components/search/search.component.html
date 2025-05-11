@@ -58,7 +58,7 @@
           <div style="font-weight: bold">
             {{ artist.stagename || (artist.firstname + ' ' + artist.lastname) }}
           </div>
-          <button class="view-button">View artist</button>
+          <button class="view-button" [routerLink]="['/artists', artist.id, 'events']">View artist</button>
         </li>
       </ul>
     </div>

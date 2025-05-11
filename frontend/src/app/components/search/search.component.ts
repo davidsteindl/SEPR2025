@@ -2,13 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { ArtistService } from '../../services/artist.service';
+import {RouterLink} from "@angular/router";
 
 @Component({
   selector: 'app-search',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    RouterLink
   ],
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss']
