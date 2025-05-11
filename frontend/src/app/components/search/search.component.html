@@ -1,0 +1,67 @@
+<div class="container mt-4">
+
+    <h2 class="text-center mb-4">Search</h2>
+
+    <ul class="nav nav-tabs custom-tabs mb-0">
+        <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'artist'" (click)="activeTab = 'artist'">Artist</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'location'" (click)="activeTab = 'location'">Location</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'event'" (click)="activeTab = 'event'">Event</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" [class.active]="activeTab === 'performance'" (click)="activeTab = 'performance'">Performance</a>
+        </li>
+    </ul>
+
+    <div *ngIf="activeTab === 'artist'" class="tab-box">
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label for="firstname">First name</label>
+                <input id="firstname" [(ngModel)]="firstname" class="form-control"/>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="lastname">Last name</label>
+                <input id="lastname" [(ngModel)]="lastname" class="form-control"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="stagename">Stage name</label>
+            <input id="stagename" [(ngModel)]="stagename" class="form-control"/>
+        </div>
+
+        <div class="text-center">
+            <button class="btn btn-primary mt-3" (click)="search()">Search</button>
+        </div>
+    </div>
+
+    <div *ngIf="activeTab === 'location'" class="tab-box">
+        <p class="text-muted">[Location search not yet implemented]</p>
+    </div>
+
+    <div *ngIf="activeTab === 'event'" class="tab-box">
+        <p class="text-muted">[Event search not yet implemented]</p>
+    </div>
+
+    <div *ngIf="activeTab === 'performance'" class="tab-box">
+        <p class="text-muted">[Performance search not yet implemented]</p>
+    </div>
+
+    <div class="mt-4" *ngIf="results.length > 0">
+        <h5 class="text-primary">Results:</h5>
+
+        <div class="list-group">
+            <div *ngFor="let artist of results"
+                 class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{ artist.stagename || (artist.firstname + ' ' + artist.lastname) }}</strong>
+                </div>
+                <button class="btn btn-outline-secondary btn-sm">View artist</button>
+            </div>
+        </div>
+    </div>
+
+</div>

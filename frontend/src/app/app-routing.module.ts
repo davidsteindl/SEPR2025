@@ -11,7 +11,7 @@ import { AdminGuard } from './guards/admin.guard';
 import {UserComponent} from "./components/user/user.component";
 import {UserEditComponent} from "./components/user/user-edit/user-edit.component";
 import {UserOrdersComponent} from "./components/user/user-orders/user-orders.component";
-
+import { SearchComponent } from "./components/search/search.component";
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -26,7 +26,8 @@ const routes: Routes = [
   { path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent },
   {path: 'user', component: UserComponent},
   {path: 'user-edit', component: UserEditComponent},
-  {path: 'user-orders', component: UserOrdersComponent}
+  {path: 'user-orders', component: UserOrdersComponent},
+  { path: 'search', component: SearchComponent }
 ];
 
 @NgModule({
