@@ -2,7 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import org.springframework.data.jpa.domain.Specification;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
+
 
 
 public final class EventSpecifications {
