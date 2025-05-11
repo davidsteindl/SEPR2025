@@ -63,4 +63,11 @@
       </ul>
     </div>
 
+  <div class="mt-4 text-center text-muted" style="font-weight: bold"
+       *ngIf="activeTab === 'artist' && results.length === 0 && searchTriggered">
+    No artist found.
+  </div>
+
+
+
 </div>

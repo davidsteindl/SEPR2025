@@ -22,6 +22,8 @@ export class SearchComponent implements OnInit {
 
   results: any[] = [];
 
+  searchTriggered = false;
+
   ngOnInit(): void {
   }
 
@@ -50,12 +52,15 @@ export class SearchComponent implements OnInit {
     const query = this.stagename || this.firstname || this.lastname;
     if (!query.trim()) return;
 
+    this.searchTriggered = true;
+
     this.artistService.searchArtists(query).subscribe({
       next: (artists) => {
         this.results = artists;
       },
       error: (err) => {
         console.error('Error while searching for artists:', err);
+        this.results = [];
       }
     });
   }
