@@ -1,6 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
 
 import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -14,8 +16,8 @@ public class ShowDetailDto {
     private Long id;
 
     @NotNull(message = "Duration must not be null")
-    @Size(min = 10, message = "Show must have a duration of at least 10 minutes")
-    @Size(max = 600, message = "Show must have a duration of at most 600 minutes")
+    @Min(value = 10, message = "Duration must be at least 10 minutes")
+    @Max(value = 600, message = "Duration must be at most 600 minutes")
     private int duration;
 
     @NotNull(message = "Date must not be null")

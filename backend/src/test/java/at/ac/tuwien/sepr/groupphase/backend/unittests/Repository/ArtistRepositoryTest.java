@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,9 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
@@ -41,7 +40,8 @@ public class ArtistRepositoryTest {
     @Autowired
     private EventLocationRepository eventLocationRepository;
 
-    private Artist savedArtist;
+    @Autowired
+    private EntityManager entityManager;
 
     @BeforeEach
     public void setUp() {
@@ -75,7 +75,7 @@ public class ArtistRepositoryTest {
             .withStagename("DJ Anna")
             .withShows(Set.of(show))
             .build();
-        savedArtist = artistRepository.save(artist);
+        artistRepository.save(artist);
     }
 
     @AfterEach
@@ -101,6 +101,60 @@ public class ArtistRepositoryTest {
             () -> assertEquals("Smith", artist.getLastname()),
             () -> assertEquals("DJ Anna", artist.getStagename()),
             () -> assertEquals(1, artist.getShows().size())
+        );
+    }
+
+    @Test
+    public void testSaveArtist_withNullFirstname_savesSuccessfully() {
+        Artist artist = Artist.ArtistBuilder.anArtist()
+            .withFirstname(null)
+            .withLastname("Doe")
+            .withStagename("Stage")
+            .withShows(null)
+            .build();
+
+        Artist saved = artistRepository.save(artist);
+
+        assertAll(
+            () -> assertNotNull(saved.getId()),
+            () -> assertEquals("Doe", saved.getLastname()),
+            () -> assertEquals("Stage", saved.getStagename())
+        );
+    }
+
+    @Test
+    public void testSaveArtist_withNullLastname_savesSuccessfully() {
+        Artist artist = Artist.ArtistBuilder.anArtist()
+            .withFirstname("John")
+            .withLastname(null)
+            .withStagename("Stage")
+            .withShows(null)
+            .build();
+
+        Artist saved = artistRepository.save(artist);
+
+        assertAll(
+            () -> assertNotNull(saved.getId()),
+            () -> assertEquals("John", saved.getFirstname()),
+            () -> assertEquals("Stage", saved.getStagename())
+        );
+    }
+
+    @Test
+    public void testSaveArtist_withNullStagename_savesSuccessfully() {
+        Artist artist = Artist.ArtistBuilder.anArtist()
+            .withFirstname("Jane")
+            .withLastname("Doe")
+            .withStagename(null)
+            .withShows(null)
+            .build();
+
+        Artist saved = artistRepository.save(artist);
+
+        assertAll(
+            () -> assertNotNull(saved.getId()),
+            () -> assertEquals("Jane", saved.getFirstname()),
+            () -> assertEquals("Doe", saved.getLastname())
         );
     }
 }

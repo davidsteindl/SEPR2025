@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,9 +14,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
@@ -27,6 +26,9 @@ public class EventRepositoryTest {
 
     @Autowired
     private EventLocationRepository eventLocationRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @BeforeEach
     public void setUp() {
@@ -71,6 +73,65 @@ public class EventRepositoryTest {
             () -> assertEquals(Event.EventCategory.CLASSICAL, event.getCategory()),
             () -> assertEquals("Test Location", event.getLocation().getName())
         );
+    }
 
+    @Test
+    public void testSaveEvent_withNullName_throwsException() {
+        EventLocation location = eventLocationRepository.findAll().getFirst();
+
+        Event event = Event.EventBuilder.anEvent()
+            .withName(null)
+            .withCategory(Event.EventCategory.CLASSICAL)
+            .withLocation(location)
+            .build();
+
+        assertThrows(Exception.class, () -> eventRepository.saveAndFlush(event));
+        entityManager.clear();
+    }
+
+    @Test
+    public void testSaveEvent_withNullCategory_throwsException() {
+        EventLocation location = eventLocationRepository.findAll().getFirst();
+
+        Event event = Event.EventBuilder.anEvent()
+            .withName("Unnamed Event")
+            .withCategory(null)
+            .withLocation(location)
+            .build();
+
+        assertThrows(Exception.class, () -> eventRepository.saveAndFlush(event));
+        entityManager.clear();
+    }
+
+    @Test
+    public void testSaveEvent_withNullLocation_throwsException() {
+        Event event = Event.EventBuilder.anEvent()
+            .withName("New Event")
+            .withCategory(Event.EventCategory.CLASSICAL)
+            .withLocation(null)
+            .build();
+
+        assertThrows(Exception.class, () -> eventRepository.saveAndFlush(event));
+        entityManager.clear();
+    }
+
+    @Test
+    public void testSaveEvent_withValidOptionalFields_savesSuccessfully() {
+        EventLocation location = eventLocationRepository.findAll().getFirst();
+
+        Event event = Event.EventBuilder.anEvent()
+            .withName("Minimal Event")
+            .withCategory(Event.EventCategory.OTHER)
+            .withLocation(location)
+            .build();
+
+        Event saved = eventRepository.save(event);
+
+        assertAll(
+            () -> assertNotNull(saved.getId()),
+            () -> assertEquals("Minimal Event", saved.getName()),
+            () -> assertEquals(Event.EventCategory.OTHER, saved.getCategory()),
+            () -> assertEquals(location.getId(), saved.getLocation().getId())
+        );
     }
 }
