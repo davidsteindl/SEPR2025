@@ -11,6 +11,7 @@ import at.ac.tuwien.sepr.groupphase.backend.service.validators.SearchValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -57,7 +58,7 @@ class CustomSearchServiceTest {
         Page<Event> stubPage = new PageImpl<>(List.of(event), PageRequest.of(0,10), 1);
 
         when(eventRepo.findAll(
-            any(Specification.class),
+            ArgumentMatchers.<Specification<Event>>any(),
             any(Pageable.class)
         )).thenReturn(stubPage);
 
@@ -70,7 +71,7 @@ class CustomSearchServiceTest {
         Page<EventSearchResultDto> result = service.searchEvents(dto);
 
         assertEquals(1, result.getTotalElements());
-        EventSearchResultDto out = result.getContent().get(0);
+        EventSearchResultDto out = result.getContent().getFirst();
         assertEquals(1L, out.getId());
         assertEquals("Test", out.getName());
         assertEquals("Rock", out.getCategory());
