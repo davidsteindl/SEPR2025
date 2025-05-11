@@ -27,7 +27,6 @@ const routes: Routes = [
   {path: 'user', component: UserComponent},
   {path: 'user-edit', component: UserEditComponent},
   {path: 'user-orders', component: UserOrdersComponent},
-  { path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent },
   { path: 'search', component: SearchComponent }
 ];
 
