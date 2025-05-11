@@ -8,6 +8,8 @@ import { RegisterComponent } from "./components/register/register.component";
 import { TermsandconditionsComponent } from "./components/termsandconditions/termsandconditions.component";
 import { ManageAccountsComponent } from './components/manage-accounts/manage-accounts.component';
 import { AdminGuard } from './guards/admin.guard';
+import {SearchComponent} from "./components/search/search.component";
+
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -19,7 +21,8 @@ const routes: Routes = [
   },
   { path: 'register', component: RegisterComponent },
   { path: 'termsandconditions', component: TermsandconditionsComponent },
-  { path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent }
+  { path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent },
+  { path: 'search', component: SearchComponent }
 ];
 
 @NgModule({
