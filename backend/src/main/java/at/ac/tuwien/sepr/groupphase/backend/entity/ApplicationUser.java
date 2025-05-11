@@ -170,12 +170,10 @@ public class ApplicationUser {
             + "id=" + id
             +  ", firstName='" + firstName + '\''
             + ", lastName='" + lastName + '\''
-            + ", password='" + password + '\''
             + ", dateOfBirth=" + dateOfBirth
             + ", sex=" + sex
             + ", email='" + email + '\''
             + ", address='" + address + '\''
-            + ", paymentData='" + paymentData + '\''
             + ", locked=" + locked
             + ", admin=" + admin
             + ", loginTries=" + loginTries
