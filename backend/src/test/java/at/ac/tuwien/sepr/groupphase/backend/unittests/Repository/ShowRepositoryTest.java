@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.Repository;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.*;
 import at.ac.tuwien.sepr.groupphase.backend.repository.*;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,9 +16,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
@@ -35,6 +34,9 @@ public class ShowRepositoryTest {
 
     @Autowired
     private ArtistRepository artistRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @BeforeEach
     public void setUp() {
@@ -76,7 +78,6 @@ public class ShowRepositoryTest {
         showRepository.save(show);
     }
 
-
     @AfterEach
     public void deleteData() {
         artistRepository.deleteAll();
@@ -100,6 +101,79 @@ public class ShowRepositoryTest {
             () -> assertEquals("Summer Fest", show.getEvent().getName()),
             () -> assertEquals("Festival Ground", show.getEvent().getLocation().getName()),
             () -> assertEquals(1, show.getArtists().size())
+        );
+    }
+
+    @Test
+    public void testSaveShow_withTooSmallDuration_throwsException() {
+        Event event = eventRepository.findAll().getFirst();
+
+        Show show = Show.ShowBuilder.aShow()
+            .withDuration(5)
+            .withDateTime(LocalDateTime.now())
+            .withEvent(event)
+            .build();
+
+        assertThrows(Exception.class, () -> showRepository.saveAndFlush(show));
+        entityManager.clear();
+    }
+
+    @Test
+    public void testSaveShow_withTooLargeDuration_throwsException() {
+        Event event = eventRepository.findAll().getFirst();
+
+        Show show = Show.ShowBuilder.aShow()
+            .withDuration(1000)
+            .withDateTime(LocalDateTime.now())
+            .withEvent(event)
+            .build();
+
+        assertThrows(Exception.class, () -> showRepository.saveAndFlush(show));
+        entityManager.clear();
+    }
+
+    @Test
+    public void testSaveShow_withNullDate_throwsException() {
+        Event event = eventRepository.findAll().getFirst();
+
+        Show show = Show.ShowBuilder.aShow()
+            .withDuration(100)
+            .withDateTime(null)
+            .withEvent(event)
+            .build();
+
+        assertThrows(Exception.class, () -> showRepository.saveAndFlush(show));
+        entityManager.clear();
+    }
+
+    @Test
+    public void testSaveShow_withNullEvent_throwsException() {
+        Show show = Show.ShowBuilder.aShow()
+            .withDuration(100)
+            .withDateTime(LocalDateTime.now())
+            .withEvent(null)
+            .build();
+
+        assertThrows(Exception.class, () -> showRepository.saveAndFlush(show));
+        entityManager.clear();
+    }
+
+    @Test
+    public void testSaveShow_withValidFields_savesSuccessfully() {
+        Event event = eventRepository.findAll().getFirst();
+
+        Show show = Show.ShowBuilder.aShow()
+            .withDuration(120)
+            .withDateTime(LocalDateTime.now())
+            .withEvent(event)
+            .build();
+
+        Show saved = showRepository.save(show);
+
+        assertAll(
+            () -> assertNotNull(saved.getId()),
+            () -> assertEquals(120, saved.getDuration()),
+            () -> assertEquals(event.getId(), saved.getEvent().getId())
         );
     }
 }

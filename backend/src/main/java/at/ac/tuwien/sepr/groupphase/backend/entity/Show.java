@@ -8,6 +8,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -20,6 +22,8 @@ public class Show {
     private Long id;
 
     @Column(nullable = false)
+    @Min(10)
+    @Max(600)
     private int duration;
 
     @Column(nullable = false)
