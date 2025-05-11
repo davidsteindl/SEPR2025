@@ -1,6 +1,7 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild, ViewChildren} from '@angular/core';
 import {MessageService} from '../../services/message.service';
 import {Message} from '../../dtos/message';
+import {Event} from '../../dtos/event';
 import {NgbModal, NgbPaginationConfig} from '@ng-bootstrap/ng-bootstrap';
 import {UntypedFormBuilder, NgForm} from '@angular/forms';
 import {AuthService} from '../../services/auth.service';
@@ -21,6 +22,16 @@ export class MessageComponent implements OnInit {
   currentMessage: Message;
 
   private message: Message[];
+
+  selectedCategory: string = 'All';
+  categories: string[] = ['Music', 'Sport', 'Theater'];
+
+  allEvents: Event[] = [
+    { id: 1, title: "Title 1", date: 'Date 1', description: 'ShortDescr 1', soldTickets: 200, category: 'Music' },
+    { id: 2, title: "Title 2", date: 'Date 2', description: 'ShortDescr 2', soldTickets: 190, category: 'Sport' },
+    { id: 3, title: "Title 3", date: 'Date 3', description: 'ShortDescr 3', soldTickets: 195, category: 'Sport' },
+  ];
+
 
   constructor(private messageService: MessageService,
               private ngbPaginationConfig: NgbPaginationConfig,
@@ -130,5 +141,15 @@ export class MessageComponent implements OnInit {
     this.currentMessage = new Message();
     this.submitted = false;
   }
+
+  get topEvents() {
+    let filteredEvents = this.selectedCategory === 'All'
+      ? this.allEvents
+      : this.allEvents.filter(event => event.category === this.selectedCategory);
+
+    filteredEvents = filteredEvents.sort((a, b) => b.soldTickets - a.soldTickets);
+    return filteredEvents.slice(0, 10);
+  }
+
 
 }

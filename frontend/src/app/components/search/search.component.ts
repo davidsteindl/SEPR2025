@@ -20,7 +20,6 @@ export class SearchComponent {
 
   results: any[] = [];
 
-
   search(): void {
     console.log('Search clicked');
   }
