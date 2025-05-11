@@ -1,0 +1,159 @@
+<h1 class="display-4">Edit Profile</h1>
+
+<form #form="ngForm" (ngSubmit)="onSubmit(form)">
+
+ <div class="row">
+    <div class="mb-2 col-lg-6">
+      <div class="row">
+        <label for="userFirstName" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+          First Name
+        </label>
+        <div class="col-md-10 col-lg-8">
+          <input
+            type="text"
+            id="userFirstName"
+            name="userFirstName"
+            placeholder="First Name"
+            class="form-control"
+            [class]="dynamicCssClassesForInput(userNameModel)"
+            [(ngModel)]="user.firstName"
+            #userNameModel="ngModel"
+            required>
+          <div class="invalid-feedback">
+            Name is required
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-2 col-lg-6">
+      <div class="row">
+        <label for="userLastName" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+          Last Name
+        </label>
+        <div class="col-md-10 col-lg-8">
+          <input
+            type="text"
+            id="userLastName"
+            name="userLastName"
+            placeholder="Last Name"
+            class="form-control"
+            [class]="dynamicCssClassesForInput(userNameModel)"
+            [(ngModel)]="user.lastName"
+            #userNameModel="ngModel"
+            required>
+          <div class="invalid-feedback">
+            Name is required
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="mb-2 col-lg-6">
+      <div class="row">
+        <label for="userDateOfBirth" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+          Date of Birth
+        </label>
+        <div class="col-md-10 col-lg-8">
+          <input
+            type="date"
+            id="userDateOfBirth"
+            name="userDateOfBirth"
+            class="form-control"
+            [class]="dynamicCssClassesForInput(DateOfBirthModel)"
+            [(ngModel)]="userBirthDateText"
+            #DateOfBirthModel="ngModel"
+            required>
+          <div class="invalid-feedback">
+            Date of birth is required
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+  <div class="mb-2 col-lg-6">
+     <div class="row">
+       <label for="userSex" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+         Sex
+       </label>
+       <div class="col-md-10 col-lg-8">
+         <select
+           class="form-select"
+           id="userSex"
+           name="userSex"
+           [(ngModel)]="user.sex"
+           required>
+           <option value="FEMALE">Female</option>
+           <option value="MALE">Male</option>
+           <option value="OTHER">Other</option>
+         </select>
+       </div>
+     </div>
+  </div>
+
+  <div class="mb-2 col-lg-6">
+     <div class="row">
+       <label for="userEmail" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+         E-Mail
+       </label>
+       <div class="col-md-10 col-lg-8">
+         <input
+           type="text"
+           id="userEmail"
+           name="userEmail"
+           placeholder="E-Mail"
+           class="form-control"
+           [class]="dynamicCssClassesForInput(userNameModel)"
+           [(ngModel)]="user.email"
+           #userNameModel="ngModel"
+           required>
+         <div class="invalid-feedback">
+           E-Mail is required
+         </div>
+       </div>
+     </div>
+  </div>
+ </div>
+
+  <div class="row mb-2">
+     <label for="address" class="col-form-label text-md-end text-muted col-md-2">
+       Postal Address
+     </label>
+     <div class="col-md-10">
+       <textarea
+         class="form-control"
+         id="address"
+         name="address"
+         [(ngModel)]="user.address">
+       </textarea>
+     </div>
+  </div>
+
+  <div class="row mb-2">
+    <label for="paymentData" class="col-form-label text-md-end text-muted col-md-2">
+      Payment Data
+    </label>
+    <div class="col-md-10">
+        <textarea
+          class="form-control"
+          id="paymentData"
+          name="paymentData"
+          [(ngModel)]="user.paymentData">
+        </textarea>
+    </div>
+  </div>
+
+
+ <div class="mt-4 d-flex flex-row">
+   <button
+     class="btn btn-primary"
+     [disabled]="!form.valid"
+     type="submit">
+     {{ submitButtonText }}
+   </button>
+ </div>
+
+</form>

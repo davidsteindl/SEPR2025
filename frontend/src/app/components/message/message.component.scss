@@ -1,0 +1,36 @@
+.top-events-container {
+  font-family: Arial, sans-serif;
+  margin: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #5a5aa0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+  text-align: left;
+}
+
+.view-button {
+  background-color: #e5d9f2;
+  border: 1px solid #a78bfa;
+  color: #4b0082;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.view-button:hover {
+  background-color: #dcd0ff;
+}
