@@ -3,7 +3,9 @@ package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import jakarta.validation.ValidationException;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SearchValidator {
 
     public SearchValidator() {
