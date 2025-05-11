@@ -21,16 +21,16 @@
         <div class="row">
             <div class="form-group col-md-6">
                 <label for="firstname">First name</label>
-                <input id="firstname" [(ngModel)]="firstname" class="form-control" />
+                <input id="firstname" [(ngModel)]="firstname" class="form-control"/>
             </div>
             <div class="form-group col-md-6">
                 <label for="lastname">Last name</label>
-                <input id="lastname" [(ngModel)]="lastname" class="form-control" />
+                <input id="lastname" [(ngModel)]="lastname" class="form-control"/>
             </div>
         </div>
         <div class="form-group">
             <label for="stagename">Stage name</label>
-            <input id="stagename" [(ngModel)]="stagename" class="form-control" />
+            <input id="stagename" [(ngModel)]="stagename" class="form-control"/>
         </div>
 
         <div class="text-center">
@@ -55,7 +55,8 @@
         <h5 class="text-primary">Results:</h5>
 
         <div class="list-group">
-            <div *ngFor="let artist of results" class="list-group-item d-flex justify-content-between align-items-center">
+            <div *ngFor="let artist of results"
+                 class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                     <strong>{{ artist.stagename || (artist.firstname + ' ' + artist.lastname) }}</strong>
                 </div>
