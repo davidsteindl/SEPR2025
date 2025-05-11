@@ -12,30 +12,34 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.SearchService;
+import at.ac.tuwien.sepr.groupphase.backend.service.specifications.EventSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SearchValidator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class CustomSearchService implements SearchService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final EventRepository eventRepo;
-    private final ShowRepository showRepo;
     private final SearchValidator searchValidator;
 
-    public CustomSearchService(EventRepository eventRepo, ShowRepository showRepo, SearchValidator searchValidator) {
+    @Autowired
+    public CustomSearchService(EventRepository eventRepo, SearchValidator searchValidator) {
         this.eventRepo = eventRepo;
-        this.showRepo = showRepo;
         this.searchValidator = searchValidator;
     }
 
