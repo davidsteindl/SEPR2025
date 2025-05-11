@@ -37,7 +37,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Validation of user for update failed. Failed validations: First name is too long.", exception.getMessage());
+    assertEquals("Validation of user for registration failed. Failed validations: First name is too long.", exception.getMessage());
   }
 
   @Test
@@ -56,7 +56,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Validation of user for update failed. Failed validations: First name is required.", exception.getMessage());
+    assertEquals("Validation of user for registration failed. Failed validations: First name is required.", exception.getMessage());
   }
 
   @Test
@@ -75,7 +75,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Validation of user for update failed. Failed validations: Last name is too long.", exception.getMessage());
+    assertEquals("Validation of user for registration failed. Failed validations: Last name is too long.", exception.getMessage());
   }
 
   @Test
@@ -94,7 +94,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Validation of user for update failed. Failed validations: Last name is required.", exception.getMessage());
+    assertEquals("Validation of user for registration failed. Failed validations: Last name is required.", exception.getMessage());
   }
 
   @Test
@@ -113,7 +113,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Validation of user for update failed. Failed validations: Email is not valid.", exception.getMessage());
+    assertEquals("Validation of user for registration failed. Failed validations: Email is not valid.", exception.getMessage());
   }
 
   @Test
@@ -132,7 +132,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Validation of user for update failed. Failed validations: The Birthdate must be in the past.", exception.getMessage());
+    assertEquals("Validation of user for registration failed. Failed validations: The Birthdate must be in the past.", exception.getMessage());
   }
 
   @Test
@@ -151,7 +151,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Validation of user for update failed. Failed validations: Password must be at least 8 characters, ConfirmPassword must be at least 8 characters.", exception.getMessage());
+    assertEquals("Validation of user for registration failed. Failed validations: Password must be at least 8 characters, ConfirmPassword must be at least 8 characters.", exception.getMessage());
   }
 
   @Test
@@ -170,7 +170,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Validation of user for update failed. Failed validations: ConfirmPassword must be at least 8 characters, Passwords do not match.", exception.getMessage());
+    assertEquals("Validation of user for registration failed. Failed validations: ConfirmPassword must be at least 8 characters, Passwords do not match.", exception.getMessage());
   }
 
   @Test
@@ -189,7 +189,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Validation of user for update failed. Failed validations: Passwords do not match.", exception.getMessage());
+    assertEquals("Validation of user for registration failed. Failed validations: Passwords do not match.", exception.getMessage());
   }
 
   @Test
@@ -208,7 +208,7 @@ public class UserValidatorTest {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Validation of user for update failed. Failed validations: Terms and Condition must be accepted.", exception.getMessage());
+    assertEquals("Validation of user for registration failed. Failed validations: Terms and Condition must be accepted.", exception.getMessage());
   }
 
   @Test
