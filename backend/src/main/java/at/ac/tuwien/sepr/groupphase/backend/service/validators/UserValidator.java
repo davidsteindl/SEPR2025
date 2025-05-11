@@ -32,17 +32,13 @@ public class UserValidator {
 
         if (userRegisterDto.getFirstName() == null || userRegisterDto.getFirstName().isEmpty()) {
             validationErrors.add("First name is required");
-        }
-
-        if (userRegisterDto.getFirstName() != null && userRegisterDto.getFirstName().length() >= 100) {
+        } else if (userRegisterDto.getFirstName().length() >= 100) {
             validationErrors.add("First name is too long");
         }
 
         if (userRegisterDto.getLastName() == null) {
             validationErrors.add("Last name is required");
-        }
-
-        if (userRegisterDto.getLastName() != null && userRegisterDto.getLastName().length() >= 100) {
+        } else if (userRegisterDto.getLastName().length() >= 100) {
             validationErrors.add("Last name is too long");
         }
 
@@ -71,7 +67,7 @@ public class UserValidator {
         }
 
         if (!validationErrors.isEmpty()) {
-            throw new ValidationException("Validation of user for update failed", validationErrors);
+            throw new ValidationException("Validation of user for registration failed", validationErrors);
         }
 
 
@@ -107,26 +103,23 @@ public class UserValidator {
             validationErrors.add("No Email found");
         }
 
-
-        if (user.getFirstName() == null) {
-            validationErrors.add("No first Name given");
+        if (user.getFirstName() == null || user.getFirstName().isEmpty()) {
+            validationErrors.add("First name is required");
+        } else if (user.getFirstName().length() >= 100) {
+            validationErrors.add("First name is too long");
         }
 
-        if (user.getFirstName() != null && user.getFirstName().trim().isEmpty()) {
-            validationErrors.add("First Name is not valid");
+        if (user.getLastName() == null) {
+            validationErrors.add("Last name is required");
+        } else if (user.getLastName().length() >= 100) {
+            validationErrors.add("Last name is too long");
         }
+
 
         if (user.getFirstName() != null && !user.getFirstName().matches("^[a-zA-ZäöüÄÖÜ -]+$")) {
             validationErrors.add("First Name contains symbols");
         }
 
-        if (user.getLastName() == null) {
-            validationErrors.add("No Last Name given");
-        }
-
-        if (user.getLastName() != null && user.getLastName().trim().isEmpty()) {
-            validationErrors.add("Last Name is not valid");
-        }
 
         if (user.getLastName() != null && !user.getLastName().matches("^[a-zA-ZäöüÄÖÜ -]+$")) {
             validationErrors.add("Last Name contains symbols");
@@ -158,7 +151,7 @@ public class UserValidator {
         if (user.getDateOfBirth() == null) {
             validationErrors.add("No birthdate given");
         } else if (user.getDateOfBirth().isAfter(LocalDate.now())) {
-            validationErrors.add("Birthdate is younger than actual date");
+            validationErrors.add("The Birthdate must be in the past");
         }
 
 
