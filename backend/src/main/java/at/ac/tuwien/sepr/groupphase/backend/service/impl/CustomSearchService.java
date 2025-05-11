@@ -53,7 +53,7 @@ public class CustomSearchService implements SearchService {
     public Page<EventSearchResultDto> searchEvents(EventSearchDto eventSearchDto) {
         LOGGER.debug("Search events with criteria: {}");
 
-        searchValidator.validate(eventSearchDto);
+        searchValidator.validateForEvents(eventSearchDto);
 
         Specification<Event> spec = (root, query, cb) -> cb.conjunction();
         spec = spec
