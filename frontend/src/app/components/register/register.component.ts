@@ -83,8 +83,5 @@ export class RegisterComponent {
     });
   }
 
-  goToPage() {
-    this.router.navigate(['/login']);
-  }
 
 }
