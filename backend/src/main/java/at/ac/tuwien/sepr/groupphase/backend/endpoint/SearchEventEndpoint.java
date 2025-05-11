@@ -39,6 +39,12 @@ public class SearchEventEndpoint {
         this.showMapper = showMapper;
     }
 
+    /**
+     * Searches for events based on the provided search criteria.
+     *
+     * @param eventSearchDto the search criteria
+     * @return a paginated list of events matching the search criteria
+     */
     @Secured("ROLE_USER")
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
@@ -52,6 +58,12 @@ public class SearchEventEndpoint {
         return searchService.searchEvents(eventSearchDto);
     }
 
+    /**
+     * Retrieves all shows for a specific event.
+     *
+     * @param eventId the ID of the event
+     * @return a list of shows for the specified event
+     */
     @Secured("ROLE_USER")
     @GetMapping("/{eventId}/shows")
     @ResponseStatus(HttpStatus.OK)
