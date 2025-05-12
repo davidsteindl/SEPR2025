@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -158,38 +159,28 @@ public class ArtistRepositoryTest {
         );
     }
 
-    @Test
-    public void searchArtist_shouldFindByFirstnameIgnoreCase() {
-        var result = artistRepository
-            .findByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCaseOrStagenameContainingIgnoreCase(
-                "anna", null, null);
 
-        assertAll(
-            () -> assertEquals(1, result.size(), "Should find 1 artist"),
-            () -> assertEquals("Anna", result.getFirst().getFirstname(), "Firstname should match")
-        );
+    @Test
+    public void search_withUnknownStagename_returnsEmpty() {
+        var spec = at.ac.tuwien.sepr.groupphase.backend.service.impl.ArtistSpecifications.hasStagenameLike("NoName");
+
+        var result = artistRepository.findAll(spec);
+
+        assertEquals(0, result.size());
     }
 
     @Test
-    public void searchArtist_shouldFindByStagenameIgnoreCase() {
-        var result = artistRepository
-            .findByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCaseOrStagenameContainingIgnoreCase(
-                null, null, "dj");
+    public void search_withFirstnameAndLastname_specificationWorksTogether() {
+        var spec = Specification
+            .where(at.ac.tuwien.sepr.groupphase.backend.service.impl.ArtistSpecifications.hasFirstnameLike("Anna"))
+            .and(at.ac.tuwien.sepr.groupphase.backend.service.impl.ArtistSpecifications.hasLastnameLike("Smith"));
+
+        var result = artistRepository.findAll(spec);
 
         assertAll(
-            () -> assertEquals(1, result.size(), "Should find 1 artist"),
-            () -> assertEquals("DJ Anna", result.getFirst().getStagename(), "Stagename should match")
+            () -> assertEquals(1, result.size()),
+            () -> assertEquals("DJ Anna", result.getFirst().getStagename())
         );
     }
 
-    @Test
-    public void searchArtist_shouldReturnEmpty_whenNoMatch() {
-        var result = artistRepository
-            .findByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCaseOrStagenameContainingIgnoreCase(
-                "xyz", "xyz", "xyz");
-
-        assertAll(
-            () -> assertTrue(result.isEmpty(), "Should return empty list when no match")
-        );
-    }
 }

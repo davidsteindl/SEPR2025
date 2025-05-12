@@ -20,11 +20,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -63,5 +61,45 @@ public class ArtistEndpointTest implements TestData {
         artistRepository.save(testArtist);
     }
 
+    @Test
+    void search_withMatchingStagename_returnsExpectedArtist() throws Exception {
+        ArtistSearchDto search = new ArtistSearchDto();
+        search.setStagename("beatles");
 
+        MvcResult result = mockMvc.perform(post(ARTIST_BASE_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(securityProperties.getAuthHeader(),
+                    jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+                .content(objectMapper.writeValueAsString(search)))
+            .andReturn();
+
+        ArtistDto[] response = objectMapper.readValue(result.getResponse().getContentAsString(), ArtistDto[].class);
+
+        assertAll(
+            () -> assertEquals(1, response.length),
+            () -> assertEquals("John", response[0].getFirstname()),
+            () -> assertEquals("Lennon", response[0].getLastname()),
+            () -> assertEquals("The Beatles", response[0].getStagename())
+        );
+    }
+
+    @Test
+    void search_withUnknownStagename_returnsEmptyList() throws Exception {
+        ArtistSearchDto search = new ArtistSearchDto();
+        search.setStagename("Mozart");
+
+        MvcResult result = mockMvc.perform(post(ARTIST_BASE_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(securityProperties.getAuthHeader(),
+                    jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+                .content(objectMapper.writeValueAsString(search)))
+            .andReturn();
+
+        ArtistDto[] response = objectMapper.readValue(result.getResponse().getContentAsString(), ArtistDto[].class);
+
+        assertAll(
+            () -> assertNotNull(response),
+            () -> assertEquals(0, response.length)
+        );
+    }
 }
