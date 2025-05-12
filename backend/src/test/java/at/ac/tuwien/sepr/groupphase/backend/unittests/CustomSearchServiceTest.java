@@ -47,7 +47,7 @@ class CustomSearchServiceTest {
         event.setCategory(EventCategory.ROCK);
         EventLocation loc = new EventLocation(); loc.setId(2L);
         event.setLocation(loc);
-        event.setDescription("Desc");
+        event.setDescription("Description");
         Field f = Event.class.getDeclaredField("totalDuration");
         f.setAccessible(true);
         f.set(event, 90);
@@ -77,7 +77,7 @@ class CustomSearchServiceTest {
         assertEquals("Rock", out.getCategory());
         assertEquals(2L, out.getLocationId());
         assertEquals(90, out.getDuration());
-        assertEquals("Desc", out.getDescription());
+        assertEquals("Description", out.getDescription());
 
         verify(validator).validateForEvents(dto);
     }
