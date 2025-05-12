@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import jakarta.validation.ValidationException;
@@ -9,6 +10,27 @@ import org.springframework.stereotype.Component;
 public class SearchValidator {
 
     public SearchValidator() {
+
+    }
+
+    /**
+     * Validates the search criteria for artists.
+     *
+     * @param artistSearchDto the search criteria
+     * @throws ValidationException if any validation fails
+     */
+    public void validateForArtists(ArtistSearchDto artistSearchDto) {
+        if (artistSearchDto == null) {
+            throw new ValidationException("Search criteria must not be null");
+        }
+
+        boolean hasFirstname = artistSearchDto.getFirstname() != null && !artistSearchDto.getFirstname().isBlank();
+        boolean hasLastname = artistSearchDto.getLastname() != null && !artistSearchDto.getLastname().isBlank();
+        boolean hasStagename = artistSearchDto.getStagename() != null && !artistSearchDto.getStagename().isBlank();
+
+        if (!hasFirstname && !hasLastname && !hasStagename) {
+            throw new ValidationException("At least one of the following fields must be filled: firstname, lastname, stagename.");
+        }
     }
 
     /**

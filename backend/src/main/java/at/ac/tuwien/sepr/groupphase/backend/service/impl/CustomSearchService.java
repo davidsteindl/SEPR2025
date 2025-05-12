@@ -2,14 +2,19 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LocationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LocationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PerformanceDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PerformanceSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ArtistMapper;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.SearchService;
 import at.ac.tuwien.sepr.groupphase.backend.service.specifications.EventSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SearchValidator;
@@ -34,17 +39,39 @@ public class CustomSearchService implements SearchService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final EventRepository eventRepo;
+    private final ShowRepository showRepo;
     private final SearchValidator searchValidator;
+    private final ArtistRepository artistRepo;
+    private final ArtistMapper artistMapper;
 
-    @Autowired
-    public CustomSearchService(EventRepository eventRepo, SearchValidator searchValidator) {
+    public CustomSearchService(EventRepository eventRepo, ShowRepository showRepo, SearchValidator searchValidator, ArtistRepository artistRepo,
+                             ArtistMapper artistMapper) {
         this.eventRepo = eventRepo;
+        this.showRepo = showRepo;
         this.searchValidator = searchValidator;
+        this.artistRepo = artistRepo;
+        this.artistMapper = artistMapper;
     }
 
     @Override
     public List<ArtistDto> searchArtists(ArtistSearchDto criteria) {
-        return List.of();
+        LOGGER.debug("Searching artists with criteria: {}", criteria);
+
+        searchValidator.validateForArtists(criteria);
+
+        Specification<Artist> spec = Specification.where(null);
+
+        if (criteria.getFirstname() != null && !criteria.getFirstname().isBlank()) {
+            spec = spec.and(ArtistSpecifications.hasFirstnameLike(criteria.getFirstname()));
+        }
+        if (criteria.getLastname() != null && !criteria.getLastname().isBlank()) {
+            spec = spec.and(ArtistSpecifications.hasLastnameLike(criteria.getLastname()));
+        }
+        if (criteria.getStagename() != null && !criteria.getStagename().isBlank()) {
+            spec = spec.and(ArtistSpecifications.hasStagenameLike(criteria.getStagename()));
+        }
+
+        return artistRepo.findAll(spec).stream().map(artistMapper::artistToArtistDto).collect(Collectors.toList());
     }
 
     @Override
