@@ -12,6 +12,24 @@
       </li>
       <li><a class="nav-link" *ngIf="isAdmin()" routerLink="/manage-accounts" routerLinkActive="active">Manage
         accounts</a></li>
+      <li class="nav-item dropdown" ngbDropdown *ngIf="isAdmin()">
+        <a
+          class="nav-link dropdown-toggle"
+          ngbDropdownToggle
+          id="createDropdown"
+          role="button"
+          tabindex="0"
+          (click)="$event.preventDefault()"
+        >
+          Create Content
+        </a>
+        <div ngbDropdownMenu aria-labelledby="createDropdown">
+          <a class="dropdown-item" routerLink="/create-event" routerLinkActive="active">Create Event</a>
+          <a class="dropdown-item" routerLink="/create-artist" routerLinkActive="active">Create Artist</a>
+          <a class="dropdown-item" routerLink="/create-show" routerLinkActive="active">Create Show</a>
+          <a class="dropdown-item" routerLink="/create-location" routerLinkActive="active">Create Event Location</a>
+        </div>
+      </li>
     </ul>
     <ul class="navbar-nav mr-5">
       <li class="nav-item ms auto">

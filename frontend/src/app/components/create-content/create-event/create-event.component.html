@@ -1,0 +1,40 @@
+<div class="container mt-4">
+
+  <h2 class="text-center mb-4">Create Event</h2>
+
+  <div class="tab-box">
+    <div class="form-group">
+      <label for="eventName">Event Name</label>
+      <input id="eventName" [(ngModel)]="event.name" class="form-control"/>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="eventCategory">Category</label>
+      <select id="eventCategory" [(ngModel)]="event.category" class="form-control">
+        <option value="null" disabled selected>Select category</option>
+        <option *ngFor="let category of eventCategories" [value]="category">{{ category }}</option>
+      </select>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="eventLocation">Location</label>
+      <select id="eventLocation" [(ngModel)]="event.location" class="form-control">
+        <option value="null" disabled selected>Select location</option>
+        <option *ngFor="let location of locations" [value]="location.name">{{ location }}</option>
+      </select>
+    </div>
+
+    <div class="text-center">
+      <button class="btn btn-success mt-4" (click)="createEvent()">Create Event</button>
+    </div>
+  </div>
+
+  <div class="mt-4" *ngIf="createEvent">
+    <h5 class="text-success">Event created successfully:</h5>
+    <p><strong>Name:</strong> {{ createdEvent.name }}</p>
+    <p><strong>Category:</strong> {{ createdEvent.category }}</p>
+    <p><strong>Location:</strong> {{ locationNameOfCreatedEvent }}</p>
+  </div>
+
+</div>
+

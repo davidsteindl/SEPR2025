@@ -12,6 +12,10 @@ import {UserComponent} from "./components/user/user.component";
 import {UserEditComponent} from "./components/user/user-edit/user-edit.component";
 import {UserOrdersComponent} from "./components/user/user-orders/user-orders.component";
 import { SearchComponent } from "./components/search/search.component";
+import {CreateEventComponent} from "./components/create-content/create-event/create-event.component";
+import {CreateArtistComponent} from "./components/create-content/create-artist/create-artist.component";
+import {CreateShowComponent} from "./components/create-content/create-show/create-show.component";
+import {CreateLocationComponent} from "./components/create-content/create-location/create-location.component";
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -27,7 +31,11 @@ const routes: Routes = [
   {path: 'user', component: UserComponent},
   {path: 'user-edit', component: UserEditComponent},
   {path: 'user-orders', component: UserOrdersComponent},
-  { path: 'search', component: SearchComponent }
+  { path: 'search', component: SearchComponent },
+  {path: 'create-event', component: CreateEventComponent, canActivate: [AdminGuard]},
+  {path: 'create-artist', component: CreateArtistComponent, canActivate: [AdminGuard]},
+  {path: 'create-show', component: CreateShowComponent, canActivate: [AdminGuard]},
+  {path: 'create-location', component: CreateLocationComponent, canActivate: [AdminGuard]}
 ];
 
 @NgModule({

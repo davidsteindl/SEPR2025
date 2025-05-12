@@ -27,9 +27,9 @@ export class MessageComponent implements OnInit {
   categories: string[] = ['Music', 'Sport', 'Theater'];
 
   allEvents: Event[] = [
-    { id: 1, title: "Title 1", date: 'Date 1', description: 'ShortDescr 1', soldTickets: 200, category: 'Music' },
-    { id: 2, title: "Title 2", date: 'Date 2', description: 'ShortDescr 2', soldTickets: 190, category: 'Sport' },
-    { id: 3, title: "Title 3", date: 'Date 3', description: 'ShortDescr 3', soldTickets: 195, category: 'Sport' },
+    { id: 1, name: "Title 1", date: 'Date 1', soldTickets: 200, category: 'Music', locationId: 1 },
+    { id: 2, name: "Title 2", date: 'Date 2', soldTickets: 190, category: 'Sport', locationId: 2 },
+    { id: 3, name: "Title 3", date: 'Date 3', soldTickets: 195, category: 'Sport', locationId: 3 },
   ];
 
 
