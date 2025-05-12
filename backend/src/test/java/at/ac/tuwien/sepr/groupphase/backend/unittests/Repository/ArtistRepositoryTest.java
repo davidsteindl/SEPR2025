@@ -157,4 +157,39 @@ public class ArtistRepositoryTest {
             () -> assertEquals("Doe", saved.getLastname())
         );
     }
+
+    @Test
+    public void searchArtist_shouldFindByFirstnameIgnoreCase() {
+        var result = artistRepository
+            .findByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCaseOrStagenameContainingIgnoreCase(
+                "anna", null, null);
+
+        assertAll(
+            () -> assertEquals(1, result.size(), "Should find 1 artist"),
+            () -> assertEquals("Anna", result.get(0).getFirstname(), "Firstname should match")
+        );
+    }
+
+    @Test
+    public void searchArtist_shouldFindByStagenameIgnoreCase() {
+        var result = artistRepository
+            .findByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCaseOrStagenameContainingIgnoreCase(
+                null, null, "dj");
+
+        assertAll(
+            () -> assertEquals(1, result.size(), "Should find 1 artist"),
+            () -> assertEquals("DJ Anna", result.get(0).getStagename(), "Stagename should match")
+        );
+    }
+
+    @Test
+    public void searchArtist_shouldReturnEmpty_whenNoMatch() {
+        var result = artistRepository
+            .findByFirstnameContainingIgnoreCaseOrLastnameContainingIgnoreCaseOrStagenameContainingIgnoreCase(
+                "xyz", "xyz", "xyz");
+
+        assertAll(
+            () -> assertTrue(result.isEmpty(), "Should return empty list when no match")
+        );
+    }
 }
