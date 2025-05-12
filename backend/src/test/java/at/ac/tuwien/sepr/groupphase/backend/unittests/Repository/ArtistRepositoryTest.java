@@ -166,7 +166,7 @@ public class ArtistRepositoryTest {
 
         assertAll(
             () -> assertEquals(1, result.size(), "Should find 1 artist"),
-            () -> assertEquals("Anna", result.get(0).getFirstname(), "Firstname should match")
+            () -> assertEquals("Anna", result.getFirst().getFirstname(), "Firstname should match")
         );
     }
 
@@ -178,7 +178,7 @@ public class ArtistRepositoryTest {
 
         assertAll(
             () -> assertEquals(1, result.size(), "Should find 1 artist"),
-            () -> assertEquals("DJ Anna", result.get(0).getStagename(), "Stagename should match")
+            () -> assertEquals("DJ Anna", result.getFirst().getStagename(), "Stagename should match")
         );
     }
 
