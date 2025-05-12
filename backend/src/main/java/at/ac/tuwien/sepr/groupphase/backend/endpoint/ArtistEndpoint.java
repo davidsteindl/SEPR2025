@@ -1,11 +1,14 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateArtistDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ArtistMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.service.ArtistService;
+import at.ac.tuwien.sepr.groupphase.backend.service.SearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -31,11 +34,13 @@ public class ArtistEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final ArtistService artistService;
     private final ArtistMapper artistMapper;
+    private final SearchService searchService;
 
     @Autowired
-    public ArtistEndpoint(ArtistService artistService, ArtistMapper artistMapper) {
+    public ArtistEndpoint(ArtistService artistService, ArtistMapper artistMapper, SearchService searchService) {
         this.artistService = artistService;
         this.artistMapper = artistMapper;
+        this.searchService = searchService;
     }
 
     @GetMapping("/{id}")
@@ -65,5 +70,13 @@ public class ArtistEndpoint {
 
         Artist artist = artistService.createArtist(artistMapper.createArtistDtoToArtist(createArtistDto));
         return artistMapper.artistToArtistDetailDto(artist);
+    }
+
+    @PostMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Search artists by firstname, lastname or stagename")
+    public List<ArtistDto> searchArtists(@RequestBody ArtistSearchDto searchDto) {
+        LOGGER.info("POST /api/v1/artists/search with payload: {}", searchDto);
+        return searchService.searchArtists(searchDto);
     }
 }
