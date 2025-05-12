@@ -27,7 +27,7 @@ export class ArtistEventsComponent implements OnInit{
         this.artist = artist;
         this.events = artist.shows?.map(show => show.event) ?? [];
       },
-      error: (err) => console.error('Fehler beim Laden des Künstlers:', err)
+      error: (err) => console.error('Error while loading artist', err)
     });
   }
 }

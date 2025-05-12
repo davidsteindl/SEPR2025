@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {Globals} from '../global/globals';
-import {Artist} from "../dtos/artist";
+import {Artist, ArtistDto, ArtistSearchDto} from "../dtos/artist";
 
 @Injectable({
   providedIn: 'root'
@@ -16,12 +16,11 @@ export class ArtistService {
   /**
    * Searches for artists that match the given search criteria.
    *
-   * @param query the search term (can match firstname, lastname or stagename)
+   * @param criteria the search term (can match firstname, lastname or stagename)
    * @return an Observable containing a list of matching artists
    */
-  searchArtists(query: string): Observable<Artist[]> {
-    const url = `${this.artistBaseUri}/search?query=${encodeURIComponent(query)}`;
-    return this.httpClient.get<Artist[]>(url);
+  searchArtists(criteria: ArtistSearchDto): Observable<ArtistDto[]> {
+    return this.httpClient.post<ArtistDto[]>(this.artistBaseUri + '/search', criteria);
   }
 
 
