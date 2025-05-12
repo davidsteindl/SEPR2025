@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateArtistDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
@@ -21,6 +22,9 @@ public interface ArtistMapper {
     Artist createArtistDtoToArtist(CreateArtistDto createArtistDto);
 
     List<ArtistDetailDto> artistsToArtistDetailDtos(List<Artist> artists);
+
+    ArtistDto artistToArtistDto(Artist artist);
+
 
     @Named("mapShowsToIds")
     default Set<Long> mapShowsToIds(Set<Show> shows) {

@@ -40,10 +40,10 @@ public class ArtistSearchDto {
 
     @Override
     public String toString() {
-        return "ArtistSearchDto{" +
-            "firstname='" + firstname + '\'' +
-            ", lastname='" + lastname + '\'' +
-            ", stagename='" + stagename + '\'' +
-            '}';
+        return "ArtistSearchDto{"
+            + "firstname='" + firstname + '\''
+            + ", lastname='" + lastname + '\''
+            + ", stagename='" + stagename + '\''
+            + '}';
     }
 }
