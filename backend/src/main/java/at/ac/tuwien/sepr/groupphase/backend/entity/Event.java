@@ -157,7 +157,6 @@ public class Event {
         private String name;
         private EventCategory category;
         private EventLocation location;
-        private String description;
 
         private EventBuilder() {
         }
