@@ -87,6 +87,7 @@ public class EventSearchResultDto {
             && locationId.equals(that.locationId) && duration.equals(that.duration)
             && description.equals(that.description);
     }
+
     @Override
     public int hashCode() {
         return id.hashCode() + name.hashCode() + category.hashCode() + locationId.hashCode()
