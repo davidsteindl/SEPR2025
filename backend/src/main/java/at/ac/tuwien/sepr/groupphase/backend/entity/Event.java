@@ -33,7 +33,7 @@ public class Event {
     private String description;
 
     @Column(insertable = false, updatable = false)
-    private int totalDuration;
+    private Integer totalDuration;
 
     public Long getId() {
         return id;
