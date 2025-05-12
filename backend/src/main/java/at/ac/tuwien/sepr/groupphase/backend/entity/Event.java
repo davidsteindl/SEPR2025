@@ -181,17 +181,12 @@ public class Event {
             return this;
         }
 
-        public EventBuilder withDescription(String description) {
-            this.description = description;
-            return this;
-        }
 
         public Event build() {
             Event event = new Event();
             event.setName(name);
             event.setCategory(category);
             event.setLocation(location);
-            event.setDescription(description);
             return event;
         }
     }
