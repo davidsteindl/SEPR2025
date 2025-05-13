@@ -12,6 +12,7 @@ import {UserComponent} from "./components/user/user.component";
 import {UserEditComponent} from "./components/user/user-edit/user-edit.component";
 import {UserOrdersComponent} from "./components/user/user-orders/user-orders.component";
 import { SearchComponent } from "./components/search/search.component";
+import {AdminComponent} from "./components/admin/admin.component";
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -27,7 +28,8 @@ const routes: Routes = [
   {path: 'user', component: UserComponent},
   {path: 'user-edit', component: UserEditComponent},
   {path: 'user-orders', component: UserOrdersComponent},
-  { path: 'search', component: SearchComponent }
+  {path: 'search', component: SearchComponent},
+  {path: 'admin', component: AdminComponent}
 ];
 
 @NgModule({
