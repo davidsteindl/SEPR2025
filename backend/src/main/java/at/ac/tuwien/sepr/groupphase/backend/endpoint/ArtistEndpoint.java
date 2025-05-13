@@ -76,9 +76,14 @@ public class ArtistEndpoint {
 
     @PostMapping("/search")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Search artists by firstname, lastname or stagename")
-    public Page<ArtistSearchResultDto> searchArtists(@RequestBody ArtistSearchDto searchDto) {
+    @Operation(
+        summary = "Search artists by firstname, lastname or stagename",
+        description = "Returns a paginated list of artists matching the given search criteria.",
+        security = @SecurityRequirement(name = "apiKey")
+    )
+    public Page<ArtistSearchResultDto> searchArtists(@RequestBody @Valid ArtistSearchDto searchDto) {
         LOGGER.info("POST /api/v1/artists/search with payload: {}", searchDto);
         return searchService.searchArtists(searchDto);
     }
+
 }

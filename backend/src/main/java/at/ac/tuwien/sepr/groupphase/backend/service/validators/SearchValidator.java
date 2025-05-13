@@ -24,12 +24,31 @@ public class SearchValidator {
             throw new ValidationException("Search criteria must not be null");
         }
 
+        if (artistSearchDto.getPage() == null || artistSearchDto.getPage() < 0) {
+            throw new ValidationException("Page index must be non-negative");
+        }
+        if (artistSearchDto.getSize() == null || artistSearchDto.getSize() <= 0) {
+            throw new ValidationException("Page size must be greater than zero");
+        }
+
         boolean hasFirstname = artistSearchDto.getFirstname() != null && !artistSearchDto.getFirstname().isBlank();
         boolean hasLastname = artistSearchDto.getLastname() != null && !artistSearchDto.getLastname().isBlank();
         boolean hasStagename = artistSearchDto.getStagename() != null && !artistSearchDto.getStagename().isBlank();
 
         if (!hasFirstname && !hasLastname && !hasStagename) {
             throw new ValidationException("At least one of the following fields must be filled: firstname, lastname, stagename.");
+        }
+
+        if (artistSearchDto.getFirstname() != null && artistSearchDto.getFirstname().length() > 100) {
+            throw new ValidationException("Firstname filter must not exceed 100 characters");
+        }
+
+        if (artistSearchDto.getLastname() != null && artistSearchDto.getLastname().length() > 100) {
+            throw new ValidationException("Lastname filter must not exceed 100 characters");
+        }
+
+        if (artistSearchDto.getStagename() != null && artistSearchDto.getStagename().length() > 100) {
+            throw new ValidationException("Stagename filter must not exceed 100 characters");
         }
     }
 
