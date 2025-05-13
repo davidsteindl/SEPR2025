@@ -17,17 +17,17 @@
 
     <ul class="navbar-nav mr-5">
       <li class="nav-item ms auto">
-        <a class="nav-link btn btn-primary admin" *ngIf="authService.isLoggedIn() && isAdmin()" routerLink="/admin" routerLinkActive="active">Admin</a>
+        <a class="nav-link btn admin" *ngIf="authService.isLoggedIn() && isAdmin()" routerLink="/admin" routerLinkActive="active">Admin</a>
       </li>
     </ul>
     <ul class="navbar-nav mr-5">
       <li class="nav-item ms auto">
-        <a class="nav-link btn btn-primary search" *ngIf="authService.isLoggedIn()" routerLink="/search" routerLinkActive="active">Search</a>
+        <a class="nav-link btn search" *ngIf="authService.isLoggedIn()" routerLink="/search" routerLinkActive="active">Search</a>
       </li>
     </ul>
     <ul class="navbar-nav mr-5">
       <li class="nav-item ms auto">
-        <a class="nav-link btn btn-primary profile" *ngIf="authService.isLoggedIn()" routerLink="/user" routerLinkActive="active">Profile</a>
+        <a class="nav-link btn profile" *ngIf="authService.isLoggedIn()" routerLink="/user" routerLinkActive="active">Profile</a>
       </li>
     </ul>
     <ul class="navbar-nav mr-5">
