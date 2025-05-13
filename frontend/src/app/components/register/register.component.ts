@@ -4,6 +4,7 @@ import {AuthService} from "../../services/auth.service";
 import {Router} from "@angular/router";
 import {NgIf} from "@angular/common";
 import {RegisterUser} from "../../dtos/register-user";
+import {ToastrService} from "ngx-toastr";
 
 
 @Component({
@@ -23,8 +24,10 @@ export class RegisterComponent {
   // Error flag
   error = false;
   errorMessage = '';
+  firstName = '';
 
-  constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, private router: Router) {
+
+  constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, private router: Router, private notification: ToastrService) {
     this.registerForm = this.formBuilder.group({
       firstName: ['', [Validators.required, Validators.maxLength(100)]],
       lastName: ['', [Validators.required, Validators.maxLength(100)]],
@@ -34,6 +37,7 @@ export class RegisterComponent {
       confirmPassword: ['', [Validators.required, Validators.minLength(8)]],
       termsAccepted: [false, Validators.requiredTrue]
     });
+
   }
 
   /**
@@ -52,6 +56,7 @@ export class RegisterComponent {
         email: this.registerForm.controls.email.value,
         termsAccepted: this.registerForm.controls.termsAccepted.value
       };
+      this.firstName = this.registerForm.controls.firstName.value;
       this.regUser(registerUser);
     } else {
       console.log('Invalid input');
@@ -68,6 +73,8 @@ export class RegisterComponent {
     console.log("Register payload", registerUser);
     this.authService.registerUser(registerUser).subscribe({
       next: () => {
+        this.notification.success(`User ${this.firstName}
+           successfully created.`);
         this.router.navigate(['/login']);
       },
       error: error => {
