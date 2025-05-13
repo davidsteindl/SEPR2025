@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LocationDto;
@@ -26,7 +27,7 @@ public interface SearchService {
      * @param criteria the search criteria
      * @return list of matching artists
      */
-    List<ArtistDto> searchArtists(ArtistSearchDto criteria);
+    Page<ArtistSearchResultDto> searchArtists(ArtistSearchDto criteria);
 
     /**
      * Search locations by name, street, city, country, or postal code.

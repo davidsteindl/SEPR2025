@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LocationDto;
@@ -55,24 +55,29 @@ public class CustomSearchService implements SearchService {
     }
 
     @Override
-    public List<ArtistDto> searchArtists(ArtistSearchDto criteria) {
+    public Page<ArtistSearchResultDto> searchArtists(ArtistSearchDto criteria) {
         LOGGER.debug("Searching artists with criteria: {}", criteria);
 
         searchValidator.validateForArtists(criteria);
 
-        Specification<Artist> spec = Specification.where(null);
+        Specification<Artist> spec = (root, query, cb) -> cb.conjunction();
+        spec = spec
+            .and(ArtistSpecifications.hasFirstnameLike(criteria.getFirstname()))
+            .and(ArtistSpecifications.hasLastnameLike(criteria.getLastname()))
+            .and(ArtistSpecifications.hasStagenameLike(criteria.getStagename()));
 
-        if (criteria.getFirstname() != null && !criteria.getFirstname().isBlank()) {
-            spec = spec.and(ArtistSpecifications.hasFirstnameLike(criteria.getFirstname()));
-        }
-        if (criteria.getLastname() != null && !criteria.getLastname().isBlank()) {
-            spec = spec.and(ArtistSpecifications.hasLastnameLike(criteria.getLastname()));
-        }
-        if (criteria.getStagename() != null && !criteria.getStagename().isBlank()) {
-            spec = spec.and(ArtistSpecifications.hasStagenameLike(criteria.getStagename()));
-        }
+        Page<Artist> page = artistRepo.findAll(spec, PageRequest.of(criteria.getPage(), criteria.getSize()));
 
-        return artistRepo.findAll(spec).stream().map(artistMapper::artistToArtistDto).collect(Collectors.toList());
+        List<ArtistSearchResultDto> dtos = page.getContent().stream()
+            .map(artist -> ArtistSearchResultDto.ArtistSearchResultDtoBuilder.anArtistSearchResultDto()
+                .id(artist.getId())
+                .firstname(artist.getFirstname())
+                .lastname(artist.getLastname())
+                .stagename(artist.getStagename())
+                .build())
+            .collect(Collectors.toList());
+
+        return new PageImpl<>(dtos, page.getPageable(), page.getTotalElements());
     }
 
     @Override

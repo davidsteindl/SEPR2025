@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateArtistDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ArtistMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
@@ -15,6 +16,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -75,7 +77,7 @@ public class ArtistEndpoint {
     @PostMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Search artists by firstname, lastname or stagename")
-    public List<ArtistDto> searchArtists(@RequestBody ArtistSearchDto searchDto) {
+    public Page<ArtistSearchResultDto> searchArtists(@RequestBody ArtistSearchDto searchDto) {
         LOGGER.info("POST /api/v1/artists/search with payload: {}", searchDto);
         return searchService.searchArtists(searchDto);
     }

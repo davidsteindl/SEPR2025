@@ -23,7 +23,6 @@ public interface ArtistMapper {
 
     List<ArtistDetailDto> artistsToArtistDetailDtos(List<Artist> artists);
 
-    ArtistDto artistToArtistDto(Artist artist);
 
 
     @Named("mapShowsToIds")
