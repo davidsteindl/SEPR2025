@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("api/v1/rooms")
-public class RoomPlanEndpoint {
+public class RoomEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @PostMapping
