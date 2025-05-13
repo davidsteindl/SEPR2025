@@ -1,8 +1,8 @@
 export interface CreateLocation {
-  name: String,
-  type: String,
-  country: String,
-  city: String,
-  street: String,
-  postalCode: String
+  name: string,
+  type: string,
+  country: string,
+  city: string,
+  street: string,
+  postalCode: string
 }

@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ArtistService;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +38,11 @@ public class ArtistServiceImpl implements ArtistService {
     @Override
     public List<Artist> getAllArtists() {
         LOGGER.info("Get all artists");
-        return artistRepository.findAll();
+        return artistRepository.findAllWithShows();
     }
 
     @Override
+    @Transactional
     public Artist createArtist(Artist artist) throws ValidationException {
         LOGGER.info("Save artist {}", artist);
         Set<Show> existingShows = new HashSet<>();

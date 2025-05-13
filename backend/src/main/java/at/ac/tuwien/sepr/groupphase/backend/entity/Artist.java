@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -73,8 +74,23 @@ public class Artist {
     }
 
     public void setShows(Set<Show> shows) {
-        this.shows = shows;
+        this.shows = new HashSet<>();
+        if (shows != null) {
+            for (Show show : shows) {
+                this.addShow(show);
+            }
+        }
     }
+
+    public void addShow(Show show) {
+        if (this.shows == null) {
+            this.shows = new HashSet<>();
+        }
+        if (this.shows.add(show)) {
+            show.addArtist(this);
+        }
+    }
+
 
     @Override
     public boolean equals(Object o) {

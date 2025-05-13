@@ -1,1 +1,40 @@
-<p>create-show works!</p>
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Create Show</h2>
+
+  <div class="tab-box">
+    <div class="form-group">
+      <label for="showName">Name</label>
+      <input id="showName" [(ngModel)]="show.name" class="form-control"/>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="showDuration">Duration (minutes)</label>
+      <input id="showDuration" type="number" [(ngModel)]="show.duration" class="form-control"/>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="showDate">Date & Time</label>
+      <input id="showDate" type="datetime-local" [(ngModel)]="show.date" class="form-control"/>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="eventId">Event</label>
+      <select id="eventId" [(ngModel)]="show.eventId" class="form-control">
+        <option *ngFor="let event of events" [ngValue]="event.id">{{ event.name }}</option>
+      </select>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="artistIds">Artists</label>
+      <select id="artistIds" [(ngModel)]="show.artistIds" class="form-control" multiple>
+        <option *ngFor="let artist of artists" [ngValue]="artist.id">
+          {{ artist.stagename || (artist.firstname + ' ' + artist.lastname) }}
+        </option>
+      </select>
+    </div>
+
+    <div class="text-center">
+      <button class="btn btn-success mt-4" (click)="createShow()">Create Show</button>
+    </div>
+  </div>
+</div>

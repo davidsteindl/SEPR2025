@@ -124,7 +124,7 @@ public class EventDataGenerator {
 
                     Show show = Show.ShowBuilder.aShow()
                         .withDuration(120)
-                        .withDateTime(LocalDateTime.of(2025, 6, i + 1, 12 + j * 4, 0))
+                        .withDate(LocalDateTime.of(2025, 6, i + 1, 12 + j * 4, 0))
                         .withEvent(events.get(i % events.size()))
                         .withArtists(Set.of(artist1, artist2))
                         .build();

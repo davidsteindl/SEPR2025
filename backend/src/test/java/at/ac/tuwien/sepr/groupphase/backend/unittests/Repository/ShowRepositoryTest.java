@@ -59,7 +59,7 @@ public class ShowRepositoryTest {
 
         Show show = Show.ShowBuilder.aShow()
             .withDuration(150)
-            .withDateTime(LocalDateTime.now())
+            .withDate(LocalDateTime.now())
             .withEvent(event)
             .build();
         showRepository.save(show);
@@ -110,7 +110,7 @@ public class ShowRepositoryTest {
 
         Show show = Show.ShowBuilder.aShow()
             .withDuration(5)
-            .withDateTime(LocalDateTime.now())
+            .withDate(LocalDateTime.now())
             .withEvent(event)
             .build();
 
@@ -124,7 +124,7 @@ public class ShowRepositoryTest {
 
         Show show = Show.ShowBuilder.aShow()
             .withDuration(1000)
-            .withDateTime(LocalDateTime.now())
+            .withDate(LocalDateTime.now())
             .withEvent(event)
             .build();
 
@@ -138,7 +138,7 @@ public class ShowRepositoryTest {
 
         Show show = Show.ShowBuilder.aShow()
             .withDuration(100)
-            .withDateTime(null)
+            .withDate(null)
             .withEvent(event)
             .build();
 
@@ -150,7 +150,7 @@ public class ShowRepositoryTest {
     public void testSaveShow_withNullEvent_throwsException() {
         Show show = Show.ShowBuilder.aShow()
             .withDuration(100)
-            .withDateTime(LocalDateTime.now())
+            .withDate(LocalDateTime.now())
             .withEvent(null)
             .build();
 
@@ -164,7 +164,7 @@ public class ShowRepositoryTest {
 
         Show show = Show.ShowBuilder.aShow()
             .withDuration(120)
-            .withDateTime(LocalDateTime.now())
+            .withDate(LocalDateTime.now())
             .withEvent(event)
             .build();
 

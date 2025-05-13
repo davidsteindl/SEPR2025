@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ShowServiceImpl implements ShowService {
@@ -41,37 +43,37 @@ public class ShowServiceImpl implements ShowService {
     @Override
     public List<Show> getAllShows() {
         LOGGER.info("Get all shows");
-        return showRepository.findAll();
+        return showRepository.findAllWithArtists();
     }
 
     @Override
+    @Transactional
     public Show createShow(Show show) throws ValidationException {
         LOGGER.info("Save show {}", show);
-        if (show.getEvent().getId() == null) {
-            LOGGER.error("Event ID must not be null");
-            throw new ValidationException("Event ID must not be null", List.of("Event ID must not be null"));
-        } else {
-            Event event = eventRepository.findById(show.getEvent().getId())
-                .orElseThrow(() -> new ValidationException("Event ID must not be null", List.of("Event ID must not be null")));
-            show.setEvent(event);
+
+        if (show.getEvent() == null || show.getEvent().getId() == null) {
+            throw new ValidationException("Event ID must not be null", List.of("Event ID is null"));
         }
 
+        Event event = eventRepository.findById(show.getEvent().getId())
+            .orElseThrow(() -> new ValidationException("Event not found", List.of("Event not found")));
+        show.setEvent(event);
+
         if (show.getArtists() == null || show.getArtists().isEmpty()) {
-            LOGGER.error("Show must have at least one artist");
-            throw new ValidationException("Show must have at least one artist", List.of("Artist list is empty"));
-        } else {
-            Set<Artist> existingArtists = new HashSet<>();
-            for (Artist artist : show.getArtists()) {
-                if (artist.getId() == null) {
-                    LOGGER.error("Artist ID must not be null");
-                    throw new ValidationException("Artist ID must not be null", List.of("Artist ID must not be null"));
-                }
-                Artist existingArtist = artistRepository.findById(artist.getId())
-                    .orElseThrow(() -> new ValidationException("Artist not found", List.of("Artist not found")));
-                existingArtists.add(existingArtist);
-            }
-            show.setArtists(existingArtists);
+            throw new ValidationException("Artist list must not be empty", List.of("Artist list is empty"));
         }
+
+        Set<Artist> validatedArtists = show.getArtists().stream().map(a -> {
+            if (a.getId() == null) {
+                throw new RuntimeException("Artist ID must not be null");
+            }
+            return artistRepository.findById(a.getId())
+                .orElseThrow(() -> new RuntimeException("Artist not found"));
+        }).collect(Collectors.toSet());
+
+        show.setArtists(validatedArtists);
+
         return showRepository.save(show);
     }
+
 }

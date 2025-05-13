@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -14,6 +15,9 @@ public class ShowDetailDto {
 
     @NotNull(message = "ID must not be null")
     private Long id;
+
+    @NotBlank
+    private String name;
 
     @NotNull(message = "Duration must not be null")
     @Min(value = 10, message = "Duration must be at least 10 minutes")
@@ -37,6 +41,14 @@ public class ShowDetailDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getDuration() {
@@ -81,19 +93,21 @@ public class ShowDetailDto {
         }
         return duration == show.duration
             && id.equals(show.id)
+            && name.equals(show.name)
             && date.equals(show.date)
             && eventId.equals(show.eventId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, duration, date, eventId);
+        return Objects.hash(id, name, duration, date, eventId);
     }
 
     @Override
     public String toString() {
         return "ShowDetailDto{"
             + "id=" + id
+            + ", name='" + name + '\''
             + ", duration=" + duration
             + ", date=" + date
             + ", eventId=" + eventId
@@ -103,6 +117,7 @@ public class ShowDetailDto {
 
     public static final class ShowDetailDtoBuilder {
         private Long id;
+        private String name;
         private int duration;
         private LocalDateTime date;
         private Long eventId;
@@ -117,6 +132,11 @@ public class ShowDetailDto {
 
         public ShowDetailDtoBuilder id(Long id) {
             this.id = id;
+            return this;
+        }
+
+        public ShowDetailDtoBuilder name(String name) {
+            this.name = name;
             return this;
         }
 
@@ -143,6 +163,7 @@ public class ShowDetailDto {
         public ShowDetailDto build() {
             ShowDetailDto showDetailDto = new ShowDetailDto();
             showDetailDto.setId(id);
+            showDetailDto.setName(name);
             showDetailDto.setDuration(duration);
             showDetailDto.setDate(date);
             showDetailDto.setEventId(eventId);

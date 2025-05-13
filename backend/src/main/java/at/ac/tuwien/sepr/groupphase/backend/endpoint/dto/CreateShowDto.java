@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -11,6 +12,9 @@ import java.util.Objects;
 import java.util.Set;
 
 public class CreateShowDto {
+
+    @NotBlank
+    private String name;
 
     @NotNull(message = "Duration must not be null")
     @Min(value = 10, message = "Duration must be at least 10 minutes")
@@ -27,6 +31,14 @@ public class CreateShowDto {
     @NotNull(message = "Artist IDs must not be null")
     @Size(min = 1, message = "Show must have at least one artist")
     private Set<Long> artistIds;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public int getDuration() {
         return duration;
@@ -69,19 +81,21 @@ public class CreateShowDto {
             return false;
         }
         return duration == show.duration
+            && name.equals(show.name)
             && date.equals(show.date)
             && eventId.equals(show.eventId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(duration, date, eventId);
+        return Objects.hash(name, duration, date, eventId);
     }
 
     @Override
     public String toString() {
         return "CreateShowDto{"
-            + "duration=" + duration
+            + "name='" + name + '\''
+            + ", duration=" + duration
             + ", date=" + date
             + ", eventId=" + eventId
             + ", artistIds=" + artistIds
@@ -89,6 +103,7 @@ public class CreateShowDto {
     }
 
     public static final class CreateShowDtoBuilder {
+        private String name;
         private int duration;
         private LocalDateTime date;
         private Long eventId;
@@ -99,6 +114,11 @@ public class CreateShowDto {
 
         public static CreateShowDtoBuilder aCreateShowDto() {
             return new CreateShowDtoBuilder();
+        }
+
+        public CreateShowDtoBuilder name(String name) {
+            this.name = name;
+            return this;
         }
 
         public CreateShowDtoBuilder duration(int duration) {
@@ -123,6 +143,7 @@ public class CreateShowDto {
 
         public CreateShowDto build() {
             CreateShowDto createShowDto = new CreateShowDto();
+            createShowDto.setName(name);
             createShowDto.setDuration(duration);
             createShowDto.setDate(date);
             createShowDto.setEventId(eventId);

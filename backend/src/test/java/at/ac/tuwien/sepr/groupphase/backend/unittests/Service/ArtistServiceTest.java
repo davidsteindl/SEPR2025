@@ -69,7 +69,7 @@ public class ArtistServiceTest {
 
         testShow = Show.ShowBuilder.aShow()
             .withDuration(90)
-            .withDateTime(LocalDateTime.now().plusDays(1))
+            .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
             .build();
         showRepository.save(testShow);
@@ -149,7 +149,7 @@ public class ArtistServiceTest {
     @Test
     public void testCreateArtist_withNonExistingShow_throwsValidationException() {
         Show fakeShow = Show.ShowBuilder.aShow()
-            .withDateTime(LocalDateTime.now().plusDays(5))
+            .withDate(LocalDateTime.now().plusDays(5))
             .build();
         fakeShow.setId(999L);
 

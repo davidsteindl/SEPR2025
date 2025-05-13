@@ -1,1 +1,34 @@
-<p>create-artist works!</p>
+<div class="container mt-4">
+
+  <h2 class="text-center mb-4">Create Artist</h2>
+
+  <div class="tab-box">
+    <div class="form-group">
+      <label for="firstname">First Name</label>
+      <input id="firstname" [(ngModel)]="artist.firstname" class="form-control" />
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="lastname">Last Name</label>
+      <input id="lastname" [(ngModel)]="artist.lastname" class="form-control" />
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="stagename">Stage Name</label>
+      <input id="stagename" [(ngModel)]="artist.stagename" class="form-control" />
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="showIds">Shows</label>
+      <select id="showIds" [(ngModel)]="artist.showIds" class="form-control" multiple>
+        <option *ngFor="let show of shows" [ngValue]="show.id">
+          {{ show.name || 'Unnamed' }}
+        </option>
+      </select>
+    </div>
+
+    <div class="text-center">
+      <button class="btn btn-success mt-4" (click)="createArtist()">Create Artist</button>
+    </div>
+  </div>
+</div>

@@ -74,7 +74,7 @@ public class ShowServiceTest {
     public void testGetShowById_existingId_returnsShow() {
         Show show = Show.ShowBuilder.aShow()
             .withDuration(100)
-            .withDateTime(LocalDateTime.now().plusDays(1))
+            .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
             .build();
@@ -104,7 +104,7 @@ public class ShowServiceTest {
     public void testGetAllShows_returnsList() {
         Show show = Show.ShowBuilder.aShow()
             .withDuration(80)
-            .withDateTime(LocalDateTime.now().plusDays(1))
+            .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
             .build();
@@ -122,7 +122,7 @@ public class ShowServiceTest {
     public void testCreateShow_validInput_savesSuccessfully() throws ValidationException {
         Show newShow = Show.ShowBuilder.aShow()
             .withDuration(120)
-            .withDateTime(LocalDateTime.now().plusDays(2))
+            .withDate(LocalDateTime.now().plusDays(2))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
             .build();
@@ -142,7 +142,7 @@ public class ShowServiceTest {
     public void testCreateShow_nullEvent_throwsValidationException() {
         Show show = Show.ShowBuilder.aShow()
             .withDuration(60)
-            .withDateTime(LocalDateTime.now().plusDays(1))
+            .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(null)
             .withArtists(Set.of(testArtist))
             .build();
@@ -164,7 +164,7 @@ public class ShowServiceTest {
 
         Show show = Show.ShowBuilder.aShow()
             .withDuration(90)
-            .withDateTime(LocalDateTime.now().plusDays(1))
+            .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(fakeEvent)
             .withArtists(Set.of(testArtist))
             .build();
@@ -179,7 +179,7 @@ public class ShowServiceTest {
     public void testCreateShow_noArtists_throwsValidationException() {
         Show show = Show.ShowBuilder.aShow()
             .withDuration(60)
-            .withDateTime(LocalDateTime.now().plusDays(1))
+            .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
             .withArtists(null)
             .build();
@@ -201,7 +201,7 @@ public class ShowServiceTest {
 
         Show show = Show.ShowBuilder.aShow()
             .withDuration(70)
-            .withDateTime(LocalDateTime.now().plusDays(1))
+            .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
             .withArtists(Set.of(ghostArtist))
             .build();

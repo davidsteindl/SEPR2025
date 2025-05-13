@@ -23,7 +23,7 @@ export class CreateEventComponent implements OnInit {
   event: CreateEvent = {
     name: '',
     category: null,
-    location: null
+    locationId: null
   }
 
   createdEvent: Event = null;
@@ -65,7 +65,7 @@ export class CreateEventComponent implements OnInit {
             console.error('Error while fetching location name:', err);
           }
         });
-        this.event = {name: '', category: null, location: null};
+        this.event = {name: '', category: null, locationId: null};
       },
       error: (err) => {
         console.error('Error while creating event:', err);

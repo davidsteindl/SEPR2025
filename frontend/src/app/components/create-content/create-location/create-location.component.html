@@ -11,7 +11,7 @@
     <div class="form-group mt-3">
       <label for="locationType">Type</label>
       <select id="locationType" [(ngModel)]="location.type" class="form-control">
-        <option value="" disabled selected>Select type</option>
+        <option [ngValue]="null" disabled>Select type</option>
         <option *ngFor="let type of locationTypes" [ngValue]="type">{{ type }}</option>
       </select>
     </div>

@@ -64,7 +64,7 @@ public class ArtistRepositoryTest {
 
         Show show = Show.ShowBuilder.aShow()
             .withDuration(90)
-            .withDateTime(LocalDateTime.now())
+            .withDate(LocalDateTime.now())
             .withEvent(event)
             .build();
         showRepository.save(show);
