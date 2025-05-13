@@ -10,7 +10,7 @@ import org.mapstruct.Named;
 
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface MessageMapper {
 
     @Named("simpleMessage")
