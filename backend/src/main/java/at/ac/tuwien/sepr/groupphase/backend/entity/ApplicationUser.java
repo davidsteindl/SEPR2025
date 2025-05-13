@@ -28,7 +28,7 @@ public class ApplicationUser {
     @Column(nullable = false)
     private LocalDate dateOfBirth;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Sex sex;
 
     @Column(nullable = false, length = 100, unique = true)
