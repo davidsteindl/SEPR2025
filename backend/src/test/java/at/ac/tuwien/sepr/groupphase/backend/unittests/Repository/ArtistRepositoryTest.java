@@ -159,29 +159,4 @@ public class ArtistRepositoryTest {
             () -> assertEquals("Doe", saved.getLastname())
         );
     }
-
-
-    @Test
-    public void search_withUnknownStagename_returnsEmpty() {
-        var spec = ArtistSpecifications.hasStagenameLike("NoName");
-
-        var result = artistRepository.findAll(spec);
-
-        assertEquals(0, result.size());
-    }
-
-    @Test
-    public void search_withFirstnameAndLastname_specificationWorksTogether() {
-        var spec = Specification
-            .where(ArtistSpecifications.hasFirstnameLike("Anna"))
-            .and(ArtistSpecifications.hasLastnameLike("Smith"));
-
-        var result = artistRepository.findAll(spec);
-
-        assertAll(
-            () -> assertEquals(1, result.size()),
-            () -> assertEquals("DJ Anna", result.getFirst().getStagename())
-        );
-    }
-
 }

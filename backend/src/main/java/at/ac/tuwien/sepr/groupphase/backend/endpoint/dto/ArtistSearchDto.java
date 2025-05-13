@@ -61,12 +61,12 @@ public class ArtistSearchDto {
 
     @Override
     public String toString() {
-        return "ArtistSearchDto{" +
-            "page=" + page +
-            ", size=" + size +
-            ", firstname='" + firstname + '\'' +
-            ", lastname='" + lastname + '\'' +
-            ", stagename='" + stagename + '\'' +
-            '}';
+        return "ArtistSearchDto{"
+            + "page=" + page
+            + ", size=" + size
+            + ", firstname='" + firstname + '\''
+            + ", lastname='" + lastname + '\''
+            + ", stagename='" + stagename + '\''
+            + '}';
     }
 }

@@ -11,6 +11,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PerformanceSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ArtistMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
@@ -55,7 +56,7 @@ public class CustomSearchService implements SearchService {
     }
 
     @Override
-    public Page<ArtistSearchResultDto> searchArtists(ArtistSearchDto criteria) {
+    public Page<ArtistSearchResultDto> searchArtists(ArtistSearchDto criteria) throws ValidationException {
         LOGGER.debug("Searching artists with criteria: {}", criteria);
 
         searchValidator.validateForArtists(criteria);
@@ -86,7 +87,7 @@ public class CustomSearchService implements SearchService {
     }
 
     @Override
-    public Page<EventSearchResultDto> searchEvents(EventSearchDto eventSearchDto) {
+    public Page<EventSearchResultDto> searchEvents(EventSearchDto eventSearchDto) throws ValidationException {
         LOGGER.debug("Search events with criteria: {}", eventSearchDto);
 
         searchValidator.validateForEvents(eventSearchDto);

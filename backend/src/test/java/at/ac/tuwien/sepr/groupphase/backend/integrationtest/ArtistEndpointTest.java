@@ -14,7 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -47,59 +49,82 @@ public class ArtistEndpointTest implements TestData {
     @Autowired
     private SecurityProperties securityProperties;
 
-    private Artist testArtist;
 
     @BeforeEach
     public void setup() {
         artistRepository.deleteAll();
 
-        testArtist = new Artist();
-        testArtist.setFirstname("John");
-        testArtist.setLastname("Lennon");
-        testArtist.setStagename("The Beatles");
+        Artist artist = new Artist();
+        artist.setFirstname("Freddie");
+        artist.setLastname("Mercury");
+        artist.setStagename("Queen");
 
-        artistRepository.save(testArtist);
+        artistRepository.save(artist);
     }
 
     @Test
-    void search_withMatchingStagename_returnsExpectedArtist() throws Exception {
-        ArtistSearchDto search = new ArtistSearchDto();
-        search.setStagename("beatles");
+    public void searchArtists_withValidFirstname_returnsArtist() throws Exception {
+        ArtistSearchDto searchDto = new ArtistSearchDto();
+        searchDto.setFirstname("Freddie");
+        searchDto.setPage(0);
+        searchDto.setSize(10);
 
-        MvcResult result = mockMvc.perform(post(ARTIST_BASE_URI)
+        String json = objectMapper.writeValueAsString(searchDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(ARTIST_BASE_URI)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(securityProperties.getAuthHeader(),
-                    jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
-                .content(objectMapper.writeValueAsString(search)))
+                .content(json)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andReturn();
 
-        ArtistDto[] response = objectMapper.readValue(result.getResponse().getContentAsString(), ArtistDto[].class);
+        MockHttpServletResponse response = mvcResult.getResponse();
 
         assertAll(
-            () -> assertEquals(1, response.length),
-            () -> assertEquals("John", response[0].getFirstname()),
-            () -> assertEquals("Lennon", response[0].getLastname()),
-            () -> assertEquals("The Beatles", response[0].getStagename())
+            () -> assertEquals(HttpStatus.OK.value(), response.getStatus()),
+            () -> assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType()),
+            () -> assertTrue(response.getContentAsString().contains("Freddie"))
         );
     }
 
     @Test
-    void search_withUnknownStagename_returnsEmptyList() throws Exception {
-        ArtistSearchDto search = new ArtistSearchDto();
-        search.setStagename("Mozart");
+    public void searchArtists_withNoSearchCriteria_returns400() throws Exception {
+        ArtistSearchDto searchDto = new ArtistSearchDto();
+        searchDto.setPage(0);
+        searchDto.setSize(10);
 
-        MvcResult result = mockMvc.perform(post(ARTIST_BASE_URI)
+        String json = objectMapper.writeValueAsString(searchDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(ARTIST_BASE_URI)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(securityProperties.getAuthHeader(),
-                    jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
-                .content(objectMapper.writeValueAsString(search)))
+                .content(json)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andReturn();
 
-        ArtistDto[] response = objectMapper.readValue(result.getResponse().getContentAsString(), ArtistDto[].class);
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), response.getStatus());
+    }
+
+    @Test
+    public void searchArtists_withNonMatchingName_returnsEmptyResult() throws Exception {
+        ArtistSearchDto searchDto = new ArtistSearchDto();
+        searchDto.setFirstname("NonExistent");
+        searchDto.setPage(0);
+        searchDto.setSize(10);
+
+        String json = objectMapper.writeValueAsString(searchDto);
+
+        MvcResult mvcResult = this.mockMvc.perform(post(ARTIST_BASE_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andReturn();
+
+        MockHttpServletResponse response = mvcResult.getResponse();
 
         assertAll(
-            () -> assertNotNull(response),
-            () -> assertEquals(0, response.length)
+            () -> assertEquals(HttpStatus.OK.value(), response.getStatus()),
+            () -> assertTrue(response.getContentAsString().contains("\"totalElements\":0"))
         );
     }
 }

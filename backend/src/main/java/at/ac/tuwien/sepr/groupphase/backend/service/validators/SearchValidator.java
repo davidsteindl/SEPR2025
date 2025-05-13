@@ -3,8 +3,11 @@ package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
-import jakarta.validation.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class SearchValidator {
@@ -19,36 +22,43 @@ public class SearchValidator {
      * @param artistSearchDto the search criteria
      * @throws ValidationException if any validation fails
      */
-    public void validateForArtists(ArtistSearchDto artistSearchDto) {
+    public void validateForArtists(ArtistSearchDto artistSearchDto) throws ValidationException {
+        List<String> validationErrors = new ArrayList<>();
+
         if (artistSearchDto == null) {
-            throw new ValidationException("Search criteria must not be null");
+            throw new ValidationException("Validation of user for registration failed", validationErrors);
         }
 
         if (artistSearchDto.getPage() == null || artistSearchDto.getPage() < 0) {
-            throw new ValidationException("Page index must be non-negative");
+            validationErrors.add("Page index must be non-negative");
         }
         if (artistSearchDto.getSize() == null || artistSearchDto.getSize() <= 0) {
-            throw new ValidationException("Page size must be greater than zero");
+            validationErrors.add("Page size must be greater than zero");
         }
+
 
         boolean hasFirstname = artistSearchDto.getFirstname() != null && !artistSearchDto.getFirstname().isBlank();
         boolean hasLastname = artistSearchDto.getLastname() != null && !artistSearchDto.getLastname().isBlank();
         boolean hasStagename = artistSearchDto.getStagename() != null && !artistSearchDto.getStagename().isBlank();
 
         if (!hasFirstname && !hasLastname && !hasStagename) {
-            throw new ValidationException("At least one of the following fields must be filled: firstname, lastname, stagename.");
+            validationErrors.add("At least one of the following fields must be filled: firstname, lastname, stagename.");
         }
 
         if (artistSearchDto.getFirstname() != null && artistSearchDto.getFirstname().length() > 100) {
-            throw new ValidationException("Firstname filter must not exceed 100 characters");
+            validationErrors.add("Firstname filter must not exceed 100 characters");
         }
 
         if (artistSearchDto.getLastname() != null && artistSearchDto.getLastname().length() > 100) {
-            throw new ValidationException("Lastname filter must not exceed 100 characters");
+            validationErrors.add("Lastname filter must not exceed 100 characters");
         }
 
         if (artistSearchDto.getStagename() != null && artistSearchDto.getStagename().length() > 100) {
-            throw new ValidationException("Stagename filter must not exceed 100 characters");
+            validationErrors.add("Stagename filter must not exceed 100 characters");
+        }
+
+        if (!(validationErrors.isEmpty())) {
+            throw new ValidationException("Validation of user for registration failed", validationErrors);
         }
     }
 
@@ -58,20 +68,22 @@ public class SearchValidator {
      * @param eventSearchDto the search criteria
      * @throws ValidationException if any validation fails
      */
-    public void validateForEvents(EventSearchDto eventSearchDto) {
+    public void validateForEvents(EventSearchDto eventSearchDto) throws ValidationException {
+        List<String> validationErrors = new ArrayList<>();
+
         if (eventSearchDto == null) {
-            throw new ValidationException("Search criteria must not be null");
+            throw new ValidationException("Validation of user for registration failed", validationErrors);
         }
 
         if (eventSearchDto.getPage() == null || eventSearchDto.getPage() < 0) {
-            throw new ValidationException("Page index must be non-negative");
+            validationErrors.add("Page index must be non-negative");
         }
         if (eventSearchDto.getSize() == null || eventSearchDto.getSize() <= 0) {
-            throw new ValidationException("Page size must be greater than zero");
+            validationErrors.add("Page size must be greater than zero");
         }
 
         if (eventSearchDto.getName() != null && eventSearchDto.getName().length() > 100) {
-            throw new ValidationException("Event name filter must not exceed 100 characters");
+            validationErrors.add("Event name filter must not exceed 100 characters");
         }
 
         if (eventSearchDto.getType() != null && !eventSearchDto.getType().isBlank()) {
@@ -84,16 +96,20 @@ public class SearchValidator {
                 }
             }
             if (!valid) {
-                throw new ValidationException("Invalid event type: " + eventSearchDto.getType());
+                validationErrors.add("Invalid event type: " + eventSearchDto.getType());
             }
         }
 
         if (eventSearchDto.getDescription() != null && eventSearchDto.getDescription().length() > 500) {
-            throw new ValidationException("Description filter must not exceed 500 characters");
+            validationErrors.add("Description filter must not exceed 500 characters");
         }
 
         if (eventSearchDto.getDuration() != null && eventSearchDto.getDuration() < 0) {
-            throw new ValidationException("Duration filter must be non-negative");
+            validationErrors.add("Duration filter must be non-negative");
+        }
+
+        if (!(validationErrors.isEmpty())) {
+            throw new ValidationException("Validation of user for registration failed", validationErrors);
         }
     }
 }

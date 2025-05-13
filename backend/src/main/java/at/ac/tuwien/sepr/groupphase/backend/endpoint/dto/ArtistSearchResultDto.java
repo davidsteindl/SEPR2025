@@ -53,8 +53,12 @@ public class ArtistSearchResultDto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ArtistSearchResultDto that)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ArtistSearchResultDto that)) {
+            return false;
+        }
         return Objects.equals(id, that.id)
             && Objects.equals(firstname, that.firstname)
             && Objects.equals(lastname, that.lastname)
@@ -68,12 +72,12 @@ public class ArtistSearchResultDto {
 
     @Override
     public String toString() {
-        return "ArtistSearchResultDto{" +
-            "id=" + id +
-            ", firstname='" + firstname + '\'' +
-            ", lastname='" + lastname + '\'' +
-            ", stagename='" + stagename + '\'' +
-            '}';
+        return "ArtistSearchResultDto{"
+            + "id=" + id
+            + ", firstname='" + firstname + '\''
+            + ", lastname='" + lastname + '\''
+            + ", stagename='" + stagename + '\''
+            + '}';
     }
 
     public static final class ArtistSearchResultDtoBuilder {
