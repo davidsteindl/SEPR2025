@@ -2,10 +2,12 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.SearchEventEndpoint;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.EventEndpoint;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchResultDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
+import at.ac.tuwien.sepr.groupphase.backend.service.EventService;
 import at.ac.tuwien.sepr.groupphase.backend.service.SearchService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
 import org.junit.jupiter.api.Test;
@@ -25,8 +27,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(SearchEventEndpoint.class)
-public class SearchEventEndpointTest {
+@WebMvcTest(EventEndpoint.class)
+public class EventEndpointTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -36,6 +38,12 @@ public class SearchEventEndpointTest {
 
     @MockitoBean
     private ShowService showService;
+
+    @MockitoBean
+    private EventService eventService;
+
+    @MockitoBean
+    private EventMapper eventMapper;
 
     @MockitoBean
     private ShowMapper showMapper;
