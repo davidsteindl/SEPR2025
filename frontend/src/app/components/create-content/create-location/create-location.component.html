@@ -1,1 +1,43 @@
-<p>create-location works!</p>
+<div class="container mt-4">
+
+  <h2 class="text-center mb-4">Create Location</h2>
+
+  <div class="tab-box">
+    <div class="form-group">
+      <label for="locationName">Name</label>
+      <input id="locationName" [(ngModel)]="location.name" class="form-control"/>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="locationType">Type</label>
+      <select id="locationType" [(ngModel)]="location.type" class="form-control">
+        <option value="" disabled selected>Select type</option>
+        <option *ngFor="let type of locationTypes" [ngValue]="type">{{ type }}</option>
+      </select>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="locationCountry">Country</label>
+      <input id="locationCountry" [(ngModel)]="location.country" class="form-control"/>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="locationCity">City</label>
+      <input id="locationCity" [(ngModel)]="location.city" class="form-control"/>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="locationStreet">Street</label>
+      <input id="locationStreet" [(ngModel)]="location.street" class="form-control"/>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="locationPostalCode">Postal Code</label>
+      <input id="locationPostalCode" [(ngModel)]="location.postalCode" class="form-control"/>
+    </div>
+
+    <div class="text-center">
+      <button class="btn btn-success mt-4" (click)="createLocation()">Create Location</button>
+    </div>
+  </div>
+</div>

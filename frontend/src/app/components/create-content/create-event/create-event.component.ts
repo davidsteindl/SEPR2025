@@ -21,7 +21,7 @@ import {LocationService} from '../../../services/location.service';
 
 export class CreateEventComponent implements OnInit {
   event: CreateEvent = {
-    name: null,
+    name: '',
     category: null,
     location: null
   }
