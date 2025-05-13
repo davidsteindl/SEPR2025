@@ -29,6 +29,12 @@ public class Event {
     @JoinColumn(name = "location_id", nullable = false)
     private EventLocation location;
 
+    @Column(length = 500)
+    private String description;
+
+    @Column(insertable = false, updatable = false)
+    private Integer totalDuration;
+
     public Long getId() {
         return id;
     }
@@ -61,6 +67,18 @@ public class Event {
         this.location = location;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getTotalDuration() {
+        return totalDuration;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -87,6 +105,7 @@ public class Event {
             + ", name='" + name + '\''
             + ", category='" + (category != null ? category.getDisplayName() : "null") + '\''
             + ", location ID='" + (location != null ? location.getId() : "null") + '\''
+            + ", description='" + (description != null ? description : "null") + '\''
             + '}';
     }
 
@@ -127,6 +146,7 @@ public class Event {
         private String name;
         private EventCategory category;
         private EventLocation location;
+        private String description;
 
         private EventBuilder() {
         }
@@ -150,11 +170,17 @@ public class Event {
             return this;
         }
 
+        public EventBuilder withDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
         public Event build() {
             Event event = new Event();
             event.setName(name);
             event.setCategory(category);
             event.setLocation(location);
+            event.setDescription(description);
             return event;
         }
     }

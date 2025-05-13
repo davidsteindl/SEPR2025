@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,4 +75,12 @@ public class ShowServiceImpl implements ShowService {
         }
         return showRepository.save(show);
     }
+
+    @Override
+    public List<Show> findShowsByEventId(Long eventId) {
+        var event = eventRepository.findById(eventId)
+            .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+        return showRepository.findByEventOrderByDateAsc(event);
+    }
 }
+
