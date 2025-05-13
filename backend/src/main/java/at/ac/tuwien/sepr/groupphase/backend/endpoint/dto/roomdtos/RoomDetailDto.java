@@ -62,11 +62,12 @@ public class RoomDetailDto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-
+        }
         RoomDetailDto that = (RoomDetailDto) o;
         return isHorizontal == that.isHorizontal
                 && Objects.equals(id, that.id)
@@ -76,12 +77,12 @@ public class RoomDetailDto {
 
     @Override
     public String toString() {
-        return "RoomDetailDto{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", sectors=" + sectors +
-                ", isHorizontal=" + isHorizontal +
-                '}';
+        return "RoomDetailDto{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + ", sectors=" + sectors
+                + ", isHorizontal=" + isHorizontal
+                + '}';
     }
 
     public static final class RoomDetailDtoBuilder {

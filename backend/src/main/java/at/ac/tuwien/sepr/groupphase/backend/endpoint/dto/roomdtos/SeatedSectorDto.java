@@ -26,25 +26,27 @@ public class SeatedSectorDto extends SectorDto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof SeatedSectorDto))
+        }
+        if (!(o instanceof SeatedSectorDto)) {
             return false;
+        }
         SeatedSectorDto that = (SeatedSectorDto) o;
-        return Objects.equals(getId(), that.getId()) &&
-                getType() == that.getType() &&
-                getPrice() == that.getPrice() &&
-                Objects.equals(rows, that.rows);
+        return Objects.equals(getId(), that.getId())
+                && getType() == that.getType()
+                && getPrice() == that.getPrice()
+                && Objects.equals(rows, that.rows);
     }
 
     @Override
     public String toString() {
-        return "SeatedSectorDto{" +
-                "id=" + getId() +
-                ", type=" + getType() +
-                ", price=" + getPrice() +
-                ", rows=" + rows +
-                '}';
+        return "SeatedSectorDto{"
+                + "id=" + getId()
+                + ", type=" + getType()
+                + ", price=" + getPrice()
+                + ", rows=" + rows
+                + '}';
     }
 
     public static final class SeatedSectorDtoBuilder {

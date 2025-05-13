@@ -10,7 +10,6 @@ public class StandingSectorDto extends SectorDto {
     @Positive(message = "Capacity must be positive")
     private int capacity;
 
-    // ─── Getters & Setters ───────────────────────────────────────────────────────
 
     public int getCapacity() {
         return capacity;
@@ -20,7 +19,6 @@ public class StandingSectorDto extends SectorDto {
         this.capacity = capacity;
     }
 
-    // ─── hashCode, equals, toString ─────────────────────────────────────────────
 
     @Override
     public int hashCode() {
@@ -29,36 +27,36 @@ public class StandingSectorDto extends SectorDto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof StandingSectorDto))
+        }
+        if (!(o instanceof StandingSectorDto)) {
             return false;
+        }
         StandingSectorDto that = (StandingSectorDto) o;
         return getPrice() == that.getPrice()
-                && capacity == that.capacity
-                && Objects.equals(getId(), that.getId())
-                && getType() == that.getType();
+               && capacity == that.capacity
+               && Objects.equals(getId(), that.getId())
+               && getType() == that.getType();
     }
 
     @Override
     public String toString() {
-        return "StandingSectorDto{" +
-                "id=" + getId() +
-                ", type=" + getType() +
-                ", price=" + getPrice() +
-                ", capacity=" + capacity +
-                '}';
+        return "StandingSectorDto{"
+               + "id=" + getId()
+               + ", type=" + getType()
+               + ", price=" + getPrice()
+               + ", capacity=" + capacity
+               + '}';
     }
 
-    // ─── Builder ────────────────────────────────────────────────────────────────
 
     public static final class StandingSectorDtoBuilder {
         private Long id;
         private int price;
         private int capacity;
 
-        private StandingSectorDtoBuilder() {
-        }
+        private StandingSectorDtoBuilder() { }
 
         public static StandingSectorDtoBuilder aStandingSectorDto() {
             return new StandingSectorDtoBuilder();

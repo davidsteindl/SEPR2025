@@ -8,20 +8,20 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = SeatedSectorDto.class, name = "SEATED"),
-        @JsonSubTypes.Type(value = StandingSectorDto.class, name = "STANDING")
+@JsonSubTypes({ 
+    @JsonSubTypes.Type(value = SeatedSectorDto.class, name = "SEATED"),
+    @JsonSubTypes.Type(value = StandingSectorDto.class, name = "STANDING") 
 })
 public abstract class SectorDto {
 
-    @NotNull
-    @Positive
+    @NotNull(message = "Sector ID must not be null")
+    @Positive(message = "Sector ID must be positive")
     private Long id;
 
-    @NotNull
+    @NotNull(message = "Sector type must not be null")
     private SectorType type;
 
-    @Positive
+    @Positive(message = "Price must be positive")
     private int price;
 
     public Long getId() {
@@ -47,4 +47,5 @@ public abstract class SectorDto {
     public void setPrice(int price) {
         this.price = price;
     }
+
 }

@@ -82,10 +82,12 @@ public class CreateRoomDto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         CreateRoomDto that = (CreateRoomDto) o;
         return numberOfSectors == that.numberOfSectors
                 && rowsPerSector == that.rowsPerSector
@@ -97,14 +99,14 @@ public class CreateRoomDto {
 
     @Override
     public String toString() {
-        return "CreateRoomDto{" +
-                "name='" + name + '\'' +
-                ", numberOfSectors=" + numberOfSectors +
-                ", rowsPerSector=" + rowsPerSector +
-                ", seatsPerRow=" + seatsPerRow +
-                ", eventLocationId=" + eventLocationId +
-                ", isHorizontal=" + isHorizontal +
-                '}';
+        return "CreateRoomDto{"
+                + "name='" + name + '\''
+                + ", numberOfSectors=" + numberOfSectors
+                + ", rowsPerSector=" + rowsPerSector
+                + ", seatsPerRow=" + seatsPerRow
+                + ", eventLocationId=" + eventLocationId
+                + ", isHorizontal=" + isHorizontal
+                + '}';
     }
 
     public static final class CreateRoomDtoBuilder {
@@ -116,7 +118,6 @@ public class CreateRoomDto {
         private boolean isHorizontal;
 
         private CreateRoomDtoBuilder() {
-
         }
 
         public static CreateRoomDtoBuilder aCreateRoomDtoBuilder() {
@@ -154,15 +155,14 @@ public class CreateRoomDto {
         }
 
         public CreateRoomDto build() {
-            CreateRoomDto createRoomDto = new CreateRoomDto();
-            createRoomDto.setEventLocationId(eventLocationId);
-            createRoomDto.setHorizontal(isHorizontal);
-            createRoomDto.setName(name);
-            createRoomDto.setNumberOfSectors(numberOfSectors);
-            createRoomDto.setRowsPerSector(rowsPerSector);
-            createRoomDto.setSeatsPerRow(seatsPerRow);
-            return createRoomDto;
+            CreateRoomDto dto = new CreateRoomDto();
+            dto.setName(name);
+            dto.setNumberOfSectors(numberOfSectors);
+            dto.setRowsPerSector(rowsPerSector);
+            dto.setSeatsPerRow(seatsPerRow);
+            dto.setEventLocationId(eventLocationId);
+            dto.setHorizontal(isHorizontal);
+            return dto;
         }
     }
-
 }

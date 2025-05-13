@@ -37,21 +37,23 @@ public class SeatDto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof SeatDto))
+        }
+        if (!(o instanceof SeatDto)) {
             return false;
+        }
         SeatDto that = (SeatDto) o;
-        return seatNumber == that.seatNumber &&
-                Objects.equals(id, that.id);
+        return seatNumber == that.seatNumber
+               && Objects.equals(id, that.id);
     }
 
     @Override
     public String toString() {
-        return "SeatDto{" +
-                "id=" + id +
-                ", seatNumber=" + seatNumber +
-                '}';
+        return "SeatDto{"
+               + "id=" + id
+               + ", seatNumber=" + seatNumber
+               + '}';
     }
 
     public static final class SeatDtoBuilder {
