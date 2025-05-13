@@ -2,7 +2,6 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LocationDto;
@@ -16,6 +15,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.SearchService;
+import at.ac.tuwien.sepr.groupphase.backend.service.specifications.ArtistSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.specifications.EventSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SearchValidator;
 
@@ -44,6 +44,7 @@ public class CustomSearchService implements SearchService {
     private final ArtistRepository artistRepo;
     private final ArtistMapper artistMapper;
 
+    @Autowired
     public CustomSearchService(EventRepository eventRepo, ShowRepository showRepo, SearchValidator searchValidator, ArtistRepository artistRepo,
                              ArtistMapper artistMapper) {
         this.eventRepo = eventRepo;

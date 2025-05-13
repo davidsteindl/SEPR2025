@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.specifications.ArtistSpecifications;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -162,7 +163,7 @@ public class ArtistRepositoryTest {
 
     @Test
     public void search_withUnknownStagename_returnsEmpty() {
-        var spec = at.ac.tuwien.sepr.groupphase.backend.service.impl.ArtistSpecifications.hasStagenameLike("NoName");
+        var spec = ArtistSpecifications.hasStagenameLike("NoName");
 
         var result = artistRepository.findAll(spec);
 
@@ -172,8 +173,8 @@ public class ArtistRepositoryTest {
     @Test
     public void search_withFirstnameAndLastname_specificationWorksTogether() {
         var spec = Specification
-            .where(at.ac.tuwien.sepr.groupphase.backend.service.impl.ArtistSpecifications.hasFirstnameLike("Anna"))
-            .and(at.ac.tuwien.sepr.groupphase.backend.service.impl.ArtistSpecifications.hasLastnameLike("Smith"));
+            .where(ArtistSpecifications.hasFirstnameLike("Anna"))
+            .and(ArtistSpecifications.hasLastnameLike("Smith"));
 
         var result = artistRepository.findAll(spec);
 

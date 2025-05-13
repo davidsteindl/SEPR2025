@@ -1,9 +1,9 @@
-package at.ac.tuwien.sepr.groupphase.backend.service.impl;
+package at.ac.tuwien.sepr.groupphase.backend.service.specifications;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import org.springframework.data.jpa.domain.Specification;
 
-public class ArtistSpecifications {
+public final class ArtistSpecifications {
 
     public static Specification<Artist> hasFirstnameLike(String firstname) {
         return (root, query, cb) ->
