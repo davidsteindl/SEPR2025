@@ -26,7 +26,7 @@ public class SearchValidator {
         List<String> validationErrors = new ArrayList<>();
 
         if (artistSearchDto == null) {
-            throw new ValidationException("Validation of user for registration failed", validationErrors);
+            throw new ValidationException("Validation of artist search request failed", validationErrors);
         }
 
         if (artistSearchDto.getPage() == null || artistSearchDto.getPage() < 0) {
@@ -58,7 +58,7 @@ public class SearchValidator {
         }
 
         if (!(validationErrors.isEmpty())) {
-            throw new ValidationException("Validation of user for registration failed", validationErrors);
+            throw new ValidationException("Validation of artist search request failed", validationErrors);
         }
     }
 
@@ -72,7 +72,8 @@ public class SearchValidator {
         List<String> validationErrors = new ArrayList<>();
 
         if (eventSearchDto == null) {
-            throw new ValidationException("Validation of user for registration failed", validationErrors);
+            validationErrors.add("Event search request must not be null");
+            throw new ValidationException("Validation of event search request failed", validationErrors);
         }
 
         if (eventSearchDto.getPage() == null || eventSearchDto.getPage() < 0) {
@@ -109,7 +110,7 @@ public class SearchValidator {
         }
 
         if (!(validationErrors.isEmpty())) {
-            throw new ValidationException("Validation of user for registration failed", validationErrors);
+            throw new ValidationException("Validation of event search request failed", validationErrors);
         }
     }
 }
