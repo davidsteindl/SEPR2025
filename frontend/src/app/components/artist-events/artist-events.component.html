@@ -1,0 +1,21 @@
+<div class="container mt-4" *ngIf="artist">
+  <h3>{{ artist.stagename || (artist.firstname + ' ' + artist.lastname) }}’s Upcoming Events</h3>
+  <hr>
+
+  <table class="table table-bordered mt-3">
+    <thead>
+    <tr>
+      <th>Event</th>
+      <th class="text-end"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><strong></strong></td>
+      <td class="text-end">
+        <button class="view-button">View full event</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
