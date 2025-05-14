@@ -48,12 +48,13 @@ public class ShowServiceImpl implements ShowService {
     @Override
     public Show createShow(Show show) throws ValidationException {
         LOGGER.info("Save show {}", show);
+        String exceptionText = "Event ID must not be null";
         if (show.getEvent().getId() == null) {
-            LOGGER.error("Event ID must not be null");
-            throw new ValidationException("Event ID must not be null", List.of("Event ID must not be null"));
+            LOGGER.error(exceptionText);
+            throw new ValidationException(exceptionText, List.of(exceptionText));
         } else {
             Event event = eventRepository.findById(show.getEvent().getId())
-                .orElseThrow(() -> new ValidationException("Event ID must not be null", List.of("Event ID must not be null")));
+                .orElseThrow(() -> new ValidationException(exceptionText, List.of(exceptionText)));
             show.setEvent(event);
         }
 

@@ -41,12 +41,13 @@ public class EventServiceImpl implements EventService {
     @Override
     public Event createEvent(Event event) throws ValidationException {
         LOGGER.info("Save event {}", event);
+        String exceptionText = "No event location given";
         if (event.getLocation() != null) {
             EventLocation location = eventLocationRepository.findById(event.getLocation().getId())
-                .orElseThrow(() -> new ValidationException("No event location given", List.of("No event location given")));
+                .orElseThrow(() -> new ValidationException(exceptionText, List.of(exceptionText)));
             event.setLocation(location);
         } else {
-            throw new ValidationException("No event location given", List.of("No event location given"));
+            throw new ValidationException(exceptionText, List.of(exceptionText));
         }
         return eventRepository.save(event);
     }
