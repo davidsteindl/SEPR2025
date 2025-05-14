@@ -21,6 +21,7 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Name must not be blank")
     @Column(nullable = false, length = 100)
     private String name;
 
