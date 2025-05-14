@@ -124,7 +124,7 @@ public class CustomUserDetailService implements UserService {
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        return jwtTokenizer.getAuthToken(user.getEmail(), roles);
+        return jwtTokenizer.getAuthToken(user.getId().toString(), roles);
     }
 
     @Override

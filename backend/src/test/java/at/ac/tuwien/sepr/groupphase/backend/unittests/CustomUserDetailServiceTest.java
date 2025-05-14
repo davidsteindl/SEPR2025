@@ -13,6 +13,7 @@ import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -53,7 +54,7 @@ class CustomUserDetailServiceTest {
     @BeforeEach
     void setUp() {
         testUser = ApplicationUser.ApplicationUserBuilder.aUser()
-
+            .withId(1L)
             .withEmail("user@email.com")
             .withPassword("encodedPassword")
             .withFirstName("Test")
