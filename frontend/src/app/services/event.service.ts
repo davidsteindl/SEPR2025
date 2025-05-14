@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { Globals } from '../global/globals';
 import { CreateEvent } from '../dtos/create-event';
 import { Event } from '../dtos/event';
@@ -45,5 +45,9 @@ export class EventService {
    */
   getEventById(id: number): Observable<Event> {
     return this.httpClient.get<Event>(`${this.eventBaseUri}/${id}`);
+  }
+
+  getEventsByIds(ids: number[]): Observable<Event[]> {
+    return forkJoin(ids.map(id => this.getEventById(id)));
   }
 }

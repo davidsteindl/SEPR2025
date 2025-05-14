@@ -37,15 +37,7 @@ export class CreateLocationComponent {
   }
 
   createdLocation: Location = null;
-  locationTypes: string[] = [
-    'Stadium',
-    'Festival Ground',
-    'Hall',
-    'Opera',
-    'Theater',
-    'Club',
-    'Other'
-  ];
+  locationTypeOptions = locationTypeOptions;
 
   createLocation() {
     this.locationService.create(this.location).subscribe({
@@ -78,3 +70,29 @@ export class CreateLocationComponent {
     });
   }
 }
+
+export enum LocationType {
+  STADIUM = 'STADIUM',
+  FESTIVAL_GROUND = 'FESTIVAL_GROUND',
+  HALL = 'HALL',
+  OPERA = 'OPERA',
+  THEATER = 'THEATER',
+  CLUB = 'CLUB',
+  OTHER = 'OTHER'
+}
+
+export const LocationTypeDisplayNames: Record<LocationType, string> = {
+  [LocationType.STADIUM]: 'Stadium',
+  [LocationType.FESTIVAL_GROUND]: 'Festival Ground',
+  [LocationType.HALL]: 'Hall',
+  [LocationType.OPERA]: 'Opera',
+  [LocationType.THEATER]: 'Theater',
+  [LocationType.CLUB]: 'Club',
+  [LocationType.OTHER]: 'Other'
+};
+
+
+export const locationTypeOptions = Object.values(LocationType).map((type) => ({
+  value: type,
+  label: LocationTypeDisplayNames[type]
+}));

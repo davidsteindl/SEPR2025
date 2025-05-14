@@ -34,10 +34,7 @@ export class CreateEventComponent implements OnInit {
   createdEvent: Event = null;
   locationNameOfCreatedEvent: String = null;
 
-  eventCategories: string[] = [
-    'Classical', 'Jazz', 'Rock', 'Pop', 'Electronic', 'Hip-Hop', 'Country', 'Reggae', 'Folk', 'Opera',
-    'Musical', 'Alternative', 'Latin', 'R&B', 'Metal', 'Indie', 'Theatre', 'Comedy', 'Ballet', 'Other'
-  ];
+  eventCategoryOptions = eventCategoryOptions;
 
   locations: Location[] = [];
 
@@ -97,3 +94,54 @@ export class CreateEventComponent implements OnInit {
     });
   }
 }
+
+export enum EventCategory {
+  CLASSICAL = 'CLASSICAL',
+  JAZZ = 'JAZZ',
+  ROCK = 'ROCK',
+  POP = 'POP',
+  ELECTRONIC = 'ELECTRONIC',
+  HIPHOP = 'HIPHOP',
+  COUNTRY = 'COUNTRY',
+  REGGAE = 'REGGAE',
+  FOLK = 'FOLK',
+  OPERA = 'OPERA',
+  MUSICAL = 'MUSICAL',
+  ALTERNATIVE = 'ALTERNATIVE',
+  LATIN = 'LATIN',
+  RNB = 'RNB',
+  METAL = 'METAL',
+  INDIE = 'INDIE',
+  THEATRE = 'THEATRE',
+  COMEDY = 'COMEDY',
+  BALLET = 'BALLET',
+  OTHER = 'OTHER'
+}
+
+export const EventCategoryDisplayNames: Record<EventCategory, string> = {
+  [EventCategory.CLASSICAL]: 'Classical',
+  [EventCategory.JAZZ]: 'Jazz',
+  [EventCategory.ROCK]: 'Rock',
+  [EventCategory.POP]: 'Pop',
+  [EventCategory.ELECTRONIC]: 'Electronic',
+  [EventCategory.HIPHOP]: 'Hip-Hop',
+  [EventCategory.COUNTRY]: 'Country',
+  [EventCategory.REGGAE]: 'Reggae',
+  [EventCategory.FOLK]: 'Folk',
+  [EventCategory.OPERA]: 'Opera',
+  [EventCategory.MUSICAL]: 'Musical',
+  [EventCategory.ALTERNATIVE]: 'Alternative',
+  [EventCategory.LATIN]: 'Latin',
+  [EventCategory.RNB]: 'R&B',
+  [EventCategory.METAL]: 'Metal',
+  [EventCategory.INDIE]: 'Indie',
+  [EventCategory.THEATRE]: 'Theatre',
+  [EventCategory.COMEDY]: 'Comedy',
+  [EventCategory.BALLET]: 'Ballet',
+  [EventCategory.OTHER]: 'Other'
+};
+
+export const eventCategoryOptions = Object.values(EventCategory).map((category) => ({
+  value: category,
+  label: EventCategoryDisplayNames[category]
+}));

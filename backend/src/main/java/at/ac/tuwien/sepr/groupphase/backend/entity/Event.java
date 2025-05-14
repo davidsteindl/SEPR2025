@@ -29,7 +29,7 @@ public class Event {
     private EventCategory category;
 
     @NotBlank
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String description;
 
     @Min(10)
@@ -40,9 +40,6 @@ public class Event {
     @ManyToOne(optional = false)
     @JoinColumn(name = "location_id", nullable = false)
     private EventLocation location;
-
-    @Column(length = 500)
-    private String description;
 
     @Column(insertable = false, updatable = false)
     private Integer totalDuration;
@@ -93,14 +90,6 @@ public class Event {
 
     public void setLocation(EventLocation location) {
         this.location = location;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public int getTotalDuration() {
@@ -180,7 +169,6 @@ public class Event {
         private String description;
         private int duration;
         private EventLocation location;
-        private String description;
 
         private EventBuilder() {}
 
@@ -213,11 +201,6 @@ public class Event {
             return this;
         }
 
-        public EventBuilder withDescription(String description) {
-            this.description = description;
-            return this;
-        }
-
         public Event build() {
             Event event = new Event();
             event.setName(name);
@@ -225,7 +208,6 @@ public class Event {
             event.setDescription(description);
             event.setDuration(duration);
             event.setLocation(location);
-            event.setDescription(description);
             return event;
         }
     }

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Globals } from '../global/globals';
 import { CreateShow } from '../dtos/create-show';
 import { Show } from '../dtos/show';
+import { forkJoin } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -39,5 +40,9 @@ export class ShowService {
    */
   getShowById(id: number): Observable<Show> {
     return this.httpClient.get<Show>(`${this.showBaseUri}/${id}`);
+  }
+
+  getShowsByIds(ids: number[]): Observable<Show[]> {
+    return forkJoin(ids.map(id => this.getShowById(id)));
   }
 }

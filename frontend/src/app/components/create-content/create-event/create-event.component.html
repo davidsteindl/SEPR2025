@@ -59,7 +59,7 @@
         class="form-control"
         #eventCategory="ngModel">
         <option [ngValue]="null" disabled>Select category</option>
-        <option *ngFor="let category of eventCategories" [ngValue]="category">{{ category }}</option>
+        <option *ngFor="let option of eventCategoryOptions" [value]="option.value">{{ option.label }}</option>
       </select>
       <div *ngIf="eventCategory.invalid && eventCategory.touched" class="text-danger">
         Category is required.
