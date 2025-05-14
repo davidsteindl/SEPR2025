@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 
@@ -28,4 +29,14 @@ public interface ShowService {
      * @return the saved show
      */
     Show createShow(Show show) throws ValidationException;
+
+
+    /**
+     * Returns all shows for the given event ID.
+     *
+     * @param eventId the ID of the event to retrieve shows for
+     * @return a list of shows for the given event ID
+     */
+    public List<Show> findShowsByEventId(Long eventId);
 }
+

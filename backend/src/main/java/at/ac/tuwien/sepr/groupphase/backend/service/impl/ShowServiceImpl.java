@@ -11,6 +11,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
 import at.ac.tuwien.sepr.groupphase.backend.util.EntitySyncUtil;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,4 +72,10 @@ public class ShowServiceImpl implements ShowService {
         return show;
     }
 
+    @Override
+    public List<Show> findShowsByEventId(Long eventId) {
+        var event = eventRepository.findById(eventId)
+            .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+        return showRepository.findByEventOrderByDateAsc(event);
+    }
 }

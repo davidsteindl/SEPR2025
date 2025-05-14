@@ -1,7 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.repository;
 
-import at.ac.tuwien.sepr.groupphase.backend.util.MinMaxTime;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
+import at.ac.tuwien.sepr.groupphase.backend.util.MinMaxTime;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface ShowRepository extends JpaRepository<Show, Long> {
+
     @Query("SELECT DISTINCT s FROM Show s LEFT JOIN FETCH s.artists")
     List<Show> findAllWithArtists();
 
@@ -26,4 +28,6 @@ public interface ShowRepository extends JpaRepository<Show, Long> {
 
     @Query("SELECT s FROM Show s LEFT JOIN FETCH s.artists WHERE s.id = :id")
     Optional<Show> findByIdWithArtists(@Param("id") Long id);
+
+    List<Show> findByEventOrderByDateAsc(Event event);
 }

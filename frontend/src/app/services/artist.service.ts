@@ -1,9 +1,10 @@
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {Globals} from '../global/globals';
-import {CreateArtist} from '../dtos/create-artist';
-import {Artist} from '../dtos/artist';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Globals } from '../global/globals';
+import { Artist, ArtistSearchDto, ArtistSearchResultDto } from '../dtos/artist';
+import { CreateArtist } from '../dtos/create-artist';
+import { Page } from '../dtos/page';
 
 @Injectable({
   providedIn: 'root'
@@ -11,15 +12,8 @@ import {Artist} from '../dtos/artist';
 export class ArtistService {
   private artistBaseUri: string = this.globals.backendUri + '/artists';
 
-  constructor(private httpClient: HttpClient, private globals: Globals) {
-  }
+  constructor(private httpClient: HttpClient, private globals: Globals) {}
 
-
-  /**
-   * Creates a new artist
-   *
-   * @param artist to create
-   */
   create(artist: CreateArtist): Observable<Artist> {
     let name = '';
     if (artist.stagename) {
@@ -31,19 +25,22 @@ export class ArtistService {
     return this.httpClient.post<Artist>(this.artistBaseUri, artist);
   }
 
-  /**
-   * Retrieves all artists
-   */
   getAll(): Observable<Artist[]> {
     return this.httpClient.get<Artist[]>(this.artistBaseUri);
   }
 
-  /**
-   * Retrieves the artist with the given ID
-   *
-   * @param id ID of the artist to retrieve
-   */
   getShowById(id: number): Observable<Artist> {
+    return this.httpClient.get<Artist>(`${this.artistBaseUri}/${id}`);
+  }
+
+  searchArtists(criteria: ArtistSearchDto): Observable<Page<ArtistSearchResultDto>> {
+    return this.httpClient.post<Page<ArtistSearchResultDto>>(
+      this.artistBaseUri + '/search',
+      criteria
+    );
+  }
+
+  getArtistById(id: number): Observable<Artist> {
     return this.httpClient.get<Artist>(`${this.artistBaseUri}/${id}`);
   }
 }

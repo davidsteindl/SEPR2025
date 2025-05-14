@@ -45,6 +45,7 @@ public class EventServiceImpl implements EventService {
     public Event createEvent(Event event) throws ValidationException {
         LOGGER.info("Save event {}", event);
         eventValidator.validateDuration(event.getId());
+
         if (event.getLocation() != null) {
             EventLocation location = eventLocationRepository.findById(event.getLocation().getId())
                 .orElseThrow(() -> new ValidationException("No event location given", List.of("No event location given")));
