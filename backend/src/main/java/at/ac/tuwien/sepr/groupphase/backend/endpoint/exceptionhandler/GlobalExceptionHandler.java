@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -115,17 +116,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatusCode statusCode,
         WebRequest request) {
 
-        List<String> errors = ex.getBindingResult()
+        List<String> fieldErrors = ex.getBindingResult()
             .getFieldErrors()
             .stream()
             .map(FieldError::getDefaultMessage)
-            .collect(Collectors.toList());
+            .toList();
 
-        ValidationErrorRestDto response = new ValidationErrorRestDto("Validation failed", errors);
+        List<String> globalErrors = ex.getBindingResult()
+            .getGlobalErrors()
+            .stream()
+            .map(DefaultMessageSourceResolvable::getDefaultMessage)
+            .toList();
+
+        List<String> allErrors = new java.util.ArrayList<>();
+        allErrors.addAll(fieldErrors);
+        allErrors.addAll(globalErrors);
+
+        ValidationErrorRestDto response = new ValidationErrorRestDto("Validation failed", allErrors);
 
         return ResponseEntity
             .status(HttpStatus.UNPROCESSABLE_ENTITY)
             .headers(headers)
             .body(response);
     }
+
 }
