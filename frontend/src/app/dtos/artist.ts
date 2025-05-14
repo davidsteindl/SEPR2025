@@ -8,15 +8,15 @@ export interface Artist {
   shows?: Show[]
 }
 
-export interface ArtistDto {
-  id: number;
-  firstname: string;
-  lastname: string;
-  stagename: string;
-}
-
 export interface ArtistSearchDto {
   firstname?: string;
   lastname?: string;
   stagename?: string;
+}
+
+export interface ArtistSearchResultDto {
+  id: number;
+  firstname: string;
+  lastname: string;
+  stagename: string;
 }

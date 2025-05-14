@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { ArtistService } from '../../services/artist.service';
 import {RouterLink} from "@angular/router";
 import {ArtistSearchDto} from "../../dtos/artist";
+import {ToastrService} from "ngx-toastr";
+import {ErrorFormatterService} from "../../services/error-formatter.service";
 
 
 @Component({
@@ -31,7 +33,12 @@ export class SearchComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  constructor(private artistService: ArtistService) {}
+  constructor(
+    private artistService: ArtistService,
+    private notification: ToastrService,
+    private errorFormatter: ErrorFormatterService
+  ) {
+  }
 
 
   search(): void {
@@ -71,6 +78,10 @@ export class SearchComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error while searching for artist', err);
+        this.notification.error(this.errorFormatter.format(err), 'Search for Artist failed', {
+          enableHtml: true,
+          timeOut: 10000,
+        });
         this.results = [];
       }
     });
