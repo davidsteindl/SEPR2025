@@ -1,9 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import org.springframework.stereotype.Service;
+
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.CreateRoomDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.RoomDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
 
+@Service
 public class RoomServiceImpl implements RoomService {
 
     @Override
