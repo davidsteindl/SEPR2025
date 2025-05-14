@@ -18,7 +18,7 @@ export class ArtistService {
    * Searches for artists that match the given search criteria.
    *
    * @param criteria the search term (can match firstname, lastname or stagename)
-   * @return an Observable containing a list of matching artists
+   * @return an Observable containing a page of matching artists
    */
   searchArtists(criteria: ArtistSearchDto): Observable<Page<ArtistSearchResultDto>> {
     return this.httpClient.post<Page<ArtistSearchResultDto>>(

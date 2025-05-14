@@ -21,9 +21,34 @@ import {Page} from "../../dtos/page";
   styleUrls: ['./search.component.scss']
 })
 export class SearchComponent implements OnInit {
-  activeTab: 'artist' | 'location' | 'event' | 'performance' = 'artist';
+  //tabs + reset
+  private activeTab: 'artist' | 'location' | 'event' | 'performance' = 'artist';
 
-  //artist-variables
+  get currentActiveTab(): 'artist' | 'location' | 'event' | 'performance' {
+    return this.activeTab;
+  }
+
+  set currentActiveTab(tab: 'artist' | 'location' | 'event' | 'performance') {
+    this.activeTab = tab;
+
+    if (tab !== 'artist') {
+      this.firstname = '';
+      this.lastname = '';
+      this.stagename = '';
+      this.artistPage = undefined;
+      this.artistTriggered = false;
+    }
+
+    // TODO: Implement reset for tabs
+    if (tab !== 'location') {
+    }
+    if (tab !== 'event') {
+    }
+    if (tab !== 'performance') {
+    }
+  }
+
+  //artist variables
   firstname: string = '';
   lastname: string = '';
   stagename: string = '';
@@ -36,6 +61,7 @@ export class SearchComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  //constructor
   constructor(
     private artistService: ArtistService,
     private notification: ToastrService,
@@ -43,6 +69,7 @@ export class SearchComponent implements OnInit {
   ) {
   }
 
+  //main search function
   search(): void {
     console.log('Search clicked');
     switch (this.activeTab) {
@@ -50,12 +77,15 @@ export class SearchComponent implements OnInit {
         this.searchArtists();
         break;
       case 'location':
+        // TODO
         //this.searchLocations();
         break;
       case 'event':
+        // TODO
        // this.searchEvents();
         break;
       case 'performance':
+        // TODO
        // this.searchPerformances();
         break;
     }
@@ -90,5 +120,20 @@ export class SearchComponent implements OnInit {
         });
       }
     });
+  }
+
+  searchLocations(): void {
+    // TODO: Implement location search
+    console.log('Location search not implemented yet');
+  }
+
+  searchEvents(): void {
+    // TODO: Implement event search
+    console.log('Event search not implemented yet');
+  }
+
+  searchPerformances(): void {
+    // TODO: Implement performance search
+    console.log('Performance search not implemented yet');
   }
 }
