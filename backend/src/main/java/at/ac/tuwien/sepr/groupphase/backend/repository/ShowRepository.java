@@ -3,6 +3,8 @@ package at.ac.tuwien.sepr.groupphase.backend.repository;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.util.MinMaxTime;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,4 +32,7 @@ public interface ShowRepository extends JpaRepository<Show, Long> {
     Optional<Show> findByIdWithArtists(@Param("id") Long id);
 
     List<Show> findByEventOrderByDateAsc(Event event);
+
+    @Query("SELECT DISTINCT s.event FROM Show s JOIN s.artists a WHERE a.id = :artistId")
+    Page<Event> findEventsByArtistId(@Param("artistId") Long artistId, Pageable pageable);
 }
