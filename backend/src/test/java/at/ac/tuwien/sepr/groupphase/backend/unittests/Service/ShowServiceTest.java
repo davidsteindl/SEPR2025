@@ -1,13 +1,15 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
+import at.ac.tuwien.sepr.groupphase.backend.service.validators.ShowValidator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.*;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.*;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ShowServiceImpl;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -18,7 +20,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@DataJpaTest
+@SpringBootTest
 @ActiveProfiles("test")
 public class ShowServiceTest {
 
@@ -32,9 +34,12 @@ public class ShowServiceTest {
     private Event testEvent;
     private Artist testArtist;
 
+    @Autowired
+    private ShowValidator showValidator;
+
     @BeforeEach
     public void setUp() {
-        showService = new ShowServiceImpl(showRepository, eventRepository, artistRepository);
+        showService = new ShowServiceImpl(showRepository, eventRepository, artistRepository, showValidator);
 
         EventLocation location = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Konzerthaus")
@@ -49,6 +54,8 @@ public class ShowServiceTest {
         testEvent = Event.EventBuilder.anEvent()
             .withName("Beethoven Night")
             .withCategory(Event.EventCategory.CLASSICAL)
+            .withDescription("An evening of Beethoven")
+            .withDuration(180)
             .withLocation(location)
             .build();
         eventRepository.save(testEvent);
@@ -59,11 +66,18 @@ public class ShowServiceTest {
             .withStagename("LB")
             .withShows(null)
             .build();
-        artistRepository.save(testArtist);
+        testArtist = artistRepository.save(testArtist);
     }
 
     @AfterEach
-    public void tearDown() {
+    public void deleteData() {
+        List<Artist> allArtists = artistRepository.findAllWithShows();
+
+        for (Artist artist : allArtists) {
+            artist.getShows().clear();
+            artistRepository.save(artist);
+        }
+
         showRepository.deleteAll();
         artistRepository.deleteAll();
         eventRepository.deleteAll();
@@ -71,17 +85,21 @@ public class ShowServiceTest {
     }
 
     @Test
-    public void testGetShowById_existingId_returnsShow() {
+    @Transactional
+    public void testGetShowById_existingId_returnsShow() throws ValidationException {
+        System.out.println("testArtist ID: " + testArtist.getId());
         Show show = Show.ShowBuilder.aShow()
+            .withName("Evening Performance")
             .withDuration(100)
             .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
             .build();
-        showRepository.save(show);
 
-        Show result = showService.getShowById(show.getId());
+        Show saved = showService.createShow(show);
 
+        Show result = showService.getShowById(saved.getId());
+        System.out.println("Artists in result: " + result.getArtists());
         assertAll(
             () -> assertNotNull(result),
             () -> assertEquals(100, result.getDuration()),
@@ -101,14 +119,16 @@ public class ShowServiceTest {
     }
 
     @Test
-    public void testGetAllShows_returnsList() {
+    public void testGetAllShows_returnsList() throws ValidationException {
         Show show = Show.ShowBuilder.aShow()
+            .withName("Matinee Concert")
             .withDuration(80)
             .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
             .build();
-        showRepository.save(show);
+
+        showService.createShow(show);
 
         List<Show> result = showService.getAllShows();
 
@@ -121,6 +141,7 @@ public class ShowServiceTest {
     @Test
     public void testCreateShow_validInput_savesSuccessfully() throws ValidationException {
         Show newShow = Show.ShowBuilder.aShow()
+            .withName("Festival Opening")
             .withDuration(120)
             .withDate(LocalDateTime.now().plusDays(2))
             .withEvent(testEvent)
@@ -141,6 +162,7 @@ public class ShowServiceTest {
     @Test
     public void testCreateShow_nullEvent_throwsValidationException() {
         Show show = Show.ShowBuilder.aShow()
+            .withName("Orchestra Only")
             .withDuration(60)
             .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(null)
@@ -148,7 +170,7 @@ public class ShowServiceTest {
             .build();
 
         assertAll(
-            () -> assertThrows(NullPointerException.class, () -> showService.createShow(show)),
+            () -> assertThrows(ValidationException.class, () -> showService.createShow(show)),
             () -> assertEquals(0, showRepository.findAll().size())
         );
     }
@@ -158,11 +180,14 @@ public class ShowServiceTest {
         Event fakeEvent = Event.EventBuilder.anEvent()
             .withName("Ghost Event")
             .withCategory(Event.EventCategory.CLASSICAL)
+            .withDescription("Non-existing event")
+            .withDuration(100)
             .withLocation(testEvent.getLocation())
             .build();
         fakeEvent.setId(999L);
 
         Show show = Show.ShowBuilder.aShow()
+            .withName("Ghost Show")
             .withDuration(90)
             .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(fakeEvent)
@@ -178,6 +203,7 @@ public class ShowServiceTest {
     @Test
     public void testCreateShow_noArtists_throwsValidationException() {
         Show show = Show.ShowBuilder.aShow()
+            .withName("Solo Performance")
             .withDuration(60)
             .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
@@ -200,6 +226,7 @@ public class ShowServiceTest {
         ghostArtist.setId(999L);
 
         Show show = Show.ShowBuilder.aShow()
+            .withName("Phantom Session")
             .withDuration(70)
             .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)

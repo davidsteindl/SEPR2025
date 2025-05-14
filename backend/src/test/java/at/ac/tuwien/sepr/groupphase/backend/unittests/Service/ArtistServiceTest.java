@@ -64,10 +64,13 @@ public class ArtistServiceTest {
             .withName("Test Concert")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withLocation(testLocation)
+            .withDuration(800)
+            .withDescription("A beautiful classical concert.")
             .build();
         eventRepository.save(testEvent);
 
         testShow = Show.ShowBuilder.aShow()
+            .withName("Test Show")
             .withDuration(90)
             .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
@@ -89,6 +92,8 @@ public class ArtistServiceTest {
     public void deleteData() {
         artistRepository.deleteAll();
         showRepository.deleteAll();
+        eventRepository.deleteAll();
+        eventLocationRepository.deleteAll();
     }
 
     @Test

@@ -82,6 +82,8 @@ public class EventDataGenerator {
                 Event event = Event.EventBuilder.anEvent()
                     .withName("Event " + i)
                     .withCategory(Event.EventCategory.CLASSICAL)
+                    .withDescription("Description for Event " + i)
+                    .withDuration(180 + i * 10)
                     .withLocation(eventLocations.get(i % eventLocations.size()))
                     .build();
                 LOGGER.debug("saving event {}", event);
@@ -89,7 +91,6 @@ public class EventDataGenerator {
             }
             eventRepository.saveAll(events);
         }
-
 
         // Artists
         if (artistRepository.count() > 0) {
@@ -118,13 +119,14 @@ public class EventDataGenerator {
             int artistIndex = 0;
             List<Artist> artistsWithShows = new ArrayList<>();
             for (int i = 0; i < NUMBER_OF_SHOWS_TO_GENERATE; i++) {
-                for (int j = 0; j < 2; j++) { // 2 shows per event
+                for (int j = 0; j < 2; j++) {
                     Artist artist1 = artists.get(artistIndex % artists.size());
                     Artist artist2 = artists.get((artistIndex + 1) % artists.size());
 
                     Show show = Show.ShowBuilder.aShow()
+                        .withName("Show " + i)
                         .withDuration(120)
-                        .withDate(LocalDateTime.of(2025, 6, i + 1, 12 + j * 4, 0))
+                        .withDate(LocalDateTime.of(2025, 6, (i % 28) + 1, 12 + j * 4, 0))
                         .withEvent(events.get(i % events.size()))
                         .withArtists(Set.of(artist1, artist2))
                         .build();

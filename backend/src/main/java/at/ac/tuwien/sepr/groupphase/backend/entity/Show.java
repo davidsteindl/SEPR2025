@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ public class Show {
     @Max(600)
     private int duration;
 
+    @NotNull
     @Column(nullable = false)
     private LocalDateTime date;
 
@@ -40,7 +42,7 @@ public class Show {
     private Event event;
 
     @ManyToMany(mappedBy = "shows")
-    private Set<Artist> artists;
+    private Set<Artist> artists = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -87,12 +89,7 @@ public class Show {
     }
 
     public void setArtists(Set<Artist> artists) {
-        this.artists = new HashSet<>();
-        if (artists != null) {
-            for (Artist artist : artists) {
-                this.addArtist(artist);
-            }
-        }
+        this.artists = artists != null ? new HashSet<>(artists) : new HashSet<>();
     }
 
     public void addArtist(Artist artist) {

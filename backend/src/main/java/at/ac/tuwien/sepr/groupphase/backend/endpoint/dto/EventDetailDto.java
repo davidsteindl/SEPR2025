@@ -1,5 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -15,6 +17,13 @@ public class EventDetailDto {
 
     @NotBlank(message = "Category must not be blank")
     private String category;
+
+    @NotBlank(message = "Description must not be blank")
+    private String description;
+
+    @Min(value = 10, message = "Duration must be at least 10 minutes")
+    @Max(value = 10000, message = "Duration must not exceed 10000 minutes")
+    private int duration;
 
     @NotNull(message = "Location ID must not be null")
     private Long locationId;
@@ -43,6 +52,22 @@ public class EventDetailDto {
         this.category = category;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
     public Long getLocationId() {
         return locationId;
     }
@@ -59,23 +84,27 @@ public class EventDetailDto {
         if (!(o instanceof EventDetailDto that)) {
             return false;
         }
-        return id.equals(that.id)
+        return duration == that.duration
+            && id.equals(that.id)
             && name.equals(that.name)
             && category.equals(that.category)
+            && description.equals(that.description)
             && locationId.equals(that.locationId);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(id, name, category, locationId);
+        return java.util.Objects.hash(id, name, category, description, duration, locationId);
     }
 
     @Override
     public String toString() {
-        return "EventDto{"
+        return "EventDetailDto{"
             + "id=" + id
             + ", name='" + name + '\''
             + ", category='" + category + '\''
+            + ", description='" + description + '\''
+            + ", duration=" + duration
             + ", locationId=" + locationId
             + '}';
     }
@@ -84,6 +113,8 @@ public class EventDetailDto {
         private Long id;
         private String name;
         private String category;
+        private String description;
+        private int duration;
         private Long locationId;
 
         private EventDtoBuilder() {
@@ -108,18 +139,30 @@ public class EventDetailDto {
             return this;
         }
 
+        public EventDtoBuilder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public EventDtoBuilder duration(int duration) {
+            this.duration = duration;
+            return this;
+        }
+
         public EventDtoBuilder locationId(Long locationId) {
             this.locationId = locationId;
             return this;
         }
 
         public EventDetailDto build() {
-            EventDetailDto eventDetailDto = new EventDetailDto();
-            eventDetailDto.setId(id);
-            eventDetailDto.setName(name);
-            eventDetailDto.setCategory(category);
-            eventDetailDto.setLocationId(locationId);
-            return eventDetailDto;
+            EventDetailDto dto = new EventDetailDto();
+            dto.setId(id);
+            dto.setName(name);
+            dto.setCategory(category);
+            dto.setDescription(description);
+            dto.setDuration(duration);
+            dto.setLocationId(locationId);
+            return dto;
         }
     }
 }

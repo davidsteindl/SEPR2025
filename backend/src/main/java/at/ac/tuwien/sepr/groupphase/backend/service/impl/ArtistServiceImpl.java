@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ArtistService;
+import at.ac.tuwien.sepr.groupphase.backend.util.EntitySyncUtil;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class ArtistServiceImpl implements ArtistService {
     @Override
     public Artist getArtistById(Long id) {
         LOGGER.info("Find artist with id {}", id);
-        return artistRepository.findById(id).orElse(null);
+        return artistRepository.findByIdWithShows(id).orElse(null);
     }
 
     @Override
@@ -44,16 +45,22 @@ public class ArtistServiceImpl implements ArtistService {
     @Override
     @Transactional
     public Artist createArtist(Artist artist) throws ValidationException {
-        LOGGER.info("Save artist {}", artist);
+        LOGGER.info("Saving artist with name '{}'", artist.getStagename());
+
         Set<Show> existingShows = new HashSet<>();
         if (artist.getShows() != null) {
             for (Show show : artist.getShows()) {
-                Show existingShow = showRepository.findById(show.getId())
+                Show existingShow = showRepository.findByIdWithArtists(show.getId())
                     .orElseThrow(() -> new ValidationException("Show not found", List.of("Show not found")));
                 existingShows.add(existingShow);
             }
         }
+
         artist.setShows(existingShows);
-        return artistRepository.save(artist);
+        artist = artistRepository.save(artist);
+        EntitySyncUtil.syncArtistShowRelationship(artist);
+        showRepository.saveAll(existingShows);
+
+        return artist;
     }
 }

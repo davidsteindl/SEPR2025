@@ -29,7 +29,7 @@ public class Artist {
     @Column(length = 100)
     private String stagename;
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany
     @JoinTable(
         name = "features",
         joinColumns = @JoinColumn(name = "artist_id"),
@@ -74,12 +74,7 @@ public class Artist {
     }
 
     public void setShows(Set<Show> shows) {
-        this.shows = new HashSet<>();
-        if (shows != null) {
-            for (Show show : shows) {
-                this.addShow(show);
-            }
-        }
+        this.shows = shows != null ? new HashSet<>(shows) : new HashSet<>();
     }
 
     public void addShow(Show show) {

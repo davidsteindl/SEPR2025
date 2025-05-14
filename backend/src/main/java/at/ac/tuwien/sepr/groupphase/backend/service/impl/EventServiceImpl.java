@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -19,11 +20,13 @@ public class EventServiceImpl implements EventService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final EventRepository eventRepository;
     private final EventLocationRepository eventLocationRepository;
+    private final EventValidator eventValidator;
 
     @Autowired
-    public EventServiceImpl(EventRepository eventRepository, EventLocationRepository eventLocationRepository) {
+    public EventServiceImpl(EventRepository eventRepository, EventLocationRepository eventLocationRepository, EventValidator eventValidator) {
         this.eventRepository = eventRepository;
         this.eventLocationRepository = eventLocationRepository;
+        this.eventValidator = eventValidator;
     }
 
     @Override
@@ -41,6 +44,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public Event createEvent(Event event) throws ValidationException {
         LOGGER.info("Save event {}", event);
+        eventValidator.validateDuration(event.getId());
         if (event.getLocation() != null) {
             EventLocation location = eventLocationRepository.findById(event.getLocation().getId())
                 .orElseThrow(() -> new ValidationException("No event location given", List.of("No event location given")));

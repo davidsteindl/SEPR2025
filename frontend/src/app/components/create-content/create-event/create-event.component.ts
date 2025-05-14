@@ -22,6 +22,8 @@ import {LocationService} from '../../../services/location.service';
 export class CreateEventComponent implements OnInit {
   event: CreateEvent = {
     name: '',
+    description: '',
+    duration: 60,
     category: null,
     locationId: null
   }
@@ -65,7 +67,7 @@ export class CreateEventComponent implements OnInit {
             console.error('Error while fetching location name:', err);
           }
         });
-        this.event = {name: '', category: null, locationId: null};
+        this.event = {name: '', description: '', duration: 60, category: null, locationId: null};
       },
       error: (err) => {
         console.error('Error while creating event:', err);

@@ -7,10 +7,10 @@ import {UntypedFormBuilder, NgForm} from '@angular/forms';
 import {AuthService} from '../../services/auth.service';
 
 @Component({
-    selector: 'app-message',
-    templateUrl: './message.component.html',
-    styleUrls: ['./message.component.scss'],
-    standalone: false
+  selector: 'app-message',
+  templateUrl: './message.component.html',
+  styleUrls: ['./message.component.scss'],
+  standalone: false
 })
 export class MessageComponent implements OnInit {
 
@@ -27,9 +27,36 @@ export class MessageComponent implements OnInit {
   categories: string[] = ['Music', 'Sport', 'Theater'];
 
   allEvents: Event[] = [
-    { id: 1, name: "Title 1", date: 'Date 1', soldTickets: 200, category: 'Music', locationId: 1 },
-    { id: 2, name: "Title 2", date: 'Date 2', soldTickets: 190, category: 'Sport', locationId: 2 },
-    { id: 3, name: "Title 3", date: 'Date 3', soldTickets: 195, category: 'Sport', locationId: 3 },
+    {
+      id: 1,
+      name: "Title 1",
+      description: 'description 1',
+      duration: 60,
+      date: 'Date 1',
+      soldTickets: 200,
+      category: 'Music',
+      locationId: 1
+    },
+    {
+      id: 2,
+      name: "Title 2",
+      description: 'description 2',
+      duration: 60,
+      date: 'Date 2',
+      soldTickets: 190,
+      category: 'Sport',
+      locationId: 2
+    },
+    {
+      id: 3,
+      name: "Title 3",
+      description: 'description 3',
+      duration: 60,
+      date: 'Date 3',
+      soldTickets: 195,
+      category: 'Sport',
+      locationId: 3
+    },
   ];
 
 

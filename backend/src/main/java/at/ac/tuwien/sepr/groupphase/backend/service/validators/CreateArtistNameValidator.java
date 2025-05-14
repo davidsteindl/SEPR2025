@@ -1,14 +1,14 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.validator;
+package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.annotation.ValidNameCombination;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateArtistDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class ArtistDetailNameValidator implements ConstraintValidator<ValidNameCombination, ArtistDetailDto> {
+public class CreateArtistNameValidator implements ConstraintValidator<ValidNameCombination, CreateArtistDto> {
 
     @Override
-    public boolean isValid(ArtistDetailDto value, ConstraintValidatorContext context) {
+    public boolean isValid(CreateArtistDto value, ConstraintValidatorContext context) {
         if (value == null) {
             return true;
         }

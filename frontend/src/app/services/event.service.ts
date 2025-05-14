@@ -25,6 +25,8 @@ export class EventService {
     return this.httpClient.post<Event>(this.eventBaseUri, {
       name: event.name,
       category: event.category,
+      description: event.description,
+      duration: event.duration,
       locationId: event.locationId
     });
   }

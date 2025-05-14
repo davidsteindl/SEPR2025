@@ -9,6 +9,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.Objects;
 
@@ -24,6 +27,15 @@ public class Event {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EventCategory category;
+
+    @NotBlank
+    @Column(nullable = false)
+    private String description;
+
+    @Min(10)
+    @Max(10000)
+    @Column(nullable = false)
+    private int duration;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "location_id", nullable = false)
@@ -53,6 +65,22 @@ public class Event {
         this.category = category;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
     public EventLocation getLocation() {
         return location;
     }
@@ -69,15 +97,17 @@ public class Event {
         if (!(o instanceof Event event)) {
             return false;
         }
-        return Objects.equals(id, event.id)
+        return duration == event.duration
+            && Objects.equals(id, event.id)
             && Objects.equals(name, event.name)
             && category == event.category
+            && Objects.equals(description, event.description)
             && Objects.equals(location, event.location);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, category, location);
+        return Objects.hash(id, name, category, description, duration, location);
     }
 
     @Override
@@ -86,6 +116,8 @@ public class Event {
             + "id=" + id
             + ", name='" + name + '\''
             + ", category='" + (category != null ? category.getDisplayName() : "null") + '\''
+            + ", description='" + description + '\''
+            + ", duration=" + duration
             + ", location ID='" + (location != null ? location.getId() : "null") + '\''
             + '}';
     }
@@ -126,10 +158,11 @@ public class Event {
     public static final class EventBuilder {
         private String name;
         private EventCategory category;
+        private String description;
+        private int duration;
         private EventLocation location;
 
-        private EventBuilder() {
-        }
+        private EventBuilder() {}
 
         public static EventBuilder anEvent() {
             return new EventBuilder();
@@ -145,6 +178,16 @@ public class Event {
             return this;
         }
 
+        public EventBuilder withDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public EventBuilder withDuration(int duration) {
+            this.duration = duration;
+            return this;
+        }
+
         public EventBuilder withLocation(EventLocation location) {
             this.location = location;
             return this;
@@ -154,10 +197,10 @@ public class Event {
             Event event = new Event();
             event.setName(name);
             event.setCategory(category);
+            event.setDescription(description);
+            event.setDuration(duration);
             event.setLocation(location);
             return event;
         }
     }
 }
-
-

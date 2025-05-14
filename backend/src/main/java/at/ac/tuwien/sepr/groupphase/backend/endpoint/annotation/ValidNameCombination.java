@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.annotation;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.validator.ArtistDetailNameValidator;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.validator.CreateArtistNameValidator;
+import at.ac.tuwien.sepr.groupphase.backend.service.validators.ArtistDetailNameValidator;
+import at.ac.tuwien.sepr.groupphase.backend.service.validators.CreateArtistNameValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
