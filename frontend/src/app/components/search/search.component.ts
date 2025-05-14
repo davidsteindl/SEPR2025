@@ -39,7 +39,7 @@ export class SearchComponent implements OnInit {
       this.artistTriggered = false;
     }
 
-    // TODO: Implement reset for tabs
+    // Implement reset for tabs
     if (tab !== 'location') {
     }
     if (tab !== 'event') {
