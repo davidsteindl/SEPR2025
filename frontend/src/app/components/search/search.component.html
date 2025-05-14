@@ -36,6 +36,40 @@
         <div class="text-center">
             <button class="btn btn-primary mt-3" (click)="search()">Search</button>
         </div>
+
+      <div *ngIf="artistLoading" class="text-center my-3">
+        Searching…
+      </div>
+
+      <div class="mt-4" *ngIf="!artistLoading && artistPage?.content?.length > 0">
+        <h5 class="text-primary">Results:</h5>
+
+        <ul class="list-group">
+          <li *ngFor="let artist of artistPage.content" class="list-group-item d-flex justify-content-between align-items-center">
+            <div style="font-weight: bold">
+              {{ artist.stagename || (artist.firstname + ' ' + artist.lastname) }}
+            </div>
+            <button class="view-button" [routerLink]="['/artists', artist.id, 'events']">View artist</button>
+          </li>
+        </ul>
+
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="artistCurrentPage === 0">
+            <a class="page-link" (click)="searchArtists(artistCurrentPage - 1)">Previous</a>
+          </li>
+          <li class="page-item disabled">
+            <span class="page-link">Page {{ artistCurrentPage + 1 }} of {{ artistPage?.totalPages }}</span>
+          </li>
+          <li class="page-item" [class.disabled]="artistCurrentPage >= (artistPage?.totalPages || 1) - 1">
+            <a class="page-link" (click)="searchArtists(artistCurrentPage + 1)">Next</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="mt-4 text-center text-muted" style="font-weight: bold"
+           *ngIf="!artistLoading && artistTriggered && artistPage?.content?.length === 0">
+        No artist found.
+      </div>
     </div>
 
     <div *ngIf="activeTab === 'location'" class="tab-box">
@@ -49,25 +83,4 @@
     <div *ngIf="activeTab === 'performance'" class="tab-box">
         <p class="text-muted">[Performance search not yet implemented]</p>
     </div>
-
-    <div class="mt-4" *ngIf="results.length > 0">
-        <h5 class="text-primary">Results:</h5>
-
-      <ul class="list-group">
-        <li *ngFor="let artist of results" class="list-group-item d-flex justify-content-between align-items-center">
-          <div style="font-weight: bold">
-            {{ artist.stagename || (artist.firstname + ' ' + artist.lastname) }}
-          </div>
-          <button class="view-button" [routerLink]="['/artists', artist.id, 'events']">View artist</button>
-        </li>
-      </ul>
-    </div>
-
-  <div class="mt-4 text-center text-muted" style="font-weight: bold"
-       *ngIf="activeTab === 'artist' && results.length === 0 && searchTriggered">
-    No artist found.
-  </div>
-
-
-
 </div>

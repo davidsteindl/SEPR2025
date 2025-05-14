@@ -12,6 +12,8 @@ export interface ArtistSearchDto {
   firstname?: string;
   lastname?: string;
   stagename?: string;
+  page?: number;
+  size?: number;
 }
 
 export interface ArtistSearchResultDto {
