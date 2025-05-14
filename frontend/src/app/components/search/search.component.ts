@@ -77,15 +77,12 @@ export class SearchComponent implements OnInit {
         this.searchArtists();
         break;
       case 'location':
-        // TODO
         //this.searchLocations();
         break;
       case 'event':
-        // TODO
        // this.searchEvents();
         break;
       case 'performance':
-        // TODO
        // this.searchPerformances();
         break;
     }
@@ -123,17 +120,17 @@ export class SearchComponent implements OnInit {
   }
 
   searchLocations(): void {
-    // TODO: Implement location search
+    // Implement location search
     console.log('Location search not implemented yet');
   }
 
   searchEvents(): void {
-    // TODO: Implement event search
+    // Implement event search
     console.log('Event search not implemented yet');
   }
 
   searchPerformances(): void {
-    // TODO: Implement performance search
+    // Implement performance search
     console.log('Performance search not implemented yet');
   }
 }
