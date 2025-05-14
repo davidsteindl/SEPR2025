@@ -1,9 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
-import jakarta.persistence.*;
+
 import java.util.Objects;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 
 @Entity
 @DiscriminatorValue("STANDING")

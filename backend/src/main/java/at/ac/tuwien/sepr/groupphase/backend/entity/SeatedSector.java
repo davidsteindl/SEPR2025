@@ -1,11 +1,15 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
-import jakarta.persistence.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Objects;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 
 @Entity
 @DiscriminatorValue("SEATED")
