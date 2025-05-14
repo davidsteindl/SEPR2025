@@ -2,10 +2,13 @@ import {Component, OnInit} from '@angular/core';
 import {CreateEvent} from '../../../dtos/create-event';
 import {Event} from '../../../dtos/event';
 import {Location} from '../../../dtos/location';
+import {ToastrService} from 'ngx-toastr';
+import {ErrorFormatterService} from '../../../services/error-formatter.service';
 import {FormsModule} from "@angular/forms";
 import {CommonModule, NgForOf} from "@angular/common";
 import {EventService} from '../../../services/event.service';
 import {LocationService} from '../../../services/location.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-create-event',
@@ -40,7 +43,10 @@ export class CreateEventComponent implements OnInit {
 
   constructor(
     private eventService: EventService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private notification: ToastrService,
+    private errorFormatter: ErrorFormatterService,
+    private router: Router
   ) {
   }
 
@@ -51,6 +57,10 @@ export class CreateEventComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error while fetching locations:', err);
+        this.notification.error(this.errorFormatter.format(err), 'Error while fetching locations', {
+          enableHtml: true,
+          timeOut: 8000,
+        });
       }
     });
   }
@@ -64,13 +74,25 @@ export class CreateEventComponent implements OnInit {
             this.locationNameOfCreatedEvent = location.name;
           },
           error: (err) => {
-            console.error('Error while fetching location name:', err);
+            console.error('Error while fetching location:', err);
+            this.notification.error(this.errorFormatter.format(err), 'Error while fetching location', {
+              enableHtml: true,
+              timeOut: 8000,
+            });
           }
         });
+        if (response){
+          this.notification.success(`Event ${response.name} created successfully!`, 'Success');
+          this.router.navigate(['/']);
+        }
         this.event = {name: '', description: '', duration: 60, category: null, locationId: null};
       },
       error: (err) => {
         console.error('Error while creating event:', err);
+        this.notification.error(this.errorFormatter.format(err), 'Error while creating event', {
+          enableHtml: true,
+          timeOut: 8000,
+        });
       }
     });
   }

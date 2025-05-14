@@ -110,20 +110,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex,
-            HttpHeaders headers,
-            HttpStatusCode statusCode,
-            WebRequest request) {
+        MethodArgumentNotValidException ex,
+        HttpHeaders headers,
+        HttpStatusCode statusCode,
+        WebRequest request) {
 
         List<String> errors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(FieldError::getDefaultMessage)
-                .collect(Collectors.toList());
+            .getFieldErrors()
+            .stream()
+            .map(FieldError::getDefaultMessage)
+            .collect(Collectors.toList());
+
+        ValidationErrorRestDto response = new ValidationErrorRestDto("Validation failed", errors);
 
         return ResponseEntity
-                .status(statusCode.value())
-                .headers(headers)
-                .body(errors);
+            .status(HttpStatus.UNPROCESSABLE_ENTITY)
+            .headers(headers)
+            .body(response);
     }
 }
