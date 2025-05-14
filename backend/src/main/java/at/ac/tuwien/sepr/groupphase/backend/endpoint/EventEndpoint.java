@@ -93,7 +93,7 @@ public class EventEndpoint {
         description = "Search events by name, type, description, or duration (±30min) with page and size parameters.",
         security = @SecurityRequirement(name = "apiKey")
     )
-    public Page<EventSearchResultDto> search(@Valid EventSearchDto eventSearchDto) {
+    public Page<EventSearchResultDto> search(@Valid EventSearchDto eventSearchDto) throws ValidationException {
         LOGGER.info("GET /api/v1/events/search {}", eventSearchDto);
         return searchService.searchEvents(eventSearchDto);
     }

@@ -1,16 +1,22 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LocationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LocationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PerformanceDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PerformanceSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ArtistMapper;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.SearchService;
+import at.ac.tuwien.sepr.groupphase.backend.service.specifications.ArtistSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.specifications.EventSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SearchValidator;
 
@@ -34,17 +40,45 @@ public class CustomSearchService implements SearchService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final EventRepository eventRepo;
+    private final ShowRepository showRepo;
     private final SearchValidator searchValidator;
+    private final ArtistRepository artistRepo;
+    private final ArtistMapper artistMapper;
 
     @Autowired
-    public CustomSearchService(EventRepository eventRepo, SearchValidator searchValidator) {
+    public CustomSearchService(EventRepository eventRepo, ShowRepository showRepo, SearchValidator searchValidator, ArtistRepository artistRepo,
+                             ArtistMapper artistMapper) {
         this.eventRepo = eventRepo;
+        this.showRepo = showRepo;
         this.searchValidator = searchValidator;
+        this.artistRepo = artistRepo;
+        this.artistMapper = artistMapper;
     }
 
     @Override
-    public List<ArtistDto> searchArtists(ArtistSearchDto criteria) {
-        return List.of();
+    public Page<ArtistSearchResultDto> searchArtists(ArtistSearchDto criteria) throws ValidationException {
+        LOGGER.debug("Searching artists with criteria: {}", criteria);
+
+        searchValidator.validateForArtists(criteria);
+
+        Specification<Artist> spec = (root, query, cb) -> cb.conjunction();
+        spec = spec
+            .and(ArtistSpecifications.hasFirstnameLike(criteria.getFirstname()))
+            .and(ArtistSpecifications.hasLastnameLike(criteria.getLastname()))
+            .and(ArtistSpecifications.hasStagenameLike(criteria.getStagename()));
+
+        Page<Artist> page = artistRepo.findAll(spec, PageRequest.of(criteria.getPage(), criteria.getSize()));
+
+        List<ArtistSearchResultDto> dtos = page.getContent().stream()
+            .map(artist -> ArtistSearchResultDto.ArtistSearchResultDtoBuilder.anArtistSearchResultDto()
+                .id(artist.getId())
+                .firstname(artist.getFirstname())
+                .lastname(artist.getLastname())
+                .stagename(artist.getStagename())
+                .build())
+            .collect(Collectors.toList());
+
+        return new PageImpl<>(dtos, page.getPageable(), page.getTotalElements());
     }
 
     @Override
@@ -53,7 +87,7 @@ public class CustomSearchService implements SearchService {
     }
 
     @Override
-    public Page<EventSearchResultDto> searchEvents(EventSearchDto eventSearchDto) {
+    public Page<EventSearchResultDto> searchEvents(EventSearchDto eventSearchDto) throws ValidationException {
         LOGGER.debug("Search events with criteria: {}", eventSearchDto);
 
         searchValidator.validateForEvents(eventSearchDto);
