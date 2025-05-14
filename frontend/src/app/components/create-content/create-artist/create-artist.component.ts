@@ -43,6 +43,25 @@ export class CreateArtistComponent implements OnInit {
     });
   }
 
+  isNameValid(): boolean {
+    const a = this.artist;
+    return !!a.stagename || (!!a.firstname && !!a.lastname);
+  }
+
+  isShowSelected(showId: number): boolean {
+    return this.artist.showIds.includes(showId);
+  }
+
+  toggleShowSelection(showId: number): void {
+    const index = this.artist.showIds.indexOf(showId);
+    if (index > -1) {
+      this.artist.showIds.splice(index, 1);
+    } else {
+      this.artist.showIds.push(showId);
+    }
+  }
+
+
   createArtist(): void {
     this.artistService.create(this.artist).subscribe({
       next: (createdArtist) => {

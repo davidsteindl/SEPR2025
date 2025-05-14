@@ -48,6 +48,20 @@ export class CreateShowComponent implements OnInit {
     });
   }
 
+  isArtistSelected(artistId: number): boolean {
+    return this.show.artistIds.includes(artistId);
+  }
+
+  toggleArtistSelection(artistId: number): void {
+    const index = this.show.artistIds.indexOf(artistId);
+    if (index > -1) {
+      this.show.artistIds.splice(index, 1);
+    } else {
+      this.show.artistIds.push(artistId);
+    }
+  }
+
+
   createShow(): void {
     this.showService.create(this.show).subscribe({
       next: (createdShow) => {

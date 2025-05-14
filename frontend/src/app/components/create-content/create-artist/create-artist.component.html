@@ -2,33 +2,66 @@
 
   <h2 class="text-center mb-4">Create Artist</h2>
 
-  <div class="tab-box">
+  <form #artistForm="ngForm" class="tab-box" (ngSubmit)="createArtist()" novalidate>
+
     <div class="form-group">
       <label for="firstname">First Name</label>
-      <input id="firstname" [(ngModel)]="artist.firstname" class="form-control" />
+      <input
+        id="firstname"
+        [(ngModel)]="artist.firstname"
+        name="firstname"
+        class="form-control"
+        #firstname="ngModel"/>
     </div>
 
     <div class="form-group mt-3">
       <label for="lastname">Last Name</label>
-      <input id="lastname" [(ngModel)]="artist.lastname" class="form-control" />
+      <input
+        id="lastname"
+        [(ngModel)]="artist.lastname"
+        name="lastname"
+        class="form-control"
+        #lastname="ngModel"/>
     </div>
 
     <div class="form-group mt-3">
       <label for="stagename">Stage Name</label>
-      <input id="stagename" [(ngModel)]="artist.stagename" class="form-control" />
+      <input
+        id="stagename"
+        [(ngModel)]="artist.stagename"
+        name="stagename"
+        class="form-control"
+        #stagename="ngModel"/>
     </div>
 
     <div class="form-group mt-3">
-      <label for="showIds">Shows</label>
-      <select id="showIds" [(ngModel)]="artist.showIds" class="form-control" multiple>
-        <option *ngFor="let show of shows" [ngValue]="show.id">
+      <label>Shows <span class="text-danger">*</span></label>
+      <div class="d-flex flex-wrap gap-2">
+        <button
+          type="button"
+          *ngFor="let show of shows"
+          class="btn"
+          [ngClass]="{
+        'btn-outline-primary': !isShowSelected(show.id),
+        'btn-primary': isShowSelected(show.id)
+      }"
+          (click)="toggleShowSelection(show.id)">
           {{ show.name || 'Unnamed' }}
-        </option>
-      </select>
+        </button>
+      </div>
+      <div *ngIf="(artist.showIds?.length === 0 || !artist.showIds) && artistForm.submitted" class="text-danger mt-2">
+        At least one show must be selected.
+      </div>
+    </div>
+
+
+    <div class="text-danger text-center mt-2" *ngIf="!isNameValid() && artistForm.submitted">
+      Please provide either a stage name or both first and last names.
     </div>
 
     <div class="text-center">
-      <button class="btn btn-success mt-4" (click)="createArtist()">Create Artist</button>
+      <button class="btn btn-success mt-4" type="submit" [disabled]="artistForm.invalid || !isNameValid()">Create Artist</button>
     </div>
-  </div>
+
+  </form>
 </div>
