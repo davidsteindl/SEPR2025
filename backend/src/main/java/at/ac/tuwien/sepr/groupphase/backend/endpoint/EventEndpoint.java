@@ -116,4 +116,20 @@ public class EventEndpoint {
         LOGGER.info("GET /api/v1/events/{}/shows", eventId);
         return showMapper.showsToShowDetailDtos(showService.findShowsByEventId(eventId));
     }
+
+    @Secured("ROLE_USER")
+    @GetMapping("/by-artist/{artistId}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(
+        summary = "Get all events for a specific artist",
+        description = "Returns paginated events linked to the given artist ID via shows.",
+        security = @SecurityRequirement(name = "apiKey")
+    )
+    public Page<EventDetailDto> getEventsByArtist(
+        @PathVariable("artistId") Long artistId,
+        org.springframework.data.domain.Pageable pageable
+    ) {
+        LOGGER.info("GET /api/v1/events/by-artist/{}?page={}&size={}", artistId, pageable.getPageNumber(), pageable.getPageSize());
+        return eventService.getEventsByArtist(artistId, pageable);
+    }
 }

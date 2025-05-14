@@ -1,16 +1,21 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -21,12 +26,20 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final EventLocationRepository eventLocationRepository;
     private final EventValidator eventValidator;
+    private final ShowRepository showRepository;
+    private final EventMapper eventMapper;
 
     @Autowired
-    public EventServiceImpl(EventRepository eventRepository, EventLocationRepository eventLocationRepository, EventValidator eventValidator) {
+    public EventServiceImpl(EventRepository eventRepository,
+                            EventLocationRepository eventLocationRepository,
+                            EventValidator eventValidator,
+                            ShowRepository showRepository,
+                            EventMapper eventMapper) {
         this.eventRepository = eventRepository;
         this.eventLocationRepository = eventLocationRepository;
         this.eventValidator = eventValidator;
+        this.showRepository = showRepository;
+        this.eventMapper = eventMapper;
     }
 
     @Override
@@ -54,5 +67,12 @@ public class EventServiceImpl implements EventService {
             throw new ValidationException("No event location given", List.of("No event location given"));
         }
         return eventRepository.save(event);
+    }
+
+    @Override
+    public Page<EventDetailDto> getEventsByArtist(Long artistId, Pageable pageable) {
+        LOGGER.info("Fetching events for artistId={} with pageable={}", artistId, pageable);
+        return showRepository.findEventsByArtistId(artistId, pageable)
+            .map(eventMapper::eventToEventDetailDto);
     }
 }

@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -184,6 +186,17 @@ public class ShowRepositoryTest {
             () -> assertEquals("Main Act", saved.getName()),
             () -> assertEquals(120, saved.getDuration()),
             () -> assertEquals(event.getId(), saved.getEvent().getId())
+        );
+    }
+
+    @Test
+    public void testFindEventsByArtistId_returnsExpectedEvent() {
+        Artist artist = artistRepository.findAll().getFirst();
+        Page<Event> result = showRepository.findEventsByArtistId(artist.getId(), PageRequest.of(0, 10));
+
+        assertAll(
+            () -> assertEquals(1, result.getTotalElements()),
+            () -> assertEquals("Summer Fest", result.getContent().getFirst().getName())
         );
     }
 }

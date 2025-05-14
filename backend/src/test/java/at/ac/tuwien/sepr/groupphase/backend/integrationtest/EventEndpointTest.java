@@ -8,8 +8,10 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event.EventCategory;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation.LocationType;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,12 +48,16 @@ public class EventEndpointTest implements TestData {
     @Autowired private EventRepository eventRepository;
     @Autowired private EventLocationRepository eventLocationRepository;
     @Autowired private UserRepository userRepository;
+    @Autowired private ShowRepository showRepository;
+    @Autowired private ArtistRepository artistRepository;
 
     private EventLocation testLocation;
     private Event testEvent;
 
     @BeforeEach
     public void setup() {
+        artistRepository.deleteAll();
+        showRepository.deleteAll();
         eventRepository.deleteAll();
         eventLocationRepository.deleteAll();
 
@@ -180,5 +186,36 @@ public class EventEndpointTest implements TestData {
             .andReturn();
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    public void getEventsByArtist_shouldReturnLinkedEvents() throws Exception {
+        var artist = new at.ac.tuwien.sepr.groupphase.backend.entity.Artist();
+        artist.setFirstname("Max");
+        artist.setLastname("Muster");
+        artist.setStagename("MaxStar");
+
+        var show = at.ac.tuwien.sepr.groupphase.backend.entity.Show.ShowBuilder.aShow()
+            .withName("Evening Show")
+            .withDuration(90)
+            .withDate(java.time.LocalDateTime.now().plusDays(1))
+            .withEvent(testEvent)
+            .build();
+
+        show.addArtist(artist);
+
+        showRepository.save(show);
+        artistRepository.save(artist);
+
+        MvcResult result = mockMvc.perform(get(EVENT_BASE_URI + "/by-artist/" + artist.getId())
+                .param("page", "0")
+                .param("size", "5")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES)))
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        String body = result.getResponse().getContentAsString();
+        assertTrue(body.contains("Jazzkonzert")); // Name von testEvent
     }
 }

@@ -1,7 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -28,4 +31,13 @@ public interface EventService {
      * @return the saved event
      */
     Event createEvent(Event event) throws ValidationException;
+
+    /**
+     * Retrieves a paginated list of events associated with the given artist.
+     *
+     * @param artistId the ID of the artist whose events should be retrieved
+     * @param pageable the pagination and sorting information
+     * @return a page of {@link EventDetailDto} instances for the given artist
+     */
+    Page<EventDetailDto> getEventsByArtist(Long artistId, Pageable pageable);
 }

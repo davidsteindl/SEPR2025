@@ -1,11 +1,13 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.EventServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventDetailDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 
@@ -38,9 +46,15 @@ public class EventServiceTest {
     @Autowired
     private EventValidator eventValidator;
 
+    private ShowRepository showRepository;
+
+    private EventMapper eventMapper;
+
     @BeforeEach
     public void setUp() {
-        eventService = new EventServiceImpl(eventRepository, eventLocationRepository, eventValidator);
+        showRepository = mock(ShowRepository.class);
+        eventMapper = mock(EventMapper.class);
+        eventService = new EventServiceImpl(eventRepository, eventLocationRepository, eventValidator, showRepository, eventMapper);
 
         testLocation = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Test Location")
@@ -155,4 +169,35 @@ public class EventServiceTest {
             () -> assertEquals(1, eventRepository.findAll().size())
         );
     }
+
+    @Test
+    public void testGetEventsByArtist_returnsMappedDto() {
+        Long artistId = 1L;
+        Pageable pageable = PageRequest.of(0, 5);
+
+        Event event = eventRepository.findAll().getFirst();
+
+        EventDetailDto dto = new EventDetailDto();
+        dto.setId(event.getId());
+        dto.setName(event.getName());
+        dto.setCategory(event.getCategory().name());
+        dto.setLocationId(testLocation.getId());
+
+        when(showRepository.findEventsByArtistId(eq(artistId), eq(pageable)))
+            .thenReturn(new PageImpl<>(List.of(event)));
+
+        when(eventMapper.eventToEventDetailDto(event)).thenReturn(dto);
+
+        Page<EventDetailDto> result = eventService.getEventsByArtist(artistId, pageable);
+
+        assertAll(
+            () -> assertEquals(1, result.getTotalElements()),
+            () -> assertEquals("Test Event", result.getContent().getFirst().getName()),
+            () -> assertEquals("CLASSICAL", result.getContent().getFirst().getCategory())
+        );
+
+        verify(showRepository).findEventsByArtistId(artistId, pageable);
+        verify(eventMapper).eventToEventDetailDto(event);
+    }
+
 }
