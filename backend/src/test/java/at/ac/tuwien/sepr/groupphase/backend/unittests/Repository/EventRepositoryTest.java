@@ -46,6 +46,8 @@ public class EventRepositoryTest {
         Event event = Event.EventBuilder.anEvent()
             .withName("Test Event")
             .withCategory(Event.EventCategory.CLASSICAL)
+            .withDescription("A wonderful classical evening.")
+            .withDuration(120)
             .withLocation(eventLocation)
             .build();
 
@@ -71,7 +73,9 @@ public class EventRepositoryTest {
             () -> assertNotNull(event.getId()),
             () -> assertEquals("Test Event", event.getName()),
             () -> assertEquals(Event.EventCategory.CLASSICAL, event.getCategory()),
-            () -> assertEquals("Test Location", event.getLocation().getName())
+            () -> assertEquals("Test Location", event.getLocation().getName()),
+            () -> assertEquals("A wonderful classical evening.", event.getDescription()),
+            () -> assertEquals(120, event.getDuration())
         );
     }
 
@@ -82,6 +86,8 @@ public class EventRepositoryTest {
         Event event = Event.EventBuilder.anEvent()
             .withName(null)
             .withCategory(Event.EventCategory.CLASSICAL)
+            .withDescription("Some Description")
+            .withDuration(100)
             .withLocation(location)
             .build();
 
@@ -96,6 +102,8 @@ public class EventRepositoryTest {
         Event event = Event.EventBuilder.anEvent()
             .withName("Unnamed Event")
             .withCategory(null)
+            .withDescription("Some Description")
+            .withDuration(100)
             .withLocation(location)
             .build();
 
@@ -108,6 +116,8 @@ public class EventRepositoryTest {
         Event event = Event.EventBuilder.anEvent()
             .withName("New Event")
             .withCategory(Event.EventCategory.CLASSICAL)
+            .withDescription("Some Description")
+            .withDuration(100)
             .withLocation(null)
             .build();
 
@@ -116,12 +126,14 @@ public class EventRepositoryTest {
     }
 
     @Test
-    public void testSaveEvent_withValidOptionalFields_savesSuccessfully() {
+    public void testSaveEvent_withAllRequiredFields_savesSuccessfully() {
         EventLocation location = eventLocationRepository.findAll().getFirst();
 
         Event event = Event.EventBuilder.anEvent()
-            .withName("Minimal Event")
-            .withCategory(Event.EventCategory.OTHER)
+            .withName("Jazz Fest")
+            .withCategory(Event.EventCategory.JAZZ)
+            .withDescription("Smooth jazz all night long.")
+            .withDuration(120)
             .withLocation(location)
             .build();
 
@@ -129,9 +141,9 @@ public class EventRepositoryTest {
 
         assertAll(
             () -> assertNotNull(saved.getId()),
-            () -> assertEquals("Minimal Event", saved.getName()),
-            () -> assertEquals(Event.EventCategory.OTHER, saved.getCategory()),
-            () -> assertEquals(location.getId(), saved.getLocation().getId())
+            () -> assertEquals("Jazz Fest", saved.getName()),
+            () -> assertEquals("Smooth jazz all night long.", saved.getDescription()),
+            () -> assertEquals(120, saved.getDuration())
         );
     }
 }

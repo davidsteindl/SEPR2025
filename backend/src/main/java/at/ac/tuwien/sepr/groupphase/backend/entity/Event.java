@@ -9,6 +9,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.Objects;
 
@@ -18,6 +21,7 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Name must not be blank")
     @Column(nullable = false, length = 100)
     private String name;
 
@@ -25,12 +29,18 @@ public class Event {
     @Column(nullable = false)
     private EventCategory category;
 
+    @NotBlank
+    @Column(nullable = false, length = 500)
+    private String description;
+
+    @Min(10)
+    @Max(10000)
+    @Column(nullable = false)
+    private int duration;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "location_id", nullable = false)
     private EventLocation location;
-
-    @Column(length = 500)
-    private String description;
 
     @Column(insertable = false, updatable = false)
     private Integer totalDuration;
@@ -59,20 +69,28 @@ public class Event {
         this.category = category;
     }
 
-    public EventLocation getLocation() {
-        return location;
-    }
-
-    public void setLocation(EventLocation location) {
-        this.location = location;
-    }
-
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public EventLocation getLocation() {
+        return location;
+    }
+
+    public void setLocation(EventLocation location) {
+        this.location = location;
     }
 
     public int getTotalDuration() {
@@ -87,15 +105,17 @@ public class Event {
         if (!(o instanceof Event event)) {
             return false;
         }
-        return Objects.equals(id, event.id)
+        return duration == event.duration
+            && Objects.equals(id, event.id)
             && Objects.equals(name, event.name)
             && category == event.category
+            && Objects.equals(description, event.description)
             && Objects.equals(location, event.location);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, category, location);
+        return Objects.hash(id, name, category, description, duration, location);
     }
 
     @Override
@@ -104,6 +124,8 @@ public class Event {
             + "id=" + id
             + ", name='" + name + '\''
             + ", category='" + (category != null ? category.getDisplayName() : "null") + '\''
+            + ", description='" + description + '\''
+            + ", duration=" + duration
             + ", location ID='" + (location != null ? location.getId() : "null") + '\''
             + ", description='" + (description != null ? description : "null") + '\''
             + '}';
@@ -145,11 +167,11 @@ public class Event {
     public static final class EventBuilder {
         private String name;
         private EventCategory category;
-        private EventLocation location;
         private String description;
+        private int duration;
+        private EventLocation location;
 
-        private EventBuilder() {
-        }
+        private EventBuilder() {}
 
         public static EventBuilder anEvent() {
             return new EventBuilder();
@@ -165,13 +187,18 @@ public class Event {
             return this;
         }
 
-        public EventBuilder withLocation(EventLocation location) {
-            this.location = location;
+        public EventBuilder withDescription(String description) {
+            this.description = description;
             return this;
         }
 
-        public EventBuilder withDescription(String description) {
-            this.description = description;
+        public EventBuilder withDuration(int duration) {
+            this.duration = duration;
+            return this;
+        }
+
+        public EventBuilder withLocation(EventLocation location) {
+            this.location = location;
             return this;
         }
 
@@ -179,11 +206,10 @@ public class Event {
             Event event = new Event();
             event.setName(name);
             event.setCategory(category);
-            event.setLocation(location);
             event.setDescription(description);
+            event.setDuration(duration);
+            event.setLocation(location);
             return event;
         }
     }
 }
-
-

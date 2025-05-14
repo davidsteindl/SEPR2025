@@ -74,7 +74,7 @@ public class EventEndpoint {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create a new event", security = @SecurityRequirement(name = "apiKey"))
     public EventDetailDto createEvent(@RequestBody @Valid CreateEventDto createEventDto) throws ValidationException {
-        LOGGER.info("POST /api/v1/events");
+        LOGGER.info("POST /api/v1/events" + createEventDto);
         Event event = eventService.createEvent(eventMapper.createEventDtoToEvent(createEventDto));
         return eventMapper.eventToEventDetailDto(event);
     }

@@ -1,0 +1,98 @@
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Create Show</h2>
+
+  <form #showForm="ngForm" class="tab-box" (ngSubmit)="createShow()" novalidate>
+
+    <div class="form-group">
+      <label for="showName">Name <span class="text-danger">*</span></label>
+      <input
+        id="showName"
+        [(ngModel)]="show.name"
+        name="showName"
+        required
+        class="form-control"
+        #showName="ngModel" />
+      <div *ngIf="showName.invalid && showName.touched" class="text-danger">
+        Show name is required.
+      </div>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="showDuration">Duration (minutes) <span class="text-danger">*</span></label>
+      <input
+        id="showDuration"
+        type="number"
+        [(ngModel)]="show.duration"
+        name="showDuration"
+        required
+        min="1"
+        class="form-control"
+        #showDuration="ngModel" />
+      <div *ngIf="showDuration.invalid && showDuration.touched" class="text-danger">
+        Duration is required and must be a positive number.
+      </div>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="showDate">Date & Time <span class="text-danger">*</span></label>
+      <input
+        id="showDate"
+        type="datetime-local"
+        [(ngModel)]="show.date"
+        name="showDate"
+        required
+        class="form-control"
+        #showDate="ngModel" />
+      <div *ngIf="showDate.invalid && showDate.touched" class="text-danger">
+        Date and time are required.
+      </div>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="eventId">Event <span class="text-danger">*</span></label>
+      <select
+        id="eventId"
+        [(ngModel)]="show.eventId"
+        name="eventId"
+        required
+        class="form-control"
+        #eventId="ngModel">
+        <option [ngValue]="null" disabled selected>Select event</option>
+        <option *ngFor="let event of events" [ngValue]="event.id">{{ event.name }}</option>
+      </select>
+      <div *ngIf="eventId.invalid && eventId.touched" class="text-danger">
+        Event selection is required.
+      </div>
+    </div>
+
+    <div class="form-group mt-3">
+      <label>Artists <span class="text-danger">*</span></label>
+      <div class="d-flex flex-wrap gap-2">
+        <button
+          type="button"
+          *ngFor="let artist of artists"
+          class="btn"
+          [ngClass]="{
+            'btn-outline-primary': !isArtistSelected(artist.id),
+            'btn-primary': isArtistSelected(artist.id)
+          }"
+          (click)="toggleArtistSelection(artist.id)">
+          {{ artist.stagename || (artist.firstname + ' ' + artist.lastname) }}
+        </button>
+      </div>
+      <div *ngIf="showForm.submitted && (!show.artistIds || show.artistIds.length === 0)" class="text-danger mt-2">
+        At least one artist must be selected.
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button
+        class="btn btn-success mt-4"
+        type="submit"
+        [disabled]="showForm.invalid || !show.artistIds?.length">
+        Create Show
+      </button>
+    </div>
+
+  </form>
+</div>

@@ -1,8 +1,10 @@
 export interface Event {
   id: number;
-  title: string;
-  date: string;
+  name: string;
   description: string;
+  duration: number;
+  date: string;
   soldTickets: number;
+  locationId: number;
   category: string;
 }

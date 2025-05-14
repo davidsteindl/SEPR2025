@@ -60,13 +60,16 @@ public class ArtistRepositoryTest {
         Event event = Event.EventBuilder.anEvent()
             .withName("Electronic Night")
             .withCategory(Event.EventCategory.ELECTRONIC)
+            .withDescription("An electrifying night with the best DJs.")
+            .withDuration(180)
             .withLocation(location)
             .build();
         eventRepository.save(event);
 
         Show show = Show.ShowBuilder.aShow()
+            .withName("Opening Act")
             .withDuration(90)
-            .withDateTime(LocalDateTime.now())
+            .withDate(LocalDateTime.now())
             .withEvent(event)
             .build();
         showRepository.save(show);

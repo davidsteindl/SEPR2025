@@ -1,96 +1,184 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
-
+import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.EventEndpoint;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchResultDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
-import at.ac.tuwien.sepr.groupphase.backend.service.EventService;
-import at.ac.tuwien.sepr.groupphase.backend.service.SearchService;
-import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateEventDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
+import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Event.EventCategory;
+import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation.LocationType;
+import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
+import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-
-import org.springframework.data.domain.PageImpl;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
-@WebMvcTest(EventEndpoint.class)
-public class EventEndpointTest {
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+@AutoConfigureMockMvc
+public class EventEndpointTest implements TestData {
 
-    @Autowired
-    private MockMvc mockMvc;
+    private static final String EVENT_BASE_URI = "/api/v1/events";
 
-    @MockitoBean
-    private SearchService searchService;
+    @Autowired private MockMvc mockMvc;
+    @Autowired private JwtTokenizer jwtTokenizer;
+    @Autowired private SecurityProperties securityProperties;
+    @Autowired private ObjectMapper objectMapper;
+    @Autowired private EventRepository eventRepository;
+    @Autowired private EventLocationRepository eventLocationRepository;
+    @Autowired private UserRepository userRepository;
 
-    @MockitoBean
-    private ShowService showService;
+    private EventLocation testLocation;
+    private Event testEvent;
 
-    @MockitoBean
-    private EventService eventService;
+    @BeforeEach
+    public void setup() {
+        eventRepository.deleteAll();
+        eventLocationRepository.deleteAll();
 
-    @MockitoBean
-    private EventMapper eventMapper;
+        testLocation = new EventLocation();
+        testLocation.setName("Testhalle");
+        testLocation.setType(LocationType.HALL);
+        testLocation.setCountry("Austria");
+        testLocation.setCity("Vienna");
+        testLocation.setStreet("Teststraße 1");
+        testLocation.setPostalCode("1010");
+        eventLocationRepository.save(testLocation);
 
-    @MockitoBean
-    private ShowMapper showMapper;
-
-    @MockitoBean
-    private SecurityProperties securityProperties;
-
-    @Test
-    @WithMockUser(username = "user", roles = "USER")
-    void searchNoDataReturnsEmptyContent() throws Exception {
-        when(searchService.searchEvents(any()))
-            .thenReturn(new PageImpl<>(List.of()));
-
-        mockMvc.perform(get("/api/v1/events/search"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content").isArray())
-            .andExpect(jsonPath("$.content").isEmpty());
+        testEvent = new Event();
+        testEvent.setName("Jazzkonzert");
+        testEvent.setCategory(EventCategory.JAZZ);
+        testEvent.setDescription("Jazz für alle");
+        testEvent.setDuration(120);
+        testEvent.setLocation(testLocation);
+        eventRepository.save(testEvent);
     }
+
     @Test
-    @WithMockUser(username = "user", roles = "USER")
-    void searchWithDataReturnsContent() throws Exception {
-        EventSearchResultDto resultDto = EventSearchResultDto.EventSearchResultDtoBuilder
-            .anEventSearchResultDto()
-            .id(1L)
-            .name("Test Event")
-            .category("Rock")
-            .locationId(42L)
-            .duration(120)
-            .description("Description")
+    public void getEventById_shouldReturnCorrectData() throws Exception {
+        MvcResult result = mockMvc.perform(get(EVENT_BASE_URI + "/" + testEvent.getId())
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        EventDetailDto dto = objectMapper.readValue(result.getResponse().getContentAsString(), EventDetailDto.class);
+        assertAll(
+            () -> assertEquals(testEvent.getName(), dto.getName()),
+            () -> assertEquals(testEvent.getCategory().name(), dto.getCategory())
+        );
+    }
+
+    @Test
+    public void getAllEvents_shouldReturnList() throws Exception {
+        MvcResult result = mockMvc.perform(get(EVENT_BASE_URI)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        List<EventDetailDto> events = List.of(objectMapper.readValue(result.getResponse().getContentAsString(), EventDetailDto[].class));
+        assertFalse(events.isEmpty());
+    }
+
+    @Test
+    public void createEvent_asAdmin_shouldSucceed() throws Exception {
+        CreateEventDto dto = CreateEventDto.CreateEventDtoBuilder.aCreateEventDto()
+            .name("Rocknacht")
+            .category("ROCK")
+            .description("Laut und wild")
+            .duration(180)
+            .locationId(testLocation.getId())
             .build();
 
-        when(searchService.searchEvents(any(EventSearchDto.class)))
-            .thenReturn(new PageImpl<>(List.of(resultDto)));
+        String body = objectMapper.writeValueAsString(dto);
 
-        mockMvc.perform(get("/api/v1/events/search")
-                .param("name", "Test Event")
-                .param("page", "0")
-                .param("size", "1")
-            )
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content").isArray())
-            .andExpect(jsonPath("$.content.length()").value(1))
-            .andExpect(jsonPath("$.content[0].id").value(1))
-            .andExpect(jsonPath("$.content[0].name").value("Test Event"))
-            .andExpect(jsonPath("$.content[0].category").value("Rock"))
-            .andExpect(jsonPath("$.content[0].locationId").value(42))
-            .andExpect(jsonPath("$.content[0].duration").value(120))
-            .andExpect(jsonPath("$.content[0].description").value("Description"));
+        MvcResult result = mockMvc.perform(post(EVENT_BASE_URI)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+            .andReturn();
+
+        assertEquals(HttpStatus.CREATED.value(), result.getResponse().getStatus());
+
+        EventDetailDto created = objectMapper.readValue(result.getResponse().getContentAsString(), EventDetailDto.class);
+        assertAll(
+            () -> assertEquals(dto.getName(), created.getName()),
+            () -> assertEquals(dto.getCategory(), created.getCategory())
+        );
+    }
+
+    @Test
+    public void createEvent_asUser_shouldFailWith403() throws Exception {
+        CreateEventDto dto = CreateEventDto.CreateEventDtoBuilder.aCreateEventDto()
+            .name("UserEvent")
+            .category("POP")
+            .description("Normaler User darf nicht")
+            .duration(90)
+            .locationId(testLocation.getId())
+            .build();
+
+        String body = objectMapper.writeValueAsString(dto);
+
+        MvcResult result = mockMvc.perform(post(EVENT_BASE_URI)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+            .andReturn();
+
+        assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    public void createEvent_withoutAuth_shouldFail() throws Exception {
+        CreateEventDto dto = CreateEventDto.CreateEventDtoBuilder.aCreateEventDto()
+            .name("Anonymous")
+            .category("CLASSICAL")
+            .description("Kein Token vorhanden")
+            .duration(60)
+            .locationId(testLocation.getId())
+            .build();
+
+        String body = objectMapper.writeValueAsString(dto);
+
+        MvcResult result = mockMvc.perform(post(EVENT_BASE_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+            .andReturn();
+
+        assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    public void createEvent_withInvalidData_shouldReturn422() throws Exception {
+        CreateEventDto dto = new CreateEventDto();
+        String body = objectMapper.writeValueAsString(dto);
+
+        MvcResult result = mockMvc.perform(post(EVENT_BASE_URI)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+            .andReturn();
+
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), result.getResponse().getStatus());
     }
 }

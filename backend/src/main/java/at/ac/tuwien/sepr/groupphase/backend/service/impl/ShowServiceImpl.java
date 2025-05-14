@@ -1,5 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.service.validators.ShowValidator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
@@ -8,16 +10,18 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
+import at.ac.tuwien.sepr.groupphase.backend.util.EntitySyncUtil;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ShowServiceImpl implements ShowService {
@@ -25,56 +29,47 @@ public class ShowServiceImpl implements ShowService {
     private final ShowRepository showRepository;
     private final EventRepository eventRepository;
     private final ArtistRepository artistRepository;
+    private final ShowValidator showValidator;
 
     @Autowired
-    public ShowServiceImpl(ShowRepository showRepository, EventRepository eventRepository, ArtistRepository artistRepository) {
+    public ShowServiceImpl(ShowRepository showRepository, EventRepository eventRepository, ArtistRepository artistRepository, ShowValidator showValidator) {
         this.showRepository = showRepository;
         this.eventRepository = eventRepository;
         this.artistRepository = artistRepository;
+        this.showValidator = showValidator;
     }
 
     @Override
     public Show getShowById(Long id) {
         LOGGER.info("Find show with id {}", id);
-        return showRepository.findById(id).orElse(null);
+        return showRepository.findByIdWithArtists(id).orElse(null);
     }
 
     @Override
     public List<Show> getAllShows() {
         LOGGER.info("Get all shows");
-        return showRepository.findAll();
+        return showRepository.findAllWithArtists();
     }
 
     @Override
+    @Transactional
     public Show createShow(Show show) throws ValidationException {
-        LOGGER.info("Save show {}", show);
-        String exceptionText = "Event ID must not be null";
-        if (show.getEvent().getId() == null) {
-            LOGGER.error(exceptionText);
-            throw new ValidationException(exceptionText, List.of(exceptionText));
-        } else {
-            Event event = eventRepository.findById(show.getEvent().getId())
-                .orElseThrow(() -> new ValidationException(exceptionText, List.of(exceptionText)));
-            show.setEvent(event);
-        }
+        LOGGER.info("Saving new show with name '{}'", show.getName());
 
-        if (show.getArtists() == null || show.getArtists().isEmpty()) {
-            LOGGER.error("Show must have at least one artist");
-            throw new ValidationException("Show must have at least one artist", List.of("Artist list is empty"));
-        } else {
-            Set<Artist> existingArtists = new HashSet<>();
-            for (Artist artist : show.getArtists()) {
-                if (artist.getId() == null) {
-                    LOGGER.error("Artist ID must not be null");
-                    throw new ValidationException("Artist ID must not be null", List.of("Artist ID must not be null"));
-                }
-                Artist existingArtist = artistRepository.findById(artist.getId())
-                    .orElseThrow(() -> new ValidationException("Artist not found", List.of("Artist not found")));
-                existingArtists.add(existingArtist);
-            }
-            show.setArtists(existingArtists);
-        }
-        return showRepository.save(show);
+        showValidator.validateForCreate(show);
+
+        Event event = eventRepository.findById(show.getEvent().getId()).get();
+        Set<Artist> artists = show.getArtists().stream()
+            .map(a -> artistRepository.findByIdWithShows(a.getId()).get())
+            .collect(Collectors.toSet());
+
+        show.setEvent(event);
+        show.setArtists(artists);
+        show = showRepository.save(show);
+        EntitySyncUtil.syncShowArtistRelationship(show);
+        artistRepository.saveAll(artists);
+
+        return show;
     }
 
     @Override
@@ -84,4 +79,3 @@ public class ShowServiceImpl implements ShowService {
         return showRepository.findByEventOrderByDateAsc(event);
     }
 }
-

@@ -53,13 +53,16 @@ public class ShowRepositoryTest {
         Event event = Event.EventBuilder.anEvent()
             .withName("Summer Fest")
             .withCategory(Event.EventCategory.POP)
+            .withDescription("A summer celebration of music.")
+            .withDuration(300)
             .withLocation(location)
             .build();
         eventRepository.save(event);
 
         Show show = Show.ShowBuilder.aShow()
+            .withName("Evening Show")
             .withDuration(150)
-            .withDateTime(LocalDateTime.now())
+            .withDate(LocalDateTime.now())
             .withEvent(event)
             .build();
         showRepository.save(show);
@@ -100,6 +103,7 @@ public class ShowRepositoryTest {
             () -> assertEquals(150, show.getDuration()),
             () -> assertEquals("Summer Fest", show.getEvent().getName()),
             () -> assertEquals("Festival Ground", show.getEvent().getLocation().getName()),
+            () -> assertEquals("Evening Show", show.getName()),
             () -> assertEquals(1, show.getArtists().size())
         );
     }
@@ -109,8 +113,9 @@ public class ShowRepositoryTest {
         Event event = eventRepository.findAll().getFirst();
 
         Show show = Show.ShowBuilder.aShow()
+            .withName("Short Show")
             .withDuration(5)
-            .withDateTime(LocalDateTime.now())
+            .withDate(LocalDateTime.now())
             .withEvent(event)
             .build();
 
@@ -123,8 +128,9 @@ public class ShowRepositoryTest {
         Event event = eventRepository.findAll().getFirst();
 
         Show show = Show.ShowBuilder.aShow()
+            .withName("Long Show")
             .withDuration(1000)
-            .withDateTime(LocalDateTime.now())
+            .withDate(LocalDateTime.now())
             .withEvent(event)
             .build();
 
@@ -137,8 +143,9 @@ public class ShowRepositoryTest {
         Event event = eventRepository.findAll().getFirst();
 
         Show show = Show.ShowBuilder.aShow()
+            .withName("No Date Show")
             .withDuration(100)
-            .withDateTime(null)
+            .withDate(null)
             .withEvent(event)
             .build();
 
@@ -149,8 +156,9 @@ public class ShowRepositoryTest {
     @Test
     public void testSaveShow_withNullEvent_throwsException() {
         Show show = Show.ShowBuilder.aShow()
+            .withName("No Event Show")
             .withDuration(100)
-            .withDateTime(LocalDateTime.now())
+            .withDate(LocalDateTime.now())
             .withEvent(null)
             .build();
 
@@ -163,8 +171,9 @@ public class ShowRepositoryTest {
         Event event = eventRepository.findAll().getFirst();
 
         Show show = Show.ShowBuilder.aShow()
+            .withName("Main Act")
             .withDuration(120)
-            .withDateTime(LocalDateTime.now())
+            .withDate(LocalDateTime.now())
             .withEvent(event)
             .build();
 
@@ -172,6 +181,7 @@ public class ShowRepositoryTest {
 
         assertAll(
             () -> assertNotNull(saved.getId()),
+            () -> assertEquals("Main Act", saved.getName()),
             () -> assertEquals(120, saved.getDuration()),
             () -> assertEquals(event.getId(), saved.getEvent().getId())
         );

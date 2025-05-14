@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
+import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -11,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -20,7 +21,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@DataJpaTest
+@SpringBootTest
 @ActiveProfiles("test")
 public class EventServiceTest {
 
@@ -34,9 +35,12 @@ public class EventServiceTest {
 
     private EventLocation testLocation;
 
+    @Autowired
+    private EventValidator eventValidator;
+
     @BeforeEach
     public void setUp() {
-        eventService = new EventServiceImpl(eventRepository, eventLocationRepository);
+        eventService = new EventServiceImpl(eventRepository, eventLocationRepository, eventValidator);
 
         testLocation = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Test Location")
@@ -52,6 +56,8 @@ public class EventServiceTest {
         Event event = Event.EventBuilder.anEvent()
             .withName("Test Event")
             .withCategory(Event.EventCategory.CLASSICAL)
+            .withDuration(800)
+            .withDescription("A beautiful classical concert.")
             .withLocation(testLocation)
             .build();
 
@@ -102,6 +108,8 @@ public class EventServiceTest {
         Event newEvent = Event.EventBuilder.anEvent()
             .withName("New Event")
             .withCategory(Event.EventCategory.CLASSICAL)
+            .withDuration(120)
+            .withDescription("A new classical concert.")
             .withLocation(testLocation)
             .build();
 

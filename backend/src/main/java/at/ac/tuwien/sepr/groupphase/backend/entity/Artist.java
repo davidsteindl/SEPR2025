@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -28,7 +29,7 @@ public class Artist {
     @Column(length = 100)
     private String stagename;
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany
     @JoinTable(
         name = "features",
         joinColumns = @JoinColumn(name = "artist_id"),
@@ -73,8 +74,18 @@ public class Artist {
     }
 
     public void setShows(Set<Show> shows) {
-        this.shows = shows;
+        this.shows = shows != null ? new HashSet<>(shows) : new HashSet<>();
     }
+
+    public void addShow(Show show) {
+        if (this.shows == null) {
+            this.shows = new HashSet<>();
+        }
+        if (this.shows.add(show)) {
+            show.addArtist(this);
+        }
+    }
+
 
     @Override
     public boolean equals(Object o) {

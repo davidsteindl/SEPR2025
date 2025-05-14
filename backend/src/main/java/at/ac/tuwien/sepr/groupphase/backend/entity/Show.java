@@ -10,8 +10,11 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -22,10 +25,15 @@ public class Show {
     private Long id;
 
     @Column(nullable = false)
+    @NotBlank
+    private String name;
+
+    @Column(nullable = false)
     @Min(10)
     @Max(600)
     private int duration;
 
+    @NotNull
     @Column(nullable = false)
     private LocalDateTime date;
 
@@ -34,7 +42,7 @@ public class Show {
     private Event event;
 
     @ManyToMany(mappedBy = "shows")
-    private Set<Artist> artists;
+    private Set<Artist> artists = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -42,6 +50,14 @@ public class Show {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getDuration() {
@@ -52,11 +68,11 @@ public class Show {
         this.duration = duration;
     }
 
-    public LocalDateTime getDateTime() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDateTime(LocalDateTime date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 
@@ -73,7 +89,16 @@ public class Show {
     }
 
     public void setArtists(Set<Artist> artists) {
-        this.artists = artists;
+        this.artists = artists != null ? new HashSet<>(artists) : new HashSet<>();
+    }
+
+    public void addArtist(Artist artist) {
+        if (this.artists == null) {
+            this.artists = new HashSet<>();
+        }
+        if (this.artists.add(artist)) {
+            artist.addShow(this);
+        }
     }
 
     @Override
@@ -84,21 +109,23 @@ public class Show {
         if (!(o instanceof Show show)) {
             return false;
         }
-        return Objects.equals(id, show.id)
-            && duration == show.duration
+        return duration == show.duration
+            && Objects.equals(id, show.id)
+            && Objects.equals(name, show.name)
             && Objects.equals(date, show.date)
             && Objects.equals(event, show.event);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, duration, date, event);
+        return Objects.hash(id, name, duration, date, event);
     }
 
     @Override
     public String toString() {
         StringBuilder ret = new StringBuilder("Show{"
             + "id=" + id
+            + ", name='" + name + '\''
             + ", duration=" + duration + " min"
             + ", date=" + date
             + ", event=" + (event != null ? event.getId() : "null"));
@@ -114,6 +141,7 @@ public class Show {
     }
 
     public static final class ShowBuilder {
+        private String name;
         private int duration;
         private LocalDateTime date;
         private Event event;
@@ -126,12 +154,17 @@ public class Show {
             return new ShowBuilder();
         }
 
+        public ShowBuilder withName(String name) {
+            this.name = name;
+            return this;
+        }
+
         public ShowBuilder withDuration(int duration) {
             this.duration = duration;
             return this;
         }
 
-        public ShowBuilder withDateTime(LocalDateTime date) {
+        public ShowBuilder withDate(LocalDateTime date) {
             this.date = date;
             return this;
         }
@@ -148,8 +181,9 @@ public class Show {
 
         public Show build() {
             Show show = new Show();
+            show.setName(name);
             show.setDuration(duration);
-            show.setDateTime(date);
+            show.setDate(date);
             show.setEvent(event);
             show.setArtists(artists);
             return show;

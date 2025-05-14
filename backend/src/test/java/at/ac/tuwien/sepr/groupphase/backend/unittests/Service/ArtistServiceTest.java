@@ -64,12 +64,15 @@ public class ArtistServiceTest {
             .withName("Test Concert")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withLocation(testLocation)
+            .withDuration(800)
+            .withDescription("A beautiful classical concert.")
             .build();
         eventRepository.save(testEvent);
 
         testShow = Show.ShowBuilder.aShow()
+            .withName("Test Show")
             .withDuration(90)
-            .withDateTime(LocalDateTime.now().plusDays(1))
+            .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
             .build();
         showRepository.save(testShow);
@@ -89,6 +92,8 @@ public class ArtistServiceTest {
     public void deleteData() {
         artistRepository.deleteAll();
         showRepository.deleteAll();
+        eventRepository.deleteAll();
+        eventLocationRepository.deleteAll();
     }
 
     @Test
@@ -149,7 +154,7 @@ public class ArtistServiceTest {
     @Test
     public void testCreateArtist_withNonExistingShow_throwsValidationException() {
         Show fakeShow = Show.ShowBuilder.aShow()
-            .withDateTime(LocalDateTime.now().plusDays(5))
+            .withDate(LocalDateTime.now().plusDays(5))
             .build();
         fakeShow.setId(999L);
 
