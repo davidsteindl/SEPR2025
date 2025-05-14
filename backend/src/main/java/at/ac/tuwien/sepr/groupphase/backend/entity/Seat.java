@@ -14,8 +14,8 @@ public class Seat {
     @Column(name = "row_number", nullable = false)
     private int rowNumber;
 
-    @Column(name = "seat_number", nullable = false)
-    private int seatNumber;
+    @Column(nullable = false)
+    private boolean deleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sector_id", nullable = false)
@@ -39,12 +39,12 @@ public class Seat {
         this.rowNumber = rowNumber;
     }
 
-    public int getSeatNumber() {
-        return seatNumber;
+    public boolean isDeleted() {
+        return deleted;
     }
 
-    public void setSeatNumber(int seatNumber) {
-        this.seatNumber = seatNumber;
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
     public SeatedSector getSector() {
@@ -56,10 +56,15 @@ public class Seat {
     }
 
 
-
+    
     @Override
     public int hashCode() {
-        return Objects.hash(id, rowNumber, seatNumber, sector != null ? sector.getId() : null);
+        return Objects.hash(
+            id,
+            rowNumber,
+            deleted,
+            sector != null ? sector.getId() : null
+        );
     }
 
     @Override
@@ -72,7 +77,7 @@ public class Seat {
         }
         Seat that = (Seat) o;
         return rowNumber == that.rowNumber
-               && seatNumber == that.seatNumber
+               && deleted == that.deleted
                && Objects.equals(id, that.id)
                && Objects.equals(
                    sector != null ? sector.getId() : null,
@@ -85,17 +90,17 @@ public class Seat {
         return "Seat{"
                + "id=" + id
                + ", rowNumber=" + rowNumber
-               + ", seatNumber=" + seatNumber
+               + ", deleted=" + deleted
                + ", sectorId=" + (sector != null ? sector.getId() : null)
                + '}';
     }
 
 
-
+    
     public static final class SeatBuilder {
         private Long id;
         private int rowNumber;
-        private int seatNumber;
+        private boolean deleted;
         private SeatedSector sector;
 
         private SeatBuilder() { }
@@ -114,8 +119,8 @@ public class Seat {
             return this;
         }
 
-        public SeatBuilder seatNumber(int seatNumber) {
-            this.seatNumber = seatNumber;
+        public SeatBuilder deleted(boolean deleted) {
+            this.deleted = deleted;
             return this;
         }
 
@@ -128,7 +133,7 @@ public class Seat {
             Seat seat = new Seat();
             seat.setId(id);
             seat.setRowNumber(rowNumber);
-            seat.setSeatNumber(seatNumber);
+            seat.setDeleted(deleted);
             seat.setSector(sector);
             return seat;
         }
