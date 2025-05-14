@@ -11,9 +11,10 @@ public class SeatDto {
     @Positive(message = "Seat ID must be positive")
     private Long id;
 
-    @Positive(message = "Seat number must be positive")
-    private int seatNumber;
+    private boolean deleted;
 
+
+    
     public Long getId() {
         return id;
     }
@@ -22,17 +23,19 @@ public class SeatDto {
         this.id = id;
     }
 
-    public int getSeatNumber() {
-        return seatNumber;
+    public boolean isDeleted() {
+        return deleted;
     }
 
-    public void setSeatNumber(int seatNumber) {
-        this.seatNumber = seatNumber;
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
+
+    
     @Override
     public int hashCode() {
-        return Objects.hash(id, seatNumber);
+        return Objects.hash(id, deleted);
     }
 
     @Override
@@ -44,7 +47,7 @@ public class SeatDto {
             return false;
         }
         SeatDto that = (SeatDto) o;
-        return seatNumber == that.seatNumber
+        return deleted == that.deleted
                && Objects.equals(id, that.id);
     }
 
@@ -52,16 +55,17 @@ public class SeatDto {
     public String toString() {
         return "SeatDto{"
                + "id=" + id
-               + ", seatNumber=" + seatNumber
+               + ", deleted=" + deleted
                + '}';
     }
 
+
+    
     public static final class SeatDtoBuilder {
         private Long id;
-        private int seatNumber;
+        private boolean deleted;
 
-        private SeatDtoBuilder() {
-        }
+        private SeatDtoBuilder() { }
 
         public static SeatDtoBuilder aSeatDto() {
             return new SeatDtoBuilder();
@@ -72,15 +76,15 @@ public class SeatDto {
             return this;
         }
 
-        public SeatDtoBuilder seatNumber(int seatNumber) {
-            this.seatNumber = seatNumber;
+        public SeatDtoBuilder deleted(boolean deleted) {
+            this.deleted = deleted;
             return this;
         }
 
         public SeatDto build() {
             SeatDto dto = new SeatDto();
             dto.setId(id);
-            dto.setSeatNumber(seatNumber);
+            dto.setDeleted(deleted);
             return dto;
         }
     }
