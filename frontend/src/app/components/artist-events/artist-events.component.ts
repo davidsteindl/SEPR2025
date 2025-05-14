@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import {ActivatedRoute, RouterLink} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import { ArtistService } from '../../services/artist.service';
 import { Artist } from '../../dtos/artist';
 
 @Component({
   selector: 'app-artist-events',
+  standalone: true,
   imports: [
-    RouterLink
   ],
   templateUrl: './artist-events.component.html',
   styleUrl: './artist-events.component.scss'
