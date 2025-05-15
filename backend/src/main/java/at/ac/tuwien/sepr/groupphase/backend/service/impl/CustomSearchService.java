@@ -47,7 +47,7 @@ public class CustomSearchService implements SearchService {
 
     @Autowired
     public CustomSearchService(EventRepository eventRepo, ShowRepository showRepo, SearchValidator searchValidator, ArtistRepository artistRepo,
-                             ArtistMapper artistMapper) {
+                               ArtistMapper artistMapper) {
         this.eventRepo = eventRepo;
         this.showRepo = showRepo;
         this.searchValidator = searchValidator;
@@ -95,24 +95,23 @@ public class CustomSearchService implements SearchService {
         Specification<Event> spec = (root, query, cb) -> cb.conjunction();
         spec = spec
             .and(EventSpecifications.hasName(eventSearchDto.getName()))
-            .and(EventSpecifications.hasType(eventSearchDto.getType()))
+            .and(EventSpecifications.hasCategory(eventSearchDto.getCategory()))
             .and(EventSpecifications.hasDescription(eventSearchDto.getDescription()));
 
         if (eventSearchDto.getDuration() != null) {
             spec = spec.and(EventSpecifications.hasDurationBetween(eventSearchDto.getDuration()));
         }
 
-        Page<Event> page = eventRepo.findAll(spec,
-            PageRequest.of(eventSearchDto.getPage(), eventSearchDto.getSize()));
+        Page<Event> page = eventRepo.findAll(spec, PageRequest.of(eventSearchDto.getPage(), eventSearchDto.getSize()));
 
         List<EventSearchResultDto> dtos = page.getContent().stream().map(e -> EventSearchResultDto.EventSearchResultDtoBuilder.anEventSearchResultDto()
-                    .id(e.getId())
-                    .name(e.getName())
-                    .category(e.getCategory().getDisplayName())
-                    .locationId(e.getLocation().getId())
-                    .duration(e.getTotalDuration())
-                    .description(e.getDescription())
-                    .build()).collect(Collectors.toList());
+            .id(e.getId())
+            .name(e.getName())
+            .category(e.getCategory().getDisplayName())
+            .locationId(e.getLocation().getId())
+            .duration(e.getTotalDuration())
+            .description(e.getDescription())
+            .build()).collect(Collectors.toList());
 
         return new PageImpl<>(dtos, page.getPageable(), page.getTotalElements());
     }
@@ -123,3 +122,4 @@ public class CustomSearchService implements SearchService {
         return List.of();
     }
 }
+
