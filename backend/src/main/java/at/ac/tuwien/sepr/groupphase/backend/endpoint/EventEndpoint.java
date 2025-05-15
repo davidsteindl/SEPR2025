@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.CreateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventWithShowsDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
@@ -132,5 +133,20 @@ public class EventEndpoint {
         LOGGER.info("GET /api/v1/events/by-artist/{}?page={}&size={}", artistId, pageable.getPageNumber(), pageable.getPageSize());
         return eventService.getEventsByArtist(artistId, pageable);
     }
+
+    @Secured("ROLE_USER")
+    @GetMapping("/{eventId}/full")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(
+        summary = "Get full event data including shows",
+        description = "Returns event details and all associated shows for the given event ID.",
+        security = @SecurityRequirement(name = "apiKey")
+    )
+    public EventWithShowsDto getEventWithShows(@PathVariable("eventId") Long eventId) {
+        LOGGER.info("GET /api/v1/events/{}/full", eventId);
+        return eventService.getEventWithShows(eventId);
+    }
+
+
 }
 
