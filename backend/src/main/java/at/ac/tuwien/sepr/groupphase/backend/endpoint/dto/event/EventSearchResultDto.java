@@ -20,6 +20,7 @@ public class EventSearchResultDto {
     @NotNull(message = "Location ID must not be null")
     private Long locationId;
 
+
     private Integer duration;
 
 

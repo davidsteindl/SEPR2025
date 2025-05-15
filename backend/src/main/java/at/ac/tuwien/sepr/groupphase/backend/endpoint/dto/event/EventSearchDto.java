@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
@@ -15,11 +16,12 @@ public class EventSearchDto {
 
     private String name;
 
-    private String type;
+    private String category;
 
     private String description;
 
-    @Min(value = 0, message = "Duration must be non-negative")
+    @Min(value = 10, message = "Duration must be at least 10 minutes")
+    @Max(value = 10000, message = "Duration must not exceed 10000 minutes")
     private Integer duration;
 
     public Integer getPage() {
@@ -46,12 +48,12 @@ public class EventSearchDto {
         this.name = name;
     }
 
-    public String getType() {
-        return type;
+    public String getCategory() {
+        return category;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getDescription() {
