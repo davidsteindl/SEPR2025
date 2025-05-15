@@ -23,6 +23,9 @@ public class Seat {
     @Column(name = "row_number", nullable = false)
     private int rowNumber;
 
+    @Column(name = "column_number", nullable = false)
+    private int columnNumber;
+
     @Column(nullable = false)
     private boolean deleted;
 
@@ -31,7 +34,6 @@ public class Seat {
     private SeatedSector sector;
 
 
-    
     public Long getId() {
         return id;
     }
@@ -46,6 +48,14 @@ public class Seat {
 
     public void setRowNumber(int rowNumber) {
         this.rowNumber = rowNumber;
+    }
+
+    public int getColumnNumber() {
+        return columnNumber;
+    }
+
+    public void setColumnNumber(int columnNumber) {
+        this.columnNumber = columnNumber;
     }
 
     public boolean isDeleted() {
@@ -64,16 +74,9 @@ public class Seat {
         this.sector = sector;
     }
 
-
-    
     @Override
     public int hashCode() {
-        return Objects.hash(
-            id,
-            rowNumber,
-            deleted,
-            sector != null ? sector.getId() : null
-        );
+        return Objects.hash(id, rowNumber, columnNumber, deleted, sector != null ? sector.getId() : null);
     }
 
     @Override
@@ -86,65 +89,23 @@ public class Seat {
         }
         Seat that = (Seat) o;
         return rowNumber == that.rowNumber
-               && deleted == that.deleted
-               && Objects.equals(id, that.id)
-               && Objects.equals(
-                   sector != null ? sector.getId() : null,
-                   that.sector != null ? that.sector.getId() : null
-               );
+            && columnNumber == that.columnNumber
+            && deleted == that.deleted
+            && Objects.equals(id, that.id)
+            && Objects.equals(
+            sector != null ? sector.getId() : null,
+            that.sector != null ? that.sector.getId() : null
+        );
     }
 
     @Override
     public String toString() {
         return "Seat{"
-               + "id=" + id
-               + ", rowNumber=" + rowNumber
-               + ", deleted=" + deleted
-               + ", sectorId=" + (sector != null ? sector.getId() : null)
-               + '}';
-    }
-
-
-    
-    public static final class SeatBuilder {
-        private Long id;
-        private int rowNumber;
-        private boolean deleted;
-        private SeatedSector sector;
-
-        private SeatBuilder() { }
-
-        public static SeatBuilder aSeat() {
-            return new SeatBuilder();
-        }
-
-        public SeatBuilder id(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public SeatBuilder rowNumber(int rowNumber) {
-            this.rowNumber = rowNumber;
-            return this;
-        }
-
-        public SeatBuilder deleted(boolean deleted) {
-            this.deleted = deleted;
-            return this;
-        }
-
-        public SeatBuilder sector(SeatedSector sector) {
-            this.sector = sector;
-            return this;
-        }
-
-        public Seat build() {
-            Seat seat = new Seat();
-            seat.setId(id);
-            seat.setRowNumber(rowNumber);
-            seat.setDeleted(deleted);
-            seat.setSector(sector);
-            return seat;
-        }
+            + "id=" + id
+            + ", rowNumber=" + rowNumber
+            + ", columnNumber=" + columnNumber
+            + ", deleted=" + deleted
+            + ", sectorId=" + (sector != null ? sector.getId() : null)
+            + '}';
     }
 }

@@ -1,15 +1,21 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import jakarta.validation.constraints.Positive;
 
 import java.util.Objects;
 
+@JsonTypeName("STANDING")
 public class StandingSectorDto extends SectorDto {
 
     @Positive(message = "Capacity must be positive")
     private int capacity;
 
+    public StandingSectorDto() {
+        super();
+        setType(SectorType.STANDING);
+    }
 
     public int getCapacity() {
         return capacity;
