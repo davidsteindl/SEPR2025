@@ -6,11 +6,11 @@ import java.util.stream.Collectors;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
 import org.springframework.stereotype.Service;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.CreateRoomDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.RoomDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatedSectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StandingSectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
@@ -19,7 +19,6 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
-
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
