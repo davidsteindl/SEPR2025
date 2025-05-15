@@ -1,77 +1,70 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {ArtistService} from '../../services/artist.service';
-import {ShowService} from '../../services/show.service';
+import {ActivatedRoute, RouterLink} from '@angular/router';
 import {EventService} from '../../services/event.service';
-import {Artist} from '../../dtos/artist';
-import {Show} from '../../dtos/show';
 import {Event} from '../../dtos/event';
-import {ToastrService} from 'ngx-toastr';
-import {ErrorFormatterService} from '../../services/error-formatter.service';
+import {Page} from "../../dtos/page";
+import {NgForOf, NgIf} from "@angular/common";
+import {Artist} from "../../dtos/artist";
+import {ArtistService} from "../../services/artist.service";
 
 @Component({
   selector: 'app-artist-events',
-  standalone: true,
-  imports: [],
-  templateUrl: './artist-events.component.html',
-  styleUrl: './artist-events.component.scss'
+  imports: [
+    NgForOf,
+    NgIf,
+    RouterLink
+  ],
+  templateUrl: './artist-events.component.html'
 })
 export class ArtistEventsComponent implements OnInit {
-  artist: Artist | null = null;
+  artistId!: number;
+  artistName = '';
   events: Event[] = [];
+  page = 0;
+  size = 5;
+  totalPages = 0;
 
-  constructor(
-    private route: ActivatedRoute,
-    private artistService: ArtistService,
-    private showService: ShowService,
-    private eventService: EventService,
-    private notification: ToastrService,
-    private errorFormatter: ErrorFormatterService
-  ) {
-  }
+  constructor(private route: ActivatedRoute, private eventService: EventService, private artistService: ArtistService) {}
 
   ngOnInit(): void {
-    const artistId = Number(this.route.snapshot.paramMap.get('id'));
+    this.artistId = Number(this.route.snapshot.paramMap.get('id'));
+    this.loadArtist();
+    this.loadEvents();
+  }
 
-    this.artistService.getArtistById(artistId).subscribe({
-      next: (artist) => {
-        this.artist = artist;
-
-        if (artist.showIds?.length) {
-          this.showService.getShowsByIds(artist.showIds).subscribe({
-            next: (shows: Show[]) => {
-              const eventIds = [...new Set(shows.map(show => show.eventId))];
-
-              this.eventService.getEventsByIds(eventIds).subscribe({
-                next: (events: Event[]) => {
-                  this.events = events;
-                },
-                error: (err) => {
-                  console.error('Error while fetching events', err)
-                  this.notification.error(this.errorFormatter.format(err), 'Error while fetching events', {
-                    enableHtml: true,
-                    timeOut: 8000,
-                  });
-                }
-              });
-            },
-            error: (err) => {
-              console.error('Error while fetching shows', err)
-              this.notification.error(this.errorFormatter.format(err), 'Error while fetching shows', {
-                enableHtml: true,
-                timeOut: 8000,
-              });
-            }
-          });
-        }
+  loadArtist(): void {
+    this.artistService.getArtistById(this.artistId).subscribe({
+      next: (artist: Artist) => {
+        this.artistName = artist.stagename || `${artist.firstname} ${artist.lastname}`;
       },
-      error: (err) => {
-        console.error('Error while fetching artists', err)
-        this.notification.error(this.errorFormatter.format(err), 'Error while fetching artists', {
-          enableHtml: true,
-          timeOut: 8000,
-        });
+      error: err => {
+        console.error('Loading artist failed', err);
+        this.artistName = 'Unknown Artist';
       }
     });
+  }
+
+  loadEvents(): void {
+    this.eventService.getEventsByArtist(this.artistId, this.page, this.size).subscribe({
+      next: (data: Page<Event>) => {
+        this.events = data.content;
+        this.totalPages = data.totalPages;
+      },
+      error: err => console.error('Loading events failed', err)
+    });
+  }
+
+  next(): void {
+    if (this.page + 1 < this.totalPages) {
+      this.page++;
+      this.loadEvents();
+    }
+  }
+
+  prev(): void {
+    if (this.page > 0) {
+      this.page--;
+      this.loadEvents();
+    }
   }
 }

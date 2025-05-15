@@ -45,7 +45,7 @@ public class ArtistEndpoint {
     }
 
     @GetMapping("/{id}")
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get artist by id", security = @SecurityRequirement(name = "apiKey"))
     public ArtistDetailDto getArtistById(@PathVariable("id") Long id) {
