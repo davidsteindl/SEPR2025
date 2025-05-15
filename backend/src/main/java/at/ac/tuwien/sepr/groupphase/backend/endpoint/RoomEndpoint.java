@@ -47,10 +47,9 @@ public class RoomEndpoint {
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Edit a Room Layout", security = @SecurityRequirement(name = "apiKey"))
-    public void editRoom(@PathVariable Long id, @RequestBody @Valid RoomDetailDto roomDetailDto) {
+    public RoomDetailDto editRoom(@PathVariable("id") Long id, @RequestBody @Valid RoomDetailDto roomDetailDto) {
         LOGGER.info("PUT /api/v1/rooms/{}", id);
-        roomservice.updateRoom(id, roomDetailDto);
-
+        return roomservice.updateRoom(id, roomDetailDto);
     }
 
 }
