@@ -90,7 +90,7 @@ public class EventServiceImpl implements EventService {
 
         EventDetailDto eventDto = eventMapper.eventToEventDetailDto(event);
 
-        var shows = showRepository.findByEventOrderByDateAsc(event);
+        var shows = showRepository.findByEventOrderByDateAscWithArtists(event);
         var showDtos = showMapper.showsToShowDetailDtos(shows);
 
         return EventWithShowsDto.EventWithShowsDtoBuilder

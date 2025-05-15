@@ -216,6 +216,41 @@ public class EventEndpointTest implements TestData {
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
 
         String body = result.getResponse().getContentAsString();
-        assertTrue(body.contains("Jazzkonzert")); // Name von testEvent
+        assertTrue(body.contains("Jazzkonzert"));
+    }
+
+    @Test
+    public void getEventWithShows_shouldReturnEventAndShows() throws Exception {
+        var artist = new at.ac.tuwien.sepr.groupphase.backend.entity.Artist();
+        artist.setFirstname("Anna");
+        artist.setLastname("Jazz");
+        artist.setStagename("AJ");
+
+        artistRepository.save(artist);
+
+        var show = at.ac.tuwien.sepr.groupphase.backend.entity.Show.ShowBuilder.aShow()
+            .withName("Jazz Night")
+            .withDuration(90)
+            .withDate(java.time.LocalDateTime.now().plusDays(3))
+            .withEvent(testEvent)
+            .build();
+        show.addArtist(artist);
+
+        showRepository.save(show);
+
+        MvcResult result = mockMvc.perform(get(EVENT_BASE_URI + "/" + testEvent.getId() + "/full")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES)))
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        String body = result.getResponse().getContentAsString();
+
+        assertAll(
+            () -> assertTrue(body.contains("\"event\""), "Response should contain 'event' block"),
+            () -> assertTrue(body.contains("\"shows\""), "Response should contain 'shows' block"),
+            () -> assertTrue(body.contains("Jazzkonzert"), "Should contain test event name"),
+            () -> assertTrue(body.contains("Jazz Night"), "Should contain show name")
+        );
     }
 }
