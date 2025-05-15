@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -77,4 +79,13 @@ public class ShowServiceImpl implements ShowService {
             .orElseThrow(() -> new EntityNotFoundException("Event not found"));
         return showRepository.findByEventOrderByDateAsc(event);
     }
+
+    @Override
+    public Page<Show> getPagedShowsForEvent(Long eventId, Pageable pageable) {
+        LOGGER.info("Get paginated shows for event {}", eventId);
+        Event event = eventRepository.findById(eventId)
+            .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+        return showRepository.findByEvent(event, pageable);
+    }
+
 }
