@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.annotation.ValidNameCombination;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateArtistDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.CreateArtistDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

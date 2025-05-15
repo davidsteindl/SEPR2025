@@ -1,13 +1,13 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchResultDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchResultDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LocationDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LocationSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PerformanceDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.PerformanceSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchResultDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.LocationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.LocationSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.performance.PerformanceDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.performance.PerformanceSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ArtistMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;

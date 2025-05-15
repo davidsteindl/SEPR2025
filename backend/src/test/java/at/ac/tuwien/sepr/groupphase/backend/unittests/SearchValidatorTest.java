@@ -1,6 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SearchValidator;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
