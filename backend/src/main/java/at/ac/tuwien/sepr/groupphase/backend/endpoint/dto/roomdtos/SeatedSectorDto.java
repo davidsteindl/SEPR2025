@@ -1,15 +1,22 @@
-package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room;
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
 import java.util.Objects;
 
+@JsonTypeName("SEATED")
 public class SeatedSectorDto extends SectorDto {
 
     @NotEmpty(message = "Rows must not be empty")
     private List<SeatDto> rows;
+
+    public SeatedSectorDto() {
+        super();
+        setType(SectorType.SEATED);
+    }
 
     public List<SeatDto> getRows() {
         return rows;
@@ -34,19 +41,19 @@ public class SeatedSectorDto extends SectorDto {
         }
         SeatedSectorDto that = (SeatedSectorDto) o;
         return Objects.equals(getId(), that.getId())
-                && getType() == that.getType()
-                && getPrice() == that.getPrice()
-                && Objects.equals(rows, that.rows);
+            && getType() == that.getType()
+            && getPrice() == that.getPrice()
+            && Objects.equals(rows, that.rows);
     }
 
     @Override
     public String toString() {
         return "SeatedSectorDto{"
-                + "id=" + getId()
-                + ", type=" + getType()
-                + ", price=" + getPrice()
-                + ", rows=" + rows
-                + '}';
+            + "id=" + getId()
+            + ", type=" + getType()
+            + ", price=" + getPrice()
+            + ", rows=" + rows
+            + '}';
     }
 
     public static final class SeatedSectorDtoBuilder {
@@ -79,7 +86,6 @@ public class SeatedSectorDto extends SectorDto {
         public SeatedSectorDto build() {
             SeatedSectorDto dto = new SeatedSectorDto();
             dto.setId(id);
-            dto.setType(SectorType.SEATED);
             dto.setPrice(price);
             dto.setRows(rows);
             return dto;

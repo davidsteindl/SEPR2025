@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 import java.util.Objects;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
+
 public class RoomDetailDto {
 
     @NotNull(message = "ID must not be null")
