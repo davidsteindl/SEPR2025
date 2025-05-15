@@ -42,8 +42,6 @@ public class Event {
     @JoinColumn(name = "location_id", nullable = false)
     private EventLocation location;
 
-    @Column(insertable = false, updatable = false)
-    private Integer totalDuration;
 
     public Long getId() {
         return id;
@@ -93,9 +91,6 @@ public class Event {
         this.location = location;
     }
 
-    public int getTotalDuration() {
-        return totalDuration;
-    }
 
     @Override
     public boolean equals(Object o) {

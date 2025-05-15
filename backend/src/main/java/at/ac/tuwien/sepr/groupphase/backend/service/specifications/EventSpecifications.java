@@ -64,10 +64,9 @@ public final class EventSpecifications {
      */
     public static Specification<Event> hasDurationBetween(int wanted) {
 
-        return (root, query, cb) -> cb.between(
-            root.get("totalDuration").as(Integer.class),
-            wanted - 30,
-            wanted + 30
-        );
+        int lower = Math.max(0, wanted - 30);
+        int upper = wanted + 30;
+        return (root, query, cb) ->
+            cb.between(root.get("duration").as(Integer.class), lower, upper);
     }
 }

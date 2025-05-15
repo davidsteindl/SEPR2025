@@ -74,7 +74,7 @@ class CustomSearchServiceTest {
         EventLocation loc = new EventLocation(); loc.setId(2L);
         event.setLocation(loc);
         event.setDescription("Description");
-        Field f = Event.class.getDeclaredField("totalDuration");
+        Field f = Event.class.getDeclaredField("duration");
         f.setAccessible(true);
         f.set(event, 90);
     }

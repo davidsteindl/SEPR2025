@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.Objects;
+
 
 public class EventSearchResultDto {
 
@@ -84,9 +86,12 @@ public class EventSearchResultDto {
         if (!(o instanceof EventSearchResultDto that)) {
             return false;
         }
-        return id.equals(that.id) && name.equals(that.name) && category.equals(that.category)
-            && locationId.equals(that.locationId) && duration.equals(that.duration)
-            && description.equals(that.description);
+        return Objects.equals(id, that.id)
+            && Objects.equals(name, that.name)
+            && Objects.equals(category, that.category)
+            && Objects.equals(locationId, that.locationId)
+            && Objects.equals(duration, that.duration)
+            && Objects.equals(description, that.description);
     }
 
     @Override

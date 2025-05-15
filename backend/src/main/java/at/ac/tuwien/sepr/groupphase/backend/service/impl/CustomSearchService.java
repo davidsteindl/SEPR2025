@@ -109,7 +109,7 @@ public class CustomSearchService implements SearchService {
             .name(e.getName())
             .category(e.getCategory().getDisplayName())
             .locationId(e.getLocation().getId())
-            .duration(e.getTotalDuration())
+            .duration(e.getDuration())
             .description(e.getDescription())
             .build()).collect(Collectors.toList());
 
