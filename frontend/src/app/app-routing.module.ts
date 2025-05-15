@@ -18,6 +18,7 @@ import { CreateShowComponent } from './components/create-content/create-show/cre
 import { CreateLocationComponent } from './components/create-content/create-location/create-location.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { ArtistEventsComponent } from './components/artist-events/artist-events.component';
+import {EventOverviewComponent} from "./components/event-overview/event-overview.component";
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -39,7 +40,8 @@ const routes: Routes = [
   { path: 'create-show', component: CreateShowComponent, canActivate: [AdminGuard] },
   { path: 'create-location', component: CreateLocationComponent, canActivate: [AdminGuard] },
   { path: 'admin', component: AdminComponent },
-  { path: 'artists/:id/events', component: ArtistEventsComponent }
+  { path: 'artists/:id/events', component: ArtistEventsComponent },
+  { path: 'events/:id/overview', component: EventOverviewComponent }
 ];
 
 @NgModule({

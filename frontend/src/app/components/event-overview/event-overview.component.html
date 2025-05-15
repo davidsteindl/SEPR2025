@@ -1,1 +1,29 @@
-<p>event-overview works!</p>
+<div *ngIf="event">
+  <h2>{{ event.name }} cool</h2>
+  <p><strong>Category:</strong> {{ event.category }}</p>
+  <p><strong>Description:</strong> {{ event.description }}</p>
+  <p><strong>Duration:</strong> {{ event.duration }} min</p>
+
+  <h3>Shows</h3>
+  <table *ngIf="shows.length > 0">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Date</th>
+      <th>Duration</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let show of shows">
+      <td>{{ show.name }}</td>
+      <td>{{ show.date }}</td>
+      <td>{{ show.duration }} min</td>
+    </tr>
+    </tbody>
+  </table>
+  <p *ngIf="shows.length === 0">No shows found for this event.</p>
+</div>
+
+<div *ngIf="!event">
+  <p>Loading event overview...</p>
+</div>
