@@ -238,4 +238,29 @@ public class ShowServiceTest {
             () -> assertEquals(0, showRepository.findAll().size())
         );
     }
+
+    @Test
+    @Transactional
+    public void testGetPagedShowsForEvent_returnsCorrectPage() throws ValidationException {
+        for (int i = 0; i < 7; i++) {
+            Show show = Show.ShowBuilder.aShow()
+                .withName("Show " + i)
+                .withDuration(60 + i)
+                .withDate(LocalDateTime.now().plusDays(i))
+                .withEvent(testEvent)
+                .withArtists(Set.of(testArtist))
+                .build();
+            showService.createShow(show);
+        }
+
+        var pageable = org.springframework.data.domain.PageRequest.of(0, 5);
+        var resultPage = showService.getPagedShowsForEvent(testEvent.getId(), pageable);
+
+        assertAll(
+            () -> assertNotNull(resultPage),
+            () -> assertEquals(5, resultPage.getContent().size()),
+            () -> assertEquals(2, resultPage.getTotalPages()),
+            () -> assertEquals("Show 0", resultPage.getContent().get(0).getName())
+        );
+    }
 }
