@@ -69,8 +69,7 @@ export class RegisterComponent {
    * @param registerUser authentication data from the user login form
    */
   regUser(registerUser: RegisterUser) {
-    console.log("authenticate")
-    console.log("Register payload", registerUser);
+    console.log("register")
     this.authService.registerUser(registerUser).subscribe({
       next: () => {
         this.notification.success(`User ${this.firstName}
@@ -78,11 +77,10 @@ export class RegisterComponent {
         this.router.navigate(['/login']);
       },
       error: error => {
-        console.log('Could not register in due to:');
-        console.log(error);
+        console.log(`Could not register because ${error.error.errors}`);
         this.error = true;
         if (typeof error.error === 'object') {
-          this.errorMessage = error.error.error;
+          this.notification.error(`Validation of user failed because ${error.error.errors}`);
         } else {
           this.errorMessage = error.error;
         }
