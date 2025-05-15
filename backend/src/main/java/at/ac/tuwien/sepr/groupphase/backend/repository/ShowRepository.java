@@ -33,6 +33,9 @@ public interface ShowRepository extends JpaRepository<Show, Long> {
 
     List<Show> findByEventOrderByDateAsc(Event event);
 
+    @Query("SELECT DISTINCT s FROM Show s LEFT JOIN FETCH s.artists WHERE s.event = :event ORDER BY s.date ASC")
+    List<Show> findByEventOrderByDateAscWithArtists(@Param("event") Event event);
+
     @Query("SELECT DISTINCT s.event FROM Show s JOIN s.artists a WHERE a.id = :artistId")
     Page<Event> findEventsByArtistId(@Param("artistId") Long artistId, Pageable pageable);
 }

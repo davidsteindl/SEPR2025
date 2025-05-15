@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventWithShowsDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.data.domain.Page;
@@ -40,4 +41,12 @@ public interface EventService {
      * @return a page of {@link EventDetailDto} instances for the given artist
      */
     Page<EventDetailDto> getEventsByArtist(Long artistId, Pageable pageable);
+
+    /**
+     * Retrieves a detailed view of an event including all associated shows.
+     *
+     * @param eventId the ID of the event whose details and shows should be retrieved
+     * @return an {@link EventWithShowsDto} containing the event details and its scheduled shows
+     */
+    EventWithShowsDto getEventWithShows(Long eventId);
 }

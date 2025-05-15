@@ -1,5 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
@@ -25,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,11 +54,24 @@ public class EventServiceTest {
 
     private EventMapper eventMapper;
 
+    private ShowMapper showMapper;
+
+    private Event event;
+
+    private Long eventId;
+
+    private EventDetailDto eventDetailDto;
+
+    private Show mockShow;
+
+    private ShowDetailDto mockShowDto;
+
     @BeforeEach
     public void setUp() {
         showRepository = mock(ShowRepository.class);
         eventMapper = mock(EventMapper.class);
-        eventService = new EventServiceImpl(eventRepository, eventLocationRepository, eventValidator, showRepository, eventMapper);
+        showMapper = mock(ShowMapper.class);
+        eventService = new EventServiceImpl(eventRepository, eventLocationRepository, eventValidator, showRepository, eventMapper, showMapper);
 
         testLocation = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Test Location")
@@ -67,7 +84,7 @@ public class EventServiceTest {
 
         eventLocationRepository.save(testLocation);
 
-        Event event = Event.EventBuilder.anEvent()
+        event = Event.EventBuilder.anEvent()
             .withName("Test Event")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDuration(800)
@@ -76,6 +93,28 @@ public class EventServiceTest {
             .build();
 
         eventRepository.save(event);
+
+        eventId = event.getId();
+
+        eventDetailDto = new EventDetailDto();
+        eventDetailDto.setId(eventId);
+        eventDetailDto.setName(event.getName());
+        eventDetailDto.setCategory(event.getCategory().name());
+        eventDetailDto.setLocationId(testLocation.getId());
+
+        mockShow = new Show();
+        mockShow.setId(10L);
+        mockShow.setName("Test Show");
+        mockShow.setDuration(90);
+        mockShow.setEvent(event);
+
+        mockShowDto = ShowDetailDto.ShowDetailDtoBuilder.aShowDetailDto()
+            .id(10L)
+            .name("Test Show")
+            .duration(90)
+            .eventId(eventId)
+            .artistIds(Set.of(1L))
+            .build();
     }
 
     @AfterEach
@@ -175,18 +214,10 @@ public class EventServiceTest {
         Long artistId = 1L;
         Pageable pageable = PageRequest.of(0, 5);
 
-        Event event = eventRepository.findAll().getFirst();
-
-        EventDetailDto dto = new EventDetailDto();
-        dto.setId(event.getId());
-        dto.setName(event.getName());
-        dto.setCategory(event.getCategory().name());
-        dto.setLocationId(testLocation.getId());
-
         when(showRepository.findEventsByArtistId(eq(artistId), eq(pageable)))
             .thenReturn(new PageImpl<>(List.of(event)));
 
-        when(eventMapper.eventToEventDetailDto(event)).thenReturn(dto);
+        when(eventMapper.eventToEventDetailDto(event)).thenReturn(eventDetailDto);
 
         Page<EventDetailDto> result = eventService.getEventsByArtist(artistId, pageable);
 
@@ -200,4 +231,23 @@ public class EventServiceTest {
         verify(eventMapper).eventToEventDetailDto(event);
     }
 
+    @Test
+    public void testGetEventWithShows_validEventId_returnsEventWithShowsDto() {
+        when(eventMapper.eventToEventDetailDto(event)).thenReturn(eventDetailDto);
+        when(showRepository.findByEventOrderByDateAscWithArtists(event)).thenReturn(List.of(mockShow));
+        when(showMapper.showsToShowDetailDtos(List.of(mockShow))).thenReturn(List.of(mockShowDto));
+
+        var result = eventService.getEventWithShows(eventId);
+
+        assertAll(
+            () -> assertNotNull(result),
+            () -> assertEquals(eventDetailDto, result.getEvent()),
+            () -> assertEquals(1, result.getShows().size()),
+            () -> assertEquals(mockShowDto, result.getShows().getFirst())
+        );
+
+        verify(eventMapper).eventToEventDetailDto(event);
+        verify(showRepository).findByEventOrderByDateAscWithArtists(event);
+        verify(showMapper).showsToShowDetailDtos(List.of(mockShow));
+    }
 }

@@ -1,7 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventWithShowsDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
@@ -28,18 +30,21 @@ public class EventServiceImpl implements EventService {
     private final EventValidator eventValidator;
     private final ShowRepository showRepository;
     private final EventMapper eventMapper;
+    private final ShowMapper showMapper;
 
     @Autowired
     public EventServiceImpl(EventRepository eventRepository,
                             EventLocationRepository eventLocationRepository,
                             EventValidator eventValidator,
                             ShowRepository showRepository,
-                            EventMapper eventMapper) {
+                            EventMapper eventMapper,
+                            ShowMapper showMapper) {
         this.eventRepository = eventRepository;
         this.eventLocationRepository = eventLocationRepository;
         this.eventValidator = eventValidator;
         this.showRepository = showRepository;
         this.eventMapper = eventMapper;
+        this.showMapper = showMapper;
     }
 
     @Override
@@ -74,5 +79,24 @@ public class EventServiceImpl implements EventService {
         LOGGER.info("Fetching events for artistId={} with pageable={}", artistId, pageable);
         return showRepository.findEventsByArtistId(artistId, pageable)
             .map(eventMapper::eventToEventDetailDto);
+    }
+
+    @Override
+    public EventWithShowsDto getEventWithShows(Long eventId) {
+        LOGGER.info("Fetching event with shows for eventId={}", eventId);
+
+        Event event = eventRepository.findById(eventId)
+            .orElseThrow(() -> new IllegalArgumentException("Event not found with id: " + eventId));
+
+        EventDetailDto eventDto = eventMapper.eventToEventDetailDto(event);
+
+        var shows = showRepository.findByEventOrderByDateAscWithArtists(event);
+        var showDtos = showMapper.showsToShowDetailDtos(shows);
+
+        return EventWithShowsDto.EventWithShowsDtoBuilder
+            .anEventWithShowsDto()
+            .event(eventDto)
+            .shows(showDtos)
+            .build();
     }
 }
