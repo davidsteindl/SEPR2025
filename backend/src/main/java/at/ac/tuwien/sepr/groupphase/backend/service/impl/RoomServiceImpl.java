@@ -33,7 +33,7 @@ public class RoomServiceImpl implements RoomService {
 
     private final EventLocationRepository eventLocationRepository;
     private final RoomRepository roomRepository;
-    private final static Logger LOGGER = LoggerFactory.getLogger(RoomServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RoomServiceImpl.class);
 
     public RoomServiceImpl(EventLocationRepository eventLocationRepository,
                            RoomRepository roomRepository) {
@@ -152,6 +152,9 @@ public class RoomServiceImpl implements RoomService {
      */
     private StandingSector syncStanding(Map<Long, Sector> existing, Room room, StandingSectorDto dto) {
         LOGGER.debug("Syncing the standing sector with details: {}", dto);
+        if (dto.getId() != null && !existing.containsKey(dto.getId())) {
+            throw new EntityNotFoundException("SeatedSector not found with id " + dto.getId());
+        }
         StandingSector sec = (StandingSector) existing.getOrDefault(dto.getId(), new StandingSector());
         sec.setPrice(dto.getPrice());
         sec.setCapacity(dto.getCapacity());
@@ -172,11 +175,13 @@ public class RoomServiceImpl implements RoomService {
      */
     private SeatedSector syncSeated(Map<Long, Sector> existing, Room room, SeatedSectorDto dto) {
         LOGGER.debug("Syncing the seated sector with details: {}", dto);
+        if (dto.getId() != null && !existing.containsKey(dto.getId())) {
+            throw new EntityNotFoundException("SeatedSector not found with id " + dto.getId());
+        }
         SeatedSector sec = (SeatedSector) existing.getOrDefault(dto.getId(), new SeatedSector());
         sec.setPrice(dto.getPrice());
         sec.setRoom(room);
 
-        // sync seats
         Map<Long, Seat> old = sec.getSeats().stream()
             .collect(Collectors.toMap(Seat::getId, Function.identity()));
         List<Seat> updated = new ArrayList<>();
