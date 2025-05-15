@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 public class UserValidator {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
-        "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        "[^@ ]+@[^@ ]+"
     );
 
     public UserValidator() {
@@ -157,6 +157,8 @@ public class UserValidator {
             validationErrors.add("No birthdate given");
         } else if (user.getDateOfBirth().isAfter(LocalDate.now())) {
             validationErrors.add("The Birthdate must be in the past");
+        } else if (user.getDateOfBirth().isBefore(LocalDate.parse("2007-05-15"))) {
+            validationErrors.add("You must be at least 18 years old to use the Service");
         }
 
 

@@ -143,11 +143,6 @@ public class CustomUserDetailService implements UserService {
             .isLocked(false)
             .build();
 
-
-        if (userRepository.findByEmail(user.getEmail()) != null) {
-            throw new IllegalArgumentException("Their is already a user with that email.");
-        }
-
         userRepository.save(user);
     }
 
