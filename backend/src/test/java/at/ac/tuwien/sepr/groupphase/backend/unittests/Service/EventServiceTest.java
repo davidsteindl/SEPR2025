@@ -209,8 +209,7 @@ public class EventServiceTest {
 
     @Test
     public void testGetEventWithShows_validEventId_returnsEventWithShowsDto() {
-        // Arrange
-        Event event = eventRepository.findAll().getFirst(); // gespeicherter Event aus setUp()
+        Event event = eventRepository.findAll().getFirst();
         Long eventId = event.getId();
 
         EventDetailDto dto = new EventDetailDto();
@@ -233,15 +232,12 @@ public class EventServiceTest {
             .artistIds(Set.of(1L))
             .build();
 
-        // Mock-Verhalten
         when(eventMapper.eventToEventDetailDto(event)).thenReturn(dto);
         when(showRepository.findByEventOrderByDateAscWithArtists(event)).thenReturn(List.of(mockShow));
         when(showMapper.showsToShowDetailDtos(List.of(mockShow))).thenReturn(List.of(mockShowDto));
 
-        // Act
         var result = eventService.getEventWithShows(eventId);
 
-        // Assert
         assertAll(
             () -> assertNotNull(result, "Result should not be null"),
             () -> assertEquals(dto, result.getEvent(), "Event DTO should match"),
