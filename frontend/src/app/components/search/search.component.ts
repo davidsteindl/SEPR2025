@@ -1,12 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from "@angular/forms";
-import { CommonModule } from '@angular/common';
-import { ArtistService } from '../../services/artist.service';
+import {Component, OnInit} from '@angular/core';
+import {FormsModule} from "@angular/forms";
+import {CommonModule} from '@angular/common';
+import {ArtistService} from '../../services/artist.service';
 import {RouterLink} from "@angular/router";
 import {ArtistSearchDto, ArtistSearchResultDto} from "../../dtos/artist";
 import {ToastrService} from "ngx-toastr";
 import {ErrorFormatterService} from "../../services/error-formatter.service";
 import {Page} from "../../dtos/page";
+import {EventSearchDto, EventSearchResultDto} from "../../dtos/event";
+import {EventService} from "../../services/event.service";
+import {EventCategory} from "../create-content/create-event/create-event.component";
 
 
 @Component({
@@ -43,6 +46,12 @@ export class SearchComponent implements OnInit {
     if (tab !== 'location') {
     }
     if (tab !== 'event') {
+      this.eventname = '';
+      this.eventcategory = null;
+      this.eventduration = 0;
+      this.eventdescription = '';
+      this.artistPage = undefined;
+      this.artistTriggered = false;
     }
     if (tab !== 'performance') {
     }
@@ -58,12 +67,26 @@ export class SearchComponent implements OnInit {
   artistCurrentPage = 0;
   artistPageSize = 10;
 
+  //event variables
+  eventCategories =Object.values(EventCategory);
+
+  eventname: string = '';
+  eventcategory: EventCategory | null = null;
+  eventduration: number | null = null;
+  eventdescription: string = '';
+  eventPage?: Page<EventSearchResultDto>;
+  eventLoading = false;
+  eventTriggered = false;
+  eventCurrentPage = 0;
+  eventPageSize = 10;
+
   ngOnInit(): void {
   }
 
   //constructor
   constructor(
     private artistService: ArtistService,
+    private eventService: EventService,
     private notification: ToastrService,
     private errorFormatter: ErrorFormatterService
   ) {
@@ -80,10 +103,10 @@ export class SearchComponent implements OnInit {
         //this.searchLocations();
         break;
       case 'event':
-       // this.searchEvents();
+        this.searchEvents();
         break;
       case 'performance':
-       // this.searchPerformances();
+        // this.searchPerformances();
         break;
     }
   }
@@ -124,9 +147,46 @@ export class SearchComponent implements OnInit {
     console.log('Location search not implemented yet');
   }
 
+  validateDuration(): void {
+    if (this.eventduration == null) {
+      return;
+    }
+    if (this.eventduration < 10) {
+      this.eventduration = 10;
+    } else if (this.eventduration > 10000) {
+      this.eventduration = 10000;
+    }
+  }
+
   searchEvents(): void {
-    // Implement event search
-    console.log('Event search not implemented yet');
+    const searchDto: EventSearchDto = {
+      name: this.eventname?.trim() || undefined,
+      category: this.eventcategory?.trim() || undefined,
+      duration: this.eventduration || undefined,
+      description: this.eventdescription?.trim() || undefined,
+      page: this.eventCurrentPage,
+      size: this.eventPageSize
+    };
+
+    this.eventLoading = true;
+    this.eventTriggered = true;
+
+    this.eventService.searchEvents(searchDto).subscribe({
+      next: (pageResult) => {
+        this.eventPage = pageResult;
+        this.eventCurrentPage = pageResult.number;
+        this.eventLoading = false;
+      },
+      error: (err) => {
+        this.eventPage = undefined;
+        this.eventLoading = false;
+        this.eventTriggered = false;
+        this.notification.error(this.errorFormatter.format(err), 'Search failed', {
+          enableHtml: true,
+          timeOut: 8000,
+        });
+      }
+    });
   }
 
   searchPerformances(): void {

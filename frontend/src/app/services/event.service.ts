@@ -3,8 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import { Globals } from '../global/globals';
 import { CreateEvent } from '../dtos/create-event';
-import { Event } from '../dtos/event';
+import {Event, EventSearchDto, EventSearchResultDto} from '../dtos/event';
 import {Page} from "../dtos/page";
+
 
 @Injectable({
   providedIn: 'root'
@@ -64,5 +65,18 @@ export class EventService {
   getEventsByArtist(artistId: number, page = 0, size = 5): Observable<Page<Event>> {
     const url = `${this.eventBaseUri}/by-artist/${artistId}?page=${page}&size=${size}`;
     return this.httpClient.get<Page<Event>>(url);
+  }
+
+  /**
+   * Retrieves all events specified by the search criteria, paginated.
+   *
+   * @param criteria Search criteria for filtering events
+   * @returns An Observable of a paginated list of EventSearchResultDto objects
+   */
+  searchEvents(criteria: EventSearchDto): Observable<Page<EventSearchResultDto>> {
+    return this.httpClient.post<Page<EventSearchResultDto>>(
+      this.eventBaseUri + '/search',
+      criteria
+    );
   }
 }

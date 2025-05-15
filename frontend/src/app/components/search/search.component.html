@@ -1,86 +1,155 @@
 <div class="container mt-4">
 
-    <h2 class="text-center mb-4">Search</h2>
+  <h2 class="text-center mb-4">Search</h2>
 
-    <ul class="nav nav-tabs custom-tabs mb-0">
-        <li class="nav-item">
-            <a class="nav-link" [class.active]="currentActiveTab === 'artist'" (click)="currentActiveTab = 'artist'">Artist</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" [class.active]="currentActiveTab === 'location'" (click)="currentActiveTab = 'location'">Location</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" [class.active]="currentActiveTab === 'event'" (click)="currentActiveTab = 'event'">Event</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" [class.active]="currentActiveTab === 'performance'" (click)="currentActiveTab = 'performance'">Performance</a>
-        </li>
-    </ul>
+  <ul class="nav nav-tabs custom-tabs mb-0">
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="currentActiveTab === 'artist'"
+         (click)="currentActiveTab = 'artist'">Artist</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="currentActiveTab === 'location'" (click)="currentActiveTab = 'location'">Location</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="currentActiveTab === 'event'" (click)="currentActiveTab = 'event'">Event</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="currentActiveTab === 'performance'"
+         (click)="currentActiveTab = 'performance'">Performance</a>
+    </li>
+  </ul>
 
-    <div *ngIf="currentActiveTab === 'artist'" class="tab-box">
-        <div class="row">
-            <div class="form-group col-md-6">
-                <label for="firstname">First name</label>
-                <input id="firstname" [(ngModel)]="firstname" class="form-control"/>
-            </div>
-            <div class="form-group col-md-6">
-                <label for="lastname">Last name</label>
-                <input id="lastname" [(ngModel)]="lastname" class="form-control"/>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="stagename">Stage name</label>
-            <input id="stagename" [(ngModel)]="stagename" class="form-control"/>
-        </div>
-
-        <div class="text-center">
-            <button type="button" class="btn btn-primary mt-3" (click)="search()">Search</button>
-        </div>
-
-      <div *ngIf="artistLoading" class="text-center my-3">
-        Searching…
+  <div *ngIf="currentActiveTab === 'artist'" class="tab-box">
+    <div class="row">
+      <div class="form-group col-md-6">
+        <label for="firstname">First name</label>
+        <input id="firstname" [(ngModel)]="firstname" class="form-control"/>
       </div>
-
-      <div class="mt-4" *ngIf="!artistLoading && artistPage?.content?.length > 0">
-        <h5 class="text-primary">Results:</h5>
-
-        <ul class="list-group">
-          <li *ngFor="let artist of artistPage.content" class="list-group-item d-flex justify-content-between align-items-center">
-            <div style="font-weight: bold">
-              {{ artist.stagename || (artist.firstname + ' ' + artist.lastname) }}
-            </div>
-            <button type="button" class="view-button" [routerLink]="['/artists', artist.id, 'events']">View artist</button>
-          </li>
-        </ul>
-
-        <ul class="pagination justify-content-center">
-          <li class="page-item" [class.disabled]="artistCurrentPage === 0">
-            <a class="page-link" (click)="searchArtists(artistCurrentPage - 1)">Previous</a>
-          </li>
-          <li class="page-item disabled">
-            <span class="page-link">Page {{ artistCurrentPage + 1 }} of {{ artistPage?.totalPages }}</span>
-          </li>
-          <li class="page-item" [class.disabled]="artistCurrentPage >= (artistPage?.totalPages || 1) - 1">
-            <a class="page-link" (click)="searchArtists(artistCurrentPage + 1)">Next</a>
-          </li>
-        </ul>
-      </div>
-
-      <div class="mt-4 text-center text-muted" style="font-weight: bold"
-           *ngIf="!artistLoading && artistTriggered && artistPage?.content?.length === 0">
-        No artist found.
+      <div class="form-group col-md-6">
+        <label for="lastname">Last name</label>
+        <input id="lastname" [(ngModel)]="lastname" class="form-control"/>
       </div>
     </div>
-
-    <div *ngIf="currentActiveTab === 'location'" class="tab-box">
-        <p class="text-muted">[Location search not yet implemented]</p>
+    <div class="form-group">
+      <label for="stagename">Stage name</label>
+      <input id="stagename" [(ngModel)]="stagename" class="form-control"/>
     </div>
 
-    <div *ngIf="currentActiveTab === 'event'" class="tab-box">
-        <p class="text-muted">[Event search not yet implemented]</p>
+    <div class="text-center">
+      <button type="button" class="btn btn-primary mt-3" (click)="search()">Search</button>
     </div>
 
-    <div *ngIf="currentActiveTab=== 'performance'" class="tab-box">
-        <p class="text-muted">[Performance search not yet implemented]</p>
+    <div *ngIf="artistLoading" class="text-center my-3">
+      Searching…
     </div>
+
+    <div class="mt-4" *ngIf="!artistLoading && artistPage?.content?.length > 0">
+      <h5 class="text-primary">Results:</h5>
+
+      <ul class="list-group">
+        <li *ngFor="let artist of artistPage.content"
+            class="list-group-item d-flex justify-content-between align-items-center">
+          <div style="font-weight: bold">
+            {{ artist.stagename || (artist.firstname + ' ' + artist.lastname) }}
+          </div>
+          <button type="button" class="view-button" [routerLink]="['/artists', artist.id, 'events']">View artist
+          </button>
+        </li>
+      </ul>
+
+      <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="artistCurrentPage === 0">
+          <a class="page-link" (click)="searchArtists(artistCurrentPage - 1)">Previous</a>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link">Page {{ artistCurrentPage + 1 }} of {{ artistPage?.totalPages }}</span>
+        </li>
+        <li class="page-item" [class.disabled]="artistCurrentPage >= (artistPage?.totalPages || 1) - 1">
+          <a class="page-link" (click)="searchArtists(artistCurrentPage + 1)">Next</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="mt-4 text-center text-muted" style="font-weight: bold"
+         *ngIf="!artistLoading && artistTriggered && artistPage?.content?.length === 0">
+      No artist found.
+    </div>
+  </div>
+
+  <div *ngIf="currentActiveTab === 'location'" class="tab-box">
+    <p class="text-muted">[Location search not yet implemented]</p>
+  </div>
+
+  <div *ngIf="currentActiveTab === 'event'" class="tab-box">
+    <div class="row">
+      <div class="form-group col-md-6">
+        <label for="eventname">Event name</label>
+        <input id="eventname" [(ngModel)]="eventname" class="form-control"/>
+      </div>
+      <div class="form-group col-md-6">
+        <label for="eventcategory">Event category</label>
+        <select id="eventcategory" [(ngModel)]="eventcategory" class="form-control">
+          <option [ngValue]="null"></option>
+          <option *ngFor="let cat of eventCategories" [value]="cat">
+            {{ cat }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-md-4">
+        <label for="eventduration">Duration:</label>
+        <input type="number" id="eventduration" [(ngModel)]="eventduration" class="form-control" min="10" max="10000"
+               placeholder="10min–10000min" title="Duration in minutes" (blur)="validateDuration()"/>
+      </div>
+      <div class="form-group col-md-8">
+        <label for="eventdescription">Description:</label>
+        <input id="eventdescription" [(ngModel)]="eventdescription" class="form-control"/>
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button type="button" class="btn btn-primary mt-3" (click)="search()">Search</button>
+    </div>
+
+    <div *ngIf="eventLoading" class="text-center my-3">
+      Searching…
+    </div>
+    <div class="mt-4" *ngIf="!eventLoading && eventTriggered">
+      <h5 class="text-primary">Results:</h5>
+      <table class="table table-bordered">
+        <thead>
+        <tr>
+          <th>Event name</th>
+          <th>Category</th>
+          <th>Duration</th>
+          <th>Description</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let ev of eventPage?.content">
+          <td><strong>{{ ev.name }}</strong></td>
+          <td>{{ ev.category }}</td>
+          <td>{{ ev.duration }}</td>
+          <td>{{ ev.description }}</td>
+          <td class="text-right">
+            <button class="btn btn-sm btn-secondary"
+                    [routerLink]="['/events', ev.id]">
+              View Event
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <div *ngIf="eventPage?.content.length === 0" class="text-center text-muted">
+        No events found.
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="currentActiveTab=== 'performance'" class="tab-box">
+    <p class="text-muted">[Performance search not yet implemented]</p>
+  </div>
 </div>
