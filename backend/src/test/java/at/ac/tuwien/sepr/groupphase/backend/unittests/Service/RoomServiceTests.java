@@ -1,10 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.CreateRoomDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.RoomDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatedSectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
