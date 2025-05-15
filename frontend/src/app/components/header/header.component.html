@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <a class="navbar-brand ml-lg-5" href="">TicketLine</a>
+  <a class="navbar-brand ml-lg-5 ticket" href="">TicketLine</a>
   <button class="navbar-toggler ml-5" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
           aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -9,27 +9,6 @@
     <ul class="navbar-nav w-100 d-flex align-items-center">
       <li class="nav-item">
         <a class="nav-link" *ngIf="authService.isLoggedIn()" routerLink="/message" routerLinkActive="active">Message</a>
-      </li>
-      <li><a class="nav-link" *ngIf="isAdmin() && authService.isLoggedIn()" routerLink="/manage-accounts"
-             routerLinkActive="active">Manage
-        accounts</a></li>
-      <li class="nav-item dropdown" ngbDropdown *ngIf="isAdmin()">
-        <a
-          class="nav-link dropdown-toggle"
-          ngbDropdownToggle
-          id="createDropdown"
-          role="button"
-          tabindex="0"
-          (click)="$event.preventDefault()"
-        >
-          Create Content
-        </a>
-        <div ngbDropdownMenu aria-labelledby="createDropdown">
-          <a class="dropdown-item" routerLink="/create-event" routerLinkActive="active">Create Event</a>
-          <a class="dropdown-item" routerLink="/create-artist" routerLinkActive="active">Create Artist</a>
-          <a class="dropdown-item" routerLink="/create-show" routerLinkActive="active">Create Show</a>
-          <a class="dropdown-item" routerLink="/create-location" routerLinkActive="active">Create Location</a>
-        </div>
       </li>
     </ul>
 
