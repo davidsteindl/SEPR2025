@@ -39,7 +39,7 @@ public class RoomServiceImpl implements RoomService {
             .orElseThrow(() -> new EntityNotFoundException(
                 "EventLocation not found with id " + createRoomDto.getEventLocationId()));
 
-        Room room = getRoom(createRoomDto, eventLocation);
+        Room room = createRoomDtoToRoomEntity(createRoomDto, eventLocation);
 
         Room saved = roomRepository.save(room);
 
@@ -80,7 +80,7 @@ public class RoomServiceImpl implements RoomService {
             .build();
     }
 
-    private static Room getRoom(CreateRoomDto createRoomDto, EventLocation eventLocation) {
+    private static Room createRoomDtoToRoomEntity(CreateRoomDto createRoomDto, EventLocation eventLocation) {
         Room room = new Room();
         room.setName(createRoomDto.getName());
         room.setHorizontal(createRoomDto.isHorizontal());
