@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import { Globals } from '../global/globals';
 import { CreateEvent } from '../dtos/create-event';
-import {Event, EventSearchDto, EventSearchResultDto} from '../dtos/event';
+import {Event, EventSearchDto, EventSearchResultDto, EventWithShows} from '../dtos/event';
 import {Page} from "../dtos/page";
 
 
@@ -78,5 +78,14 @@ export class EventService {
       this.eventBaseUri + '/search',
       criteria
     );
+  }
+
+  /**
+   * Retrieves full event data including all associated shows
+   *
+   * @param id ID of the event to retrieve
+   */
+  getEventWithShows(id: number): Observable<EventWithShows> {
+    return this.httpClient.get<EventWithShows>(`${this.eventBaseUri}/${id}/full`);
   }
 }

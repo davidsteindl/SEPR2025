@@ -1,3 +1,5 @@
+import {Show} from "./show";
+
 export interface Event {
   id: number;
   name: string;
@@ -25,4 +27,9 @@ export interface EventSearchResultDto {
   locationId: number;
   duration: number;
   description: string;
+}
+
+export interface EventWithShows {
+  event: Event;
+  shows: Show[];
 }
