@@ -2,10 +2,9 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateArtistDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.CreateArtistDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;

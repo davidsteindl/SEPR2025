@@ -2,7 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.AuthenticationEndpoint;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;

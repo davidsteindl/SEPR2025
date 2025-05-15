@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserRegisterDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.stereotype.Component;

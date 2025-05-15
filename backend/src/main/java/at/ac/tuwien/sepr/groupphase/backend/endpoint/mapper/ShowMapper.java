@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateShowDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ShowDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.CreateShowDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;

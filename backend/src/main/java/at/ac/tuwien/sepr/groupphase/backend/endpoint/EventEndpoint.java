@@ -1,10 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateEventDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchResultDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ShowDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.CreateEventDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;

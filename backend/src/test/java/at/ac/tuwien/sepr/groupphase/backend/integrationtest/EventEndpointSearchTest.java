@@ -2,8 +2,8 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.EventEndpoint;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventSearchResultDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
 import at.ac.tuwien.sepr.groupphase.backend.service.EventService;

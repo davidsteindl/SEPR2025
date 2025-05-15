@@ -1,8 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.LockedUserDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.UserMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;

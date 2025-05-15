@@ -1,8 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ArtistDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateArtistDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.CreateArtistDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import org.mapstruct.Mapper;

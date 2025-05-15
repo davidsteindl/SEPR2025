@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.CreateEventLocationDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.EventLocationDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.CreateEventLocationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventLocationMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.service.EventLocationService;
