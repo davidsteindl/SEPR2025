@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.stereotype.Component;
 import java.time.LocalDate;
+import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -48,6 +49,10 @@ public class UserValidator {
 
         if (userRegisterDto.getDateOfBirth() == null || userRegisterDto.getDateOfBirth().isAfter(LocalDate.now())) {
             validationErrors.add("The Birthdate must be in the past");
+        }
+
+        if (userRegisterDto.getDateOfBirth() == null || userRegisterDto.getDateOfBirth().isBefore(LocalDate.parse("2007-05-15"))) {
+            validationErrors.add("You must be at least 18 years old to use the Service");
         }
 
         if (userRegisterDto.getPassword() == null || userRegisterDto.getPassword().length() < 8) {
