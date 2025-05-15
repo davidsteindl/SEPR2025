@@ -10,11 +10,12 @@ import {ToastrService} from "ngx-toastr";
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
+  standalone: true,
   imports: [
     NgIf,
     ReactiveFormsModule
   ],
-  styleUrl: './register.component.scss'
+  styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
 
@@ -25,7 +26,7 @@ export class RegisterComponent {
   error = false;
   errorMessage = '';
   firstName = '';
-
+  buttonDisabled = false;
 
   constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, private router: Router, private notification: ToastrService) {
     this.registerForm = this.formBuilder.group({
@@ -45,6 +46,7 @@ export class RegisterComponent {
    */
   registerUser() {
     this.submitted = true;
+    this.buttonDisabled = true;
     if (this.registerForm.valid) {
       console.log("valid input");
       const registerUser: RegisterUser = {
@@ -81,12 +83,11 @@ export class RegisterComponent {
         this.error = true;
         if (typeof error.error === 'object') {
           this.notification.error(`Validation of user failed because ${error.error.errors}`);
+          this.buttonDisabled = false;
         } else {
           this.errorMessage = error.error;
         }
       }
     });
   }
-
-
 }
