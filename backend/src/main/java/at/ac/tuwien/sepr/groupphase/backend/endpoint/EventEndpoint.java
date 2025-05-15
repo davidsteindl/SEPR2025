@@ -4,7 +4,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.CreateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventWithShowsDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
@@ -86,16 +85,16 @@ public class EventEndpoint {
      * @param eventSearchDto the search criteria
      * @return a paginated list of events matching the search criteria
      */
+    @PostMapping("/search")
     @Secured("ROLE_USER")
-    @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     @Operation(
         summary = "Search events",
         description = "Search events by name, type, description, or duration (±30min) with page and size parameters.",
         security = @SecurityRequirement(name = "apiKey")
     )
-    public Page<EventSearchResultDto> search(@Valid EventSearchDto eventSearchDto) throws ValidationException {
-        LOGGER.info("GET /api/v1/events/search {}", eventSearchDto);
+    public Page<EventSearchResultDto> search(@RequestBody @Valid EventSearchDto eventSearchDto) throws ValidationException {
+        LOGGER.info("POST /api/v1/events/search {}", eventSearchDto);
         return searchService.searchEvents(eventSearchDto);
     }
 
@@ -133,17 +132,5 @@ public class EventEndpoint {
         LOGGER.info("GET /api/v1/events/by-artist/{}?page={}&size={}", artistId, pageable.getPageNumber(), pageable.getPageSize());
         return eventService.getEventsByArtist(artistId, pageable);
     }
-
-    @Secured("ROLE_USER")
-    @GetMapping("/{eventId}/full")
-    @ResponseStatus(HttpStatus.OK)
-    @Operation(
-        summary = "Get full event data including shows",
-        description = "Returns event details and all associated shows for the given event ID.",
-        security = @SecurityRequirement(name = "apiKey")
-    )
-    public EventWithShowsDto getEventWithShows(@PathVariable("eventId") Long eventId) {
-        LOGGER.info("GET /api/v1/events/{}/full", eventId);
-        return eventService.getEventWithShows(eventId);
-    }
 }
+
