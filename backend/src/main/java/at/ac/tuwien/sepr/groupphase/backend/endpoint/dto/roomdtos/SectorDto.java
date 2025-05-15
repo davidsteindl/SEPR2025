@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Positive;
 @JsonTypeInfo(
     use     = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
-    property= "type",
+    property = "type",
     visible = true
 )
 @JsonSubTypes({
