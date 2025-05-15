@@ -4,10 +4,16 @@ import { EventService } from '../../services/event.service';
 import { Event } from '../../dtos/event';
 import { Show } from '../../dtos/show';
 import { EventWithShows } from '../../dtos/event';
+import {NgForOf, NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-event-overview',
+  standalone: true,
   templateUrl: './event-overview.component.html',
+  imports: [
+    NgIf,
+    NgForOf
+  ]
 })
 export class EventOverviewComponent implements OnInit {
   event: Event | null = null;
