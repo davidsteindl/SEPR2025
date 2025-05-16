@@ -36,7 +36,8 @@ export class RegisterComponent {
       email: ['', [Validators.required, Validators.maxLength(100), Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(8)]],
-      termsAccepted: [false, Validators.requiredTrue]
+      termsAccepted: [false, Validators.requiredTrue],
+      sex: ['', Validators.required]
     });
 
   }
@@ -56,12 +57,14 @@ export class RegisterComponent {
         confirmPassword: this.registerForm.controls.confirmPassword.value,
         dateOfBirth: this.registerForm.controls.dateOfBirth.value,
         email: this.registerForm.controls.email.value,
-        termsAccepted: this.registerForm.controls.termsAccepted.value
+        termsAccepted: this.registerForm.controls.termsAccepted.value,
+        sex: this.registerForm.controls.sex.value
       };
       this.firstName = this.registerForm.controls.firstName.value;
       this.regUser(registerUser);
     } else {
       console.log('Invalid input');
+      this.buttonDisabled = false;
     }
   }
 

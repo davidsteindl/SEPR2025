@@ -40,18 +40,38 @@
             </div>
 
 
-            <div class="form-group">
-              <label for="dateOfBirth">Birth Date</label>
-              <input type="date" id="dateOfBirth" name="dateOfBirth" formControlName="dateOfBirth" class="form-control"
-                     aria-describedby="BirthDateHelp" style="width: 250px">
-              <div *ngIf="submitted && registerForm.controls.dateOfBirth.errors" class="error">
-                <small class="form-text text-warning" *ngIf="registerForm.controls.dateOfBirth.errors.required">Your
-                  birthdate
-                  is
-                  required!
-                </small>
+            <div class="form-group row">
+              <div class="col-md-6">
+                <label for="dateOfBirth">Birth Date</label>
+                <input type="date"
+                       id="dateOfBirth"
+                       name="dateOfBirth"
+                       formControlName="dateOfBirth"
+                       class="form-control"
+                       aria-describedby="BirthDateHelp">
+                <div *ngIf="submitted && registerForm.controls.dateOfBirth.errors" class="error">
+                  <small class="form-text text-warning" *ngIf="registerForm.controls.dateOfBirth.errors.required">
+                    Your birthdate is required!
+                  </small>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="sex">Sex</label>
+                <select class="form-select" formControlName="sex" id="sex" name="sex" required>
+                  <option value="" disabled selected>Select sex</option>
+                  <option value="FEMALE">Female</option>
+                  <option value="MALE">Male</option>
+                  <option value="OTHER">Other</option>
+                </select>
+                <div *ngIf="submitted && registerForm.controls.sex.errors" class="error">
+                  <small class="form-text text-warning" *ngIf="registerForm.controls.sex.errors.required">
+                    Your sex is required!
+                  </small>
+                </div>
               </div>
             </div>
+
 
             <div class="form-group">
               <label for="email">Email</label>

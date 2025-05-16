@@ -4,7 +4,11 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.lang.invoke.MethodHandles;
 import java.time.LocalDate;
 import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
@@ -14,6 +18,8 @@ import java.util.regex.Pattern;
 
 @Component
 public class UserValidator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
         "[^@ ]+@[^@ ]+"
@@ -29,6 +35,7 @@ public class UserValidator {
      * @throws ValidationException if a Validation is wrong
      */
     public void validateForRegistration(UserRegisterDto userRegisterDto) throws ValidationException {
+        LOGGER.info("Validating user registration ...");
         List<String> validationErrors = new ArrayList<>();
 
         if (userRegisterDto.getFirstName() == null || userRegisterDto.getFirstName().isEmpty()) {
@@ -71,6 +78,10 @@ public class UserValidator {
             validationErrors.add("Terms and Condition must be accepted");
         }
 
+        if (userRegisterDto.getSex() == null) {
+            validationErrors.add("Sex must  be selected");
+        }
+
         if (!validationErrors.isEmpty()) {
             throw new ValidationException("Validation of user for registration failed", validationErrors);
         }
@@ -94,6 +105,7 @@ public class UserValidator {
 
 
     public void validateForUpdate(UserUpdateDto user) throws NotFoundException, ValidationException {
+        LOGGER.info("Validating user update ...");
         List<String> validationErrors = new ArrayList<>();
 
         if (user.getEmail() != null && !user.getEmail().contains("@")) {

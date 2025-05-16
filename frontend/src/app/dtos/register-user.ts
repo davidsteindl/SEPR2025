@@ -1,3 +1,5 @@
+import {Sex} from "./sex";
+
 export class RegisterUser {
   constructor(
     public firstName: string,
@@ -6,6 +8,7 @@ export class RegisterUser {
     public confirmPassword: string,
     public dateOfBirth: string,
     public email: string,
-    public termsAccepted: boolean
+    public termsAccepted: boolean,
+    public sex: Sex
   ) {}
 }

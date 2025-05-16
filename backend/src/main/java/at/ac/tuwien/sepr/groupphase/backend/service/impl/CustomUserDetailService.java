@@ -89,6 +89,7 @@ public class CustomUserDetailService implements UserService {
 
     @Override
     public String login(UserLoginDto userLoginDto) {
+        LOGGER.debug("Login user by email");
         ApplicationUser user = userRepository.findByEmail(userLoginDto.getEmail());
 
         if (user == null) {
@@ -129,6 +130,7 @@ public class CustomUserDetailService implements UserService {
 
     @Override
     public void register(UserRegisterDto userRegisterDto) throws ValidationException {
+        LOGGER.debug("Register user");
 
         userValidator.validateForRegistration(userRegisterDto);
 
@@ -138,6 +140,7 @@ public class CustomUserDetailService implements UserService {
             .withDateOfBirth(userRegisterDto.getDateOfBirth())
             .withEmail(userRegisterDto.getEmail())
             .withPassword(passwordEncoder.encode(userRegisterDto.getPassword()))
+            .withSex(userRegisterDto.getSex())
             .withLoginTries(0)
             .isAdmin(false)
             .isLocked(false)

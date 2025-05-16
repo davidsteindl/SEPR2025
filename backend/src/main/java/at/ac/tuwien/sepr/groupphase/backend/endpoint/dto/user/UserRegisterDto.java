@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -31,6 +32,9 @@ public class UserRegisterDto {
 
     @NotNull(message =  "TermsAccepted must not be null")
     private Boolean termsAccepted;
+
+    @NotNull(message = "Sex must not be null")
+    private Sex sex;
 
 
     public String getFirstName() {
@@ -89,6 +93,14 @@ public class UserRegisterDto {
         this.termsAccepted = termsAccepted;
     }
 
+    public Sex getSex() {
+        return sex;
+    }
+
+    public void setSex(Sex sex) {
+        this.sex = sex;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -103,12 +115,13 @@ public class UserRegisterDto {
             && Objects.equals(firstName, userRegisterDto.firstName)
             && Objects.equals(lastName, userRegisterDto.lastName)
             && Objects.equals(dateOfBirth, userRegisterDto.dateOfBirth)
-            && Objects.equals(termsAccepted, userRegisterDto.termsAccepted);
+            && Objects.equals(termsAccepted, userRegisterDto.termsAccepted)
+            && Objects.equals(sex, userRegisterDto.sex);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, lastName, dateOfBirth, email, password, confirmPassword, termsAccepted);
+        return Objects.hash(firstName, lastName, dateOfBirth, email, password, sex, confirmPassword, termsAccepted);
     }
 
     @Override
@@ -119,6 +132,7 @@ public class UserRegisterDto {
             + "DateofBirth='" + dateOfBirth + '\''
             + "email='" + email + '\''
             + ", password='" + password + '\''
+            + ", sex='" + sex + '\''
             + '}';
     }
 
@@ -131,6 +145,7 @@ public class UserRegisterDto {
         private String password;
         private String confirmPassword;
         private boolean termsAccepted;
+        private Sex sex;
 
 
         private UserRegisterDtoBuilder() {
@@ -175,6 +190,11 @@ public class UserRegisterDto {
             return this;
         }
 
+        public UserRegisterDto.UserRegisterDtoBuilder withSex(Sex sex) {
+            this.sex = sex;
+            return this;
+        }
+
         public UserRegisterDto build() {
             UserRegisterDto userRegisterDto = new UserRegisterDto();
             userRegisterDto.setFirstName(firstName);
@@ -184,6 +204,7 @@ public class UserRegisterDto {
             userRegisterDto.setPassword(password);
             userRegisterDto.setConfirmPassword(confirmPassword);
             userRegisterDto.setTermsAccepted(termsAccepted);
+            userRegisterDto.setSex(sex);
             return userRegisterDto;
         }
     }
