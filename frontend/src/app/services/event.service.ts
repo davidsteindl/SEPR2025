@@ -83,15 +83,6 @@ export class EventService {
   }
 
   /**
-   * Retrieves full event data including all associated shows
-   *
-   * @param id ID of the event to retrieve
-   */
-  getEventWithShows(id: number): Observable<EventWithShows> {
-    return this.httpClient.get<EventWithShows>(`${this.eventBaseUri}/${id}/full`);
-  }
-
-  /**
    * Retrieves paginated shows (dates) for a specific event
    *
    * @param eventId ID of the event
