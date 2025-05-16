@@ -238,5 +238,4 @@ public class ShowServiceTest {
             () -> assertEquals(0, showRepository.findAll().size())
         );
     }
-
 }

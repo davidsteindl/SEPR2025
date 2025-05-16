@@ -63,6 +63,7 @@ export class EventOverviewComponent implements OnInit {
         this.artistMap = {};
         this.shows.forEach(show => {
           this.artistMap[show.id] = [];
+
           show.artistIds.forEach(artistId => {
             this.artistService.getArtistById(artistId).subscribe({
               next: artist => this.artistMap[show.id].push(artist),
