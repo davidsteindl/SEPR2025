@@ -1,4 +1,6 @@
+/*
 Cypress.Commands.add('loginAdmin', () => {
+
     cy.fixture('settings').then(settings => {
         cy.visit(settings.baseUrl);
         cy.contains('a', 'Login').click();
@@ -22,3 +24,4 @@ Cypress.Commands.add('createMessage', (msg) => {
         cy.contains('summary' +  msg).should('be.visible');
     })
 })
+*/
