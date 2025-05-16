@@ -119,7 +119,7 @@
               </div>
             </div>
 
-            <label for="termsAccepted">I accept <u> Terms and Conditions </u></label>
+            <label for="termsAccepted">I accept <u><a routerLink="/termsandconditions"> Terms and Conditions </a></u></label>
             <input type="checkbox" name="termsAccepted" formControlName="termsAccepted"
                    id="termsAccepted" style="margin: 10px">
             <div *ngIf="submitted && registerForm.controls.termsAccepted.errors" class="error">
