@@ -18,15 +18,22 @@ export class UserService {
   }
 
   /**
-   * Get a specific user stored in the system
+   * Gets a specific user by their ID.
    *
-   * @return user found by id.
+   * @param id - The ID of the user to fetch.
+   * @returns The user object.
    */
   getById(id: string): Observable<User> {
-    return this.httpClient.get<User>(`${baseUri}/${id}`)
-      .pipe(
-        map(this.fixUserDate)
-      );
+    return this.httpClient.get<User>(`${this.userBaseUri}/${id}`).pipe(map(this.fixUserDate));
+  }
+
+
+  /**
+   *  Get current user.
+   */
+  getCurrentUser(): Observable<User> {
+    console.log(' current User ' );
+    return this.httpClient.get<User>(`${this.userBaseUri}/me`);
   }
 
 
@@ -41,7 +48,7 @@ export class UserService {
 
     (user as any).dateOfBirth = formatIsoDate(user.dateOfBirth);
 
-      return this.httpClient.put<void>(`${this.userBaseUri}/me`, user);
+    return this.httpClient.put<void>(`${this.userBaseUri}/me`, user);
   }
 
 
@@ -54,7 +61,6 @@ export class UserService {
     return this.httpClient.delete<void>(
       `${this.userBaseUri}/me`);
   }
-
 
   /**
    * Converts the dateOfBirth property of a horse to a JavaScript Date object.
@@ -89,13 +95,5 @@ export class UserService {
     return this.httpClient.put<void>(`${this.userBaseUri}/${id}/unlock`, null);
   }
 
-
-  /**
-   *  Get current user.
-   */
-  getCurrentUser(): Observable<User> {
-    console.log(' current User ' );
-    return this.httpClient.get<User>(`${this.userBaseUri}/me`);
-  }
 
 }

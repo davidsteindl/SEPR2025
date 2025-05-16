@@ -26,6 +26,7 @@ export class UserEditComponent implements OnInit {
   email : string = '';
 
   user: User = {
+    id: '',
     firstName: '',
     lastName: '',
     dateOfBirth: new Date(),
@@ -65,13 +66,17 @@ export class UserEditComponent implements OnInit {
   ngOnInit(): void {
 
     this.user = {
+      id: '',
       dateOfBirth: new Date(),
       sex: Sex.female,
       email: "",
-      address: "",
-      paymentData: "",
       firstName: "",
-      lastName: ""
+      lastName: "",
+      housenumber: "",
+      country: "",
+      postalCode: "",
+      city: "",
+      street: ""
     };
 
     this.loadUserData();
@@ -83,7 +88,6 @@ export class UserEditComponent implements OnInit {
       next: (user) => {
         if (user) {
           this.user = user;
-          this.email = user.email;
 
         } else {
           this.notification.error('User not found!', 'Error');
@@ -128,16 +132,9 @@ export class UserEditComponent implements OnInit {
 
       observable.subscribe({
         next: data => {
-
-          if (this.user.email !== this.email) {
-            this.notification.success('Please login again with your new Email.', 'Email has been updated.');
-            this.authService.logoutUser();
-            this.router.navigate(['/login']);
-          } else {
-            this.notification.success(`User ${this.user.firstName}
+           this.notification.success(`User ${this.user.firstName}
            successfully updated.`);
             this.router.navigate(['/user']);
-          }
         },
         error: error => {
            console.error('Error saving user', error);
