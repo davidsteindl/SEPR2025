@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import { Globals } from '../global/globals';
 import { CreateEvent } from '../dtos/create-event';
-import {Event, EventSearchDto, EventSearchResultDto, EventWithShows} from '../dtos/event';
+import {Event, EventSearchDto, EventSearchResultDto} from '../dtos/event';
 import {Page} from "../dtos/page";
 import { Show } from '../dtos/show';
 
