@@ -80,9 +80,11 @@ public class SearchValidator {
         if (eventSearchDto.getPage() == null || eventSearchDto.getPage() < 0) {
             validationErrors.add("Page index must be non-negative");
         }
+
         if (eventSearchDto.getSize() == null || eventSearchDto.getSize() <= 0) {
             validationErrors.add("Page size must be greater than zero");
         }
+
         boolean hasName = eventSearchDto.getName() != null && !eventSearchDto.getName().isBlank();
         boolean hasCategory = eventSearchDto.getCategory() != null && !eventSearchDto.getCategory().isBlank();
         boolean hasDescription = eventSearchDto.getDescription() != null && !eventSearchDto.getDescription().isBlank();
