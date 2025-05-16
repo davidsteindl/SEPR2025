@@ -33,12 +33,12 @@ public interface SearchService {
     Page<ArtistSearchResultDto> searchArtists(ArtistSearchDto criteria) throws ValidationException;
 
     /**
-     * Search locations by name, street, city, country, or postal code.
+     * Search eventlocations by name, street, city, country, or postal code.
      *
      * @param criteria the search criteria
-     * @return list of matching locations
+     * @return list of matching eventlocations
      */
-    Page<EventLocationSearchResultDto> searchLocations(EventLocationSearchDto criteria) throws ValidationException;
+    Page<EventLocationSearchResultDto> searchEventLocations(EventLocationSearchDto criteria) throws ValidationException;
 
     /**
      * Search events by title, category, duration (± 30min), or content.

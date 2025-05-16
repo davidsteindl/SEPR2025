@@ -86,7 +86,7 @@ public class CustomSearchService implements SearchService {
     }
 
     @Override
-    public Page<EventLocationSearchResultDto> searchLocations(EventLocationSearchDto criteria) throws ValidationException {
+    public Page<EventLocationSearchResultDto> searchEventLocations(EventLocationSearchDto criteria) throws ValidationException {
         return new PageImpl<>();
     }
 
