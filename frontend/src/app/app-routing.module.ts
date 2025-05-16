@@ -26,7 +26,7 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent},
   { path: 'termsandconditions', component: TermsandconditionsComponent},
   { path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent },
-  { path: 'user', component: UserComponent, canActivate: [AdminGuard]},
+  { path: 'user', component: UserComponent, canActivate: [AuthGuard]},
   { path: 'user-edit', component: UserEditComponent, canActivate: [AuthGuard]},
   { path: 'user-orders', component: UserOrdersComponent, canActivate: [AuthGuard]},
   { path: 'search', component: SearchComponent, canActivate: [AuthGuard]},
