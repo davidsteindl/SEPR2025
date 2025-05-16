@@ -59,13 +59,13 @@
 
       <ul class="pagination justify-content-center">
         <li class="page-item" [class.disabled]="artistCurrentPage === 0">
-          <a class="page-link" (click)="searchArtists(artistCurrentPage - 1)">Previous</a>
+          <a class="page-link" style="cursor: pointer;"  (click)="searchArtists(artistCurrentPage - 1)">Previous</a>
         </li>
         <li class="page-item disabled">
           <span class="page-link">Page {{ artistCurrentPage + 1 }} of {{ artistPage?.totalPages }}</span>
         </li>
         <li class="page-item" [class.disabled]="artistCurrentPage >= (artistPage?.totalPages || 1) - 1">
-          <a class="page-link" (click)="searchArtists(artistCurrentPage + 1)">Next</a>
+          <a class="page-link" style="cursor: pointer;" (click)="searchArtists(artistCurrentPage + 1)">Next</a>
         </li>
       </ul>
     </div>
