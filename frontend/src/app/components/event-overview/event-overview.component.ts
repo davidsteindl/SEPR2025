@@ -8,7 +8,6 @@ import { Location } from '../../dtos/location';
 import {DatePipe, NgForOf, NgIf} from "@angular/common";
 import { ArtistService } from '../../services/artist.service';
 import { Artist } from '../../dtos/artist';
-import {ShowService} from "../../services/show.service";
 
 @Component({
   selector: 'app-event-overview',
@@ -33,8 +32,7 @@ export class EventOverviewComponent implements OnInit {
   constructor(private route: ActivatedRoute,
               private eventService: EventService,
               private locationService: LocationService,
-              private artistService: ArtistService,
-              private showService: ShowService
+              private artistService: ArtistService
               ) {
   }
 
@@ -57,7 +55,7 @@ export class EventOverviewComponent implements OnInit {
   }
 
   loadPagedShows(eventId: number): void {
-    this.showService.getPagedShowsForEvent(eventId, this.page, this.pageSize).subscribe({
+    this.eventService.getPaginatedShowsForEvent(eventId, this.page, this.pageSize).subscribe({
       next: result => {
         this.shows = result.content;
         this.totalPages = result.totalPages;
