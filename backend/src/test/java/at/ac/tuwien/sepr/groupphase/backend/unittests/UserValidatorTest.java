@@ -250,8 +250,11 @@ public class UserValidatorTest {
     dto.setEmail("valid@example.com");
     dto.setDateOfBirth(LocalDate.of(1990, 1, 1));
     dto.setSex(Sex.FEMALE);
-    dto.setAddress(null);
-    dto.setPaymentData(null);
+    dto.setHousenumber("13");
+    dto.setPostalCode("New PostalCode");
+    dto.setStreet("New Street");
+    dto.setCity("Vienna");
+    dto.setCountry("Austria");
 
     assertDoesNotThrow(() -> userValidator.validateForUpdate(dto));
   }
@@ -264,8 +267,11 @@ public class UserValidatorTest {
     dto.setEmail("valid@example.com");
     dto.setDateOfBirth(LocalDate.of(2030, 1, 1));
     dto.setSex(Sex.FEMALE);
-    dto.setAddress(null);
-    dto.setPaymentData(null);
+    dto.setHousenumber("13");
+    dto.setPostalCode("New PostalCode");
+    dto.setStreet("New Street");
+    dto.setCity("Vienna");
+    dto.setCountry("Austria");
 
     assertThrows(ValidationException.class, () -> userValidator.validateForUpdate(dto));
 
