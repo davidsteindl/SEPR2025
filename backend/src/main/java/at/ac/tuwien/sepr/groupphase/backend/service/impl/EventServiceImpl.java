@@ -83,25 +83,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventWithShowsDto getEventWithShows(Long eventId) {
-        LOGGER.info("Fetching event with shows for eventId={}", eventId);
-
-        Event event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new IllegalArgumentException("Event not found with id: " + eventId));
-
-        EventDetailDto eventDto = eventMapper.eventToEventDetailDto(event);
-
-        var shows = showRepository.findByEventOrderByDateAscWithArtists(event);
-        var showDtos = showMapper.showsToShowDetailDtos(shows);
-
-        return EventWithShowsDto.EventWithShowsDtoBuilder
-            .anEventWithShowsDto()
-            .event(eventDto)
-            .shows(showDtos)
-            .build();
-    }
-
-    @Override
     public Page<ShowDetailDto> getPaginatedShowsForEvent(Long eventId, Pageable pageable) {
         LOGGER.info("Fetching paginated shows for eventId={} with pageable={}", eventId, pageable);
 

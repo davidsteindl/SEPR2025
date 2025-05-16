@@ -231,25 +231,6 @@ public class EventServiceTest {
         verify(eventMapper).eventToEventDetailDto(event);
     }
 
-    @Test
-    public void testGetEventWithShows_validEventId_returnsEventWithShowsDto() {
-        when(eventMapper.eventToEventDetailDto(event)).thenReturn(eventDetailDto);
-        when(showRepository.findByEventOrderByDateAscWithArtists(event)).thenReturn(List.of(mockShow));
-        when(showMapper.showsToShowDetailDtos(List.of(mockShow))).thenReturn(List.of(mockShowDto));
-
-        var result = eventService.getEventWithShows(eventId);
-
-        assertAll(
-            () -> assertNotNull(result),
-            () -> assertEquals(eventDetailDto, result.getEvent()),
-            () -> assertEquals(1, result.getShows().size()),
-            () -> assertEquals(mockShowDto, result.getShows().getFirst())
-        );
-
-        verify(eventMapper).eventToEventDetailDto(event);
-        verify(showRepository).findByEventOrderByDateAscWithArtists(event);
-        verify(showMapper).showsToShowDetailDtos(List.of(mockShow));
-    }
 
     @Test
     public void testGetPaginatedShowsForEvent_validEventId_returnsPaginatedShowDtos() {

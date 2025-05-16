@@ -40,14 +40,5 @@ public interface ShowService {
      * @return a list of shows for the given event ID
      */
     public List<Show> findShowsByEventId(Long eventId);
-
-    /**
-     * Retrieves a paginated list of shows for a specific event.
-     *
-     * @param eventId the ID of the event whose shows should be fetched
-     * @param pageable pagination and sorting information
-     * @return a {@link Page} of {@link Show} entities linked to the given event
-     */
-    Page<Show> getPagedShowsForEvent(Long eventId, Pageable pageable);
 }
 

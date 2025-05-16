@@ -79,16 +79,4 @@ public class ShowServiceImpl implements ShowService {
             .orElseThrow(() -> new EntityNotFoundException("Event not found"));
         return showRepository.findByEventOrderByDateAsc(event);
     }
-
-    @Transactional
-    @Override
-    public Page<Show> getPagedShowsForEvent(Long eventId, Pageable pageable) {
-        LOGGER.info("Get paginated shows for event {}", eventId);
-        Event event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new EntityNotFoundException("Event not found"));
-        Page<Show> page = showRepository.findByEvent(event, pageable);
-        page.getContent().forEach(show -> show.getArtists().size());
-        return page;
-
-    }
 }

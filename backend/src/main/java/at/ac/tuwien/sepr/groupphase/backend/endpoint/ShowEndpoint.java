@@ -71,23 +71,4 @@ public class ShowEndpoint {
         Show show = showService.createShow(showMapper.createShowDtoToShow(createShowDto));
         return showMapper.showToShowDetailDto(show);
     }
-
-    @GetMapping("/event/{eventId}")
-    @Secured("ROLE_USER")
-    @ResponseStatus(HttpStatus.OK)
-    @Operation(
-        summary = "Get paginated shows for a specific event",
-        description = "Returns a paginated list of shows linked to the given event ID.",
-        security = @SecurityRequirement(name = "apiKey")
-    )
-    public Page<ShowDetailDto> getPagedShowsForEvent(
-        @PathVariable("eventId") Long eventId,
-        @RequestParam(name = "page", defaultValue = "0") int page,
-        @RequestParam(name = "size", defaultValue = "5") int size
-    ) {
-        LOGGER.info("GET /api/v1/shows/event/{}?page={}&size={}", eventId, page, size);
-        Pageable pageable = PageRequest.of(page, size, Sort.by("date").ascending());
-        return showService.getPagedShowsForEvent(eventId, pageable)
-            .map(showMapper::showToShowDetailDto);
-    }
 }

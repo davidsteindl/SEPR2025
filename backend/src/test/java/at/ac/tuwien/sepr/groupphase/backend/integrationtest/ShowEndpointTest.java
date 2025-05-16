@@ -186,44 +186,4 @@ public class ShowEndpointTest implements TestData {
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), result.getResponse().getStatus());
     }
-
-    @Test
-    public void getPagedShowsForEvent_shouldReturnCorrectPage() throws Exception {
-        for (int i = 0; i < 7; i++) {
-            CreateShowDto dto = CreateShowDto.CreateShowDtoBuilder.aCreateShowDto()
-                .name("Show " + i)
-                .duration(60 + i)
-                .date(LocalDateTime.now().plusDays(i + 1))
-                .eventId(testEvent.getId())
-                .artistIds(Set.of(testArtist.getId()))
-                .build();
-
-            String body = objectMapper.writeValueAsString(dto);
-
-            mockMvc.perform(post(SHOW_BASE_URI)
-                    .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(body))
-                .andExpect(status().isCreated());
-        }
-
-        MvcResult result = mockMvc.perform(get(SHOW_BASE_URI + "/event/" + testEvent.getId())
-                .param("page", "0")
-                .param("size", "5")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES)))
-            .andReturn();
-
-        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-
-        String responseBody = result.getResponse().getContentAsString();
-
-        var jsonNode = objectMapper.readTree(responseBody);
-        var content = jsonNode.get("content");
-
-        assertAll(
-            () -> assertEquals(5, content.size()),
-            () -> assertEquals(2, jsonNode.get("totalPages").asInt()),
-            () -> assertEquals("Show 0", content.get(0).get("name").asText())
-        );
-    }
 }

@@ -139,19 +139,6 @@ public class EventEndpoint {
     }
 
     @Secured("ROLE_USER")
-    @GetMapping("/{eventId}/full")
-    @ResponseStatus(HttpStatus.OK)
-    @Operation(
-        summary = "Get full event data including shows",
-        description = "Returns event details and all associated shows for the given event ID.",
-        security = @SecurityRequirement(name = "apiKey")
-    )
-    public EventWithShowsDto getEventWithShows(@PathVariable("eventId") Long eventId) {
-        LOGGER.info("GET /api/v1/events/{}/full", eventId);
-        return eventService.getEventWithShows(eventId);
-    }
-
-    @Secured("ROLE_USER")
     @GetMapping("/{eventId}/shows/paginated")
     @ResponseStatus(HttpStatus.OK)
     @Operation(

@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.CreateEve
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,9 +41,11 @@ public class EventLocationEndpointTest implements TestData {
     @Autowired private ObjectMapper objectMapper;
     @Autowired private EventLocationRepository eventLocationRepository;
     @Autowired private EventRepository eventRepository;
+    @Autowired private ShowRepository showRepository;
 
     @BeforeEach
     public void setup() {
+        showRepository.deleteAll();
         eventRepository.deleteAll();
         eventLocationRepository.deleteAll();
     }
