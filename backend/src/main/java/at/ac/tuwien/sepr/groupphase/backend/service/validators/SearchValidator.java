@@ -71,7 +71,6 @@ public class SearchValidator {
     public void validateForEvents(EventSearchDto eventSearchDto) throws ValidationException {
         List<String> validationErrors = new ArrayList<>();
 
-
         if (eventSearchDto == null) {
             validationErrors.add("Event search request must not be null");
             throw new ValidationException("Validation of event search request failed", validationErrors);
@@ -83,14 +82,7 @@ public class SearchValidator {
         if (eventSearchDto.getSize() == null || eventSearchDto.getSize() <= 0) {
             validationErrors.add("Page size must be greater than zero");
         }
-        boolean hasName = eventSearchDto.getName() != null && !eventSearchDto.getName().isBlank();
-        boolean hasCategory = eventSearchDto.getCategory() != null && !eventSearchDto.getCategory().isBlank();
-        boolean hasDescription = eventSearchDto.getDescription() != null && !eventSearchDto.getDescription().isBlank();
-        boolean hasDuration = eventSearchDto.getDuration() != null;
 
-        if (!hasName && !hasCategory && !hasDescription && !hasDuration) {
-            validationErrors.add("At least one of the following fields must be filled: firstname, lastname, stagename.");
-        }
         if (eventSearchDto.getName() != null && eventSearchDto.getName().length() > 100) {
             validationErrors.add("Event name filter must not exceed 100 characters");
         }
