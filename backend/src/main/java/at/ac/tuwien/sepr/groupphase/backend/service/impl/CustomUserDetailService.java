@@ -178,27 +178,25 @@ public class CustomUserDetailService implements UserService {
 
     @Transactional
     @Override
-    public void delete(String email) {
-        ApplicationUser user = userRepository.findByEmail(email);
-
-        if (user == null) {
+    public void delete(Long id) {
+        if (!userRepository.existsById(id)) {
             throw new NotFoundException("User not found");
         }
-
-        userRepository.deleteByEmail(email);
+        userRepository.deleteById(id);
     }
 
 
     @Transactional
     @Override
-    public void update(String email, UserUpdateDto userToUpdate) throws ValidationException {
-        var userInDatabase = userRepository.findByEmail(email);
+    public void update(Long id, UserUpdateDto userToUpdate) throws ValidationException {
+        var userInDatabase = userRepository.findById(id);
 
-        if (userInDatabase == null) {
+        if (userInDatabase.isEmpty()) {
             throw new NotFoundException("User not found");
         }
 
-        if (!email.equals(userToUpdate.getEmail()) && userRepository.existsByEmail(userToUpdate.getEmail())) {
+        var user = userInDatabase.get();
+        if (!user.getEmail().equals(userToUpdate.getEmail()) && userRepository.existsByEmail(userToUpdate.getEmail())) {
             throw new ConflictException("User with Email already exists");
         }
 
