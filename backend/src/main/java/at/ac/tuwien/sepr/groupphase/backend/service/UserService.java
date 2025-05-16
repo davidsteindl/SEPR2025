@@ -80,17 +80,17 @@ public interface UserService extends UserDetailsService {
     /**
      * Delete user.
      *
-     * @param email of user to delete
+     * @param id of user to delete
      */
-    void delete(String email);
+    void delete(Long id);
 
     /**
      * Update user.
      *
-     * @param email of user
+     * @param id of user
      * @param userToUpdate updated user details
      */
-    void update(String email, UserUpdateDto userToUpdate) throws ValidationException;
+    void update(Long id, UserUpdateDto userToUpdate) throws ValidationException;
 
 
 
