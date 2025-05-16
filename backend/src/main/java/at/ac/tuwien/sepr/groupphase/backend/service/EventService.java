@@ -1,8 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventWithShowsDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,10 +44,11 @@ public interface EventService {
     Page<EventDetailDto> getEventsByArtist(Long artistId, Pageable pageable);
 
     /**
-     * Retrieves a detailed view of an event including all associated shows.
+     * Retrieves a paginated list of shows for a specific event.
      *
-     * @param eventId the ID of the event whose details and shows should be retrieved
-     * @return an {@link EventWithShowsDto} containing the event details and its scheduled shows
+     * @param eventId the ID of the event whose shows should be fetched
+     * @param pageable pagination and sorting information
+     * @return a {@link Page} of {@link Show} entities linked to the given event
      */
-    EventWithShowsDto getEventWithShows(Long eventId);
+    Page<ShowDetailDto> getPaginatedShowsForEvent(Long eventId, Pageable pageable);
 }

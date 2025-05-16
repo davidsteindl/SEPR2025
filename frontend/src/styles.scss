@@ -2,3 +2,17 @@
 body {
   background-color: whitesmoke;
 }
+
+.view-button {
+  background-color: #e5d9f2;
+  border: 1px solid #a78bfa;
+  color: #4b0082;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.view-button:hover {
+  background-color: #dcd0ff;
+}
+

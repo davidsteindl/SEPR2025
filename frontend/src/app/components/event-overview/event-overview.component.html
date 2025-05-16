@@ -1,7 +1,8 @@
-<div *ngIf="event" class="event-container">
+<div *ngIf="event" class="mt-4 container">
 
-  <div class="d-flex justify-content-between align-items-center border-bottom mb-3 pb-2" style="margin-top: 1rem">
+  <div class="row">
     <h2 class="modal-title">{{ event.name }}</h2>
+    <hr>
   </div>
 
   <p>
@@ -13,15 +14,6 @@
   <p>
     <strong>Category:</strong> {{ event.category }}
   </p>
-  <p>
-    <strong>Artists:</strong>
-    <ng-container *ngIf="shows.length > 0 && artistMap[shows[0]?.id]?.length > 0; else noArtistsList">
-      <span *ngFor="let artist of artistMap[shows[0].id]; let last = last">
-        {{ artist.stagename || (artist.firstname + ' ' + artist.lastname) }}<span *ngIf="!last">, </span>
-      </span>
-    </ng-container>
-    <ng-template #noArtistsList><em>No artists listed</em></ng-template>
-  </p>
 
   <p><strong>Description:</strong></p>
   <div class="bg-light p-3 rounded">{{ event.description }}</div>
@@ -30,17 +22,26 @@
   <table class="table w-100" style="table-layout: fixed;">
     <thead class="table-light">
     <tr>
+      <th>Show</th>
       <th>Date</th>
       <th>Begin</th>
       <th>Duration</th>
+      <th>Artists</th>
       <th>Choose Ticket</th>
     </tr>
     </thead>
     <tbody>
     <tr *ngFor="let show of shows">
+      <td>{{ show.name }}</td>
       <td>{{ show.date | date: 'mediumDate' }}</td>
       <td>{{ show.date | date: 'shortTime' }}</td>
       <td>{{ show.duration }} min</td>
+      <td>
+        <span *ngFor="let artist of artistMap[show.id]; let last = last">
+          {{ artist.stagename || (artist.firstname + ' ' + artist.lastname) }}<span *ngIf="!last">,&nbsp;</span>
+        </span>
+      </td>
+
       <td>
         <button class="btn btn-sm btn-primary">
           Buy / Reserve Ticket
@@ -49,8 +50,20 @@
     </tr>
     </tbody>
   </table>
+  <ul class="pagination justify-content-center mt-3">
+    <li class="page-item" [class.disabled]="page === 0">
+      <a class="page-link" style="cursor: pointer;" (click)="prevPage()">Previous</a>
+    </li>
+    <li class="page-item disabled">
+      <span class="page-link">Page {{ page + 1 }} of {{ totalPages }}</span>
+    </li>
+    <li class="page-item" [class.disabled]="page + 1 >= totalPages">
+      <a class="page-link" style="cursor: pointer;" (click)="nextPage()">Next</a>
+    </li>
+  </ul>
 </div>
 
 <div *ngIf="!event">
   <p>Loading event overview...</p>
 </div>
+

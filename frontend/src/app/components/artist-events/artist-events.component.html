@@ -1,5 +1,8 @@
-<div class="container mt-4">
-  <h2 class="text-center mb-4">{{ artistName }}’s Upcoming Events</h2>
+<div class="mt-4 container">
+  <div class="row">
+    <h2 class="modal-title">{{ artistName }}’s Upcoming Events</h2>
+    <hr>
+  </div>
 
   <div *ngIf="events.length > 0; else noEvents">
     <ul class="list-group">
@@ -13,13 +16,13 @@
 
     <ul class="pagination justify-content-center mt-3">
       <li class="page-item" [class.disabled]="page === 0">
-        <a class="page-link" (click)="prev()">Previous</a>
+        <a class="page-link" style="cursor: pointer;"  (click)="prev()">Previous</a>
       </li>
       <li class="page-item disabled">
         <span class="page-link">Page {{ page + 1 }} of {{ totalPages }}</span>
       </li>
       <li class="page-item" [class.disabled]="page + 1 >= totalPages">
-        <a class="page-link" (click)="next()">Next</a>
+        <a class="page-link" style="cursor: pointer;"  (click)="next()">Next</a>
       </li>
     </ul>
   </div>

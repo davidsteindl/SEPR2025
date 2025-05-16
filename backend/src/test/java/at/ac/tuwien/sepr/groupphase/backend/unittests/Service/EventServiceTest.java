@@ -231,23 +231,25 @@ public class EventServiceTest {
         verify(eventMapper).eventToEventDetailDto(event);
     }
 
-    @Test
-    public void testGetEventWithShows_validEventId_returnsEventWithShowsDto() {
-        when(eventMapper.eventToEventDetailDto(event)).thenReturn(eventDetailDto);
-        when(showRepository.findByEventOrderByDateAscWithArtists(event)).thenReturn(List.of(mockShow));
-        when(showMapper.showsToShowDetailDtos(List.of(mockShow))).thenReturn(List.of(mockShowDto));
 
-        var result = eventService.getEventWithShows(eventId);
+    @Test
+    public void testGetPaginatedShowsForEvent_validEventId_returnsPaginatedShowDtos() {
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Show> showPage = new PageImpl<>(List.of(mockShow), pageable, 1);
+
+        when(showRepository.findByEvent(event, pageable)).thenReturn(showPage);
+        when(showMapper.showToShowDetailDto(mockShow)).thenReturn(mockShowDto);
+
+        Page<ShowDetailDto> result = eventService.getPaginatedShowsForEvent(eventId, pageable);
 
         assertAll(
             () -> assertNotNull(result),
-            () -> assertEquals(eventDetailDto, result.getEvent()),
-            () -> assertEquals(1, result.getShows().size()),
-            () -> assertEquals(mockShowDto, result.getShows().getFirst())
+            () -> assertEquals(1, result.getTotalElements()),
+            () -> assertEquals(1, result.getContent().size()),
+            () -> assertEquals(mockShowDto, result.getContent().getFirst())
         );
 
-        verify(eventMapper).eventToEventDetailDto(event);
-        verify(showRepository).findByEventOrderByDateAscWithArtists(event);
-        verify(showMapper).showsToShowDetailDtos(List.of(mockShow));
+        verify(showRepository).findByEvent(event, pageable);
+        verify(showMapper).showToShowDetailDto(mockShow);
     }
 }

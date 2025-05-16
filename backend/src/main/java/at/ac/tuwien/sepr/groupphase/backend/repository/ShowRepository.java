@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.util.MinMaxTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,8 +34,8 @@ public interface ShowRepository extends JpaRepository<Show, Long> {
 
     List<Show> findByEventOrderByDateAsc(Event event);
 
-    @Query("SELECT DISTINCT s FROM Show s LEFT JOIN FETCH s.artists WHERE s.event = :event ORDER BY s.date ASC")
-    List<Show> findByEventOrderByDateAscWithArtists(@Param("event") Event event);
+    @EntityGraph(attributePaths = {"artists"})
+    Page<Show> findByEvent(Event event, Pageable pageable);
 
     @Query("SELECT DISTINCT s.event FROM Show s JOIN s.artists a WHERE a.id = :artistId")
     Page<Event> findEventsByArtistId(@Param("artistId") Long artistId, Pageable pageable);

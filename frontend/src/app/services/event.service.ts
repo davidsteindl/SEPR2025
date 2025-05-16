@@ -3,8 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import { Globals } from '../global/globals';
 import { CreateEvent } from '../dtos/create-event';
-import {Event, EventSearchDto, EventSearchResultDto, EventWithShows} from '../dtos/event';
+import {Event, EventSearchDto, EventSearchResultDto} from '../dtos/event';
 import {Page} from "../dtos/page";
+import { Show } from '../dtos/show';
+
 
 
 @Injectable({
@@ -81,11 +83,15 @@ export class EventService {
   }
 
   /**
-   * Retrieves full event data including all associated shows
+   * Retrieves paginated shows (dates) for a specific event
    *
-   * @param id ID of the event to retrieve
+   * @param eventId ID of the event
+   * @param page Page number (default: 0)
+   * @param size Page size (default: 5)
+   * @returns An Observable of paginated Show objects
    */
-  getEventWithShows(id: number): Observable<EventWithShows> {
-    return this.httpClient.get<EventWithShows>(`${this.eventBaseUri}/${id}/full`);
+  getPaginatedShowsForEvent(eventId: number, page = 0, size = 5): Observable<Page<Show>> {
+    const url = `${this.eventBaseUri}/${eventId}/shows/paginated?page=${page}&size=${size}`;
+    return this.httpClient.get<Page<Show>>(url);
   }
 }
