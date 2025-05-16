@@ -1,5 +1,8 @@
-<div class="container mt-4">
-  <h2 class="text-center mb-4">{{ artistName }}’s Upcoming Events</h2>
+<div class="mt-4 container">
+  <div class="row">
+    <h2 class="modal-title">{{ artistName }}’s Upcoming Events</h2>
+    <hr>
+  </div>
 
   <div *ngIf="events.length > 0; else noEvents">
     <ul class="list-group">

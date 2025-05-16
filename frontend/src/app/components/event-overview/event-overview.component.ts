@@ -8,6 +8,8 @@ import { Location } from '../../dtos/location';
 import {DatePipe, NgForOf, NgIf} from "@angular/common";
 import { ArtistService } from '../../services/artist.service';
 import { Artist } from '../../dtos/artist';
+import {ToastrService} from "ngx-toastr";
+import {ErrorFormatterService} from "../../services/error-formatter.service";
 
 @Component({
   selector: 'app-event-overview',
@@ -32,7 +34,9 @@ export class EventOverviewComponent implements OnInit {
   constructor(private route: ActivatedRoute,
               private eventService: EventService,
               private locationService: LocationService,
-              private artistService: ArtistService
+              private artistService: ArtistService,
+              private notification: ToastrService,
+              private errorFormatter: ErrorFormatterService
               ) {
   }
 
@@ -45,12 +49,22 @@ export class EventOverviewComponent implements OnInit {
 
         this.locationService.getLocationById(event.locationId).subscribe({
           next: loc => this.location = loc,
-          error: err => console.error('Failed to load location', err)
+          error: err => {
+            this.notification.error(this.errorFormatter.format(err), 'Loading Location failed', {
+              enableHtml: true,
+              timeOut: 8000,
+            });
+          }
         });
 
         this.loadPagedShows(event.id);
       },
-      error: err => console.error('Failed to load event', err)
+      error: err =>  {
+        this.notification.error(this.errorFormatter.format(err), 'Loading events failed', {
+          enableHtml: true,
+          timeOut: 8000,
+        });
+      }
     });
   }
 
@@ -67,12 +81,22 @@ export class EventOverviewComponent implements OnInit {
           show.artistIds.forEach(artistId => {
             this.artistService.getArtistById(artistId).subscribe({
               next: artist => this.artistMap[show.id].push(artist),
-              error: err => console.error(`Failed to load artist ${artistId} for show ${show.id}`, err)
+              error: err => {
+                this.notification.error(this.errorFormatter.format(err), 'Artist ${artistId} for show ${show.id} failed', {
+                  enableHtml: true,
+                  timeOut: 8000,
+                });
+              }
             });
           });
         });
       },
-      error: err => console.error('Failed to load paged shows', err)
+      error: err => {
+        this.notification.error(this.errorFormatter.format(err), 'Loading shows failed', {
+          enableHtml: true,
+          timeOut: 8000,
+        });
+      }
     });
   }
 
