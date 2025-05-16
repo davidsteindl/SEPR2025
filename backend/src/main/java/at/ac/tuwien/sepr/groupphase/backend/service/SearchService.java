@@ -39,7 +39,7 @@ public interface SearchService {
     List<LocationDto> searchLocations(LocationSearchDto criteria);
 
     /**
-     * Search events by title, type, duration (± 30min), or content.
+     * Search events by title, category, duration (± 30min), or content.
      *
      * @param criteria the search criteria
      * @return list of matching events

@@ -107,6 +107,14 @@ class SearchValidatorTest {
     }
 
     @Test
+    void validateForEvents_AllFieldsEmpty_Throws() {
+        EventSearchDto dto = new EventSearchDto();
+        dto.setPage(0);
+        dto.setSize(10);
+        assertThrows(ValidationException.class, () -> validator.validateForEvents(dto));
+    }
+
+    @Test
     void validateForEvents_InvalidPage_Throws() {
         EventSearchDto dto = new EventSearchDto();
         dto.setPage(-1);
@@ -130,7 +138,7 @@ class SearchValidatorTest {
     @Test
     void validateForEvents_InvalidType_Throws() {
         EventSearchDto dto = new EventSearchDto();
-        dto.setType("UnknownType");
+        dto.setCategory("UnknownType");
         assertThrows(ValidationException.class, () -> validator.validateForEvents(dto));
     }
 
@@ -154,7 +162,7 @@ class SearchValidatorTest {
         dto.setPage(0);
         dto.setSize(5);
         dto.setName("Concert");
-        dto.setType("Rock");
+        dto.setCategory("Rock");
         dto.setDescription("A show");
         dto.setDuration(120);
         assertDoesNotThrow(() -> validator.validateForEvents(dto));

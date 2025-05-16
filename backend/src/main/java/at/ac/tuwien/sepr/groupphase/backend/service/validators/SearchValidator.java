@@ -71,6 +71,7 @@ public class SearchValidator {
     public void validateForEvents(EventSearchDto eventSearchDto) throws ValidationException {
         List<String> validationErrors = new ArrayList<>();
 
+
         if (eventSearchDto == null) {
             validationErrors.add("Event search request must not be null");
             throw new ValidationException("Validation of event search request failed", validationErrors);
@@ -79,25 +80,34 @@ public class SearchValidator {
         if (eventSearchDto.getPage() == null || eventSearchDto.getPage() < 0) {
             validationErrors.add("Page index must be non-negative");
         }
+
         if (eventSearchDto.getSize() == null || eventSearchDto.getSize() <= 0) {
             validationErrors.add("Page size must be greater than zero");
         }
 
+        boolean hasName = eventSearchDto.getName() != null && !eventSearchDto.getName().isBlank();
+        boolean hasCategory = eventSearchDto.getCategory() != null && !eventSearchDto.getCategory().isBlank();
+        boolean hasDescription = eventSearchDto.getDescription() != null && !eventSearchDto.getDescription().isBlank();
+        boolean hasDuration = eventSearchDto.getDuration() != null;
+
+        if (!hasName && !hasCategory && !hasDescription && !hasDuration) {
+            validationErrors.add("At least one of the following fields must be filled: eventname, eventcategory, eventdescription, eventduration .");
+        }
         if (eventSearchDto.getName() != null && eventSearchDto.getName().length() > 100) {
             validationErrors.add("Event name filter must not exceed 100 characters");
         }
 
-        if (eventSearchDto.getType() != null && !eventSearchDto.getType().isBlank()) {
+        if (eventSearchDto.getCategory() != null && !eventSearchDto.getCategory().isBlank()) {
             boolean valid = false;
             for (var cat : Event.EventCategory.values()) {
-                if (cat.name().equalsIgnoreCase(eventSearchDto.getType())
-                    || cat.getDisplayName().equalsIgnoreCase(eventSearchDto.getType())) {
+                if (cat.name().equalsIgnoreCase(eventSearchDto.getCategory())
+                    || cat.getDisplayName().equalsIgnoreCase(eventSearchDto.getCategory())) {
                     valid = true;
                     break;
                 }
             }
             if (!valid) {
-                validationErrors.add("Invalid event type: " + eventSearchDto.getType());
+                validationErrors.add("Invalid event type: " + eventSearchDto.getCategory());
             }
         }
 
@@ -107,6 +117,10 @@ public class SearchValidator {
 
         if (eventSearchDto.getDuration() != null && eventSearchDto.getDuration() < 0) {
             validationErrors.add("Duration filter must be non-negative");
+        }
+
+        if (eventSearchDto.getDuration() != null && eventSearchDto.getDuration() > 10000) {
+            validationErrors.add("Duration filter must not exceed 10000 minutes");
         }
 
         if (!(validationErrors.isEmpty())) {

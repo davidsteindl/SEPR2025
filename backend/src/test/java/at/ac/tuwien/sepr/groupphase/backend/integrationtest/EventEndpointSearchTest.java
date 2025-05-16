@@ -21,7 +21,10 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -54,8 +57,12 @@ public class EventEndpointSearchTest {
     void searchNoDataReturnsEmptyContent() throws Exception {
         when(searchService.searchEvents(any()))
             .thenReturn(new PageImpl<>(List.of()));
+        String emptyDtoJson = "{\"page\":0,\"size\":10}";
 
-        mockMvc.perform(get("/api/v1/events/search"))
+        mockMvc.perform(post("/api/v1/events/search")
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .content(emptyDtoJson))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content").isArray())
             .andExpect(jsonPath("$.content").isEmpty());
@@ -77,10 +84,18 @@ public class EventEndpointSearchTest {
         when(searchService.searchEvents(any(EventSearchDto.class)))
             .thenReturn(new PageImpl<>(List.of(resultDto)));
 
-        mockMvc.perform(get("/api/v1/events/search")
-                .param("name", "Test Event")
-                .param("page", "0")
-                .param("size", "1"))
+        String dtoJson = """
+              {
+                "page":0,
+                "size":1,
+                "name":"Test Event"
+              }
+            """;
+
+        mockMvc.perform(post("/api/v1/events/search")
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .content(dtoJson))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content").isArray())
             .andExpect(jsonPath("$.content.length()").value(1))

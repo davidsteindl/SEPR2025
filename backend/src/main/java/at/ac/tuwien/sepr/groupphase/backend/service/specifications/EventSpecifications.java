@@ -26,18 +26,17 @@ public final class EventSpecifications {
     }
 
     /**
-     * Creates a specification to filter events by type.
+     * Creates a specification to filter events by category.
      *
-     * @param type the type to filter by
-     * @return a specification that filters events by type
+     * @param category the category to filter by
+     * @return a specification that filters events by category
      */
-    public static Specification<Event> hasType(String type) {
+    public static Specification<Event> hasCategory(String category) {
         return (root, query, cb) -> {
-            if (type == null || type.isBlank()) {
+            if (category == null || category.isBlank()) {
                 return cb.conjunction();
             }
-            return cb.like(cb.lower(root.get("category").as(String.class)),
-                "%" + type.toLowerCase() + "%");
+            return cb.like(cb.lower(root.get("category").as(String.class)), "%" + category.toLowerCase() + "%");
         };
     }
 
@@ -65,10 +64,9 @@ public final class EventSpecifications {
      */
     public static Specification<Event> hasDurationBetween(int wanted) {
 
-        return (root, query, cb) -> cb.between(
-        root.get("totalDuration").as(Integer.class),
-        wanted - 30,
-        wanted + 30
-    );
+        int lower = Math.max(0, wanted - 30);
+        int upper = wanted + 30;
+        return (root, query, cb) ->
+            cb.between(root.get("duration").as(Integer.class), lower, upper);
     }
 }
