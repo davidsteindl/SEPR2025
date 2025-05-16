@@ -23,6 +23,6 @@ public interface RoomService {
      * @param id the unique identifier of the room to update
      * @param roomDetailDto the DTO containing the updated room layout and properties
      */
-    void updateRoom(Long id, RoomDetailDto roomDetailDto);
+    RoomDetailDto updateRoom(Long id, RoomDetailDto roomDetailDto);
 
 }

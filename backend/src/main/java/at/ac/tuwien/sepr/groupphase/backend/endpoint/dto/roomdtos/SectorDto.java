@@ -7,10 +7,15 @@ import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
-@JsonSubTypes({ 
-    @JsonSubTypes.Type(value = SeatedSectorDto.class, name = "SEATED"),
-    @JsonSubTypes.Type(value = StandingSectorDto.class, name = "STANDING") 
+@JsonTypeInfo(
+    use     = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    property = "type",
+    visible = true
+)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = SeatedSectorDto.class,   name = "SEATED"),
+    @JsonSubTypes.Type(value = StandingSectorDto.class, name = "STANDING")
 })
 public abstract class SectorDto {
 
