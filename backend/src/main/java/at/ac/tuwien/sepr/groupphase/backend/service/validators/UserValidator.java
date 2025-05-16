@@ -58,7 +58,7 @@ public class UserValidator {
             validationErrors.add("The Birthdate must be in the past");
         }
 
-        if (userRegisterDto.getDateOfBirth() == null || userRegisterDto.getDateOfBirth().isBefore(LocalDate.parse("2007-05-15"))) {
+        if (userRegisterDto.getDateOfBirth() == null || userRegisterDto.getDateOfBirth().isAfter(LocalDate.parse("2007-05-15"))) {
             validationErrors.add("You must be at least 18 years old to use the Service");
         }
 
@@ -79,7 +79,7 @@ public class UserValidator {
         }
 
         if (userRegisterDto.getSex() == null) {
-            validationErrors.add("Sex must  be selected");
+            validationErrors.add("Sex must be selected");
         }
 
         if (!validationErrors.isEmpty()) {
@@ -169,7 +169,7 @@ public class UserValidator {
             validationErrors.add("No birthdate given");
         } else if (user.getDateOfBirth().isAfter(LocalDate.now())) {
             validationErrors.add("The Birthdate must be in the past");
-        } else if (user.getDateOfBirth().isBefore(LocalDate.parse("2007-05-15"))) {
+        } else if (user.getDateOfBirth().isAfter(LocalDate.parse("2007-05-15"))) {
             validationErrors.add("You must be at least 18 years old to use the Service");
         }
 
