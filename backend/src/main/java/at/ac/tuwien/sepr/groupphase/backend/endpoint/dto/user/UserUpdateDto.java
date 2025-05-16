@@ -11,8 +11,11 @@ public class UserUpdateDto {
     private String lastName;
     private Sex sex;
     private LocalDate dateOfBirth;
-    private String address;
-    private String paymentData;
+    private String city;
+    private String street;
+    private String postalCode;
+    private String housenumber;
+    private String country;
 
     public String getEmail() {
         return email;
@@ -54,19 +57,43 @@ public class UserUpdateDto {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public String getAddress() {
-        return address;
+    public String getCity() {
+        return city;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setCity(String city) {
+        this.city = city;
     }
 
-    public String getPaymentData() {
-        return paymentData;
+    public String getStreet() {
+        return street;
     }
 
-    public void setPaymentData(String paymentData) {
-        this.paymentData = paymentData;
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    public String getHousenumber() {
+        return housenumber;
+    }
+
+    public void setHousenumber(String housenumber) {
+        this.housenumber = housenumber;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 }
