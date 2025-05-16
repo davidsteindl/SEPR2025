@@ -1,6 +1,10 @@
- <h1 class="display-4">My Profile: {{ user.firstName }}</h1>
 
-  <hr class="my-4">
+ <div class="mt-4 container">
+   <div class="row">
+     <h2 class="modal-title">My Profile: {{user.firstName}}</h2>
+     <hr>
+   </div>
+
   <a *ngIf="!authService.isLoggedIn()" class="btn btn-primary btn-lg" routerLink="/login" role="button">Login</a>
 
 

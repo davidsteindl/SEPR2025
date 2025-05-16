@@ -16,7 +16,7 @@ import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-del
 })
 
 export class UserComponent implements OnInit {
-  user: User | undefined;
+  user: User;
   userForDeletion: User | undefined;
   loading = false;
 
@@ -30,7 +30,7 @@ export class UserComponent implements OnInit {
   ngOnInit(): void {
     this.user = {
       dateOfBirth: new Date(),
-      sex: Sex.female,
+      sex: Sex.male,
       email: "",
       address: "",
       paymentData: "",
@@ -47,7 +47,6 @@ export class UserComponent implements OnInit {
       next: (user) => {
         if (user) {
           this.user = user;
-    //     console.log(user.image);
         } else {
           this.notification.error('User not found!', 'Error');
           this.router.navigate(['/users']);

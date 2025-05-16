@@ -22,24 +22,20 @@ import { ArtistEventsComponent } from './components/artist-events/artist-events.
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'login', component: LoginComponent },
-  {
-    path: 'manage-accounts',
-    component: ManageAccountsComponent,
-    canActivate: [AdminGuard]
-  },
-  { path: 'register', component: RegisterComponent },
-  { path: 'termsandconditions', component: TermsandconditionsComponent },
+  { path: 'manage-accounts', component: ManageAccountsComponent, canActivate: [AuthGuard]},
+  { path: 'register', component: RegisterComponent, canActivate: [AuthGuard] },
+  { path: 'termsandconditions', component: TermsandconditionsComponent, canActivate: [AuthGuard]},
   { path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent },
-  { path: 'user', component: UserComponent },
-  { path: 'user-edit', component: UserEditComponent },
-  { path: 'user-orders', component: UserOrdersComponent },
-  { path: 'search', component: SearchComponent },
+  { path: 'user', component: UserComponent, canActivate: [AdminGuard]},
+  { path: 'user-edit', component: UserEditComponent, canActivate: [AuthGuard]},
+  { path: 'user-orders', component: UserOrdersComponent, canActivate: [AuthGuard]},
+  { path: 'search', component: SearchComponent, canActivate: [AuthGuard]},
   { path: 'create-event', component: CreateEventComponent, canActivate: [AdminGuard] },
   { path: 'create-artist', component: CreateArtistComponent, canActivate: [AdminGuard] },
   { path: 'create-show', component: CreateShowComponent, canActivate: [AdminGuard] },
   { path: 'create-location', component: CreateLocationComponent, canActivate: [AdminGuard] },
-  { path: 'admin', component: AdminComponent },
-  { path: 'artists/:id/events', component: ArtistEventsComponent }
+  { path: 'admin', component: AdminComponent, canActivate: [AdminGuard]},
+  { path: 'artists/:id/events', component: ArtistEventsComponent, canActivate: [AuthGuard] }
 ];
 
 @NgModule({
