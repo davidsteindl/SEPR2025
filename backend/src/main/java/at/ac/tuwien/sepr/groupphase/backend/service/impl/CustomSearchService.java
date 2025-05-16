@@ -4,8 +4,8 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.LocationDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.LocationSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.performance.PerformanceDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.performance.PerformanceSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchDto;
@@ -86,8 +86,8 @@ public class CustomSearchService implements SearchService {
     }
 
     @Override
-    public List<LocationDto> searchLocations(LocationSearchDto criteria) {
-        return List.of();
+    public Page<EventLocationSearchResultDto> searchLocations(EventLocationSearchDto criteria) throws ValidationException {
+        return new PageImpl<>();
     }
 
     @Override

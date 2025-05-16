@@ -6,8 +6,8 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.LocationDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.LocationSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.performance.PerformanceDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.performance.PerformanceSearchDto;
 
@@ -38,7 +38,7 @@ public interface SearchService {
      * @param criteria the search criteria
      * @return list of matching locations
      */
-    List<LocationDto> searchLocations(LocationSearchDto criteria);
+    Page<EventLocationSearchResultDto> searchLocations(EventLocationSearchDto criteria);
 
     /**
      * Search events by title, category, duration (± 30min), or content.
