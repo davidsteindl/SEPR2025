@@ -202,15 +202,19 @@ public class CustomUserDetailService implements UserService {
 
         userValidator.validateForUpdate(userToUpdate);
 
-        userInDatabase.setFirstName(userToUpdate.getFirstName());
-        userInDatabase.setLastName(userToUpdate.getLastName());
-        userInDatabase.setDateOfBirth(userToUpdate.getDateOfBirth());
-        userInDatabase.setEmail(userToUpdate.getEmail());
-        userInDatabase.setSex(userToUpdate.getSex());
-        userInDatabase.setAddress(userToUpdate.getAddress());
-        userInDatabase.setPaymentData(userToUpdate.getPaymentData());
+        user.setFirstName(userToUpdate.getFirstName());
+        user.setLastName(userToUpdate.getLastName());
+        user.setDateOfBirth(userToUpdate.getDateOfBirth());
+        user.setEmail(userToUpdate.getEmail());
+        user.setSex(userToUpdate.getSex());
+        user.setPostalCode(userToUpdate.getPostalCode());
+        user.setCity(userToUpdate.getCity());
+        user.setCountry(userToUpdate.getCountry());
+        user.setStreet(userToUpdate.getStreet());
+        user.setHousenumber(userToUpdate.getHousenumber());
+        user.setPostalCode(userToUpdate.getPostalCode());
 
-        userRepository.save(userInDatabase);
+        userRepository.save(user);
     }
 
 
