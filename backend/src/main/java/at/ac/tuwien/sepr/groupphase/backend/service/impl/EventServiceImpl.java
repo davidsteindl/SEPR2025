@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventWithShowsDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
@@ -99,4 +100,16 @@ public class EventServiceImpl implements EventService {
             .shows(showDtos)
             .build();
     }
+
+    @Override
+    public Page<ShowDetailDto> getPaginatedShowsForEvent(Long eventId, Pageable pageable) {
+        LOGGER.info("Fetching paginated shows for eventId={} with pageable={}", eventId, pageable);
+
+        Event event = eventRepository.findById(eventId)
+            .orElseThrow(() -> new IllegalArgumentException("Event not found with id: " + eventId));
+
+        return showRepository.findByEvent(event, pageable)
+            .map(showMapper::showToShowDetailDto);
+    }
+
 }
