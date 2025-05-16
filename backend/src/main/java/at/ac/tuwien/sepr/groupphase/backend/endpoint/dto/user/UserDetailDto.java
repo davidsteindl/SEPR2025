@@ -1,42 +1,23 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class UserDetailDto {
 
-    @NotNull(message = "Email must not be null")
-    @Email
     private String email;
-
-    @NotNull(message = "Firstname must not be null")
     private String firstName;
-
-    @NotNull(message = "Lastname must not be null")
     private String lastName;
-
-    @NotNull(message = "Sex must not be null")
     private Sex sex;
-
-    @NotNull(message = "Address must not be null")
-    private String address;
-
-    @NotNull(message = "payment Data must not be null")
-    private String paymentData;
-
-    @NotNull(message = "Password must not be null")
+    private String housenumber;
+    private String country;
+    private String city;
+    private String street;
+    private String postalCode;
     private String password;
-
-    @NotNull(message = "Password must not be null")
     private String confirmPassword;
-
-    @NotNull(message =  "DateOfBirth must not be null")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate dateOfBirth;
-
     private boolean isLocked;
     private boolean isAdmin;
     private int loginTries;
@@ -77,20 +58,44 @@ public class UserDetailDto {
         this.sex = sex;
     }
 
-    public String getAddress() {
-        return address;
+    public String getHousenumber() {
+        return housenumber;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setHousenumber(String housenumber) {
+        this.housenumber = housenumber;
     }
 
-    public String getPaymentData() {
-        return paymentData;
+    public String getCountry() {
+        return country;
     }
 
-    public void setPaymentData(String paymentData) {
-        this.paymentData = paymentData;
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
     }
 
     public void setEmail(String email) {
@@ -113,24 +118,48 @@ public class UserDetailDto {
         this.confirmPassword = confirmPassword;
     }
 
-    /*
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof UserDetailDto userDetailDto)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        return Objects.equals(email, userDetailDto.email)
-            && Objects.equals(firstName, userDetailDto.firstName)
-            && Objects.equals(lastName, userDetailDto.lastName)
-            && Objects.equals(dateOfBirth, userDetailDto.dateOfBirth);
+
+        UserDetailDto that = (UserDetailDto) o;
+        return isLocked == that.isLocked
+            && isAdmin == that.isAdmin
+            && loginTries == that.loginTries
+            && Objects.equals(email, that.email)
+            && Objects.equals(firstName, that.firstName)
+            && Objects.equals(lastName, that.lastName)
+            && sex == that.sex
+            && Objects.equals(housenumber, that.housenumber)
+            && Objects.equals(country, that.country)
+            && Objects.equals(city, that.city)
+            && Objects.equals(street, that.street)
+            && Objects.equals(postalCode, that.postalCode)
+            && Objects.equals(password, that.password)
+            && Objects.equals(confirmPassword, that.confirmPassword)
+            && Objects.equals(dateOfBirth, that.dateOfBirth);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, lastName, dateOfBirth, email, password, confirmPassword);
+        int result = Objects.hashCode(email);
+        result = 31 * result + Objects.hashCode(firstName);
+        result = 31 * result + Objects.hashCode(lastName);
+        result = 31 * result + Objects.hashCode(sex);
+        result = 31 * result + Objects.hashCode(housenumber);
+        result = 31 * result + Objects.hashCode(country);
+        result = 31 * result + Objects.hashCode(city);
+        result = 31 * result + Objects.hashCode(street);
+        result = 31 * result + Objects.hashCode(postalCode);
+        result = 31 * result + Objects.hashCode(password);
+        result = 31 * result + Objects.hashCode(confirmPassword);
+        result = 31 * result + Objects.hashCode(dateOfBirth);
+        result = 31 * result + Boolean.hashCode(isLocked);
+        result = 31 * result + Boolean.hashCode(isAdmin);
+        result = 31 * result + loginTries;
+        return result;
     }
 
     @Override
@@ -143,7 +172,6 @@ public class UserDetailDto {
             + ", password='" + password + '\''
             + '}';
     }
-    */
 
 
 

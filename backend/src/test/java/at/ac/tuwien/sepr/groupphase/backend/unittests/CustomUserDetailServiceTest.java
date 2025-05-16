@@ -270,49 +270,54 @@ class CustomUserDetailServiceTest {
 
     @Test
     void delete_Success() {
-        String email = "user@email.com";
-        ApplicationUser mockUser = new ApplicationUser();
-        when(userRepository.findByEmail(email)).thenReturn(mockUser);
+        Long id = 3L;
+        when(userRepository.existsById(id)).thenReturn(true);
 
-        userDetailService.delete(email);
+        userDetailService.delete(id);
 
-        verify(userRepository).deleteByEmail(email);
+        verify(userRepository).deleteById(id);
     }
 
 
     @Test
     void delete_UserNotFound() {
-        String email = "user@email.com";
-        when(userRepository.findByEmail(email)).thenReturn(null);
+        Long id = 3L;
+        when(userRepository.existsById(id)).thenReturn(false);
 
-        assertThrows(NotFoundException.class, () -> userDetailService.delete(email));  // Expecting NotFoundException
-        verify(userRepository, never()).deleteByEmail(any());  // Ensure delete was never called
+        assertThrows(NotFoundException.class, () -> userDetailService.delete(id));
+        verify(userRepository, never()).deleteById(any());
     }
 
 
     @Test
     void update_Success() throws ValidationException {
-        String email = "user@email.com";
+        Long id = 5L;
         UserUpdateDto userUpdateDto = new UserUpdateDto();
         userUpdateDto.setFirstName("NewFirstName");
         userUpdateDto.setLastName("NewLastName");
         userUpdateDto.setDateOfBirth(LocalDate.of(1990, 1, 1));
         userUpdateDto.setSex(Sex.MALE);
-        userUpdateDto.setAddress("New Address");
-        userUpdateDto.setPaymentData("New Payment Data");
+        userUpdateDto.setCountry("New Country");
+        userUpdateDto.setStreet("New Street");
+        userUpdateDto.setCity("New City");
+        userUpdateDto.setPostalCode("New PostalCode");
+        userUpdateDto.setHousenumber("15A");
 
-        when(userRepository.findByEmail(email)).thenReturn(testUser);
+        when(userRepository.findById(id)).thenReturn(Optional.of(testUser));
         doNothing().when(userValidator).validateForUpdate(userUpdateDto);
 
-        userDetailService.update(email, userUpdateDto);
+        userDetailService.update(id, userUpdateDto);
 
         assertAll(
             () -> assertEquals("NewFirstName", testUser.getFirstName()),
             () -> assertEquals("NewLastName", testUser.getLastName()),
             () -> assertEquals(LocalDate.of(1990, 1, 1), testUser.getDateOfBirth()),
             () -> assertEquals(Sex.MALE, testUser.getSex()),
-            () -> assertEquals("New Address", testUser.getAddress()),
-            () -> assertEquals("New Payment Data", testUser.getPaymentData())
+            () -> assertEquals("New Country", testUser.getCountry()),
+            () -> assertEquals("New Street", testUser.getStreet()),
+            () -> assertEquals("New City", testUser.getCity()),
+            () -> assertEquals("New PostalCode", testUser.getPostalCode()),
+            () -> assertEquals("15A", testUser.getHousenumber())
         );
         verify(userRepository).save(testUser);
     }
@@ -320,18 +325,21 @@ class CustomUserDetailServiceTest {
 
     @Test
     void update_UserNotFound() {
-        String email = "user@email.com";
+        Long id = 9L;
         UserUpdateDto userUpdateDto = new UserUpdateDto();
         userUpdateDto.setFirstName("NewFirstName");
         userUpdateDto.setLastName("NewLastName");
         userUpdateDto.setDateOfBirth(LocalDate.of(1990, 1, 1));
         userUpdateDto.setSex(Sex.MALE);
-        userUpdateDto.setAddress("New Address");
-        userUpdateDto.setPaymentData("New Payment Data");
+        userUpdateDto.setCountry("New Country");
+        userUpdateDto.setStreet("New Street");
+        userUpdateDto.setCity("New City");
+        userUpdateDto.setPostalCode("New PostalCode");
+        userUpdateDto.setHousenumber("15A");
 
-        when(userRepository.findByEmail(email)).thenReturn(null);
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(NotFoundException.class, () -> userDetailService.update(email, userUpdateDto));
+        assertThrows(NotFoundException.class, () -> userDetailService.update(id, userUpdateDto));
         verify(userRepository, never()).save(any());
     }
 
