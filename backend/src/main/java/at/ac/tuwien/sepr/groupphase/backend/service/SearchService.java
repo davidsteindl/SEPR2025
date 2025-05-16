@@ -38,7 +38,7 @@ public interface SearchService {
      * @param criteria the search criteria
      * @return list of matching locations
      */
-    Page<EventLocationSearchResultDto> searchLocations(EventLocationSearchDto criteria);
+    Page<EventLocationSearchResultDto> searchLocations(EventLocationSearchDto criteria) throws ValidationException;
 
     /**
      * Search events by title, category, duration (± 30min), or content.
