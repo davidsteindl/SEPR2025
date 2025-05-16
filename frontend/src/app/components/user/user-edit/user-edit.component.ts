@@ -32,8 +32,10 @@ export class UserEditComponent implements OnInit {
     dateOfBirth: new Date(),
     sex: Sex.female,
     email: '',
-    address: '',
-    paymentData: ''
+    housenumber: "",
+    country: "",
+    city: "",
+    street: ""
   };
   userBirthDateIsSet = false;
 
@@ -112,11 +114,20 @@ export class UserEditComponent implements OnInit {
   public onSubmit(form: NgForm): void {
     console.log('is form valid?', form.valid, this.user);
     if (form.valid) {
-      if (this.user.address === '') {
-        delete this.user.address;
+      if (this.user.housenumber === '') {
+        delete this.user.housenumber;
       }
-      if (this.user.paymentData === '') {
-        delete this.user.paymentData;
+      if (this.user.city === '') {
+        delete this.user.city;
+      }
+      if (this.user.street === '') {
+        delete this.user.street;
+      }
+      if (this.user.country === '') {
+        delete this.user.country;
+      }
+      if (this.user.postalCode === '') {
+        delete this.user.postalCode;
       }
 
       let observable: Observable<void>;

@@ -67,21 +67,48 @@
   <div class="row">
     <div class="col-md-12">
       <div class="mb-2">
-        <label class="col-form-label" style="font-weight: bold;">Postal Address</label>
-        <p>{{ user?.address || 'Edit to add Address' }}</p>
+        <label class="col-form-label" style="font-weight: bold;">Street</label>
+        <p>{{ user?.street || 'Edit to add Street' }}</p>
       </div>
     </div>
   </div>
 
+   <div class="row">
+     <div class="col-md-12">
+       <div class="mb-2">
+         <label class="col-form-label" style="font-weight: bold;">House Number</label>
+         <p>{{ user?.housenumber || 'Edit to add House Number' }}</p>
+       </div>
+     </div>
+   </div>
+
+   <div class="row">
+     <div class="col-md-12">
+       <div class="mb-2">
+         <label class="col-form-label" style="font-weight: bold;">Postal Code</label>
+         <p>{{ user?.postalCode || 'Edit to add Postal Code' }}</p>
+       </div>
+     </div>
+   </div>
 
   <div class="row">
     <div class="col-md-6">
       <div class="mb-2">
-        <label class="col-form-label" style="font-weight: bold;">Payment Data</label>
-        <p>{{ user?.paymentData || 'Edit to add Payment Data'}}</p>
+        <label class="col-form-label" style="font-weight: bold;">City</label>
+        <p>{{ user?.city || 'Edit to add City'}}</p>
       </div>
     </div>
   </div>
+
+   <div class="row">
+     <div class="col-md-12">
+       <div class="mb-2">
+         <label class="col-form-label" style="font-weight: bold;">Country</label>
+         <p>{{ user?.country || 'Edit to add Country' }}</p>
+       </div>
+     </div>
+   </div>
+
 
   <div class="mt-3 d-flex">
 

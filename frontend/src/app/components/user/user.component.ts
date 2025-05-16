@@ -29,11 +29,15 @@ export class UserComponent implements OnInit {
 
   ngOnInit(): void {
     this.user = {
+      id: '',
       dateOfBirth: new Date(),
       sex: Sex.female,
       email: "",
-      address: "",
-      paymentData: "",
+      housenumber: "",
+      country: "",
+      city: "",
+      street: "",
+      postalCode: "",
       firstName: "",
       lastName: ""
     };
@@ -47,7 +51,6 @@ export class UserComponent implements OnInit {
       next: (user) => {
         if (user) {
           this.user = user;
-    //     console.log(user.image);
         } else {
           this.notification.error('User not found!', 'Error');
           this.router.navigate(['/users']);

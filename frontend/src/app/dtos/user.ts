@@ -7,8 +7,11 @@ export interface User {
   dateOfBirth: Date;
   sex: Sex;
   email: string;
-  address?: string;
-  paymentData?: string;
+  housenumber?: string;
+  country?: string;
+  city?: string;
+  street?: string;
+  postalCode?: string;
 }
 
 export interface UserEdit {
@@ -17,8 +20,11 @@ export interface UserEdit {
   dateOfBirth: Date;
   sex: Sex;
   email: string;
-  address?: string;
-  paymentData?: string;
+  housenumber?: string;
+  country?: string;
+  city?: string;
+  street?: string;
+  postalCode?: string;
 }
 
 export function convertFromUserToEdit(user: User): UserEdit {
@@ -29,7 +35,10 @@ export function convertFromUserToEdit(user: User): UserEdit {
     dateOfBirth: user.dateOfBirth,
     sex: user.sex,
     email: user.email,
-    address: user.address,
-    paymentData: user.paymentData,
+    housenumber: user.housenumber,
+    country: user.country,
+    city: user.city,
+    street: user.street,
+    postalCode: user.postalCode
   };
 }
