@@ -1,16 +1,11 @@
-<h1 class="display-4">My Orders</h1>
+<div class="mt-4 container">
+  <div class="row">
+    <h2 class="modal-title">My Orders:</h2>
+    <hr>
+  </div>
 
-<button
-  class="btn"
-  [routerLink]="['/user']"
-  aria-label="Edit user"
-  style="
-    border: 1px solid #6f42c1;
-    color: #6f42c1;
-    background-color: transparent;
-    transition: all 0.2s ease;"
-  onmouseenter="this.style.backgroundColor='#4b2991'; this.style.color='white';"
-  onmouseleave="this.style.backgroundColor='transparent'; this.style.color='#6f42c1';"
->
+<button class="btn profile" [routerLink]="['/user']" aria-label="Edit user"
+        onmouseenter="this.style.backgroundColor='#4b2991'; this.style.color='white';"
+        onmouseleave="this.style.backgroundColor='transparent'; this.style.color='#6f42c1';">
    My Profile
 </button>

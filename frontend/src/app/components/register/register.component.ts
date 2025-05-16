@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {AuthService} from "../../services/auth.service";
-import {Router} from "@angular/router";
+import {Router, RouterLink} from "@angular/router";
 import {NgIf} from "@angular/common";
 import {RegisterUser} from "../../dtos/register-user";
 import {ToastrService} from "ngx-toastr";
@@ -10,11 +10,13 @@ import {ToastrService} from "ngx-toastr";
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
+  standalone: true,
   imports: [
     NgIf,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    RouterLink
   ],
-  styleUrl: './register.component.scss'
+  styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
 
@@ -25,7 +27,7 @@ export class RegisterComponent {
   error = false;
   errorMessage = '';
   firstName = '';
-
+  buttonDisabled = false;
 
   constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, private router: Router, private notification: ToastrService) {
     this.registerForm = this.formBuilder.group({
@@ -35,7 +37,8 @@ export class RegisterComponent {
       email: ['', [Validators.required, Validators.maxLength(100), Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(8)]],
-      termsAccepted: [false, Validators.requiredTrue]
+      termsAccepted: [false, Validators.requiredTrue],
+      sex: ['', Validators.required]
     });
 
   }
@@ -45,6 +48,7 @@ export class RegisterComponent {
    */
   registerUser() {
     this.submitted = true;
+    this.buttonDisabled = true;
     if (this.registerForm.valid) {
       console.log("valid input");
       const registerUser: RegisterUser = {
@@ -54,12 +58,14 @@ export class RegisterComponent {
         confirmPassword: this.registerForm.controls.confirmPassword.value,
         dateOfBirth: this.registerForm.controls.dateOfBirth.value,
         email: this.registerForm.controls.email.value,
-        termsAccepted: this.registerForm.controls.termsAccepted.value
+        termsAccepted: this.registerForm.controls.termsAccepted.value,
+        sex: this.registerForm.controls.sex.value
       };
       this.firstName = this.registerForm.controls.firstName.value;
       this.regUser(registerUser);
     } else {
       console.log('Invalid input');
+      this.buttonDisabled = false;
     }
   }
 
@@ -69,8 +75,7 @@ export class RegisterComponent {
    * @param registerUser authentication data from the user login form
    */
   regUser(registerUser: RegisterUser) {
-    console.log("authenticate")
-    console.log("Register payload", registerUser);
+    console.log("register")
     this.authService.registerUser(registerUser).subscribe({
       next: () => {
         this.notification.success(`User ${this.firstName}
@@ -78,17 +83,15 @@ export class RegisterComponent {
         this.router.navigate(['/login']);
       },
       error: error => {
-        console.log('Could not register in due to:');
-        console.log(error);
+        console.log(`Could not register because ${error.error.errors}`);
         this.error = true;
         if (typeof error.error === 'object') {
-          this.errorMessage = error.error.error;
+          this.notification.error(`Validation of user failed because ${error.error.errors}`);
+          this.buttonDisabled = false;
         } else {
           this.errorMessage = error.error;
         }
       }
     });
   }
-
-
 }

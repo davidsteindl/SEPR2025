@@ -31,6 +31,7 @@ public class UserValidatorTest {
         .withConfirmPassword("ValidPass123")
         .withDateOfBirth(LocalDate.of(1990, 1, 1))
         .withTermsAccepted(true)
+        .withSex(Sex.MALE)
         .build();
 
     ValidationException exception = assertThrows(ValidationException.class, () -> {
@@ -50,6 +51,7 @@ public class UserValidatorTest {
         .withConfirmPassword("ValidPass123")
         .withDateOfBirth(LocalDate.of(1990, 1, 1))
         .withTermsAccepted(true)
+        .withSex(Sex.MALE)
         .build();
 
     ValidationException exception = assertThrows(ValidationException.class, () -> {
@@ -69,6 +71,7 @@ public class UserValidatorTest {
         .withConfirmPassword("ValidPass123")
         .withDateOfBirth(LocalDate.of(1990, 1, 1))
         .withTermsAccepted(true)
+        .withSex(Sex.MALE)
         .build();
 
     ValidationException exception = assertThrows(ValidationException.class, () -> {
@@ -88,6 +91,7 @@ public class UserValidatorTest {
         .withConfirmPassword("ValidPass123")
         .withDateOfBirth(LocalDate.of(1990, 1, 1))
         .withTermsAccepted(true)
+        .withSex(Sex.MALE)
         .build();
 
     ValidationException exception = assertThrows(ValidationException.class, () -> {
@@ -107,6 +111,7 @@ public class UserValidatorTest {
         .withConfirmPassword("ValidPass123")
         .withDateOfBirth(LocalDate.of(1990, 1, 1))
         .withTermsAccepted(true)
+        .withSex(Sex.FEMALE)
         .build();
 
     ValidationException exception = assertThrows(ValidationException.class, () -> {
@@ -126,14 +131,37 @@ public class UserValidatorTest {
         .withConfirmPassword("ValidPass123")
         .withDateOfBirth(LocalDate.now().plusDays(1))
         .withTermsAccepted(true)
+        .withSex(Sex.MALE)
         .build();
 
     ValidationException exception = assertThrows(ValidationException.class, () -> {
       userValidator.validateForRegistration(dto);
     });
 
-    assertEquals("Validation of user for registration failed. Failed validations: The Birthdate must be in the past.", exception.getMessage());
+    assertEquals("Validation of user for registration failed. Failed validations: The Birthdate must be in the past, You must be at least 18 years old to use the Service."
+        , exception.getMessage());
   }
+
+    @Test
+    void validateUserWhoIsTooYoungThrowsException() {
+        UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+            .withFirstName("Valid")
+            .withLastName("User")
+            .withEmail("valid@example.com")
+            .withPassword("ValidPass123")
+            .withConfirmPassword("ValidPass123")
+            .withDateOfBirth(LocalDate.now().minusDays(1))
+            .withTermsAccepted(true)
+            .withSex(Sex.MALE)
+            .build();
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> {
+            userValidator.validateForRegistration(dto);
+        });
+
+        assertEquals("Validation of user for registration failed. Failed validations: You must be at least 18 years old to use the Service."
+            , exception.getMessage());
+    }
 
   @Test
   void validateUserWithTooShortPasswordThrowsException() {
@@ -145,6 +173,7 @@ public class UserValidatorTest {
         .withConfirmPassword("short")
         .withDateOfBirth(LocalDate.of(1990, 1, 1))
         .withTermsAccepted(true)
+        .withSex(Sex.MALE)
         .build();
 
     ValidationException exception = assertThrows(ValidationException.class, () -> {
@@ -164,6 +193,7 @@ public class UserValidatorTest {
         .withConfirmPassword("short")
         .withDateOfBirth(LocalDate.of(1990, 1, 1))
         .withTermsAccepted(true)
+        .withSex(Sex.MALE)
         .build();
 
     ValidationException exception = assertThrows(ValidationException.class, () -> {
@@ -183,6 +213,7 @@ public class UserValidatorTest {
         .withConfirmPassword("DifferentPass123")
         .withDateOfBirth(LocalDate.of(1990, 1, 1))
         .withTermsAccepted(true)
+        .withSex(Sex.MALE)
         .build();
 
     ValidationException exception = assertThrows(ValidationException.class, () -> {
@@ -202,6 +233,7 @@ public class UserValidatorTest {
         .withConfirmPassword("ValidPass123")
         .withDateOfBirth(LocalDate.of(1990, 1, 1))
         .withTermsAccepted(false)
+        .withSex(Sex.MALE)
         .build();
 
     ValidationException exception = assertThrows(ValidationException.class, () -> {
@@ -210,6 +242,26 @@ public class UserValidatorTest {
 
     assertEquals("Validation of user for registration failed. Failed validations: Terms and Condition must be accepted.", exception.getMessage());
   }
+
+    @Test
+    void validateUserWithoutSexThrowsException() {
+        UserRegisterDto dto = UserRegisterDto.UserRegisterDtoBuilder.anUserRegisterDto()
+            .withFirstName("Valid")
+            .withLastName("User")
+            .withEmail("valid@example.com")
+            .withPassword("ValidPass123")
+            .withConfirmPassword("ValidPass123")
+            .withDateOfBirth(LocalDate.of(1990, 1, 1))
+            .withTermsAccepted(true)
+            .build();
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> {
+            userValidator.validateForRegistration(dto);
+        });
+
+        assertEquals("Validation of user for registration failed. Failed validations: Sex must be selected."
+            , exception.getMessage());
+    }
 
   @Test
   void validateEmptyUserThrowsException() {
@@ -221,6 +273,7 @@ public class UserValidatorTest {
         .withConfirmPassword("")
         .withDateOfBirth(null)
         .withTermsAccepted(false)
+        .withSex(Sex.MALE)
         .build();
 
 
@@ -237,6 +290,7 @@ public class UserValidatorTest {
         .withConfirmPassword("ValidPass")
         .withDateOfBirth(LocalDate.of(1990, 1, 1))
         .withTermsAccepted(true)
+        .withSex(Sex.MALE)
         .build();
 
     assertDoesNotThrow(() -> userValidator.validateForRegistration(dto));

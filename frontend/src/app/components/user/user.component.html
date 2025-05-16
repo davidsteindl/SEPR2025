@@ -1,18 +1,17 @@
- <h1 class="display-4">My Profile: {{ user.firstName }}</h1>
 
-  <hr class="my-4">
+ <div class="mt-4 container">
+   <div class="row">
+     <h2 class="modal-title">My Profile: {{user.firstName}}</h2>
+     <hr>
+   </div>
+
   <a *ngIf="!authService.isLoggedIn()" class="btn btn-primary btn-lg" routerLink="/login" role="button">Login</a>
 
 
  <button
-   class="btn"
+   class="btn orders"
    [routerLink]="['/user-orders']"
    aria-label="Edit user"
-   style="
-    border: 1px solid #6f42c1;
-    color: #6f42c1;
-    background-color: transparent;
-    transition: all 0.2s ease;"
    onmouseenter="this.style.backgroundColor='#4b2991'; this.style.color='white';"
    onmouseleave="this.style.backgroundColor='transparent'; this.style.color='#6f42c1';"
  >

@@ -4,8 +4,13 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.lang.invoke.MethodHandles;
 import java.time.LocalDate;
+import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -14,8 +19,10 @@ import java.util.regex.Pattern;
 @Component
 public class UserValidator {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
-        "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        "[^@ ]+@[^@ ]+"
     );
 
     public UserValidator() {
@@ -28,6 +35,7 @@ public class UserValidator {
      * @throws ValidationException if a Validation is wrong
      */
     public void validateForRegistration(UserRegisterDto userRegisterDto) throws ValidationException {
+        LOGGER.info("Validating user registration ...");
         List<String> validationErrors = new ArrayList<>();
 
         if (userRegisterDto.getFirstName() == null || userRegisterDto.getFirstName().isEmpty()) {
@@ -50,6 +58,10 @@ public class UserValidator {
             validationErrors.add("The Birthdate must be in the past");
         }
 
+        if (userRegisterDto.getDateOfBirth() == null || userRegisterDto.getDateOfBirth().isAfter(LocalDate.parse("2007-05-15"))) {
+            validationErrors.add("You must be at least 18 years old to use the Service");
+        }
+
         if (userRegisterDto.getPassword() == null || userRegisterDto.getPassword().length() < 8) {
             validationErrors.add("Password must be at least 8 characters");
         }
@@ -64,6 +76,10 @@ public class UserValidator {
 
         if (!userRegisterDto.getTermsAccepted()) {
             validationErrors.add("Terms and Condition must be accepted");
+        }
+
+        if (userRegisterDto.getSex() == null) {
+            validationErrors.add("Sex must be selected");
         }
 
         if (!validationErrors.isEmpty()) {
@@ -89,6 +105,7 @@ public class UserValidator {
 
 
     public void validateForUpdate(UserUpdateDto user) throws NotFoundException, ValidationException {
+        LOGGER.info("Validating user update ...");
         List<String> validationErrors = new ArrayList<>();
 
         if (user.getEmail() != null && !user.getEmail().contains("@")) {
@@ -152,6 +169,8 @@ public class UserValidator {
             validationErrors.add("No birthdate given");
         } else if (user.getDateOfBirth().isAfter(LocalDate.now())) {
             validationErrors.add("The Birthdate must be in the past");
+        } else if (user.getDateOfBirth().isAfter(LocalDate.parse("2007-05-15"))) {
+            validationErrors.add("You must be at least 18 years old to use the Service");
         }
 
 
