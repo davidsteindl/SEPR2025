@@ -12,7 +12,6 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,15 +40,22 @@ public class EventEndpointTest implements TestData {
 
     private static final String EVENT_BASE_URI = "/api/v1/events";
 
-    @Autowired private MockMvc mockMvc;
-    @Autowired private JwtTokenizer jwtTokenizer;
-    @Autowired private SecurityProperties securityProperties;
-    @Autowired private ObjectMapper objectMapper;
-    @Autowired private EventRepository eventRepository;
-    @Autowired private EventLocationRepository eventLocationRepository;
-    @Autowired private UserRepository userRepository;
-    @Autowired private ShowRepository showRepository;
-    @Autowired private ArtistRepository artistRepository;
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private JwtTokenizer jwtTokenizer;
+    @Autowired
+    private SecurityProperties securityProperties;
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private EventRepository eventRepository;
+    @Autowired
+    private EventLocationRepository eventLocationRepository;
+    @Autowired
+    private ShowRepository showRepository;
+    @Autowired
+    private ArtistRepository artistRepository;
 
     private EventLocation testLocation;
     private Event testEvent;

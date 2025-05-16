@@ -86,16 +86,16 @@ public class EventEndpoint {
      * @param eventSearchDto the search criteria
      * @return a paginated list of events matching the search criteria
      */
+    @PostMapping("/search")
     @Secured("ROLE_USER")
-    @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     @Operation(
         summary = "Search events",
         description = "Search events by name, type, description, or duration (±30min) with page and size parameters.",
         security = @SecurityRequirement(name = "apiKey")
     )
-    public Page<EventSearchResultDto> search(@Valid EventSearchDto eventSearchDto) throws ValidationException {
-        LOGGER.info("GET /api/v1/events/search {}", eventSearchDto);
+    public Page<EventSearchResultDto> search(@RequestBody @Valid EventSearchDto eventSearchDto) throws ValidationException {
+        LOGGER.info("POST /api/v1/events/search {}", eventSearchDto);
         return searchService.searchEvents(eventSearchDto);
     }
 
@@ -146,4 +146,7 @@ public class EventEndpoint {
         LOGGER.info("GET /api/v1/events/{}/full", eventId);
         return eventService.getEventWithShows(eventId);
     }
+
+
 }
+

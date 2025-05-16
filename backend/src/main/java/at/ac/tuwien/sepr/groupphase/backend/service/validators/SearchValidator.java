@@ -87,17 +87,17 @@ public class SearchValidator {
             validationErrors.add("Event name filter must not exceed 100 characters");
         }
 
-        if (eventSearchDto.getType() != null && !eventSearchDto.getType().isBlank()) {
+        if (eventSearchDto.getCategory() != null && !eventSearchDto.getCategory().isBlank()) {
             boolean valid = false;
             for (var cat : Event.EventCategory.values()) {
-                if (cat.name().equalsIgnoreCase(eventSearchDto.getType())
-                    || cat.getDisplayName().equalsIgnoreCase(eventSearchDto.getType())) {
+                if (cat.name().equalsIgnoreCase(eventSearchDto.getCategory())
+                    || cat.getDisplayName().equalsIgnoreCase(eventSearchDto.getCategory())) {
                     valid = true;
                     break;
                 }
             }
             if (!valid) {
-                validationErrors.add("Invalid event type: " + eventSearchDto.getType());
+                validationErrors.add("Invalid event type: " + eventSearchDto.getCategory());
             }
         }
 
@@ -107,6 +107,10 @@ public class SearchValidator {
 
         if (eventSearchDto.getDuration() != null && eventSearchDto.getDuration() < 0) {
             validationErrors.add("Duration filter must be non-negative");
+        }
+
+        if (eventSearchDto.getDuration() != null && eventSearchDto.getDuration() > 10000) {
+            validationErrors.add("Duration filter must not exceed 10000 minutes");
         }
 
         if (!(validationErrors.isEmpty())) {
