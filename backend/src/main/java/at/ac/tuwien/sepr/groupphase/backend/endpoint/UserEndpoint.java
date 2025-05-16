@@ -59,8 +59,8 @@ public class UserEndpoint {
     @Operation(summary = "Get current User", security = @SecurityRequirement(name = "apiKey"))
     public UserDetailDto getCurrentUser() {
         LOGGER.info("getCurrentUser()");
-        var email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-        ApplicationUser user = this.userService.findApplicationUserByEmail(email);
+        var id = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        ApplicationUser user = this.userService.findUserById(id);
         return userMapper.applicationUserToUserDetailDto(user);
     }
 
@@ -69,20 +69,21 @@ public class UserEndpoint {
     @Operation(summary = "Update current user", security = @SecurityRequirement(name = "apiKey"))
     public ResponseEntity<Void> updateCurrentUser(@RequestBody UserUpdateDto userUpdateDto) throws ValidationException {
         LOGGER.info("updateCurrentUser()");
-        var email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-        this.userService.update(email, userUpdateDto);
+        var id = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        this.userService.update(id, userUpdateDto);
         return ResponseEntity.noContent().build();
     }
+
 
     @DeleteMapping("/me")
     @Secured("ROLE_USER")
     @Operation(summary = "Delete current User", security = @SecurityRequirement(name = "apiKey"))
     public ResponseEntity<Void> deleteUser() {
         LOGGER.info("deleteUser()");
-        var email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-        this.userService.delete(email);
+        var id = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        this.userService.delete(id);
+
         return ResponseEntity.noContent().build();
     }
-
 
 }
