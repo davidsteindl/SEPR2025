@@ -51,13 +51,13 @@
   </table>
   <ul class="pagination justify-content-center mt-3">
     <li class="page-item" [class.disabled]="page === 0">
-      <a class="page-link" (click)="prevPage()">Previous</a>
+      <a class="page-link" style="cursor: pointer;" (click)="prevPage()">Previous</a>
     </li>
     <li class="page-item disabled">
       <span class="page-link">Page {{ page + 1 }} of {{ totalPages }}</span>
     </li>
     <li class="page-item" [class.disabled]="page + 1 >= totalPages">
-      <a class="page-link" (click)="nextPage()">Next</a>
+      <a class="page-link" style="cursor: pointer;" (click)="nextPage()">Next</a>
     </li>
   </ul>
 </div>
