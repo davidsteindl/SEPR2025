@@ -161,8 +161,8 @@ public class EventEndpoint {
     )
     public Page<ShowDetailDto> getPaginatedShowsForEvent(
         @PathVariable("eventId") Long eventId,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "5") int size
+        @RequestParam(name = "page", defaultValue = "0") int page,
+        @RequestParam(name = "size", defaultValue = "5") int size
     ) {
         LOGGER.info("GET /api/v1/events/{}/shows/paginated?page={}&size={}", eventId, page, size);
         Pageable pageable = PageRequest.of(page, size, Sort.by("date").ascending());

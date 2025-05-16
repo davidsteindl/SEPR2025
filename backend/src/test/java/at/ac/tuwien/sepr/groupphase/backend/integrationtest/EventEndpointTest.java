@@ -4,10 +4,12 @@ import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.CreateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event.EventCategory;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation.LocationType;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
@@ -59,6 +61,8 @@ public class EventEndpointTest implements TestData {
 
     private EventLocation testLocation;
     private Event testEvent;
+    private Artist testArtist;
+    private Show testShow;
 
     @BeforeEach
     public void setup() {
@@ -83,6 +87,21 @@ public class EventEndpointTest implements TestData {
         testEvent.setDuration(120);
         testEvent.setLocation(testLocation);
         eventRepository.save(testEvent);
+
+        testArtist = new Artist();
+        testArtist.setFirstname("Lena");
+        testArtist.setLastname("Funk");
+        testArtist.setStagename("LF");
+        artistRepository.save(testArtist);
+
+        testShow = Show.ShowBuilder.aShow()
+            .withName("Funky Evening")
+            .withDuration(75)
+            .withDate(java.time.LocalDateTime.now().plusDays(2))
+            .withEvent(testEvent)
+            .build();
+        testShow.addArtist(testArtist);
+        showRepository.save(testShow);
     }
 
     @Test
@@ -257,6 +276,25 @@ public class EventEndpointTest implements TestData {
             () -> assertTrue(body.contains("\"shows\""), "Response should contain 'shows' block"),
             () -> assertTrue(body.contains("Jazzkonzert"), "Should contain test event name"),
             () -> assertTrue(body.contains("Jazz Night"), "Should contain show name")
+        );
+    }
+
+    @Test
+    public void getPaginatedShowsForEvent_shouldReturnPaginatedShows() throws Exception {
+        MvcResult result = mockMvc.perform(get(EVENT_BASE_URI + "/" + testEvent.getId() + "/shows/paginated")
+                .param("page", "0")
+                .param("size", "5")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES)))
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        String body = result.getResponse().getContentAsString();
+
+        assertAll(
+            () -> assertTrue(body.contains("Funky Evening"), "Show name should be present"),
+            () -> assertTrue(body.contains("totalElements"), "Pagination info should be included"),
+            () -> assertTrue(body.contains("\"content\":"), "Response should contain 'content' field")
         );
     }
 }

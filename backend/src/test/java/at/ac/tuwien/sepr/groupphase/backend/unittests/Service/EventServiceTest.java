@@ -250,4 +250,25 @@ public class EventServiceTest {
         verify(showRepository).findByEventOrderByDateAscWithArtists(event);
         verify(showMapper).showsToShowDetailDtos(List.of(mockShow));
     }
+
+    @Test
+    public void testGetPaginatedShowsForEvent_validEventId_returnsPaginatedShowDtos() {
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Show> showPage = new PageImpl<>(List.of(mockShow), pageable, 1);
+
+        when(showRepository.findByEvent(event, pageable)).thenReturn(showPage);
+        when(showMapper.showToShowDetailDto(mockShow)).thenReturn(mockShowDto);
+
+        Page<ShowDetailDto> result = eventService.getPaginatedShowsForEvent(eventId, pageable);
+
+        assertAll(
+            () -> assertNotNull(result),
+            () -> assertEquals(1, result.getTotalElements()),
+            () -> assertEquals(1, result.getContent().size()),
+            () -> assertEquals(mockShowDto, result.getContent().getFirst())
+        );
+
+        verify(showRepository).findByEvent(event, pageable);
+        verify(showMapper).showToShowDetailDto(mockShow);
+    }
 }
