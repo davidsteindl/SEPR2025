@@ -1,5 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.ShowValidator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
@@ -28,13 +30,19 @@ public class ShowServiceImpl implements ShowService {
     private final EventRepository eventRepository;
     private final ArtistRepository artistRepository;
     private final ShowValidator showValidator;
+    private RoomRepository roomRepository;
 
     @Autowired
-    public ShowServiceImpl(ShowRepository showRepository, EventRepository eventRepository, ArtistRepository artistRepository, ShowValidator showValidator) {
+    public ShowServiceImpl(ShowRepository showRepository,
+                           EventRepository eventRepository,
+                           ArtistRepository artistRepository,
+                           ShowValidator showValidator,
+                           RoomRepository roomRepository) {
         this.showRepository = showRepository;
         this.eventRepository = eventRepository;
         this.artistRepository = artistRepository;
         this.showValidator = showValidator;
+        this.roomRepository = roomRepository;
     }
 
     @Override
@@ -57,12 +65,14 @@ public class ShowServiceImpl implements ShowService {
         showValidator.validateForCreate(show);
 
         Event event = eventRepository.findById(show.getEvent().getId()).get();
+        Room room = roomRepository.findById(show.getRoom().getId()).get();
 
         Set<Artist> artists = show.getArtists().stream()
             .map(a -> artistRepository.findByIdWithShows(a.getId()).get())
             .collect(Collectors.toSet());
 
         show.setEvent(event);
+        show.setRoom(room);
         show.setArtists(artists);
         show = showRepository.save(show);
         EntitySyncUtil.syncShowArtistRelationship(show);

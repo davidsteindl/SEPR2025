@@ -7,6 +7,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.util.MinMaxTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +23,15 @@ public class ShowValidator {
 
     private final EventRepository eventRepository;
     private final ArtistRepository artistRepository;
+    private final RoomRepository roomRepository;
     private final ShowRepository showRepository;
 
     @Autowired
-    public ShowValidator(EventRepository eventRepository, ArtistRepository artistRepository, ShowRepository showRepository) {
+    public ShowValidator(EventRepository eventRepository, ArtistRepository artistRepository, ShowRepository showRepository, RoomRepository roomRepository) {
         this.eventRepository = eventRepository;
         this.artistRepository = artistRepository;
         this.showRepository = showRepository;
+        this.roomRepository = roomRepository;
     }
 
     public void validateForCreate(Show show) throws ValidationException {
@@ -40,6 +43,12 @@ public class ShowValidator {
             errors.add("Event with ID " + show.getEvent().getId() + " not found");
         } else if (!validateDuration(show.getEvent().getId(), show.getDate(), show.getDuration())) {
             errors.add("Event duration is less than the total duration of all shows");
+        }
+
+        if (show.getRoom() == null || show.getRoom().getId() == null) {
+            errors.add("Room ID is null");
+        } else if (!roomRepository.existsById(show.getRoom().getId())) {
+            errors.add("Room with ID " + show.getRoom().getId() + " not found");
         }
 
         if (show.getArtists() == null || show.getArtists().isEmpty()) {

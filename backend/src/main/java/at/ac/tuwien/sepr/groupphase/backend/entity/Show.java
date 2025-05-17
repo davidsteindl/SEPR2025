@@ -125,12 +125,13 @@ public class Show {
             && Objects.equals(id, show.id)
             && Objects.equals(name, show.name)
             && Objects.equals(date, show.date)
-            && Objects.equals(event, show.event);
+            && Objects.equals(event, show.event)
+            && Objects.equals(room, show.room);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, duration, date, event);
+        return Objects.hash(id, name, duration, date, event, room);
     }
 
     @Override
@@ -140,7 +141,8 @@ public class Show {
             + ", name='" + name + '\''
             + ", duration=" + duration + " min"
             + ", date=" + date
-            + ", event=" + (event != null ? event.getId() : "null"));
+            + ", event=" + (event != null ? event.getId() : "null")
+            + ", room=" + (room != null ? room.getId() : "null"));
 
         int count = 1;
         for (Artist artist : artists) {

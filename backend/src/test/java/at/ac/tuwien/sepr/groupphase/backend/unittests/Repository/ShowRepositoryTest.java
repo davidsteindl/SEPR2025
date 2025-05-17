@@ -40,6 +40,11 @@ public class ShowRepositoryTest {
     @Autowired
     private EntityManager entityManager;
 
+    @Autowired
+    private RoomRepository roomRepository;
+
+    private Room testRoom;
+
     @BeforeEach
     public void setUp() {
         EventLocation location = EventLocation.EventLocationBuilder.anEventLocation()
@@ -51,6 +56,13 @@ public class ShowRepositoryTest {
             .withType(EventLocation.LocationType.FESTIVAL_GROUND)
             .build();
         eventLocationRepository.save(location);
+
+        testRoom = Room.RoomBuilder.aRoom()
+            .name("Main Room")
+            .horizontal(true)
+            .eventLocation(location)
+            .build();
+        roomRepository.save(testRoom);
 
         Event event = Event.EventBuilder.anEvent()
             .withName("Summer Fest")
@@ -66,6 +78,7 @@ public class ShowRepositoryTest {
             .withDuration(150)
             .withDate(LocalDateTime.now())
             .withEvent(event)
+            .withRoom(testRoom)
             .build();
         showRepository.save(show);
 
@@ -88,6 +101,7 @@ public class ShowRepositoryTest {
         artistRepository.deleteAll();
         showRepository.deleteAll();
         eventRepository.deleteAll();
+        roomRepository.deleteAll();
         eventLocationRepository.deleteAll();
     }
 
@@ -106,6 +120,7 @@ public class ShowRepositoryTest {
             () -> assertEquals("Summer Fest", show.getEvent().getName()),
             () -> assertEquals("Festival Ground", show.getEvent().getLocation().getName()),
             () -> assertEquals("Evening Show", show.getName()),
+            () -> assertEquals("Main Room", show.getRoom().getName()),
             () -> assertEquals(1, show.getArtists().size())
         );
     }
@@ -119,6 +134,7 @@ public class ShowRepositoryTest {
             .withDuration(5)
             .withDate(LocalDateTime.now())
             .withEvent(event)
+            .withRoom(testRoom)
             .build();
 
         assertThrows(Exception.class, () -> showRepository.saveAndFlush(show));
@@ -134,6 +150,7 @@ public class ShowRepositoryTest {
             .withDuration(1000)
             .withDate(LocalDateTime.now())
             .withEvent(event)
+            .withRoom(testRoom)
             .build();
 
         assertThrows(Exception.class, () -> showRepository.saveAndFlush(show));
@@ -149,6 +166,7 @@ public class ShowRepositoryTest {
             .withDuration(100)
             .withDate(null)
             .withEvent(event)
+            .withRoom(testRoom)
             .build();
 
         assertThrows(Exception.class, () -> showRepository.saveAndFlush(show));
@@ -162,6 +180,7 @@ public class ShowRepositoryTest {
             .withDuration(100)
             .withDate(LocalDateTime.now())
             .withEvent(null)
+            .withRoom(testRoom)
             .build();
 
         assertThrows(Exception.class, () -> showRepository.saveAndFlush(show));
@@ -177,6 +196,7 @@ public class ShowRepositoryTest {
             .withDuration(120)
             .withDate(LocalDateTime.now())
             .withEvent(event)
+            .withRoom(testRoom)
             .build();
 
         Show saved = showRepository.save(show);
@@ -185,7 +205,8 @@ public class ShowRepositoryTest {
             () -> assertNotNull(saved.getId()),
             () -> assertEquals("Main Act", saved.getName()),
             () -> assertEquals(120, saved.getDuration()),
-            () -> assertEquals(event.getId(), saved.getEvent().getId())
+            () -> assertEquals(event.getId(), saved.getEvent().getId()),
+            () -> assertEquals(testRoom.getId(), saved.getRoom().getId())
         );
     }
 

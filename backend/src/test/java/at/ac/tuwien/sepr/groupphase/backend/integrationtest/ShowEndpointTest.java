@@ -9,9 +9,11 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event.EventCategory;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation.LocationType;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,9 +54,11 @@ public class ShowEndpointTest implements TestData {
     @Autowired private ArtistRepository artistRepository;
     @Autowired private EventRepository eventRepository;
     @Autowired private EventLocationRepository eventLocationRepository;
+    @Autowired private RoomRepository roomRepository;
 
     private Event testEvent;
     private Artist testArtist;
+    private Room testRoom;
 
     @BeforeEach
     public void setup() {
@@ -66,6 +70,7 @@ public class ShowEndpointTest implements TestData {
         showRepository.deleteAll();
         artistRepository.deleteAll();
         eventRepository.deleteAll();
+        roomRepository.deleteAll();
         eventLocationRepository.deleteAll();
 
         EventLocation location = new EventLocation();
@@ -76,6 +81,17 @@ public class ShowEndpointTest implements TestData {
         location.setStreet("Main Street 1");
         location.setPostalCode("1010");
         eventLocationRepository.save(location);
+
+        testRoom = Room.RoomBuilder.aRoom()
+            .name("Main Room")
+            .horizontal(true)
+            .eventLocation(location)
+            .build();
+        roomRepository.save(testRoom);
+        testRoom = roomRepository.save(testRoom);
+        System.out.println("Room saved with ID: " + testRoom.getId());
+        System.out.println("Room actually in DB? " + roomRepository.findById(testRoom.getId()).isPresent());
+
 
         testEvent = new Event();
         testEvent.setName("Rock Night");
@@ -99,6 +115,7 @@ public class ShowEndpointTest implements TestData {
             .duration(60)
             .date(LocalDateTime.now().plusDays(1))
             .eventId(testEvent.getId())
+            .roomId(testRoom.getId())
             .artistIds(Set.of(testArtist.getId()))
             .build();
 
@@ -109,6 +126,9 @@ public class ShowEndpointTest implements TestData {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
             .andReturn();
+        System.out.println("Status: " + result.getResponse().getStatus());
+        System.out.println("Response Body: " + result.getResponse().getContentAsString());
+
 
         assertEquals(HttpStatus.CREATED.value(), result.getResponse().getStatus());
 
@@ -139,6 +159,7 @@ public class ShowEndpointTest implements TestData {
             .duration(90)
             .date(LocalDateTime.now().plusDays(2))
             .eventId(testEvent.getId())
+            .roomId(testRoom.getId())
             .artistIds(Set.of(testArtist.getId()))
             .build();
 
@@ -160,6 +181,7 @@ public class ShowEndpointTest implements TestData {
             .duration(90)
             .date(LocalDateTime.now().plusDays(2))
             .eventId(testEvent.getId())
+            .roomId(testRoom.getId())
             .artistIds(Set.of(testArtist.getId()))
             .build();
 
@@ -176,6 +198,28 @@ public class ShowEndpointTest implements TestData {
     @Test
     public void createShow_withInvalidData_shouldReturn422() throws Exception {
         CreateShowDto dto = new CreateShowDto(); // Leeres DTO → ungültig
+        String body = objectMapper.writeValueAsString(dto);
+
+        MvcResult result = mockMvc.perform(post(SHOW_BASE_URI)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+            .andReturn();
+
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    public void createShow_withInvalidRoomId_shouldReturn422() throws Exception {
+        CreateShowDto dto = CreateShowDto.CreateShowDtoBuilder.aCreateShowDto()
+            .name("Invalid Room Show")
+            .duration(90)
+            .date(LocalDateTime.now().plusDays(1))
+            .eventId(testEvent.getId())
+            .roomId(999L)
+            .artistIds(Set.of(testArtist.getId()))
+            .build();
+
         String body = objectMapper.writeValueAsString(dto);
 
         MvcResult result = mockMvc.perform(post(SHOW_BASE_URI)

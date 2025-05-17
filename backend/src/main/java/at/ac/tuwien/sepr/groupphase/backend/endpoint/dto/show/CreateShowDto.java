@@ -32,6 +32,9 @@ public class CreateShowDto {
     @Size(min = 1, message = "Show must have at least one artist")
     private Set<Long> artistIds;
 
+    @NotNull(message = "Room ID must not be null")
+    private Long roomId;
+
     public String getName() {
         return name;
     }
@@ -72,6 +75,14 @@ public class CreateShowDto {
         this.artistIds = artistIds;
     }
 
+    public Long getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(Long roomId) {
+        this.roomId = roomId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -83,12 +94,13 @@ public class CreateShowDto {
         return duration == show.duration
             && name.equals(show.name)
             && date.equals(show.date)
-            && eventId.equals(show.eventId);
+            && eventId.equals(show.eventId)
+            && roomId.equals(show.roomId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, duration, date, eventId);
+        return Objects.hash(name, duration, date, eventId, roomId);
     }
 
     @Override
@@ -98,6 +110,7 @@ public class CreateShowDto {
             + ", duration=" + duration
             + ", date=" + date
             + ", eventId=" + eventId
+            + ", roomId=" + roomId
             + ", artistIds=" + artistIds
             + '}';
     }
@@ -108,6 +121,7 @@ public class CreateShowDto {
         private LocalDateTime date;
         private Long eventId;
         private Set<Long> artistIds;
+        private Long roomId;
 
         private CreateShowDtoBuilder() {
         }
@@ -141,6 +155,11 @@ public class CreateShowDto {
             return this;
         }
 
+        public CreateShowDtoBuilder roomId(Long roomId) {
+            this.roomId = roomId;
+            return this;
+        }
+
         public CreateShowDto build() {
             CreateShowDto createShowDto = new CreateShowDto();
             createShowDto.setName(name);
@@ -148,6 +167,7 @@ public class CreateShowDto {
             createShowDto.setDate(date);
             createShowDto.setEventId(eventId);
             createShowDto.setArtistIds(artistIds);
+            createShowDto.setRoomId(roomId);
             return createShowDto;
         }
     }
