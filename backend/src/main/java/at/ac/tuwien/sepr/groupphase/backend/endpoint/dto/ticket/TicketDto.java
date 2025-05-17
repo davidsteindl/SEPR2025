@@ -81,14 +81,14 @@ public class TicketDto {
 
     @Override
     public String toString() {
-        return "TicketDto{" +
-            "id=" + id +
-            ", showName='" + showName + '\'' +
-            ", price=" + price +
-            ", sectorId=" + sectorId +
-            ", rowNumber=" + rowNumber +
-            ", columnNumber=" + columnNumber +
-            '}';
+        return "TicketDto{"
+            + "id=" + id
+            + ", showName='" + showName + '\''
+            + ", price=" + price
+            + ", sectorId=" + sectorId
+            + ", rowNumber=" + rowNumber
+            + ", columnNumber=" + columnNumber
+            + '}';
     }
 
     public static final class TicketDtoBuilder {

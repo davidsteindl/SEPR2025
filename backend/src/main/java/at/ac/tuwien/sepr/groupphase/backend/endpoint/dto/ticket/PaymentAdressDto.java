@@ -81,14 +81,14 @@ public class PaymentAdressDto {
 
     @Override
     public String toString() {
-        return "PaymentAdressDto{" +
-            "city='" + city + '\'' +
-            ", street='" + street + '\'' +
-            ", postalCode='" + postalCode + '\'' +
-            ", housenumber='" + housenumber + '\'' +
-            ", country='" + country + '\'' +
-            ", uid='" + uid + '\'' +
-            '}';
+        return "PaymentAdressDto{"
+            + "city='" + city + '\''
+            + ", street='" + street + '\''
+            + ", postalCode='" + postalCode + '\''
+            + ", housenumber='" + housenumber + '\''
+            + ", country='" + country + '\''
+            + ", uid='" + uid + '\''
+            + '}';
     }
 
     public static final class PaymentAdressDtoBuilder {

@@ -96,15 +96,15 @@ public class OrderDto {
 
     @Override
     public String toString() {
-        return "OrderDto{" +
-            "id=" + id +
-            ", userId=" + userId +
-            ", date=" + date +
-            ", tickets=" + tickets +
-            ", paymentType=" + paymentType +
-            ", customer=" + customer +
-            ", paymentAdress=" + paymentAdress +
-            '}';
+        return "OrderDto{"
+            + "id=" + id
+            + ", userId=" + userId
+            + ", date=" + date
+            + ", tickets=" + tickets
+            + ", paymentType=" + paymentType
+            + ", customer=" + customer
+            + ", paymentAdress=" + paymentAdress
+            + '}';
     }
 
     public static final class OrderDtoBuilder {
