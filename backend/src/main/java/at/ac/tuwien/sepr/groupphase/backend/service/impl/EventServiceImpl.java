@@ -4,7 +4,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
-import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -27,7 +26,6 @@ public class EventServiceImpl implements EventService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final EventRepository eventRepository;
     private final EventLocationRepository eventLocationRepository;
-    private final EventValidator eventValidator;
     private final ShowRepository showRepository;
     private final EventMapper eventMapper;
     private final ShowMapper showMapper;
@@ -35,13 +33,11 @@ public class EventServiceImpl implements EventService {
     @Autowired
     public EventServiceImpl(EventRepository eventRepository,
                             EventLocationRepository eventLocationRepository,
-                            EventValidator eventValidator,
                             ShowRepository showRepository,
                             EventMapper eventMapper,
                             ShowMapper showMapper) {
         this.eventRepository = eventRepository;
         this.eventLocationRepository = eventLocationRepository;
-        this.eventValidator = eventValidator;
         this.showRepository = showRepository;
         this.eventMapper = eventMapper;
         this.showMapper = showMapper;
@@ -62,7 +58,6 @@ public class EventServiceImpl implements EventService {
     @Override
     public Event createEvent(Event event) throws ValidationException {
         LOGGER.info("Save event {}", event);
-        eventValidator.validateDuration(event.getId());
 
         if (event.getLocation() != null) {
             EventLocation location = eventLocationRepository.findById(event.getLocation().getId())

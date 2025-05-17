@@ -57,6 +57,7 @@ public class ShowServiceImpl implements ShowService {
         showValidator.validateForCreate(show);
 
         Event event = eventRepository.findById(show.getEvent().getId()).get();
+
         Set<Artist> artists = show.getArtists().stream()
             .map(a -> artistRepository.findByIdWithShows(a.getId()).get())
             .collect(Collectors.toSet());

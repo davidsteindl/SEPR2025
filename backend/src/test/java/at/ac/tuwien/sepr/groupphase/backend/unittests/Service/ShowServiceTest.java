@@ -55,7 +55,7 @@ public class ShowServiceTest {
             .withName("Beethoven Night")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("An evening of Beethoven")
-            .withDuration(180)
+            .withDuration(300)
             .withLocation(location)
             .build();
         eventRepository.save(testEvent);
@@ -72,7 +72,6 @@ public class ShowServiceTest {
     @AfterEach
     public void deleteData() {
         List<Artist> allArtists = artistRepository.findAllWithShows();
-
         for (Artist artist : allArtists) {
             artist.getShows().clear();
             artistRepository.save(artist);
@@ -87,7 +86,6 @@ public class ShowServiceTest {
     @Test
     @Transactional
     public void testGetShowById_existingId_returnsShow() throws ValidationException {
-        System.out.println("testArtist ID: " + testArtist.getId());
         Show show = Show.ShowBuilder.aShow()
             .withName("Evening Performance")
             .withDuration(100)
@@ -99,7 +97,7 @@ public class ShowServiceTest {
         Show saved = showService.createShow(show);
 
         Show result = showService.getShowById(saved.getId());
-        System.out.println("Artists in result: " + result.getArtists());
+
         assertAll(
             () -> assertNotNull(result),
             () -> assertEquals(100, result.getDuration()),
@@ -236,6 +234,145 @@ public class ShowServiceTest {
         assertAll(
             () -> assertThrows(ValidationException.class, () -> showService.createShow(show)),
             () -> assertEquals(0, showRepository.findAll().size())
+        );
+    }
+
+    @Test
+    public void testCreateShow_singleShowWithinDuration_savesSuccessfully() throws ValidationException {
+        Show show = Show.ShowBuilder.aShow()
+            .withName("Early Performance")
+            .withDuration(90)
+            .withDate(LocalDateTime.now().plusDays(1).withHour(18))
+            .withEvent(testEvent)
+            .withArtists(Set.of(testArtist))
+            .build();
+
+        Show saved = showService.createShow(show);
+
+        assertAll(
+            () -> assertNotNull(saved.getId()),
+            () -> assertEquals(90, saved.getDuration()),
+            () -> assertEquals(testEvent.getId(), saved.getEvent().getId())
+        );
+    }
+
+    @Test
+    public void testCreateShow_multipleShowsWithinEventDuration_savesSuccessfully() throws ValidationException {
+        testEvent.setDuration(220);
+        eventRepository.save(testEvent);
+
+        Show first = Show.ShowBuilder.aShow()
+            .withName("Part 1")
+            .withDuration(80)
+            .withDate(LocalDateTime.now().plusDays(1).withHour(17))
+            .withEvent(testEvent)
+            .withArtists(Set.of(testArtist))
+            .build();
+
+        Show second = Show.ShowBuilder.aShow()
+            .withName("Part 2")
+            .withDuration(90)
+            .withDate(LocalDateTime.now().plusDays(1).withHour(19))
+            .withEvent(testEvent)
+            .withArtists(Set.of(testArtist))
+            .build();
+
+        showService.createShow(first);
+        Show saved = showService.createShow(second);
+
+        assertAll(
+            () -> assertNotNull(saved.getId()),
+            () -> assertEquals("Part 2", saved.getName()),
+            () -> assertEquals(2, showRepository.findAll().size())
+        );
+    }
+
+    @Test
+    public void testCreateShow_exceedsEventDuration_throwsValidationException() throws ValidationException {
+        testEvent.setDuration(200);
+        eventRepository.save(testEvent);
+
+        Show first = Show.ShowBuilder.aShow()
+            .withName("Opening")
+            .withDuration(100)
+            .withDate(LocalDateTime.now().plusDays(1).withHour(17))
+            .withEvent(testEvent)
+            .withArtists(Set.of(testArtist))
+            .build();
+
+        Show second = Show.ShowBuilder.aShow()
+            .withName("Too Much")
+            .withDuration(100)
+            .withDate(LocalDateTime.now().plusDays(1).withHour(19))
+            .withEvent(testEvent)
+            .withArtists(Set.of(testArtist))
+            .build();
+
+        showService.createShow(first);
+
+        assertAll(
+            () -> assertThrows(ValidationException.class, () -> showService.createShow(second)),
+            () -> assertEquals(1, showRepository.findAll().size())
+        );
+    }
+
+    @Test
+    public void testCreateShow_startsBeforeExistingShow_withinDuration_savesSuccessfully() throws ValidationException {
+        testEvent.setDuration(280);
+        eventRepository.save(testEvent);
+
+        Show later = Show.ShowBuilder.aShow()
+            .withName("Late Show")
+            .withDuration(90)
+            .withDate(LocalDateTime.now().plusDays(1).withHour(20))
+            .withEvent(testEvent)
+            .withArtists(Set.of(testArtist))
+            .build();
+
+        Show earlier = Show.ShowBuilder.aShow()
+            .withName("Early Show")
+            .withDuration(60)
+            .withDate(LocalDateTime.now().plusDays(1).withHour(17))
+            .withEvent(testEvent)
+            .withArtists(Set.of(testArtist))
+            .build();
+
+        showService.createShow(later);
+        Show saved = showService.createShow(earlier);
+
+        assertAll(
+            () -> assertNotNull(saved.getId()),
+            () -> assertEquals(2, showRepository.findAll().size())
+        );
+    }
+
+
+    @Test
+    public void testCreateShow_startBeforeAndEndAfterExisting_exceedsDuration_throwsValidationException() throws ValidationException {
+        testEvent.setDuration(200);
+        eventRepository.save(testEvent);
+
+        Show existing = Show.ShowBuilder.aShow()
+            .withName("Anchor")
+            .withDuration(90)
+            .withDate(LocalDateTime.now().plusDays(1).withHour(18))
+            .withEvent(testEvent)
+            .withArtists(Set.of(testArtist))
+            .build();
+
+        Show tooEarlyAndLong = Show.ShowBuilder.aShow()
+            .withName("Too Early")
+            .withDuration(100)
+            .withDate(LocalDateTime.now().plusDays(1).withHour(16))
+            .withEvent(testEvent)
+            .withArtists(Set.of(testArtist))
+            .build();
+
+        showService.createShow(existing);
+
+        assertAll(
+            () -> assertThrows(ValidationException.class, () -> showService.createShow(tooEarlyAndLong)),
+            () -> assertEquals(1, showRepository.findAll().size())
         );
     }
 }
