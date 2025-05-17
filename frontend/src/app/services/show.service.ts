@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Globals } from '../global/globals';
 import { CreateShow } from '../dtos/create-show';
-import { Show } from '../dtos/show';
+import {Show, ShowSearch, ShowSearchResult} from '../dtos/show';
 import { forkJoin } from 'rxjs';
 import {Page} from "../dtos/page";
 
@@ -57,6 +57,13 @@ export class ShowService {
   getPagedShowsForEvent(eventId: number, page: number = 0, size: number = 5): Observable<Page<Show>> {
     return this.httpClient.get<Page<Show>>(
       `${this.globals.backendUri}/shows/event/${eventId}?page=${page}&size=${size}`
+    );
+  }
+
+  searchShows(criteria: ShowSearch): Observable<Page<ShowSearchResult>> {
+    return this.httpClient.post<Page<ShowSearchResult>>(
+      `${this.showBaseUri}/search`,
+      criteria
     );
   }
 }

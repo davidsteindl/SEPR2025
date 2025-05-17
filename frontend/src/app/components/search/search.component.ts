@@ -10,6 +10,8 @@ import {Page} from "../../dtos/page";
 import {EventSearchDto, EventSearchResultDto} from "../../dtos/event";
 import {EventService} from "../../services/event.service";
 import {EventCategory} from "../create-content/create-event/create-event.component";
+import {ShowSearch, ShowSearchResult} from "../../dtos/show";
+import {ShowService} from "../../services/show.service";
 
 
 @Component({
@@ -80,6 +82,21 @@ export class SearchComponent implements OnInit {
   eventCurrentPage = 0;
   eventPageSize = 10;
 
+  // performance (Show) search
+  showName: string = '';
+  showEventName: string = '';
+  showRoomName: string = '';
+  showStartDate?: string;
+  showEndDate?: string;
+  showMinPrice?: number;
+  showMaxPrice?: number;
+
+  showPage?: Page<ShowSearchResult>;
+  showLoading = false;
+  showTriggered = false;
+  showCurrentPage = 0;
+  showPageSize = 10;
+
   ngOnInit(): void {
   }
 
@@ -87,6 +104,7 @@ export class SearchComponent implements OnInit {
   constructor(
     private artistService: ArtistService,
     private eventService: EventService,
+    private showService: ShowService,
     private notification: ToastrService,
     private errorFormatter: ErrorFormatterService
   ) {
@@ -106,7 +124,7 @@ export class SearchComponent implements OnInit {
         this.searchEvents();
         break;
       case 'performance':
-        // this.searchPerformances();
+        this.searchShows
         break;
     }
   }
@@ -189,8 +207,38 @@ export class SearchComponent implements OnInit {
     });
   }
 
-  searchPerformances(): void {
-    // Implement performance search
-    console.log('Performance search not implemented yet');
+  searchShows(page: number = 0): void {
+    const dto: ShowSearch = {
+      page,
+      size: this.showPageSize,
+      name: this.showName?.trim() || undefined,
+      eventName: this.showEventName?.trim() || undefined,
+      roomName: this.showRoomName?.trim() || undefined,
+      startDate: this.showStartDate ? new Date(this.showStartDate).toISOString() : undefined,
+      endDate: this.showEndDate ? new Date(this.showEndDate).toISOString() : undefined,
+      minPrice: this.showMinPrice,
+      maxPrice: this.showMaxPrice
+    };
+
+    this.showLoading = true;
+    this.showTriggered = true;
+
+    this.showService.searchShows(dto).subscribe({
+      next: (pageResult) => {
+        this.showPage = pageResult;
+        this.showCurrentPage = pageResult.number;
+        this.showLoading = false;
+      },
+      error: (err) => {
+        this.showPage = undefined;
+        this.showLoading = false;
+        this.showTriggered = false;
+        this.notification.error(this.errorFormatter.format(err), 'Search failed', {
+          enableHtml: true,
+          timeOut: 8000,
+        });
+      }
+    });
   }
+
 }
