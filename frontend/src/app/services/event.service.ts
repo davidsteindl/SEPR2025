@@ -94,4 +94,11 @@ export class EventService {
     const url = `${this.eventBaseUri}/${eventId}/shows/paginated?page=${page}&size=${size}`;
     return this.httpClient.get<Page<Show>>(url);
   }
+
+  /**
+   * Loads all categories from the backend
+   */
+  getCategories(): Observable<string[]> {
+    return this.httpClient.get<string[]>(this.eventBaseUri + '/categories');
+  }
 }

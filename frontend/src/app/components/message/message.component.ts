@@ -5,6 +5,7 @@ import {Event} from '../../dtos/event';
 import {NgbModal, NgbPaginationConfig} from '@ng-bootstrap/ng-bootstrap';
 import {UntypedFormBuilder, NgForm} from '@angular/forms';
 import {AuthService} from '../../services/auth.service';
+import {EventService} from "../../services/event.service";
 
 @Component({
   selector: 'app-message',
@@ -24,7 +25,7 @@ export class MessageComponent implements OnInit {
   private message: Message[];
 
   selectedCategory: string = 'All';
-  categories: string[] = ['Music', 'Sport', 'Theater'];
+  categories: string[];
 
   allEvents: Event[] = [
     {
@@ -61,6 +62,7 @@ export class MessageComponent implements OnInit {
 
 
   constructor(private messageService: MessageService,
+              private eventService: EventService,
               private ngbPaginationConfig: NgbPaginationConfig,
               private formBuilder: UntypedFormBuilder,
               private cd: ChangeDetectorRef,
@@ -70,6 +72,7 @@ export class MessageComponent implements OnInit {
 
   ngOnInit() {
     this.loadMessage();
+    this.loadCategories();
   }
 
   /**
@@ -176,6 +179,17 @@ export class MessageComponent implements OnInit {
 
     filteredEvents = filteredEvents.sort((a, b) => b.soldTickets - a.soldTickets);
     return filteredEvents.slice(0, 10);
+  }
+
+  private loadCategories() {
+    this.eventService.getCategories().subscribe({
+      next: (categories: string[]) => {
+        this.categories = categories;
+      },
+      error: error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    });
   }
 
 
