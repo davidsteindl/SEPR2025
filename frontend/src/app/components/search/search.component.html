@@ -136,8 +136,8 @@
           <td>{{ ev.duration }}</td>
           <td>{{ ev.description }}</td>
           <td class="text-right">
-            <button class="btn btn-sm btn-secondary"
-                    [routerLink]="['/events', ev.id]">
+            <button class="view-button"
+                    [routerLink]="['/events', ev.id, 'overview']">
               View Event
             </button>
           </td>
@@ -193,44 +193,47 @@
     </div>
 
     <div class="mt-4" *ngIf="!showLoading && showTriggered">
-      <h5 class="text-primary">Results:</h5>
-      <table class="table table-bordered">
-        <thead>
-        <tr>
-          <th>Name</th>
-          <th>Date</th>
-          <th>Duration</th>
-          <th>Event</th>
-          <th>Room</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let s of showPage?.content">
-          <td><strong>{{ s.name }}</strong></td>
-          <td>{{ s.date | date:'short' }}</td>
-          <td>{{ s.duration }} min</td>
-          <td>{{ s.eventName }}</td>
-          <td>{{ s.roomName }}</td>
-        </tr>
-        </tbody>
-      </table>
+      <ng-container *ngIf="showPage?.content?.length > 0; else noShows">
+        <h5 class="text-primary">Results:</h5>
+        <table class="table table-bordered">
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Duration</th>
+            <th>Event</th>
+            <th>Room</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let s of showPage?.content">
+            <td><strong>{{ s.name }}</strong></td>
+            <td>{{ s.date | date:'short' }}</td>
+            <td>{{ s.duration }} min</td>
+            <td>{{ s.eventName }}</td>
+            <td>{{ s.roomName }}</td>
+          </tr>
+          </tbody>
+        </table>
 
-      <div *ngIf="showPage?.content.length === 0" class="text-center text-muted">
-        No performances found.
-      </div>
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="showCurrentPage === 0">
+            <a class="page-link" style="cursor: pointer;" (click)="searchShows(showCurrentPage - 1)">Previous</a>
+          </li>
+          <li class="page-item disabled">
+            <span class="page-link">Page {{ showCurrentPage + 1 }} of {{ showPage?.totalPages }}</span>
+          </li>
+          <li class="page-item" [class.disabled]="showCurrentPage >= (showPage?.totalPages || 1) - 1">
+            <a class="page-link" style="cursor: pointer;" (click)="searchShows(showCurrentPage + 1)">Next</a>
+          </li>
+        </ul>
+      </ng-container>
 
-      <ul class="pagination justify-content-center">
-        <li class="page-item" [class.disabled]="showCurrentPage === 0">
-          <a class="page-link" style="cursor: pointer;" (click)="searchShows(showCurrentPage - 1)">Previous</a>
-        </li>
-        <li class="page-item disabled">
-          <span class="page-link">Page {{ showCurrentPage + 1 }} of {{ showPage?.totalPages }}</span>
-        </li>
-        <li class="page-item" [class.disabled]="showCurrentPage >= (showPage?.totalPages || 1) - 1">
-          <a class="page-link" style="cursor: pointer;" (click)="searchShows(showCurrentPage + 1)">Next</a>
-        </li>
-      </ul>
+      <ng-template #noShows>
+        <div class="text-center text-muted" style="font-weight: bold">
+          No shows found.
+        </div>
+      </ng-template>
     </div>
   </div>
-
 </div>

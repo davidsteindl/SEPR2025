@@ -47,19 +47,12 @@ export class ShowService {
     return forkJoin(ids.map(id => this.getShowById(id)));
   }
 
-  /**
-   * Retrieves a paginated list of shows associated with a specific event.
-   *
-   * @param eventId - The ID of the event for which to retrieve shows.
-   * @param page - The page number to retrieve (defaults to 0).
-   * @param size - The number of items per page (defaults to 5).
-   */
-  getPagedShowsForEvent(eventId: number, page: number = 0, size: number = 5): Observable<Page<Show>> {
-    return this.httpClient.get<Page<Show>>(
-      `${this.globals.backendUri}/shows/event/${eventId}?page=${page}&size=${size}`
-    );
-  }
-
+/**
+ * Performs a search for shows (performances) based on the given search criteria.
+ *
+ * @param criteria A {@link ShowSearch} object containing filters such as name, event name,
+ *                 room name, start/end date, price range, and pagination parameters.
+ */
   searchShows(criteria: ShowSearch): Observable<Page<ShowSearchResult>> {
     return this.httpClient.post<Page<ShowSearchResult>>(
       `${this.showBaseUri}/search`,
