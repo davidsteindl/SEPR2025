@@ -32,7 +32,9 @@ public final class ShowSpecifications {
      */
     public static Specification<Show> hasEventName(String name) {
         return (root, query, cb) -> {
-            if (name == null || name.isBlank()) return null;
+            if (name == null || name.isBlank()) {
+                return null;
+            }
             return cb.like(cb.lower(root.get("event").get("name")), "%" + name.toLowerCase() + "%");
         };
     }
@@ -42,7 +44,9 @@ public final class ShowSpecifications {
      */
     public static Specification<Show> hasRoomName(String name) {
         return (root, query, cb) -> {
-            if (name == null || name.isBlank()) return null;
+            if (name == null || name.isBlank()) {
+                return null;
+            }
             return cb.like(cb.lower(root.get("room").get("name")), "%" + name.toLowerCase() + "%");
         };
     }
