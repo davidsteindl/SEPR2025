@@ -124,7 +124,7 @@ export class SearchComponent implements OnInit {
         this.searchEvents();
         break;
       case 'performance':
-        this.searchShows
+        this.searchShows();
         break;
     }
   }
