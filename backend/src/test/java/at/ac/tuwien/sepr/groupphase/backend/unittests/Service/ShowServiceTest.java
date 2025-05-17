@@ -258,6 +258,7 @@ public class ShowServiceTest {
     }
 
     @Test
+    @Transactional
     public void testCreateShow_singleShowWithinDuration_savesSuccessfully() throws ValidationException {
         Show show = Show.ShowBuilder.aShow()
             .withName("Early Performance")
@@ -265,6 +266,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(18))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         Show saved = showService.createShow(show);
@@ -277,6 +279,7 @@ public class ShowServiceTest {
     }
 
     @Test
+    @Transactional
     public void testCreateShow_multipleShowsWithinEventDuration_savesSuccessfully() throws ValidationException {
         testEvent.setDuration(220);
         eventRepository.save(testEvent);
@@ -287,6 +290,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(17))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         Show second = Show.ShowBuilder.aShow()
@@ -295,6 +299,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(19))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         showService.createShow(first);
@@ -308,6 +313,7 @@ public class ShowServiceTest {
     }
 
     @Test
+    @Transactional
     public void testCreateShow_exceedsEventDuration_throwsValidationException() throws ValidationException {
         testEvent.setDuration(200);
         eventRepository.save(testEvent);
@@ -318,6 +324,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(17))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         Show second = Show.ShowBuilder.aShow()
@@ -326,6 +333,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(19))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         showService.createShow(first);
@@ -337,6 +345,7 @@ public class ShowServiceTest {
     }
 
     @Test
+    @Transactional
     public void testCreateShow_startsBeforeExistingShow_withinDuration_savesSuccessfully() throws ValidationException {
         testEvent.setDuration(280);
         eventRepository.save(testEvent);
@@ -347,6 +356,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(20))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         Show earlier = Show.ShowBuilder.aShow()
@@ -355,6 +365,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(17))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         showService.createShow(later);
@@ -368,6 +379,7 @@ public class ShowServiceTest {
 
 
     @Test
+    @Transactional
     public void testCreateShow_startBeforeAndEndAfterExisting_exceedsDuration_throwsValidationException() throws ValidationException {
         testEvent.setDuration(200);
         eventRepository.save(testEvent);
@@ -378,6 +390,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(18))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         Show tooEarlyAndLong = Show.ShowBuilder.aShow()
@@ -386,6 +399,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(16))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         showService.createShow(existing);
