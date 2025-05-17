@@ -26,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import static at.ac.tuwien.sepr.groupphase.backend.config.SecurityConstants.MAX_LOGIN_TRIES;
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -145,6 +146,13 @@ public class CustomUserDetailService implements UserService {
             .isAdmin(false)
             .isLocked(false)
             .build();
+
+
+        if (userRepository.existsByEmail(user.getEmail())) {
+            List<String> validationErrors = new ArrayList<>();
+            validationErrors.add("Email is already in use");
+            throw new ValidationException("Validation of user for registration failed", validationErrors);
+        }
 
         userRepository.save(user);
     }
