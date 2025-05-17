@@ -230,4 +230,40 @@ public class ShowEndpointTest implements TestData {
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), result.getResponse().getStatus());
     }
+
+    @Test
+    public void searchShows_asAdmin_shouldReturnMatchingShow() throws Exception {
+        CreateShowDto createDto = CreateShowDto.CreateShowDtoBuilder.aCreateShowDto()
+            .name("Rock Session")
+            .duration(90)
+            .date(LocalDateTime.now().plusDays(1))
+            .eventId(testEvent.getId())
+            .roomId(testRoom.getId())
+            .artistIds(Set.of(testArtist.getId()))
+            .build();
+
+        mockMvc.perform(post(SHOW_BASE_URI)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createDto)))
+            .andExpect(result -> assertEquals(HttpStatus.CREATED.value(), result.getResponse().getStatus()));
+
+        var searchDto = new Object() {
+            public final int page = 0;
+            public final int size = 10;
+            public final String name = "Rock";
+        };
+
+        MvcResult result = mockMvc.perform(post(SHOW_BASE_URI + "/search")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(searchDto)))
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        String responseJson = result.getResponse().getContentAsString();
+        assertTrue(responseJson.contains("Rock Session"));
+    }
+
 }

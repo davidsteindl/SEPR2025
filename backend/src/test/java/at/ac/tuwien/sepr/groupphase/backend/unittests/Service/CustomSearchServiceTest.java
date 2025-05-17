@@ -4,14 +4,19 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ArtistMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event.EventCategory;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomSearchService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SearchValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +33,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,11 +53,14 @@ class CustomSearchServiceTest {
     private SearchValidator validator;
     @InjectMocks
     private CustomSearchService service;
+    @Mock
+    private ShowRepository showRepo;
 
     private Artist artist;
     private ArtistSearchResultDto dto;
-
     private Event event;
+    private Show show;
+    private Room room;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -77,6 +86,22 @@ class CustomSearchServiceTest {
         Field f = Event.class.getDeclaredField("duration");
         f.setAccessible(true);
         f.set(event, 90);
+
+        room = new Room();
+        room.setId(3L);
+        room.setName("Main Hall");
+
+        show = Show.ShowBuilder.aShow()
+            .withName("Amazing Show")
+            .withDuration(120)
+            .withDate(LocalDateTime.of(2025, 6, 1, 20, 0))
+            .withEvent(event)
+            .withRoom(room)
+            .build();
+
+        Field idField = Show.class.getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(show, 100L);
     }
 
     @Test
@@ -162,5 +187,52 @@ class CustomSearchServiceTest {
         assertEquals("Description", out.getDescription());
 
         verify(validator).validateForEvents(dto);
+    }
+
+    @Test
+    void givenValidSearchDto_whenSearchShows_thenReturnsMappedResultPage() throws ValidationException {
+        ShowSearchDto searchDto = new ShowSearchDto();
+        searchDto.setPage(0);
+        searchDto.setSize(10);
+        searchDto.setName("Amazing");
+
+        Page<Show> stubPage = new PageImpl<>(List.of(show), PageRequest.of(0, 10), 1);
+        when(showRepo.findAll(any(Specification.class), any(Pageable.class))).thenReturn(stubPage);
+        doNothing().when(validator).validateForShows(searchDto);
+
+        Page<ShowSearchResultDto> result = service.searchShows(searchDto);
+
+        assertEquals(1, result.getTotalElements());
+        ShowSearchResultDto dto = result.getContent().getFirst();
+        assertEquals(100L, dto.getId());
+        assertEquals("Amazing Show", dto.getName());
+        assertEquals(120, dto.getDuration());
+        assertEquals(LocalDateTime.of(2025, 6, 1, 20, 0), dto.getDate());
+        assertEquals(1L, dto.getEventId());
+        assertEquals("Test", dto.getEventName());
+        assertEquals(3L, dto.getRoomId());
+        assertEquals("Main Hall", dto.getRoomName());
+
+        verify(validator).validateForShows(searchDto);
+        verify(showRepo).findAll(any(Specification.class), eq(PageRequest.of(0, 10)));
+    }
+
+    @Test
+    void givenNoMatchingShows_whenSearchShows_thenReturnsEmptyPage() throws ValidationException {
+        ShowSearchDto searchDto = new ShowSearchDto();
+        searchDto.setPage(0);
+        searchDto.setSize(10);
+        searchDto.setName("NotExisting");
+
+        when(showRepo.findAll(any(Specification.class), any(Pageable.class))).thenReturn(Page.empty());
+        doNothing().when(validator).validateForShows(searchDto);
+
+        Page<ShowSearchResultDto> result = service.searchShows(searchDto);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        verify(validator).validateForShows(searchDto);
+        verify(showRepo).findAll(any(Specification.class), eq(PageRequest.of(0, 10)));
     }
 }
