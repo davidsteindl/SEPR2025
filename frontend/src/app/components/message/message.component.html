@@ -143,11 +143,11 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let event of topEvents; let i = index">
+        <tr *ngFor="let event of topTenEvents; let i = index">
           <td>{{ i + 1 }}.</td>
           <td>{{ event.name }}</td>
-          <td>{{ event.date }}</td>
-          <td><strong>{{ event.soldTickets }}</strong></td>
+          <td>{{ event.dateTime }}</td>
+          <td><strong>{{ event.ticketsSold }}</strong></td>
           <td>
             <button class="view-button">View full event</button>
           </td>

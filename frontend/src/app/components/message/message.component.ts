@@ -1,7 +1,7 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild, ViewChildren} from '@angular/core';
 import {MessageService} from '../../services/message.service';
 import {Message} from '../../dtos/message';
-import {Event} from '../../dtos/event';
+import {Event, EventTopTenDto} from '../../dtos/event';
 import {NgbModal, NgbPaginationConfig} from '@ng-bootstrap/ng-bootstrap';
 import {UntypedFormBuilder, NgForm} from '@angular/forms';
 import {AuthService} from '../../services/auth.service';
@@ -26,6 +26,7 @@ export class MessageComponent implements OnInit {
 
   selectedCategory: string = 'All';
   categories: string[];
+  topTenEvents: EventTopTenDto[];
 
   allEvents: Event[] = [
     {
@@ -73,6 +74,7 @@ export class MessageComponent implements OnInit {
   ngOnInit() {
     this.loadMessage();
     this.loadCategories();
+    this.loadTopTen();
   }
 
   /**
@@ -185,6 +187,17 @@ export class MessageComponent implements OnInit {
     this.eventService.getCategories().subscribe({
       next: (categories: string[]) => {
         this.categories = categories;
+      },
+      error: error => {
+        this.defaultServiceErrorHandling(error);
+      }
+    });
+  }
+
+  private loadTopTen(){
+    this.eventService.getTopTen(this.selectedCategory).subscribe({
+      next: (events: EventTopTenDto[]) => {
+        this.topTenEvents= events;
       },
       error: error => {
         this.defaultServiceErrorHandling(error);
