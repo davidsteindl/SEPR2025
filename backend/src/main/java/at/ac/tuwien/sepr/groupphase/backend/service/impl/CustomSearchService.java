@@ -137,8 +137,8 @@ public class CustomSearchService implements SearchService {
 
         spec = spec
             .and(ShowSpecifications.dateBetween(criteria.getStartDate(), criteria.getEndDate()))
-            .and(ShowSpecifications.hasEventId(criteria.getEventId()))
-            .and(ShowSpecifications.hasRoomId(criteria.getRoomId()))
+            .and(ShowSpecifications.hasEventName(criteria.getEventName()))
+            .and(ShowSpecifications.hasRoomName(criteria.getRoomName()))
             .and(ShowSpecifications.nameContains(criteria.getName()));
         // .and(ShowSpecifications.hasTicketPriceBetween(...)) // later
 

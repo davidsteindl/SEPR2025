@@ -194,7 +194,8 @@ class CustomSearchServiceTest {
         ShowSearchDto searchDto = new ShowSearchDto();
         searchDto.setPage(0);
         searchDto.setSize(10);
-        searchDto.setName("Amazing");
+        searchDto.setEventName("Test");
+        searchDto.setRoomName("Main");
 
         Page<Show> stubPage = new PageImpl<>(List.of(show), PageRequest.of(0, 10), 1);
         when(showRepo.findAll(any(Specification.class), any(Pageable.class))).thenReturn(stubPage);

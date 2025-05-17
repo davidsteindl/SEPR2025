@@ -19,10 +19,9 @@ public class ShowSearchDto {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
-    private Long eventId;
-    private Long roomId;
-
     private String name;
+    private String eventName;
+    private String roomName;
 
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
@@ -59,28 +58,28 @@ public class ShowSearchDto {
         this.endDate = endDate;
     }
 
-    public Long getEventId() {
-        return eventId;
-    }
-
-    public void setEventId(Long eventId) {
-        this.eventId = eventId;
-    }
-
-    public Long getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(Long roomId) {
-        this.roomId = roomId;
-    }
-
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getEventName() {
+        return eventName;
+    }
+
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
+    }
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 
     public BigDecimal getMinPrice() {
@@ -106,9 +105,9 @@ public class ShowSearchDto {
             + ", size=" + size
             + ", startDate=" + startDate
             + ", endDate=" + endDate
-            + ", eventId=" + eventId
-            + ", roomId=" + roomId
             + ", name='" + name + '\''
+            + ", eventName='" + eventName + '\''
+            + ", roomName='" + roomName + '\''
             + ", minPrice=" + minPrice
             + ", maxPrice=" + maxPrice
             + '}';

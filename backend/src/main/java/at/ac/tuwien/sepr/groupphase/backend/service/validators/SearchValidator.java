@@ -162,6 +162,14 @@ public class SearchValidator {
             validationErrors.add("Name filter must not exceed 100 characters");
         }
 
+        if (criteria.getEventName() != null && criteria.getEventName().length() > 100) {
+            validationErrors.add("Event name filter must not exceed 100 characters");
+        }
+
+        if (criteria.getRoomName() != null && criteria.getRoomName().length() > 100) {
+            validationErrors.add("Room name filter must not exceed 100 characters");
+        }
+
         BigDecimal minPrice = criteria.getMinPrice();
         BigDecimal maxPrice = criteria.getMaxPrice();
         if (minPrice != null && minPrice.compareTo(BigDecimal.ZERO) < 0) {
