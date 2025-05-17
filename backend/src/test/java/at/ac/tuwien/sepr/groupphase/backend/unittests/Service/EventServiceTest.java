@@ -3,7 +3,6 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
-import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
@@ -25,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -47,9 +47,6 @@ public class EventServiceTest {
 
     private EventLocation testLocation;
 
-    @Autowired
-    private EventValidator eventValidator;
-
     private ShowRepository showRepository;
 
     private EventMapper eventMapper;
@@ -71,7 +68,7 @@ public class EventServiceTest {
         showRepository = mock(ShowRepository.class);
         eventMapper = mock(EventMapper.class);
         showMapper = mock(ShowMapper.class);
-        eventService = new EventServiceImpl(eventRepository, eventLocationRepository, eventValidator, showRepository, eventMapper, showMapper);
+        eventService = new EventServiceImpl(eventRepository, eventLocationRepository, showRepository, eventMapper, showMapper);
 
         testLocation = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Test Location")

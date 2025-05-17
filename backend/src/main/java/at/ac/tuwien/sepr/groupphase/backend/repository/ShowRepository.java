@@ -22,12 +22,13 @@ public interface ShowRepository extends JpaRepository<Show, Long> {
 
     @Query(value = """
         SELECT
-        MIN(s.date) as min_date,
-        MAX(s.date + s.duration * INTERVAL '1' MINUTE) as max_end
+            MIN(s.date) AS min_date,
+            MAX(DATEADD('MINUTE', s.duration, s.date)) AS max_end
         FROM show s
         WHERE s.event_id = :eventId
         """, nativeQuery = true)
     MinMaxTime findMinStartAndMaxEndByEventId(@Param("eventId") Long eventId);
+
 
     @Query("SELECT s FROM Show s LEFT JOIN FETCH s.artists WHERE s.id = :id")
     Optional<Show> findByIdWithArtists(@Param("id") Long id);
