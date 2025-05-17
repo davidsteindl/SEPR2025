@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.CreateShowDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.mapstruct.Mapper;
@@ -63,11 +64,11 @@ public interface ShowMapper {
     }
 
     @Named("mapRoomIdToRoom")
-    default at.ac.tuwien.sepr.groupphase.backend.entity.Room mapRoomIdToRoom(Long roomId) throws ValidationException {
+    default Room mapRoomIdToRoom(Long roomId) throws ValidationException {
         if (roomId == null) {
             throw new ValidationException("Room ID must not be null", List.of("Room ID is null"));
         }
-        var room = new at.ac.tuwien.sepr.groupphase.backend.entity.Room();
+        var room = new Room();
         room.setId(roomId);
         return room;
     }

@@ -89,9 +89,6 @@ public class ShowEndpointTest implements TestData {
             .build();
         roomRepository.save(testRoom);
         testRoom = roomRepository.save(testRoom);
-        System.out.println("Room saved with ID: " + testRoom.getId());
-        System.out.println("Room actually in DB? " + roomRepository.findById(testRoom.getId()).isPresent());
-
 
         testEvent = new Event();
         testEvent.setName("Rock Night");
@@ -126,9 +123,6 @@ public class ShowEndpointTest implements TestData {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
             .andReturn();
-        System.out.println("Status: " + result.getResponse().getStatus());
-        System.out.println("Response Body: " + result.getResponse().getContentAsString());
-
 
         assertEquals(HttpStatus.CREATED.value(), result.getResponse().getStatus());
 

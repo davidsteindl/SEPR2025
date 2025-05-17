@@ -72,7 +72,7 @@ public class ShowEndpoint {
     }
 
     @PostMapping("/search")
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Search for shows by various filter criteria", security = @SecurityRequirement(name = "apiKey"))
     public Page<ShowSearchResultDto> searchShows(@RequestBody @Valid ShowSearchDto searchDto) throws ValidationException {
