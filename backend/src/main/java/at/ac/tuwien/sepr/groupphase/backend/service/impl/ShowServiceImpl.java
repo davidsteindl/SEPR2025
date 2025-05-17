@@ -30,7 +30,7 @@ public class ShowServiceImpl implements ShowService {
     private final EventRepository eventRepository;
     private final ArtistRepository artistRepository;
     private final ShowValidator showValidator;
-    private RoomRepository roomRepository;
+    private final RoomRepository roomRepository;
 
     @Autowired
     public ShowServiceImpl(ShowRepository showRepository,
