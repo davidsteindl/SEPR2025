@@ -23,7 +23,7 @@ import {EventOverviewComponent} from "./components/event-overview/event-overview
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'manage-accounts', component: ManageAccountsComponent, canActivate: [AuthGuard]},
+  { path: 'manage-accounts', component: ManageAccountsComponent, canActivate: [AdminGuard]},
   { path: 'register', component: RegisterComponent},
   { path: 'termsandconditions', component: TermsandconditionsComponent},
   { path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent },
