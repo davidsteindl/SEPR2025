@@ -61,7 +61,7 @@ public class UserEndpointTest implements TestData {
     @Test
     public void getCurrentUser_shouldReturnCorrectData() throws Exception {
         MvcResult result = mockMvc.perform(get(USER_BASE_URI + "/me")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(String.valueOf(testUser.getId()), USER_ROLES)))
             .andReturn();
 
         UserDetailDto dto = objectMapper.readValue(result.getResponse().getContentAsString(), UserDetailDto.class);
@@ -88,7 +88,7 @@ public class UserEndpointTest implements TestData {
         String body = objectMapper.writeValueAsString(dto);
 
         MvcResult result = mockMvc.perform(put(USER_BASE_URI + "/me")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(String.valueOf(testUser.getId()), USER_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
             .andReturn();
@@ -102,7 +102,7 @@ public class UserEndpointTest implements TestData {
         String body = objectMapper.writeValueAsString(dto);
 
         MvcResult result = mockMvc.perform(put(USER_BASE_URI + "/me")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(String.valueOf(testUser.getId()), USER_ROLES))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
             .andReturn();
@@ -113,7 +113,7 @@ public class UserEndpointTest implements TestData {
     @Test
     public void deleteCurrentUser_shouldRemoveUser() throws Exception {
         MvcResult result = mockMvc.perform(delete(USER_BASE_URI + "/me")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(String.valueOf(testUser.getId()), USER_ROLES)))
             .andReturn();
 
         assertEquals(HttpStatus.NO_CONTENT.value(), result.getResponse().getStatus());

@@ -123,30 +123,72 @@
  </div>
 
   <div class="row mb-2">
-     <label for="address" class="col-form-label text-md-end text-muted col-md-2">
-       Postal Address
+     <label for="street" class="col-form-label text-md-end text-muted col-md-2">
+       Street
      </label>
      <div class="col-md-10">
        <textarea
          class="form-control"
-         id="address"
-         name="address"
-         [(ngModel)]="user.address">
+         id="street"
+         name="street"
+         [(ngModel)]="user.street">
        </textarea>
      </div>
   </div>
 
   <div class="row mb-2">
-    <label for="paymentData" class="col-form-label text-md-end text-muted col-md-2">
-      Payment Data
+    <label for="housenumber" class="col-form-label text-md-end text-muted col-md-2">
+      House Number
+    </label>
+    <div class="col-md-10">
+       <textarea
+         class="form-control"
+         id="housenumber"
+         name="housenumber"
+         [(ngModel)]="user.housenumber">
+       </textarea>
+    </div>
+  </div>
+
+  <div class="row mb-2">
+    <label for="postalCode" class="col-form-label text-md-end text-muted col-md-2">
+      Postal Code
     </label>
     <div class="col-md-10">
         <textarea
           class="form-control"
-          id="paymentData"
-          name="paymentData"
-          [(ngModel)]="user.paymentData">
+          id="postalCode"
+          name="postalCode"
+          [(ngModel)]="user.postalCode">
         </textarea>
+    </div>
+  </div>
+
+  <div class="row mb-2">
+    <label for="city" class="col-form-label text-md-end text-muted col-md-2">
+      City
+    </label>
+    <div class="col-md-10">
+       <textarea
+         class="form-control"
+         id="city"
+         name="city"
+         [(ngModel)]="user.city">
+       </textarea>
+    </div>
+  </div>
+
+  <div class="row mb-2">
+    <label for="country" class="col-form-label text-md-end text-muted col-md-2">
+      Country
+    </label>
+    <div class="col-md-10">
+       <textarea
+         class="form-control"
+         id="country"
+         name="country"
+         [(ngModel)]="user.country">
+       </textarea>
     </div>
   </div>
 

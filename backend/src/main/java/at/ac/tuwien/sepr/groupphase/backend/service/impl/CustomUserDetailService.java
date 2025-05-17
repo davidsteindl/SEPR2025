@@ -176,41 +176,43 @@ public class CustomUserDetailService implements UserService {
 
     @Transactional
     @Override
-    public void delete(String email) {
-        ApplicationUser user = userRepository.findByEmail(email);
-
-        if (user == null) {
+    public void delete(Long id) {
+        if (!userRepository.existsById(id)) {
             throw new NotFoundException("User not found");
         }
-
-        userRepository.deleteByEmail(email);
+        userRepository.deleteById(id);
     }
 
 
     @Transactional
     @Override
-    public void update(String email, UserUpdateDto userToUpdate) throws ValidationException {
-        var userInDatabase = userRepository.findByEmail(email);
+    public void update(Long id, UserUpdateDto userToUpdate) throws ValidationException {
+        var userInDatabase = userRepository.findById(id);
 
-        if (userInDatabase == null) {
+        if (userInDatabase.isEmpty()) {
             throw new NotFoundException("User not found");
         }
 
-        if (!email.equals(userToUpdate.getEmail()) && userRepository.existsByEmail(userToUpdate.getEmail())) {
+        var user = userInDatabase.get();
+        if (!user.getEmail().equals(userToUpdate.getEmail()) && userRepository.existsByEmail(userToUpdate.getEmail())) {
             throw new ConflictException("User with Email already exists");
         }
 
         userValidator.validateForUpdate(userToUpdate);
 
-        userInDatabase.setFirstName(userToUpdate.getFirstName());
-        userInDatabase.setLastName(userToUpdate.getLastName());
-        userInDatabase.setDateOfBirth(userToUpdate.getDateOfBirth());
-        userInDatabase.setEmail(userToUpdate.getEmail());
-        userInDatabase.setSex(userToUpdate.getSex());
-        userInDatabase.setAddress(userToUpdate.getAddress());
-        userInDatabase.setPaymentData(userToUpdate.getPaymentData());
+        user.setFirstName(userToUpdate.getFirstName());
+        user.setLastName(userToUpdate.getLastName());
+        user.setDateOfBirth(userToUpdate.getDateOfBirth());
+        user.setEmail(userToUpdate.getEmail());
+        user.setSex(userToUpdate.getSex());
+        user.setPostalCode(userToUpdate.getPostalCode());
+        user.setCity(userToUpdate.getCity());
+        user.setCountry(userToUpdate.getCountry());
+        user.setStreet(userToUpdate.getStreet());
+        user.setHousenumber(userToUpdate.getHousenumber());
+        user.setPostalCode(userToUpdate.getPostalCode());
 
-        userRepository.save(userInDatabase);
+        userRepository.save(user);
     }
 
 

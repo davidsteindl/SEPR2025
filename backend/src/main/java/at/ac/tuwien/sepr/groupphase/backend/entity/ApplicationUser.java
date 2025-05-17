@@ -34,11 +34,20 @@ public class ApplicationUser {
     @Column(nullable = false, length = 100, unique = true)
     private String email;
 
-    @Column(nullable = true, length = 200)
-    private String address;
+    @Column(nullable = true, length = 100)
+    private String housenumber;
+
+    @Column(nullable = true, length = 100)
+    private String country;
+
+    @Column(nullable = true, length = 100)
+    private String city;
 
     @Column(nullable = true, length = 200)
-    private String paymentData;
+    private String street;
+
+    @Column(nullable = true, length = 100)
+    private String postalCode;
 
     @Column(nullable = false, length = 100)
     private boolean locked;
@@ -89,20 +98,44 @@ public class ApplicationUser {
         this.sex = sex;
     }
 
-    public String getAddress() {
-        return address;
+    public String getHousenumber() {
+        return housenumber;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setHousenumber(String housenumber) {
+        this.housenumber = housenumber;
     }
 
-    public String getPaymentData() {
-        return paymentData;
+    public String getCountry() {
+        return country;
     }
 
-    public void setPaymentData(String paymentData) {
-        this.paymentData = paymentData;
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
     }
 
     public String getEmail() {
@@ -150,18 +183,42 @@ public class ApplicationUser {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
+
         ApplicationUser that = (ApplicationUser) o;
-        return locked == that.locked && admin == that.admin && loginTries == that.loginTries
-            && Objects.equals(id, that.id) && Objects.equals(firstName, that.firstName)
-            && Objects.equals(lastName, that.lastName) && Objects.equals(password, that.password)
-            && Objects.equals(dateOfBirth, that.dateOfBirth) && sex == that.sex
-            && Objects.equals(email, that.email) && Objects.equals(address, that.address)
-            && Objects.equals(paymentData, that.paymentData);
+        return locked == that.locked
+            && admin == that.admin
+            && loginTries == that.loginTries
+            && id.equals(that.id)
+            && firstName.equals(that.firstName)
+            && lastName.equals(that.lastName)
+            && password.equals(that.password)
+            && dateOfBirth.equals(that.dateOfBirth)
+            && sex == that.sex && email.equals(that.email)
+            && Objects.equals(housenumber, that.housenumber)
+            && Objects.equals(country, that.country)
+            && Objects.equals(city, that.city)
+            && Objects.equals(street, that.street)
+            && Objects.equals(postalCode, that.postalCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, password, dateOfBirth, sex, email, address, paymentData, locked, admin, loginTries);
+        int result = id.hashCode();
+        result = 31 * result + firstName.hashCode();
+        result = 31 * result + lastName.hashCode();
+        result = 31 * result + password.hashCode();
+        result = 31 * result + dateOfBirth.hashCode();
+        result = 31 * result + sex.hashCode();
+        result = 31 * result + email.hashCode();
+        result = 31 * result + Objects.hashCode(housenumber);
+        result = 31 * result + Objects.hashCode(country);
+        result = 31 * result + Objects.hashCode(city);
+        result = 31 * result + Objects.hashCode(street);
+        result = 31 * result + Objects.hashCode(postalCode);
+        result = 31 * result + Boolean.hashCode(locked);
+        result = 31 * result + Boolean.hashCode(admin);
+        result = 31 * result + loginTries;
+        return result;
     }
 
     @Override
@@ -173,7 +230,6 @@ public class ApplicationUser {
             + ", dateOfBirth=" + dateOfBirth
             + ", sex=" + sex
             + ", email='" + email + '\''
-            + ", address='" + address + '\''
             + ", locked=" + locked
             + ", admin=" + admin
             + ", loginTries=" + loginTries
@@ -188,8 +244,11 @@ public class ApplicationUser {
         private LocalDate dateOfBirth;
         private Sex sex;
         private String email;
-        private String address;
-        private String paymentData;
+        private String city;
+        private String street;
+        private String postalCode;
+        private String housenumber;
+        private String country;
         private boolean isLocked;
         private boolean isAdmin;
         private int loginTries;
@@ -236,13 +295,28 @@ public class ApplicationUser {
             return this;
         }
 
-        public ApplicationUserBuilder withAddress(String address) {
-            this.address = address;
+        public ApplicationUserBuilder withCity(String city) {
+            this.city = city;
             return this;
         }
 
-        public ApplicationUserBuilder withPaymentData(String paymentData) {
-            this.paymentData = paymentData;
+        public ApplicationUserBuilder withStreet(String street) {
+            this.street = street;
+            return this;
+        }
+
+        public ApplicationUserBuilder withPostalCode(String postalCode) {
+            this.postalCode = city;
+            return this;
+        }
+
+        public ApplicationUserBuilder withHouseNumber(String housenumber) {
+            this.housenumber = housenumber;
+            return this;
+        }
+
+        public ApplicationUserBuilder withCountry(String country) {
+            this.country = country;
             return this;
         }
 
@@ -270,8 +344,10 @@ public class ApplicationUser {
             user.setDateOfBirth(dateOfBirth);
             user.setSex(sex);
             user.setEmail(email);
-            user.setAddress(address);
-            user.setPaymentData(paymentData);
+            user.setStreet(street);
+            user.setPostalCode(postalCode);
+            user.setHousenumber(housenumber);
+            user.setCountry(country);
             user.setLocked(isLocked);
             user.setAdmin(isAdmin);
             user.setLoginTries(loginTries);

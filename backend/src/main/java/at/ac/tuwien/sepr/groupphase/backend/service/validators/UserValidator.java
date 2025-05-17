@@ -142,21 +142,48 @@ public class UserValidator {
             validationErrors.add("Last Name contains symbols");
         }
 
-        if (user.getAddress() != null) {
-            if (user.getAddress().isBlank()) {
-                validationErrors.add("Address is given but blank");
+        if (user.getStreet() != null) {
+            if (user.getStreet().isBlank()) {
+                validationErrors.add("Street is given but blank");
             }
-            if (user.getAddress().length() > 400) {
-                validationErrors.add("Address is too long: longer than 400 characters");
+            if (user.getStreet().length() > 200) {
+                validationErrors.add("Street is too long: longer than 400 characters");
             }
         }
 
-        if (user.getPaymentData() != null) {
-            if (user.getPaymentData().isBlank()) {
-                validationErrors.add("Payment Data is given but blank");
+        if (user.getCountry() != null) {
+            if (user.getCountry().isBlank()) {
+                validationErrors.add("Country is given but blank");
             }
-            if (user.getPaymentData().length() > 200) {
-                validationErrors.add("Payment Data too long: longer than 200 characters");
+            if (user.getCountry().length() > 100) {
+                validationErrors.add("Country is too long: longer than 400 characters");
+            }
+        }
+
+        if (user.getCity() != null) {
+            if (user.getCity().isBlank()) {
+                validationErrors.add("City is given but blank");
+            }
+            if (user.getCountry().length() > 100) {
+                validationErrors.add("Country is too long: longer than 400 characters");
+            }
+        }
+
+        if (user.getPostalCode() != null) {
+            if (user.getPostalCode().isBlank()) {
+                validationErrors.add("Postal Code is given but blank");
+            }
+            if (user.getPostalCode().length() > 100) {
+                validationErrors.add("Postal Code is too long: longer than 400 characters");
+            }
+        }
+
+        if (user.getHousenumber() != null) {
+            if (user.getHousenumber().isBlank()) {
+                validationErrors.add("House Number is given but blank");
+            }
+            if (user.getHousenumber().length() > 100) {
+                validationErrors.add("House Number is too long: longer than 400 characters");
             }
         }
 

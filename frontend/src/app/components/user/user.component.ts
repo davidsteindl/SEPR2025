@@ -29,11 +29,15 @@ export class UserComponent implements OnInit {
 
   ngOnInit(): void {
     this.user = {
+      id: '',
       dateOfBirth: new Date(),
       sex: Sex.male,
       email: "",
-      address: "",
-      paymentData: "",
+      housenumber: "",
+      country: "",
+      city: "",
+      street: "",
+      postalCode: "",
       firstName: "",
       lastName: ""
     };
