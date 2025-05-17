@@ -9,10 +9,12 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event.EventCategory;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation.LocationType;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,11 +59,14 @@ public class EventEndpointTest implements TestData {
     @Autowired
     private ShowRepository showRepository;
     @Autowired
+    private RoomRepository roomRepository;
+    @Autowired
     private ArtistRepository artistRepository;
 
     private EventLocation testLocation;
     private Event testEvent;
     private Artist testArtist;
+    private Room testRoom;
     private Show testShow;
 
     @BeforeEach
@@ -69,6 +74,7 @@ public class EventEndpointTest implements TestData {
         artistRepository.deleteAll();
         showRepository.deleteAll();
         eventRepository.deleteAll();
+        roomRepository.deleteAll();
         eventLocationRepository.deleteAll();
 
         testLocation = new EventLocation();
@@ -94,11 +100,19 @@ public class EventEndpointTest implements TestData {
         testArtist.setStagename("LF");
         artistRepository.save(testArtist);
 
+        testRoom = Room.RoomBuilder.aRoom()
+            .name("Test Room A")
+            .horizontal(true)
+            .eventLocation(testLocation)
+            .build();
+        roomRepository.save(testRoom);
+
         testShow = Show.ShowBuilder.aShow()
             .withName("Funky Evening")
             .withDuration(75)
             .withDate(java.time.LocalDateTime.now().plusDays(2))
             .withEvent(testEvent)
+            .withRoom(testRoom)
             .build();
         testShow.addArtist(testArtist);
         showRepository.save(testShow);
@@ -224,6 +238,7 @@ public class EventEndpointTest implements TestData {
             .withName("Evening Show")
             .withDuration(90)
             .withDate(java.time.LocalDateTime.now().plusDays(1))
+            .withRoom(testRoom)
             .withEvent(testEvent)
             .build();
 

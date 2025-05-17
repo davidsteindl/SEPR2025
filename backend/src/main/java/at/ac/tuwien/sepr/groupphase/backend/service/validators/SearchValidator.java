@@ -2,10 +2,13 @@ package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -125,6 +128,64 @@ public class SearchValidator {
 
         if (!(validationErrors.isEmpty())) {
             throw new ValidationException("Validation of event search request failed", validationErrors);
+        }
+    }
+
+    /**
+     * Validates the search criteria for time.
+     *
+     * @throws ValidationException if any validation fails
+     */
+    public void validateForShows(ShowSearchDto criteria) throws ValidationException {
+        List<String> validationErrors = new ArrayList<>();
+
+        if (criteria == null) {
+            validationErrors.add("Show search request must not be null");
+            throw new ValidationException("Validation of show search request failed", validationErrors);
+        }
+
+        if (criteria.getPage() == null || criteria.getPage() < 0) {
+            validationErrors.add("Page index must be non-negative");
+        }
+
+        if (criteria.getSize() == null || criteria.getSize() <= 0) {
+            validationErrors.add("Page size must be greater than zero");
+        }
+
+        LocalDateTime start = criteria.getStartDate();
+        LocalDateTime end = criteria.getEndDate();
+        if (start != null && end != null && end.isBefore(start)) {
+            validationErrors.add("End date must not be before start date");
+        }
+
+        if (criteria.getName() != null && criteria.getName().length() > 100) {
+            validationErrors.add("Name filter must not exceed 100 characters");
+        }
+
+        if (criteria.getEventName() != null && criteria.getEventName().length() > 100) {
+            validationErrors.add("Event name filter must not exceed 100 characters");
+        }
+
+        if (criteria.getRoomName() != null && criteria.getRoomName().length() > 100) {
+            validationErrors.add("Room name filter must not exceed 100 characters");
+        }
+
+        BigDecimal minPrice = criteria.getMinPrice();
+        BigDecimal maxPrice = criteria.getMaxPrice();
+        if (minPrice != null && minPrice.compareTo(BigDecimal.ZERO) < 0) {
+            validationErrors.add("Minimum price must not be negative");
+        }
+
+        if (maxPrice != null && maxPrice.compareTo(BigDecimal.ZERO) < 0) {
+            validationErrors.add("Maximum price must not be negative");
+        }
+
+        if (minPrice != null && maxPrice != null && minPrice.compareTo(maxPrice) > 0) {
+            validationErrors.add("Minimum price must not be greater than maximum price");
+        }
+
+        if (!validationErrors.isEmpty()) {
+            throw new ValidationException("Validation of show search request failed", validationErrors);
         }
     }
 }

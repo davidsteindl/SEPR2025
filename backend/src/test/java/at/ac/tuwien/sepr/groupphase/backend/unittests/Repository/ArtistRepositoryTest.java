@@ -3,12 +3,13 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.Repository;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
-import at.ac.tuwien.sepr.groupphase.backend.service.specifications.ArtistSpecifications;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -43,6 +43,9 @@ public class ArtistRepositoryTest {
     private EventLocationRepository eventLocationRepository;
 
     @Autowired
+    private RoomRepository roomRepository;
+
+    @Autowired
     private EntityManager entityManager;
 
     @BeforeEach
@@ -56,6 +59,13 @@ public class ArtistRepositoryTest {
             .withType(EventLocation.LocationType.CLUB)
             .build();
         eventLocationRepository.save(location);
+
+        Room room = Room.RoomBuilder.aRoom()
+            .name("Main Room")
+            .horizontal(true)
+            .eventLocation(location)
+            .build();
+        roomRepository.save(room);
 
         Event event = Event.EventBuilder.anEvent()
             .withName("Electronic Night")
@@ -71,6 +81,7 @@ public class ArtistRepositoryTest {
             .withDuration(90)
             .withDate(LocalDateTime.now())
             .withEvent(event)
+            .withRoom(room)
             .build();
         showRepository.save(show);
 
@@ -88,6 +99,7 @@ public class ArtistRepositoryTest {
         artistRepository.deleteAll();
         showRepository.deleteAll();
         eventRepository.deleteAll();
+        roomRepository.deleteAll();
         eventLocationRepository.deleteAll();
     }
 

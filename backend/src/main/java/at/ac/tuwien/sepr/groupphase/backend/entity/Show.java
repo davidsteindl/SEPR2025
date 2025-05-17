@@ -44,6 +44,10 @@ public class Show {
     @ManyToMany(mappedBy = "shows")
     private Set<Artist> artists = new HashSet<>();
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "room_id", nullable = false)
+    private Room room;
+
     public Long getId() {
         return id;
     }
@@ -101,6 +105,14 @@ public class Show {
         }
     }
 
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -113,12 +125,13 @@ public class Show {
             && Objects.equals(id, show.id)
             && Objects.equals(name, show.name)
             && Objects.equals(date, show.date)
-            && Objects.equals(event, show.event);
+            && Objects.equals(event, show.event)
+            && Objects.equals(room, show.room);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, duration, date, event);
+        return Objects.hash(id, name, duration, date, event, room);
     }
 
     @Override
@@ -128,7 +141,8 @@ public class Show {
             + ", name='" + name + '\''
             + ", duration=" + duration + " min"
             + ", date=" + date
-            + ", event=" + (event != null ? event.getId() : "null"));
+            + ", event=" + (event != null ? event.getId() : "null")
+            + ", room=" + (room != null ? room.getId() : "null"));
 
         int count = 1;
         for (Artist artist : artists) {
@@ -146,6 +160,7 @@ public class Show {
         private LocalDateTime date;
         private Event event;
         private Set<Artist> artists;
+        private Room room;
 
         private ShowBuilder() {
         }
@@ -179,6 +194,11 @@ public class Show {
             return this;
         }
 
+        public ShowBuilder withRoom(Room room) {
+            this.room = room;
+            return this;
+        }
+
         public Show build() {
             Show show = new Show();
             show.setName(name);
@@ -186,6 +206,7 @@ public class Show {
             show.setDate(date);
             show.setEvent(event);
             show.setArtists(artists);
+            show.setRoom(room);
             return show;
         }
     }

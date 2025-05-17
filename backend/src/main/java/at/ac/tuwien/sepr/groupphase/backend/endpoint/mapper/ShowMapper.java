@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.CreateShowDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.mapstruct.Mapper;
@@ -23,6 +24,7 @@ public interface ShowMapper {
 
     @Mapping(target = "event", source = "eventId", qualifiedByName = "mapEventIdToEvent")
     @Mapping(target = "artists", source = "artistIds", qualifiedByName = "mapIdsToArtists")
+    @Mapping(target = "room", source = "roomId", qualifiedByName = "mapRoomIdToRoom")
     Show createShowDtoToShow(CreateShowDto createShowDto);
 
     List<ShowDetailDto> showsToShowDetailDtos(List<Show> shows);
@@ -59,5 +61,15 @@ public interface ShowMapper {
                 return artist;
             })
             .collect(Collectors.toSet());
+    }
+
+    @Named("mapRoomIdToRoom")
+    default Room mapRoomIdToRoom(Long roomId) throws ValidationException {
+        if (roomId == null) {
+            throw new ValidationException("Room ID must not be null", List.of("Room ID is null"));
+        }
+        var room = new Room();
+        room.setId(roomId);
+        return room;
     }
 }

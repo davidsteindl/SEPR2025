@@ -3,11 +3,13 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ArtistServiceImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -42,6 +44,9 @@ public class ArtistServiceTest {
     @Autowired
     private EventLocationRepository eventLocationRepository;
 
+    @Autowired
+    private RoomRepository roomRepository;
+
     private ArtistServiceImpl artistService;
 
     private Show testShow;
@@ -60,6 +65,13 @@ public class ArtistServiceTest {
             .build();
         eventLocationRepository.save(testLocation);
 
+        Room testRoom = Room.RoomBuilder.aRoom()
+            .name("Main Room")
+            .horizontal(true)
+            .eventLocation(testLocation)
+            .build();
+        roomRepository.save(testRoom);
+
         Event testEvent = Event.EventBuilder.anEvent()
             .withName("Test Concert")
             .withCategory(Event.EventCategory.CLASSICAL)
@@ -74,6 +86,7 @@ public class ArtistServiceTest {
             .withDuration(90)
             .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
+            .withRoom(testRoom)
             .build();
         showRepository.save(testShow);
 
@@ -93,6 +106,7 @@ public class ArtistServiceTest {
         artistRepository.deleteAll();
         showRepository.deleteAll();
         eventRepository.deleteAll();
+        roomRepository.deleteAll();
         eventLocationRepository.deleteAll();
     }
 

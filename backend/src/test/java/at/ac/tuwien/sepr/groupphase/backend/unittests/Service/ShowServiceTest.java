@@ -28,18 +28,20 @@ public class ShowServiceTest {
     @Autowired private EventRepository eventRepository;
     @Autowired private ArtistRepository artistRepository;
     @Autowired private EventLocationRepository eventLocationRepository;
+    @Autowired private RoomRepository roomRepository;
+    @Autowired private ShowValidator showValidator;
 
     private ShowServiceImpl showService;
 
     private Event testEvent;
+
     private Artist testArtist;
 
-    @Autowired
-    private ShowValidator showValidator;
+    private Room testRoom;
 
     @BeforeEach
     public void setUp() {
-        showService = new ShowServiceImpl(showRepository, eventRepository, artistRepository, showValidator);
+        showService = new ShowServiceImpl(showRepository, eventRepository, artistRepository, showValidator, roomRepository);
 
         EventLocation location = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Konzerthaus")
@@ -50,6 +52,13 @@ public class ShowServiceTest {
             .withType(EventLocation.LocationType.THEATER)
             .build();
         eventLocationRepository.save(location);
+
+        testRoom = Room.RoomBuilder.aRoom()
+            .name("Main Room")
+            .horizontal(true)
+            .eventLocation(location)
+            .build();
+        roomRepository.save(testRoom);
 
         testEvent = Event.EventBuilder.anEvent()
             .withName("Beethoven Night")
@@ -80,6 +89,7 @@ public class ShowServiceTest {
         showRepository.deleteAll();
         artistRepository.deleteAll();
         eventRepository.deleteAll();
+        roomRepository.deleteAll();
         eventLocationRepository.deleteAll();
     }
 
@@ -92,6 +102,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         Show saved = showService.createShow(show);
@@ -102,6 +113,7 @@ public class ShowServiceTest {
             () -> assertNotNull(result),
             () -> assertEquals(100, result.getDuration()),
             () -> assertEquals(testEvent.getId(), result.getEvent().getId()),
+            () -> assertEquals(testRoom.getId(), result.getRoom().getId()),
             () -> assertEquals(1, result.getArtists().size())
         );
     }
@@ -117,6 +129,7 @@ public class ShowServiceTest {
     }
 
     @Test
+    @Transactional
     public void testGetAllShows_returnsList() throws ValidationException {
         Show show = Show.ShowBuilder.aShow()
             .withName("Matinee Concert")
@@ -124,6 +137,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         showService.createShow(show);
@@ -137,6 +151,7 @@ public class ShowServiceTest {
     }
 
     @Test
+    @Transactional
     public void testCreateShow_validInput_savesSuccessfully() throws ValidationException {
         Show newShow = Show.ShowBuilder.aShow()
             .withName("Festival Opening")
@@ -144,6 +159,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(2))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         Show saved = showService.createShow(newShow);
@@ -153,6 +169,7 @@ public class ShowServiceTest {
             () -> assertEquals(120, saved.getDuration()),
             () -> assertEquals(1, saved.getArtists().size()),
             () -> assertEquals(testEvent.getId(), saved.getEvent().getId()),
+            () -> assertEquals(testRoom.getId(), saved.getRoom().getId()),
             () -> assertEquals(1, showRepository.findAll().size())
         );
     }
@@ -165,6 +182,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(null)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         assertAll(
@@ -206,6 +224,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
             .withArtists(null)
+            .withRoom(testRoom)
             .build();
 
         assertAll(
@@ -229,6 +248,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
             .withArtists(Set.of(ghostArtist))
+            .withRoom(testRoom)
             .build();
 
         assertAll(
@@ -238,6 +258,7 @@ public class ShowServiceTest {
     }
 
     @Test
+    @Transactional
     public void testCreateShow_singleShowWithinDuration_savesSuccessfully() throws ValidationException {
         Show show = Show.ShowBuilder.aShow()
             .withName("Early Performance")
@@ -245,6 +266,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(18))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         Show saved = showService.createShow(show);
@@ -257,6 +279,7 @@ public class ShowServiceTest {
     }
 
     @Test
+    @Transactional
     public void testCreateShow_multipleShowsWithinEventDuration_savesSuccessfully() throws ValidationException {
         testEvent.setDuration(220);
         eventRepository.save(testEvent);
@@ -267,6 +290,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(17))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         Show second = Show.ShowBuilder.aShow()
@@ -275,6 +299,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(19))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         showService.createShow(first);
@@ -288,6 +313,7 @@ public class ShowServiceTest {
     }
 
     @Test
+    @Transactional
     public void testCreateShow_exceedsEventDuration_throwsValidationException() throws ValidationException {
         testEvent.setDuration(200);
         eventRepository.save(testEvent);
@@ -298,6 +324,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(17))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         Show second = Show.ShowBuilder.aShow()
@@ -306,6 +333,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(19))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         showService.createShow(first);
@@ -317,6 +345,7 @@ public class ShowServiceTest {
     }
 
     @Test
+    @Transactional
     public void testCreateShow_startsBeforeExistingShow_withinDuration_savesSuccessfully() throws ValidationException {
         testEvent.setDuration(280);
         eventRepository.save(testEvent);
@@ -327,6 +356,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(20))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         Show earlier = Show.ShowBuilder.aShow()
@@ -335,6 +365,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(17))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         showService.createShow(later);
@@ -348,6 +379,7 @@ public class ShowServiceTest {
 
 
     @Test
+    @Transactional
     public void testCreateShow_startBeforeAndEndAfterExisting_exceedsDuration_throwsValidationException() throws ValidationException {
         testEvent.setDuration(200);
         eventRepository.save(testEvent);
@@ -358,6 +390,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(18))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         Show tooEarlyAndLong = Show.ShowBuilder.aShow()
@@ -366,6 +399,7 @@ public class ShowServiceTest {
             .withDate(LocalDateTime.now().plusDays(1).withHour(16))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
+            .withRoom(testRoom)
             .build();
 
         showService.createShow(existing);

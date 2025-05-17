@@ -3,10 +3,12 @@ package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -29,19 +31,22 @@ public class EventDataGenerator {
 
     private final EventRepository eventRepository;
     private final EventLocationRepository eventLocationRepository;
+    private final RoomRepository roomRepository;
     private final ShowRepository showRepository;
     private final ArtistRepository artistRepository;
 
     private static final int NUMBER_OF_EVENTS_TO_GENERATE = 5;
     private static final int NUMBER_OF_LOCATIONS_TO_GENERATE = 5;
+    private static final int NUMBER_OF_ROOMS_TO_GENERATE = 2;
     private static final int NUMBER_OF_SHOWS_TO_GENERATE = 10;
     private static final int NUMBER_OF_ARTISTS_TO_GENERATE = 20;
 
     @Autowired
-    public EventDataGenerator(EventRepository eventRepository, EventLocationRepository eventLocationRepository, ShowRepository showRepository,
+    public EventDataGenerator(EventRepository eventRepository, EventLocationRepository eventLocationRepository, RoomRepository roomRepository, ShowRepository showRepository,
                               ArtistRepository artistRepository) {
         this.eventRepository = eventRepository;
         this.eventLocationRepository = eventLocationRepository;
+        this.roomRepository = roomRepository;
         this.showRepository = showRepository;
         this.artistRepository = artistRepository;
     }
@@ -50,11 +55,13 @@ public class EventDataGenerator {
     private void generateEvents() {
         List<EventLocation> eventLocations = new ArrayList<>();
         List<Event> events = new ArrayList<>();
+        List<Room> rooms = new ArrayList<>();
         List<Artist> artists = new ArrayList<>();
 
         // EventLocations
         if (eventLocationRepository.count() > 0) {
             eventLocations.addAll(eventLocationRepository.findAll());
+            rooms.addAll(roomRepository.findAll());
             LOGGER.debug("locations already generated");
         } else {
             LOGGER.debug("generating {} EventLocation entries", NUMBER_OF_LOCATIONS_TO_GENERATE);
@@ -71,6 +78,16 @@ public class EventDataGenerator {
                 eventLocations.add(eventLocation);
             }
             eventLocationRepository.saveAll(eventLocations);
+
+            for (int i = 0; i < NUMBER_OF_ROOMS_TO_GENERATE; i++) {
+                Room room = Room.RoomBuilder.aRoom()
+                    .name("Room " + i)
+                    .horizontal(true)
+                    .eventLocation(eventLocations.get(i % eventLocations.size()))
+                    .build();
+                rooms.add(room);
+            }
+            roomRepository.saveAll(rooms);
         }
 
         // Events
@@ -128,6 +145,7 @@ public class EventDataGenerator {
                         .withDuration(120)
                         .withDate(LocalDateTime.of(2025, 6, (i % 28) + 1, 12 + j * 4, 0))
                         .withEvent(events.get(i % events.size()))
+                        .withRoom(rooms.get(i % rooms.size()))
                         .withArtists(Set.of(artist1, artist2))
                         .build();
 
