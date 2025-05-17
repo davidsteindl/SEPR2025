@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import { Globals } from '../global/globals';
 import { CreateEvent } from '../dtos/create-event';
-import {Event, EventSearchDto, EventSearchResultDto} from '../dtos/event';
+import {Event, EventSearchDto, EventSearchResultDto, EventTopTenDto} from '../dtos/event';
 import {Page} from "../dtos/page";
 import { Show } from '../dtos/show';
 
@@ -100,5 +100,12 @@ export class EventService {
    */
   getCategories(): Observable<string[]> {
     return this.httpClient.get<string[]>(this.eventBaseUri + '/categories');
+  }
+
+  /**
+   * Loads Top 10 Events from the category from the backend
+   */
+  getTopTen(category: string): Observable<EventTopTenDto[]> {
+    return this.httpClient.get<EventTopTenDto[]>(`${this.eventBaseUri}/topten/${category}`);
   }
 }
