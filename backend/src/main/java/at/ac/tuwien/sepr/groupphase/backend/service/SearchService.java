@@ -11,6 +11,8 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.LocationS
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.performance.PerformanceDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.performance.PerformanceSearchDto;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.data.domain.Page;
 
@@ -53,4 +55,14 @@ public interface SearchService {
      * @return list of matching performances
      */
     List<PerformanceDto> searchPerformances(PerformanceSearchDto criteria);
+
+    /**
+     * Searches for shows based on the given criteria and returns a paginated list of results.
+     *
+     * @param criteria the search criteria including optional filters like date range, event, room, name, and price
+     * @return a page of shows matching the given criteria
+     * @throws ValidationException if the search criteria are invalid
+     */
+    Page<ShowSearchResultDto> searchShows(ShowSearchDto criteria) throws ValidationException;
+
 }

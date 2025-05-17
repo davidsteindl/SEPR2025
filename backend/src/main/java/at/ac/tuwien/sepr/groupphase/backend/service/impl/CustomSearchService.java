@@ -8,9 +8,12 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.LocationD
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.LocationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.performance.PerformanceDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.performance.PerformanceSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ArtistMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
@@ -18,6 +21,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.SearchService;
 import at.ac.tuwien.sepr.groupphase.backend.service.specifications.ArtistSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.specifications.EventSpecifications;
+import at.ac.tuwien.sepr.groupphase.backend.service.specifications.ShowSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SearchValidator;
 
 import org.slf4j.Logger;
@@ -121,5 +125,41 @@ public class CustomSearchService implements SearchService {
     public List<PerformanceDto> searchPerformances(PerformanceSearchDto criteria) {
         return List.of();
     }
+
+
+    @Override
+    public Page<ShowSearchResultDto> searchShows(ShowSearchDto criteria) throws ValidationException {
+        LOGGER.debug("Searching shows with criteria: {}", criteria);
+
+        searchValidator.validateForShows(criteria);
+
+        Specification<Show> spec = (root, query, cb) -> cb.conjunction();
+
+        spec = spec
+            .and(ShowSpecifications.dateBetween(criteria.getStartDate(), criteria.getEndDate()))
+            .and(ShowSpecifications.hasEventId(criteria.getEventId()))
+            .and(ShowSpecifications.hasRoomId(criteria.getRoomId()))
+            .and(ShowSpecifications.nameContains(criteria.getName()));
+        // .and(ShowSpecifications.hasTicketPriceBetween(...)) // later
+
+        PageRequest pageable = PageRequest.of(criteria.getPage(), criteria.getSize());
+        Page<Show> page = showRepo.findAll(spec, pageable);
+
+        List<ShowSearchResultDto> result = page.getContent().stream().map(show -> {
+            ShowSearchResultDto dto = new ShowSearchResultDto();
+            dto.setId(show.getId());
+            dto.setName(show.getName());
+            dto.setDuration(show.getDuration());
+            dto.setDate(show.getDate());
+            dto.setEventId(show.getEvent().getId());
+            dto.setEventName(show.getEvent().getName());
+            dto.setRoomId(show.getRoom().getId());
+            dto.setRoomName(show.getRoom().getName());
+            return dto;
+        }).collect(Collectors.toList());
+
+        return new PageImpl<>(result, pageable, page.getTotalElements());
+    }
+
 }
 
