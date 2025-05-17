@@ -22,21 +22,27 @@ public class ShowSpecifications {
 
     public static Specification<Show> hasEventId(Long eventId) {
         return (root, query, cb) -> {
-            if (eventId == null) return null;
+            if (eventId == null) {
+                return null;
+            }
             return cb.equal(root.get("event").get("id"), eventId);
         };
     }
 
     public static Specification<Show> hasRoomId(Long roomId) {
         return (root, query, cb) -> {
-            if (roomId == null) return null;
+            if (roomId == null) {
+                return null;
+            }
             return cb.equal(root.get("room").get("id"), roomId);
         };
     }
 
     public static Specification<Show> nameContains(String keyword) {
         return (root, query, cb) -> {
-            if (keyword == null || keyword.isBlank()) return null;
+            if (keyword == null || keyword.isBlank()) {
+                return null;
+            }
             return cb.like(cb.lower(root.get("name")), "%" + keyword.toLowerCase() + "%");
         };
     }
