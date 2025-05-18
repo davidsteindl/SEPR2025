@@ -125,9 +125,9 @@
         <h3>Top ten events this month:</h3>
         <label>
           Choose Category:
-          <select [(ngModel)]="selectedCategory">
+          <select [(ngModel)]="selectedCategory" (ngModelChange)="onCategoryChange()">
             <option value="All">All</option>
-            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+            <option *ngFor="let cat of categories" [value]="cat.name">{{ cat.displayName }}</option>
           </select>
         </label>
       </div>
@@ -146,7 +146,7 @@
         <tr *ngFor="let event of topTenEvents; let i = index">
           <td>{{ i + 1 }}.</td>
           <td>{{ event.name }}</td>
-          <td>{{ event.dateTime }}</td>
+          <td>{{ event.date ? (event.date | date: 'mediumDate') : 'No date scheduled' }}</td>
           <td><strong>{{ event.ticketsSold }}</strong></td>
           <td>
             <button class="view-button">View full event</button>
