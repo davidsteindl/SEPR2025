@@ -71,7 +71,7 @@ public class SearchValidator {
      * @param eventLocationSearchDto the search criteria
      * @throws ValidationException if any validation fails
      */
-    public void validateForEventLocation(EventLocationSearchDto eventLocationSearchDto) throws ValidationException {
+    public void validateForEventLocations(EventLocationSearchDto eventLocationSearchDto) throws ValidationException {
         List<String> validationErrors = new ArrayList<>();
 
         if (eventLocationSearchDto == null) {
