@@ -16,7 +16,7 @@
     </li>
     <li class="nav-item">
       <a class="nav-link" [class.active]="currentActiveTab === 'performance'"
-         (click)="currentActiveTab = 'performance'">Performance</a>
+         (click)="currentActiveTab = 'performance'">Shows</a>
     </li>
   </ul>
 
@@ -136,8 +136,8 @@
           <td>{{ ev.duration }}</td>
           <td>{{ ev.description }}</td>
           <td class="text-right">
-            <button class="btn btn-sm btn-secondary"
-                    [routerLink]="['/events', ev.id]">
+            <button class="view-button"
+                    [routerLink]="['/events', ev.id, 'overview']">
               View Event
             </button>
           </td>
@@ -150,7 +150,90 @@
     </div>
   </div>
 
-  <div *ngIf="currentActiveTab=== 'performance'" class="tab-box">
-    <p class="text-muted">[Performance search not yet implemented]</p>
+  <div *ngIf="currentActiveTab === 'performance'" class="tab-box">
+    <div class="row">
+      <div class="form-group col-md-6">
+        <label for="eventName">Event name</label>
+        <input id="eventName" [(ngModel)]="showEventName" name="eventName" class="form-control"/>
+      </div>
+      <div class="form-group col-md-6">
+        <label for="roomName">Room name</label>
+        <input id="roomName" [(ngModel)]="showRoomName" name="roomName" class="form-control"/>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-md-6">
+        <label for="startDate">Start date</label>
+        <input id="startDate" type="datetime-local" [(ngModel)]="showStartDate" name="startDate" class="form-control"/>
+      </div>
+      <div class="form-group col-md-6">
+        <label for="endDate">End date</label>
+        <input id="endDate" type="datetime-local" [(ngModel)]="showEndDate" name="endDate" class="form-control"/>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-md-6">
+        <label for="minPrice">Min price (€)</label>
+        <input id="minPrice" type="number" [(ngModel)]="showMinPrice" name="minPrice" class="form-control"/>
+      </div>
+      <div class="form-group col-md-6">
+        <label for="maxPrice">Max price (€)</label>
+        <input id="maxPrice" type="number" [(ngModel)]="showMaxPrice" name="maxPrice" class="form-control"/>
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button type="button" class="btn btn-primary mt-3" (click)="search()">Search</button>
+    </div>
+
+    <div *ngIf="showLoading" class="text-center my-3">
+      Searching…
+    </div>
+
+    <div class="mt-4" *ngIf="!showLoading && showTriggered">
+      <ng-container *ngIf="showPage?.content?.length > 0; else noShows">
+        <h5 class="text-primary">Results:</h5>
+        <table class="table table-bordered">
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Duration</th>
+            <th>Event</th>
+            <th>Room</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let s of showPage?.content">
+            <td><strong>{{ s.name }}</strong></td>
+            <td>{{ s.date | date:'short' }}</td>
+            <td>{{ s.duration }} min</td>
+            <td>{{ s.eventName }}</td>
+            <td>{{ s.roomName }}</td>
+          </tr>
+          </tbody>
+        </table>
+
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="showCurrentPage === 0">
+            <a class="page-link" style="cursor: pointer;" (click)="searchShows(showCurrentPage - 1)">Previous</a>
+          </li>
+          <li class="page-item disabled">
+            <span class="page-link">Page {{ showCurrentPage + 1 }} of {{ showPage?.totalPages }}</span>
+          </li>
+          <li class="page-item" [class.disabled]="showCurrentPage >= (showPage?.totalPages || 1) - 1">
+            <a class="page-link" style="cursor: pointer;" (click)="searchShows(showCurrentPage + 1)">Next</a>
+          </li>
+        </ul>
+      </ng-container>
+
+      <ng-template #noShows>
+        <div class="text-center text-muted" style="font-weight: bold">
+          No shows found.
+        </div>
+      </ng-template>
+    </div>
   </div>
 </div>
