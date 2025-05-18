@@ -99,17 +99,19 @@ public class EventServiceImpl implements EventService {
         Pageable topTen = PageRequest.of(0, 10);
         List<Object[]> topTenEvents;
         if (category.equalsIgnoreCase("all")) {
-            //topTenEvents = ticketRepository.findTop10EventsOrderByTicketCountDesc(topTen);
+            // Vorbereiteter Code für später, wenn TicketRepository implementiert ist
+            //topTenEvents = ticketRepository.findTopTenEventsOrderByTicketCountDesc(topTen);
         } else {
             try {
                 Event.EventCategory.valueOf(category);
             } catch (IllegalArgumentException e) {
                 throw new ValidationException("Invalid category: " + category, List.of("Invalid category: " + category));
             }
-            //topTenEvents = ticketRepository.findTop10EventsByCategoryOrderByTicketCountDesc(topTen, category);
+            // Vorbereiteter Code für später, wenn TicketRepository implementiert ist
+            //topTenEvents = ticketRepository.findTopTenEventsByCategoryOrderByTicketCountDesc(topTen, category);
         }
 
-        // Da es keine Tickets gibt, wird hier eine Dummy-Liste erstellt
+        // Da es keine Tickets gibt, wird hier eine Dummy-Liste für die zurückgegebenen Events erstellt
         List<Event> events = category.equalsIgnoreCase("all")
             ? eventRepository.findAll()
             : eventRepository.findAllByCategory(Event.EventCategory.valueOf(category));
