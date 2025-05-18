@@ -19,6 +19,8 @@ public class EventLocationSearchDto {
 
     private String city;
 
+    private String country;
+
     private String postalCode;
 
     public Integer getPage() {
@@ -59,6 +61,14 @@ public class EventLocationSearchDto {
 
     public void setCity(String city) {
         this.city = city;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 
     public String getPostalCode() {
