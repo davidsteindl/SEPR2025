@@ -1,6 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventCategoryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventTopTenDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
@@ -14,11 +16,15 @@ import at.ac.tuwien.sepr.groupphase.backend.service.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -87,4 +93,69 @@ public class EventServiceImpl implements EventService {
             .map(showMapper::showToShowDetailDto);
     }
 
+    @Override
+    public List<EventTopTenDto> getTopTenEventsByCategory(String category) throws ValidationException {
+        LOGGER.info("Fetching top ten events for category={}", category);
+        Pageable topTen = PageRequest.of(0, 10);
+        List<Object[]> topTenEvents;
+        if (category.equalsIgnoreCase("all")) {
+            // Vorbereiteter Code für später, wenn TicketRepository implementiert ist
+            //topTenEvents = ticketRepository.findTopTenEventsOrderByTicketCountDesc(topTen);
+        } else {
+            try {
+                Event.EventCategory.valueOf(category);
+            } catch (IllegalArgumentException e) {
+                throw new ValidationException("Invalid category: " + category, List.of("Invalid category: " + category));
+            }
+            // Vorbereiteter Code für später, wenn TicketRepository implementiert ist
+            //topTenEvents = ticketRepository.findTopTenEventsByCategoryOrderByTicketCountDesc(topTen, category);
+        }
+
+        // Da es keine Tickets gibt, wird hier eine Dummy-Liste für die zurückgegebenen Events erstellt
+        List<Event> events = category.equalsIgnoreCase("all")
+            ? eventRepository.findAll()
+            : eventRepository.findAllByCategory(Event.EventCategory.valueOf(category));
+
+        topTenEvents = events.stream()
+            .map(event -> new Object[] {
+                event,
+                100L * event.getName().length()
+            })
+            .sorted((a, b) -> Long.compare((Long) b[1], (Long) a[1]))
+            .limit(10)
+            .toList();
+        // Ende der Dummy-Listen Erstellung
+
+        List<EventTopTenDto> eventTopTenDtos = new ArrayList<>();
+
+        for (Object[] objects : topTenEvents) {
+            Event event = (Event) objects[0];
+            Long ticketCount = (Long) objects[1];
+
+            LocalDateTime date = showRepository.findEarliestShowDateByEventId(event.getId());
+
+            EventTopTenDto eventTopTenDto = EventTopTenDto.EventTopTenDtoBuilder.anEventTopTenDto()
+                .id(event.getId())
+                .name(event.getName())
+                .date(date)
+                .ticketsSold(ticketCount)
+                .build();
+
+            eventTopTenDtos.add(eventTopTenDto);
+        }
+
+        return eventTopTenDtos;
+    }
+
+    @Override
+    public List<EventCategoryDto> getAllEventCategories() {
+        LOGGER.info("Fetching all event categories");
+        return Arrays.stream(Event.EventCategory.values())
+            .map(cat -> EventCategoryDto.EventCategoryDtoBuilder
+                .anEventCategoryDto()
+                .name(cat.name())
+                .displayName(cat.getDisplayName())
+                .build())
+            .toList();
+    }
 }
