@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.CreateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventTopTenDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
@@ -153,6 +154,15 @@ public class EventEndpoint {
         LOGGER.info("GET /api/v1/events/{}/shows/paginated?page={}&size={}", eventId, page, size);
         Pageable pageable = PageRequest.of(page, size, Sort.by("date").ascending());
         return eventService.getPaginatedShowsForEvent(eventId, pageable);
+    }
+
+    @GetMapping("/topten/{category}")
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get top ten events by category", security = @SecurityRequirement(name = "apiKey"))
+    public List<EventTopTenDto> getTopTenEventsByCategory(@PathVariable("category") String category) throws ValidationException {
+        LOGGER.info("GET /api/v1/events/topten/{}", category);
+        return eventService.getTopTenEventsByCategory(category);
     }
 }
 
