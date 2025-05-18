@@ -77,7 +77,7 @@
         required
         class="form-control"
         #eventLocation="ngModel">
-        <option [ngValue]="null" disabled>Select location</option>
+        <option [ngValue]="null" disabled>Select Location</option>
         <option *ngFor="let location of locations" [ngValue]="location.id">{{ location?.name }}</option>
       </select>
       <div *ngIf="eventLocation.invalid && eventLocation.touched" class="text-danger">
