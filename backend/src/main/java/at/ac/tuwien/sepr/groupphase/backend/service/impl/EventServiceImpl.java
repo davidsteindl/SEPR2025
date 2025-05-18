@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventCategoryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventTopTenDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -93,6 +95,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventTopTenDto> getTopTenEventsByCategory(String category) throws ValidationException {
+        LOGGER.info("Fetching top ten events for category={}", category);
         Pageable topTen = PageRequest.of(0, 10);
         List<Object[]> topTenEvents;
         if (category.equalsIgnoreCase("all")) {
@@ -140,6 +143,18 @@ public class EventServiceImpl implements EventService {
         }
 
         return eventTopTenDtos;
+    }
+
+    @Override
+    public List<EventCategoryDto> getAllEventCategories() {
+        LOGGER.info("Fetching all event categories");
+        return Arrays.stream(Event.EventCategory.values())
+            .map(cat -> EventCategoryDto.EventCategoryDtoBuilder
+                .anEventCategoryDto()
+                .name(cat.name())
+                .displayName(cat.getDisplayName())
+                .build())
+            .toList();
     }
 
 }
