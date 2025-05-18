@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,4 +42,11 @@ public interface ShowRepository extends JpaRepository<Show, Long>, JpaSpecificat
 
     @Query("SELECT DISTINCT s.event FROM Show s JOIN s.artists a WHERE a.id = :artistId")
     Page<Event> findEventsByArtistId(@Param("artistId") Long artistId, Pageable pageable);
+
+    @Query("""
+        SELECT MIN(s.date)
+        FROM Show s
+        WHERE s.event.id = :eventId
+        """)
+    LocalDateTime findEarliestShowDateByEventId(@Param("eventId") Long eventId);
 }
