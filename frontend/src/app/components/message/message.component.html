@@ -149,7 +149,7 @@
           <td>{{ event.date ? (event.date | date: 'mediumDate') : 'No date scheduled' }}</td>
           <td><strong>{{ event.ticketsSold }}</strong></td>
           <td>
-            <button class="view-button">View full event</button>
+            <button class="view-button" [routerLink]="['/events', event.id, 'overview']">View full event</button>
           </td>
         </tr>
         </tbody>
