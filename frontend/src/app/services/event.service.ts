@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin } from 'rxjs';
-import { Globals } from '../global/globals';
-import { CreateEvent } from '../dtos/create-event';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable, forkJoin} from 'rxjs';
+import {Globals} from '../global/globals';
+import {CreateEvent} from '../dtos/create-event';
 import {Event, EventSearchDto, EventSearchResultDto, EventTopTenDto} from '../dtos/event';
 import {Page} from "../dtos/page";
-import { Show } from '../dtos/show';
-
+import {Show} from '../dtos/show';
+import {eventCategory} from "../dtos/eventCategory";
 
 
 @Injectable({
@@ -98,8 +98,8 @@ export class EventService {
   /**
    * Loads all categories from the backend
    */
-  getCategories(): Observable<string[]> {
-    return this.httpClient.get<string[]>(this.eventBaseUri + '/categories');
+  getCategories(): Observable<eventCategory[]> {
+    return this.httpClient.get<eventCategory[]>(this.eventBaseUri + '/categories');
   }
 
   /**

@@ -6,6 +6,7 @@ import {NgbModal, NgbPaginationConfig} from '@ng-bootstrap/ng-bootstrap';
 import {UntypedFormBuilder, NgForm} from '@angular/forms';
 import {AuthService} from '../../services/auth.service';
 import {EventService} from "../../services/event.service";
+import {eventCategory} from "../../dtos/eventCategory";
 
 @Component({
   selector: 'app-message',
@@ -25,7 +26,7 @@ export class MessageComponent implements OnInit {
   private message: Message[];
 
   selectedCategory: string = 'All';
-  categories: string[];
+  categories: eventCategory[];
   topTenEvents: EventTopTenDto[];
 
   allEvents: Event[] = [
@@ -185,7 +186,7 @@ export class MessageComponent implements OnInit {
 
   private loadCategories() {
     this.eventService.getCategories().subscribe({
-      next: (categories: string[]) => {
+      next: (categories: eventCategory[]) => {
         this.categories = categories;
       },
       error: error => {
@@ -194,10 +195,13 @@ export class MessageComponent implements OnInit {
     });
   }
 
-  private loadTopTen(){
+  private loadTopTen() {
     this.eventService.getTopTen(this.selectedCategory).subscribe({
       next: (events: EventTopTenDto[]) => {
-        this.topTenEvents= events;
+        this.topTenEvents = events;
+        if (events){
+          console.log(events)
+        }
       },
       error: error => {
         this.defaultServiceErrorHandling(error);
@@ -205,5 +209,7 @@ export class MessageComponent implements OnInit {
     });
   }
 
-
+  onCategoryChange() {
+    this.loadTopTen();
+  }
 }

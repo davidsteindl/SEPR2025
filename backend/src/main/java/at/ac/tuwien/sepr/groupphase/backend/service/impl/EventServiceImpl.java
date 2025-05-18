@@ -156,5 +156,4 @@ public class EventServiceImpl implements EventService {
                 .build())
             .toList();
     }
-
 }
