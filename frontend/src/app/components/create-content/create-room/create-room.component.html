@@ -25,7 +25,7 @@
         <input
           id="amountSectors"
           type="number"
-          [(ngModel)]="room.amountSectors"
+          [(ngModel)]="room.numberOfSectors"
           name="amountSectors"
           required
           min="1"
@@ -42,7 +42,7 @@
         <input
           id="rowsPerSector"
           type="number"
-          [(ngModel)]="room.amountRows"
+          [(ngModel)]="room.rowsPerSector"
           name="rowsPerSector"
           required
           min="1"
@@ -59,7 +59,7 @@
         <input
           id="seatsPerRow"
           type="number"
-          [(ngModel)]="room.seatPerRows"
+          [(ngModel)]="room.seatsPerRow"
           name="seatsPerRow"
           required
           min="1"
@@ -75,7 +75,7 @@
         <label for="eventLocation">Location <span class="text-danger">*</span></label>
         <select
           id="eventLocation"
-          [(ngModel)]="room.locationId"
+          [(ngModel)]="room.eventLocationId"
           name="eventLocation"
           required
           class="form-control"

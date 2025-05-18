@@ -1,8 +1,8 @@
 export interface CreateRoom {
   name: string,
-  amountSectors: number,
-  amountRows: number,
-  seatPerRows: number,
-  locationId: number,
+  numberOfSectors: number,
+  rowsPerSector: number,
+  seatsPerRow: number,
+  eventLocationId: number,
   isHorizontal: boolean
 }

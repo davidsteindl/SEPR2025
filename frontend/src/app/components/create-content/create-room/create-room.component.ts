@@ -11,6 +11,7 @@ import {LocationService} from "../../../services/location.service";
 import {ToastrService} from "ngx-toastr";
 import {ErrorFormatterService} from "../../../services/error-formatter.service";
 import {Router} from "@angular/router";
+import {RoomService} from "../../../services/room.service";
 
 @Component({
   selector: 'app-create-room',
@@ -27,23 +28,20 @@ export class CreateRoomComponent implements OnInit {
 
   room: CreateRoom = {
     name: '',
-    amountSectors: 3,
-    amountRows: 3,
-    seatPerRows: 3,
-    locationId: null,
+    numberOfSectors: 3,
+    rowsPerSector: 3,
+    seatsPerRow: 3,
+    eventLocationId: null,
     isHorizontal: true
   };
-
-  createdRoom: Event = null;
-  locationNameOfCreatedRoom: String = null;
-
+  nameOfRoom: string;
   locations: Location[] = [];
 
   constructor(
-    private eventService: EventService,
     private locationService: LocationService,
     private notification: ToastrService,
     private errorFormatter: ErrorFormatterService,
+    private roomService: RoomService,
     private router: Router
   ) {
   }
@@ -65,11 +63,31 @@ export class CreateRoomComponent implements OnInit {
 
 
   createRoom(): void {
-
+    this.roomService.create(this.room).subscribe({
+      next: () => {
+        console.log('Show created:', this.room.name);
+        this.nameOfRoom = this.room.name;
+        this.room = {
+          name: '',
+          numberOfSectors: 3,
+          rowsPerSector: 3,
+          seatsPerRow: 3,
+          eventLocationId: null,
+          isHorizontal: true
+        };
+          this.notification.success(`Show ${this.nameOfRoom} created successfully!`, 'Success', {
+            enableHtml: true,
+            timeOut: 8000,
+          });
+          this.router.navigate(['/admin']);
+      },
+      error: (err) => {
+        console.error('Error creating show:', err);
+        this.notification.error(this.errorFormatter.format(err), 'Error while creating show', {
+          enableHtml: true,
+          timeOut: 8000,
+        });
+      }
+    });
   }
-
-
-
-
-
 }
