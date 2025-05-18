@@ -21,4 +21,20 @@ import java.util.List;
 public class TicketRequestDto {
     private List<TicketTargetDto> targets;
     private Long showId;
+
+    public Long getShowId() {
+        return showId;
+    }
+
+    public void setShowId(Long showId) {
+        this.showId = showId;
+    }
+
+    public List<TicketTargetDto> getTargets() {
+        return targets;
+    }
+
+    public void setTargets(List<TicketTargetDto> targets) {
+        this.targets = targets;
+    }
 }

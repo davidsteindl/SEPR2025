@@ -14,4 +14,20 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket;
 public class TicketTargetSeatedDto implements TicketTargetDto {
     private Long sectorId;
     private Long seatId;
+
+    public Long getSeatId() {
+        return seatId;
+    }
+
+    public void setSeatId(Long seatId) {
+        this.seatId = seatId;
+    }
+
+    public Long getSectorId() {
+        return sectorId;
+    }
+
+    public void setSectorId(Long sectorId) {
+        this.sectorId = sectorId;
+    }
 }

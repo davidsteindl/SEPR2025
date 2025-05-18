@@ -16,4 +16,20 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
 public class TicketTargetStandingDto implements TicketTargetDto {
     private Long sectorId;
     private int quantity;
+
+    public Long getSectorId() {
+        return sectorId;
+    }
+
+    public void setSectorId(Long sectorId) {
+        this.sectorId = sectorId;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 }

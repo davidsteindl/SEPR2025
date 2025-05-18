@@ -26,7 +26,40 @@ import at.ac.tuwien.sepr.groupphase.backend.service.TicketService;
  * @see TicketService#buyReservedTickets(Long, java.util.List)
  */
 public class PaymentSessionDto {
-    private String sessionId;
+    private Long sessionId;
     private String paymentUrl;
     private TicketRequestDto target;
+    private int totalPrice;
+
+    public Long getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(Long sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public String getPaymentUrl() {
+        return paymentUrl;
+    }
+
+    public void setPaymentUrl(String paymentUrl) {
+        this.paymentUrl = paymentUrl;
+    }
+
+    public TicketRequestDto getTarget() {
+        return target;
+    }
+
+    public void setTarget(TicketRequestDto target) {
+        this.target = target;
+    }
+
+    public int getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(int totalPrice) {
+        this.totalPrice = totalPrice;
+    }
 }
