@@ -1,18 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity.ticket;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TransactionStatus;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
@@ -30,7 +19,12 @@ public class PaymentSession {
     private Order order;
 
 
-    @OneToMany(mappedBy = "paymentSession", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany
+    @JoinTable(
+        name = "payment_session_tickets",
+        joinColumns = @JoinColumn(name = "payment_session_id"),
+        inverseJoinColumns = @JoinColumn(name = "ticket_id")
+    )
     private List<Ticket> tickets;
 
     @Enumerated(EnumType.STRING)
@@ -87,5 +81,9 @@ public class PaymentSession {
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

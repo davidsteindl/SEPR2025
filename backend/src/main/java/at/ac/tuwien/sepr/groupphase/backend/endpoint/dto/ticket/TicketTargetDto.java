@@ -1,5 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 /**
  * Represents the target selection for a ticket purchase or reservation.
  *
@@ -11,6 +14,15 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket;
  * </ul>
  * This is used in scenarios where customers choose a particular seat or a standing slot when buying or reserving tickets.
  */
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "type"        // <-- this JSON field tells Jackson which subtype to use
+)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = TicketTargetSeatedDto.class,   name = "seated"),
+    @JsonSubTypes.Type(value = TicketTargetStandingDto.class, name = "standing")
+})
 public interface TicketTargetDto {
 
     // maybe this would be an amazing place to use the observer pattern or mehrfaches dynamisches binden

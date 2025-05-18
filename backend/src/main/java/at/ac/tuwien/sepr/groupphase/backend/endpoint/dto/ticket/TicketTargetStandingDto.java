@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * Data Transfer Object representing a standing-sector ticket selection.
@@ -13,6 +14,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
  * @see StandingSector
  * @see TicketRequestDto
  */
+@JsonTypeName("standing")
 public class TicketTargetStandingDto implements TicketTargetDto {
     private Long sectorId;
     private int quantity;

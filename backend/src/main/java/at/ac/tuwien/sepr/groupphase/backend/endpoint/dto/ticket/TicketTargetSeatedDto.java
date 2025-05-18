@@ -1,5 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 /**
  * Data Transfer Object representing a specific seat selection within a seated sector.
  *
@@ -11,6 +13,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket;
  * @see TicketTargetStandingDto
  * @see TicketRequestDto
  */
+@JsonTypeName("seated")
 public class TicketTargetSeatedDto implements TicketTargetDto {
     private Long sectorId;
     private Long seatId;

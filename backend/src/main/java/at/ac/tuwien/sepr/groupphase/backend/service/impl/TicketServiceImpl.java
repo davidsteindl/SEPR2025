@@ -82,6 +82,7 @@ public class TicketServiceImpl implements TicketService {
         // Save new order
         Order order = new Order();
         order.setCreatedAt(LocalDateTime.now());
+        order.setTickets(List.of());
         order.setUserId(null); // TODO: Find out how to get the userId
         order = orderRepository.save(order);
 
@@ -124,7 +125,7 @@ public class TicketServiceImpl implements TicketService {
         }
 
         // Save all tickets in batch
-        ticketRepository.saveAll(created);
+        created = ticketRepository.saveAll(created);
 
 
         order.setTickets(created);

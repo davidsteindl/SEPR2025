@@ -33,9 +33,6 @@ public class Ticket {
     @Column(nullable = false)
     private TicketStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_session_id")
-    private PaymentSession paymentSession;
 
     public Order getOrder() {
         return order;
