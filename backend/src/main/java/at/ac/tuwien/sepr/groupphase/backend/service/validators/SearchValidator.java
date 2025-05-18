@@ -2,7 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.stereotype.Component;
@@ -66,11 +66,66 @@ public class SearchValidator {
     }
 
     /**
+     * Validates the search criteria for event locations.
+     *
+     * @param eventLocationSearchDto the search criteria
+     * @throws ValidationException if any validation fails
+     */
+    public void validateForEventLocation(EventLocationSearchDto eventLocationSearchDto) throws ValidationException {
+        List<String> validationErrors = new ArrayList<>();
+
+        if (eventLocationSearchDto == null) {
+            validationErrors.add("Eventlocation search request must not be null");
+            throw new ValidationException("Validation of eventlocation search request failed", validationErrors);
+        }
+
+        if (eventLocationSearchDto.getPage() == null || eventLocationSearchDto.getPage() < 0) {
+            validationErrors.add("Page index must be non- negative");
+        }
+
+        if (eventLocationSearchDto.getSize() == null || eventLocationSearchDto.getSize() <= 0) {
+            validationErrors.add("Page size must be greater than zero");
+        }
+
+        boolean hasName = eventLocationSearchDto.getName() != null && !eventLocationSearchDto.getName().isBlank();
+        boolean hasStreet = eventLocationSearchDto.getStreet() != null && !eventLocationSearchDto.getStreet().isBlank();
+        boolean hasCity = eventLocationSearchDto.getCity() != null && !eventLocationSearchDto.getCity().isBlank();
+        boolean hasCountry = eventLocationSearchDto.getCountry() != null && !eventLocationSearchDto.getCountry().isBlank();
+        boolean hasPostalCode = eventLocationSearchDto.getPostalCode() != null && !eventLocationSearchDto.getPostalCode().isBlank();
+
+        if (!hasName && !hasStreet && !hasCity && !hasCountry && !hasPostalCode) {
+            validationErrors.add("At least one of the following fields must be filled: eventlocation name, eventlocation street, eventlocation city, eventlocation country, eventlocation postalcode .");
+        }
+
+        if (eventLocationSearchDto.getName() != null && eventLocationSearchDto.getName().length() > 100) {
+            validationErrors.add("Eventlocation name filter must not exceed 100 characters");
+        }
+
+        if (eventLocationSearchDto.getStreet() != null && eventLocationSearchDto.getStreet().length() > 100) {
+            validationErrors.add("Eventlocation street filter must not exceed 100 characters");
+        }
+
+        if (eventLocationSearchDto.getCity() != null && eventLocationSearchDto.getCity().length() > 100) {
+            validationErrors.add("Eventlocation city filter must not exceed 100 characters");
+        }
+
+        if (eventLocationSearchDto.getPostalCode() != null && eventLocationSearchDto.getPostalCode().length() > 100) {
+            validationErrors.add("Eventlocation postalcode filter must not exceed 100 characters");
+        }
+
+        if (!(validationErrors.isEmpty())) {
+            throw new ValidationException("Validation of eventlocation search request failed", validationErrors);
+        }
+
+    }
+
+    /**
      * Validates the search criteria for events.
      *
      * @param eventSearchDto the search criteria
      * @throws ValidationException if any validation fails
      */
+
     public void validateForEvents(EventSearchDto eventSearchDto) throws ValidationException {
         List<String> validationErrors = new ArrayList<>();
 
@@ -94,8 +149,9 @@ public class SearchValidator {
         boolean hasDuration = eventSearchDto.getDuration() != null;
 
         if (!hasName && !hasCategory && !hasDescription && !hasDuration) {
-            validationErrors.add("At least one of the following fields must be filled: eventname, eventcategory, eventdescription, eventduration .");
+            validationErrors.add("At least one of the following fields must be filled: eventname, event category, event description, event duration .");
         }
+
         if (eventSearchDto.getName() != null && eventSearchDto.getName().length() > 100) {
             validationErrors.add("Event name filter must not exceed 100 characters");
         }
