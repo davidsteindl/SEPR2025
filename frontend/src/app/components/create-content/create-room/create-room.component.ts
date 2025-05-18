@@ -75,7 +75,7 @@ export class CreateRoomComponent implements OnInit {
           eventLocationId: null,
           isHorizontal: true
         };
-          this.notification.success(`Show ${this.nameOfRoom} created successfully!`, 'Success', {
+          this.notification.success(`Room ${this.nameOfRoom} created successfully!`, 'Success', {
             enableHtml: true,
             timeOut: 8000,
           });
