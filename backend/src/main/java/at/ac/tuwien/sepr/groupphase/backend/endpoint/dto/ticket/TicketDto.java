@@ -30,5 +30,4 @@ public class TicketDto {
     private int price;
     private TicketTargetDto target;
     private TicketStatus status;
-
 }
