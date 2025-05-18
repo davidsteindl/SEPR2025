@@ -278,4 +278,32 @@ public class EventEndpointTest implements TestData {
             () -> assertTrue(body.contains("\"content\":"), "Response should contain 'content' field")
         );
     }
+
+    @Test
+    public void getTopTenEventsByCategory_shouldReturnCorrectList() throws Exception {
+        MvcResult result = mockMvc.perform(get(EVENT_BASE_URI + "/topten/JAZZ")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES)))
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        String responseBody = result.getResponse().getContentAsString();
+        assertTrue(responseBody.contains("Jazzkonzert"), "Expected event name to be present in top ten results");
+    }
+
+    @Test
+    public void getAllEventCategories_shouldReturnAllCategories() throws Exception {
+        MvcResult result = mockMvc.perform(get(EVENT_BASE_URI + "/categories")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES)))
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        String responseBody = result.getResponse().getContentAsString();
+        assertAll(
+            () -> assertTrue(responseBody.contains("Jazz"), "Category 'Jazz' should be in the result"),
+            () -> assertTrue(responseBody.contains("Rock"), "Category 'Rock' should be in the result"),
+            () -> assertTrue(responseBody.contains("displayName"), "Each category should have a displayName field")
+        );
+    }
 }

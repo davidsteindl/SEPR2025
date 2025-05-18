@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
 
@@ -220,4 +221,30 @@ public class ShowRepositoryTest {
             () -> assertEquals("Summer Fest", result.getContent().getFirst().getName())
         );
     }
+
+    @Test
+    public void testFindEarliestShowDateByEventId_shouldReturnCorrectDate() {
+        Event event = eventRepository.findAll().getFirst();
+
+        LocalDateTime fixedDate = LocalDateTime.of(2025, 5, 17, 15, 42, 30, 123_000_000);
+        Show earlyShow = Show.ShowBuilder.aShow()
+            .withName("Early Morning Show")
+            .withDuration(100)
+            .withDate(fixedDate)
+            .withEvent(event)
+            .withRoom(testRoom)
+            .build();
+        showRepository.save(earlyShow);
+
+        LocalDateTime earliestDate = showRepository.findEarliestShowDateByEventId(event.getId());
+
+        assertNotNull(earliestDate, "Earliest show date should not be null");
+
+        assertEquals(
+            fixedDate.truncatedTo(ChronoUnit.MILLIS),
+            earliestDate.truncatedTo(ChronoUnit.MILLIS),
+            "Should return the date of the earliest show (compared to millisecond precision)"
+        );
+    }
+
 }
