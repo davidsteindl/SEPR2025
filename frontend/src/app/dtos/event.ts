@@ -33,7 +33,7 @@ export interface EventSearchResultDto {
 export interface EventTopTenDto {
   id: number;
   name: string;
-  dateTime: string;
+  date: string;
   ticketsSold: number;
 }
 
