@@ -29,39 +29,6 @@ export class MessageComponent implements OnInit {
   categories: eventCategory[];
   topTenEvents: EventTopTenDto[];
 
-  allEvents: Event[] = [
-    {
-      id: 1,
-      name: "Title 1",
-      description: 'description 1',
-      duration: 60,
-      date: 'Date 1',
-      soldTickets: 200,
-      category: 'Music',
-      locationId: 1
-    },
-    {
-      id: 2,
-      name: "Title 2",
-      description: 'description 2',
-      duration: 60,
-      date: 'Date 2',
-      soldTickets: 190,
-      category: 'Sport',
-      locationId: 2
-    },
-    {
-      id: 3,
-      name: "Title 3",
-      description: 'description 3',
-      duration: 60,
-      date: 'Date 3',
-      soldTickets: 195,
-      category: 'Sport',
-      locationId: 3
-    },
-  ];
-
 
   constructor(private messageService: MessageService,
               private eventService: EventService,
@@ -173,15 +140,6 @@ export class MessageComponent implements OnInit {
   private clearForm() {
     this.currentMessage = new Message();
     this.submitted = false;
-  }
-
-  get topEvents() {
-    let filteredEvents = this.selectedCategory === 'All'
-      ? this.allEvents
-      : this.allEvents.filter(event => event.category === this.selectedCategory);
-
-    filteredEvents = filteredEvents.sort((a, b) => b.soldTickets - a.soldTickets);
-    return filteredEvents.slice(0, 10);
   }
 
   private loadCategories() {
