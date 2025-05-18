@@ -14,6 +14,8 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.SeatRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -34,11 +36,15 @@ public class RoomServiceImpl implements RoomService {
     private final EventLocationRepository eventLocationRepository;
     private final RoomRepository roomRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(RoomServiceImpl.class);
+    private final SectorRepository sectorRepository;
+    private final SeatRepository seatRepository;
 
     public RoomServiceImpl(EventLocationRepository eventLocationRepository,
-                           RoomRepository roomRepository) {
+                           RoomRepository roomRepository, SectorRepository sectorRepository, SeatRepository seatRepository) {
         this.eventLocationRepository = eventLocationRepository;
         this.roomRepository = roomRepository;
+        this.sectorRepository = sectorRepository;
+        this.seatRepository = seatRepository;
     }
 
     @Override
@@ -72,6 +78,18 @@ public class RoomServiceImpl implements RoomService {
 
         roomRepository.saveAndFlush(room);
         return mapToDto(room);
+    }
+
+    @Override
+    public Sector getSectorById(Long sectorId) {
+        return sectorRepository.findById(sectorId)
+            .orElseThrow(() -> new EntityNotFoundException("Sector not found with id " + sectorId));
+    }
+
+    @Override
+    public Seat getSeatById(Long seatId) {
+        return seatRepository.findById(seatId)
+            .orElseThrow(() -> new EntityNotFoundException("Seat not found with id " + seatId));
     }
 
 

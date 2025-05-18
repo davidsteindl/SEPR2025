@@ -2,6 +2,9 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
+import at.ac.tuwien.sepr.groupphase.backend.entity.SeatedSector;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 
 public interface RoomService {
 
@@ -25,4 +28,7 @@ public interface RoomService {
      */
     RoomDetailDto updateRoom(Long id, RoomDetailDto roomDetailDto);
 
+    Sector getSectorById(Long sectorId);
+
+    Seat getSeatById(Long seatId);
 }
