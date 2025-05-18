@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.CreateEventDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventCategoryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
@@ -157,12 +158,21 @@ public class EventEndpoint {
     }
 
     @GetMapping("/topten/{category}")
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get top ten events by category", security = @SecurityRequirement(name = "apiKey"))
     public List<EventTopTenDto> getTopTenEventsByCategory(@PathVariable("category") String category) throws ValidationException {
         LOGGER.info("GET /api/v1/events/topten/{}", category);
         return eventService.getTopTenEventsByCategory(category);
+    }
+
+    @GetMapping("/categories")
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get all event categories", security = @SecurityRequirement(name = "apiKey"))
+    public List<EventCategoryDto> getAllEventCategories() {
+        LOGGER.info("GET /api/v1/events/categories");
+        return eventService.getAllEventCategories();
     }
 }
 

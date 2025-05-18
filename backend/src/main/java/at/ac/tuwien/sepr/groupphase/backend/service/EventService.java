@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventCategoryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventTopTenDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
@@ -60,4 +61,11 @@ public interface EventService {
      * @return a list of the top 10 events in the specified category
      */
     List<EventTopTenDto> getTopTenEventsByCategory(String category) throws ValidationException;
+
+    /**
+     * Retrieves all event categories.
+     *
+     * @return a list of all event categories
+     */
+    List<EventCategoryDto> getAllEventCategories();
 }
