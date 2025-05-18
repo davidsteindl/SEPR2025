@@ -1,0 +1,89 @@
+package at.ac.tuwien.sepr.groupphase.backend.endpoint;
+
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.PaymentSessionDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
+import at.ac.tuwien.sepr.groupphase.backend.service.TicketService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+
+@RestController
+@RequestMapping("api/v1/tickets")
+public class TicketEndpoint {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private final TicketService ticketService;
+
+    @Autowired
+    public TicketEndpoint(TicketService ticketService) {
+        this.ticketService = ticketService;
+    }
+
+    @PostMapping("/buy")
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Initiate ticket purchase", security = @SecurityRequirement(name = "apiKey"))
+    public PaymentSessionDto buyTickets(
+        @RequestBody @Valid TicketRequestDto ticketRequestDto) {
+        LOGGER.info("POST /api/v1/tickets/buy with request {}", ticketRequestDto);
+        return ticketService.buyTickets(ticketRequestDto);
+    }
+
+    @PostMapping("/reserve")
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Reserve tickets", security = @SecurityRequirement(name = "apiKey"))
+    public ReservationDto reserveTickets(
+        @RequestBody @Valid TicketRequestDto ticketRequestDto) {
+        LOGGER.info("POST /api/v1/tickets/reserve with request {}", ticketRequestDto);
+        return ticketService.reserveTickets(ticketRequestDto);
+    }
+
+    @PostMapping("/reservations/{reservationId}/buy")
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Purchase previously reserved tickets", security = @SecurityRequirement(name = "apiKey"))
+    public PaymentSessionDto buyReservedTickets(
+        @PathVariable("reservationId") Long reservationId,
+        @RequestBody List<Long> ticketIds) {
+        LOGGER.info("POST /api/v1/tickets/reservations/{}/buy with tickets {}", reservationId, ticketIds);
+        return ticketService.buyReservedTickets(reservationId, ticketIds);
+    }
+
+    @PostMapping("/cancel-reservations")
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Cancel ticket reservations", security = @SecurityRequirement(name = "apiKey"))
+    public List<TicketDto> cancelReservations(
+        @RequestBody List<Long> ticketIds) {
+        LOGGER.info("POST /api/v1/tickets/cancel-reservations with tickets {}", ticketIds);
+        return ticketService.cancelReservations(ticketIds);
+    }
+
+    @PostMapping("/refund")
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Refund purchased tickets", security = @SecurityRequirement(name = "apiKey"))
+    public List<TicketDto> refundTickets(
+        @RequestBody List<Long> ticketIds) {
+        LOGGER.info("POST /api/v1/tickets/refund with tickets {}", ticketIds);
+        return ticketService.refundTickets(ticketIds);
+    }
+
+
+}
