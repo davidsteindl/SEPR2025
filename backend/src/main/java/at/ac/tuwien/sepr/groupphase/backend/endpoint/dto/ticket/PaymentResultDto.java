@@ -19,6 +19,5 @@ import java.util.List;
 public class PaymentResultDto {
     private List<TicketDto> purchasedTickets;
     private long amount;
-    private String currency;
     private TransactionStatus transactionStatus;
 }
