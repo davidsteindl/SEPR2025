@@ -29,6 +29,14 @@ export interface EventSearchResultDto {
   description: string;
 }
 
+
+export interface EventTopTenDto {
+  id: number;
+  name: string;
+  dateTime: string;
+  ticketsSold: number;
+}
+
 export interface EventWithShows {
   event: Event;
   shows: Show[];

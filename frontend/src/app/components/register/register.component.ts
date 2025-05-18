@@ -34,7 +34,7 @@ export class RegisterComponent {
       firstName: ['', [Validators.required, Validators.maxLength(100)]],
       lastName: ['', [Validators.required, Validators.maxLength(100)]],
       dateOfBirth: ['', [Validators.required]],
-      email: ['', [Validators.required, Validators.maxLength(100), Validators.email]],
+      email: ['', [Validators.required, Validators.maxLength(100)]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(8)]],
       termsAccepted: [false, Validators.requiredTrue],
