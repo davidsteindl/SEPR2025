@@ -80,7 +80,7 @@ export class CreateEventComponent implements OnInit {
         });
         if (response){
           this.notification.success(`Event ${response.name} created successfully!`, 'Success');
-          this.router.navigate(['/']);
+          this.router.navigate(['/admin']);
         }
         this.event = {name: '', description: '', duration: 60, category: null, locationId: null};
       },
