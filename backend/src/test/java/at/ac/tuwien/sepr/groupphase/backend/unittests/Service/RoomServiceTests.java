@@ -11,6 +11,8 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.SeatRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.RoomServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.AfterEach;
@@ -42,10 +44,14 @@ public class RoomServiceTests {
     private RoomServiceImpl roomService;
     private EventLocation testLocation;
     private CreateRoomDto createRoomDto;
+    @Autowired
+    private SectorRepository sectorRepository;
+    @Autowired
+    private SeatRepository seatRepository;
 
     @BeforeEach
     public void setUp() {
-        roomService = new RoomServiceImpl(eventLocationRepository, roomRepository);
+        roomService = new RoomServiceImpl(eventLocationRepository, roomRepository,sectorRepository,seatRepository);
         testLocation = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Test Venue")
             .withCountry("Austria")
