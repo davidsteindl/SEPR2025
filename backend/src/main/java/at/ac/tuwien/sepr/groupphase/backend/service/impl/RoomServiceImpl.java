@@ -92,6 +92,13 @@ public class RoomServiceImpl implements RoomService {
             .orElseThrow(() -> new EntityNotFoundException("Seat not found with id " + seatId));
     }
 
+    @Override
+    public RoomDetailDto getRoomById(Long id) {
+        LOGGER.debug("Retrieving a room with details: {}", id);
+        Room room = roomRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        return mapToDto(room);
+    }
+
 
     /**
      * Constructs a new Room entity from the provided DTO and EventLocation.
