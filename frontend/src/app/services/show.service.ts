@@ -59,11 +59,4 @@ export class ShowService {
       criteria
     );
   }
-
-  searchShows(criteria: ShowSearch): Observable<Page<ShowSearchResult>> {
-    return this.httpClient.post<Page<ShowSearchResult>>(
-      `${this.showBaseUri}/search`,
-      criteria
-    );
-  }
 }
