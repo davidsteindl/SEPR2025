@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResult
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.CreateEventLocationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventLocationMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -91,5 +92,24 @@ public class EventLocationEndpoint {
     public Page<EventLocationDetailDto> search(@RequestBody @Valid EventLocationSearchDto eventLocationSearchDto) throws ValidationException {
         LOGGER.info("POST /api/v1/locations/search {}", eventLocationSearchDto);
         return searchService.searchEventLocations(eventLocationSearchDto);
+    }
+
+    /**
+     * Retrieves all shows for a specific event location.
+     *
+     * @param eventLocationId the ID of the event location
+     * @return a list of shows for the specified event location
+     */
+    @Secured("ROLE_USER")
+    @GetMapping("/{eventLocationId}/shows")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(
+        summary = "Get shows for a specific event location",
+        description = "Returns all shows of the given event location, sorted by date.",
+        security = @SecurityRequirement(name = "apiKey")
+    )
+    public List<ShowDetailDto> getShowsForEventLocation(@PathVariable("eventLocationId") Long eventLocationId) {
+        LOGGER.info("GET /api/v1/locations/{}/shows", eventLocationId);
+        return searchService.getShowsForEventLocation(eventLocationId);
     }
 }
