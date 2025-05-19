@@ -1,9 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
-import at.ac.tuwien.sepr.groupphase.backend.config.type.TransactionStatus;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.PaymentResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
@@ -82,8 +81,8 @@ public class TicketServiceImpl implements TicketService {
         order.setCreatedAt(LocalDateTime.now());
         order.setTickets(List.of());
         order.setUserId(null); // TODO: Find out how to get the userId
+        order.setOrderType(OrderType.ORDER);
         order = orderRepository.save(order);
-
 
         List<Ticket> created = new ArrayList<>();
         int totalPriceInCents = 0;
@@ -91,7 +90,6 @@ public class TicketServiceImpl implements TicketService {
             if (targetDto instanceof TicketTargetSeatedDto seated) {
                 SeatedSector sector = (SeatedSector) roomService.getSectorById(seated.getSectorId());
                 Seat seat           = roomService.getSeatById(seated.getSeatId());
-
 
                 Ticket ticket = new Ticket();
                 ticket.setOrder(order);
@@ -131,7 +129,6 @@ public class TicketServiceImpl implements TicketService {
         order.setTickets(created);
         orderRepository.save(order);
 
-
         // Map entities to DTOs
         List<TicketDto> ticketDtos = created.stream()
                 .map(ticketMapper::toDto)
@@ -140,6 +137,7 @@ public class TicketServiceImpl implements TicketService {
         OrderDto dto = new OrderDto();
         dto.setId(order.getId());
         dto.setCreatedAt(order.getCreatedAt());
+        dto.setOrderType(order.getOrderType());
         dto.setTickets(ticketDtos);
 
         return dto;

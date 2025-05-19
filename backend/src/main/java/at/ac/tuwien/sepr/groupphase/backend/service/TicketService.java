@@ -1,11 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.PaymentResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ReservationExpiredException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ReservationNotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.SeatUnavailableException;
