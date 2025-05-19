@@ -145,21 +145,25 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public ReservationDto reserveTickets(TicketRequestDto ticketRequestDto) {
+        LOGGER.debug("Reserve tickets request: {}", ticketRequestDto);
         return null;
     }
 
     @Override
     public OrderDto buyReservedTickets(List<Long> ticketIds) {
+        LOGGER.debug("Buy reserved tickets request: {}", ticketIds);
         return null;
     }
 
     @Override
     public List<TicketDto> cancelReservations(List<Long> ticketIds) {
+        LOGGER.debug("Cancel ticket reservations request: {}", ticketIds);
         return List.of();
     }
 
     @Override
     public List<TicketDto> refundTickets(List<Long> ticketIds) {
+        LOGGER.debug("Refund tickets request: {}", ticketIds);
         return List.of();
     }
 }
