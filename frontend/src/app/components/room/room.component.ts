@@ -5,7 +5,7 @@ import {ErrorFormatterService} from "../../services/error-formatter.service";
 import {RoomService} from "../../services/room.service";
 import {Location} from "../../dtos/location";
 import {Room} from "../../dtos/room";
-import {NgClass, NgForOf, NgIf} from "@angular/common";
+import {NgClass, NgForOf, NgIf, NgTemplateOutlet} from "@angular/common";
 import {LocationType} from "../create-content/create-location/create-location.component";
 import {StandingSector} from "../../dtos/standing-sector";
 import {SectorType} from "../../dtos/sector-type";
@@ -81,9 +81,10 @@ export class RoomComponent implements OnInit {
     room: null,
     type: SectorType.STANDING
   }
+
   testSector2: SeatedSector = {
     id: 2,
-    rows: [this.testSeat1, this.testSeat2, this.testSeat3, this.testSeat4, this.testSeat5],
+    rows: [this.testSeat1, this.testSeat2, this.testSeat4, this.testSeat5],
     price: 10,
     room: null,
     type: SectorType.SEATED
@@ -96,10 +97,18 @@ export class RoomComponent implements OnInit {
     type: SectorType.SEATED
   }
 
+  testSector4: StandingSector = {
+    id: 4,
+    capacity: 50,
+    price: 10,
+    room: null,
+    type: SectorType.STANDING
+  }
+
 
   testRoom: Room = {
     id: 2,
-    sectors: [this.testSector1, this.testSector2, this.testSector3],
+    sectors: [this.testSector1, this.testSector2, this.testSector3, this.testSector4],
     name: "Testroom",
     eventLocation: this.testLocation
   }
@@ -142,9 +151,20 @@ export class RoomComponent implements OnInit {
     return this.room.sectors.filter(s => this.asSeatedSector(s)) as SeatedSector[];
   }
 
+  get standingSectors(): StandingSector[] {
+    return this.room.sectors.filter(s => this.asStandingSector(s)) as StandingSector[];
+  }
+
   asSeatedSector(sector: Sector): SeatedSector | undefined {
     if ((sector as SeatedSector).rows !== undefined) {
       return sector as SeatedSector;
+    }
+    return undefined;
+  }
+
+  asStandingSector(sector: Sector): StandingSector | undefined {
+    if ((sector as StandingSector).capacity !== undefined) {
+      return sector as StandingSector;
     }
     return undefined;
   }
@@ -200,5 +220,9 @@ export class RoomComponent implements OnInit {
     return ['blue-sector', 'yellow-sector', 'green-sector'][sectorIndex % 3];
   }
 
+
+  onSectorClick(sector: Sector): void {
+    console.log(`Clicked sector ${sector.id}`);
+  }
 
 }

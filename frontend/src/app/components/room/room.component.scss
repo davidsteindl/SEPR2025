@@ -8,7 +8,11 @@
   margin-bottom: 20px;
 }
 
-
+.standingSector {
+  background-color: orange;
+  height: 50px;
+  width: 100px;
+}
 
 table {
   border-collapse: collapse;
@@ -34,15 +38,15 @@ th, td {
   cursor: default;
 }
 
-.blue-sector .seat {
+.blue-sector {
   background-color: #3498db;
 }
 
-.yellow-sector .seat {
+.yellow-sector {
   background-color: #f1c40f;
 }
 
-.green-sector .seat {
+.green-sector {
   background-color: #2ecc71;
 }
 
