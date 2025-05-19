@@ -6,6 +6,4 @@ export abstract class Sector {
   type: SectorType;
   price: number;
   room: Room;
-
-
 }

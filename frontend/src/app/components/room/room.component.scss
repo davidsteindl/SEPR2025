@@ -1,0 +1,50 @@
+.stage {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.sector-container {
+  margin-bottom: 20px;
+}
+
+table {
+  border-collapse: collapse;
+  margin: auto;
+}
+
+th, td {
+  padding: 4px;
+}
+
+.seat {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: white;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.seat.empty {
+  background-color: transparent;
+  border: none;
+  cursor: default;
+}
+
+.blue-sector .seat {
+  background-color: #3498db;
+}
+
+.yellow-sector .seat {
+  background-color: #f1c40f;
+}
+
+.green-sector .seat {
+  background-color: #2ecc71;
+}
+
+.actions {
+  text-align: center;
+  margin-top: 20px;
+}

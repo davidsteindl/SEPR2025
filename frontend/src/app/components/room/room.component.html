@@ -1,1 +1,41 @@
-<p>room works!</p>
+<div *ngIf="room" class="mt-4 container">
+
+  <div class="row">
+    <h2 class="modal-title"> Room {{ room.name }}</h2>
+    <hr>
+  </div>
+
+  <div class="stage">STAGE</div>
+  <hr>
+
+  <div *ngFor="let sector of room.sectors" class="sector-container" [ngClass]="getSectorColorClass(sector)">
+    <ng-container *ngIf="asSeatedSector(sector) as seatedSector">
+      <table>
+        <thead>
+        <tr>
+          <th></th>
+          <th *ngFor="let col of getMaxColumns(seatedSector)"> {{ toColumnLetter(col) }} </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let row of getMaxRows(seatedSector)">
+          <th>{{ row }}</th>
+          <td *ngFor="let col of getMaxColumns(seatedSector)">
+            <button
+              class="seat"
+              (click)="onSeatClick(seatedSector, row, col)">
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </ng-container>
+  </div>
+
+  <div class="actions">
+    <button>Edit</button>
+    <button routerLink=\event\:id\overview>Done</button>
+  </div>
+
+
+</div>
