@@ -1,7 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.EventLocationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +17,12 @@ import java.util.List;
 public class EventLocationServiceImpl implements EventLocationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final EventLocationRepository eventLocationRepository;
+    private final ShowRepository showRepository;
 
     @Autowired
-    public EventLocationServiceImpl(EventLocationRepository eventLocationRepository) {
+    public EventLocationServiceImpl(EventLocationRepository eventLocationRepository, ShowRepository showRepository) {
         this.eventLocationRepository = eventLocationRepository;
+        this.showRepository = showRepository;
     }
 
     @Override
@@ -37,5 +41,11 @@ public class EventLocationServiceImpl implements EventLocationService {
     public EventLocation createEventLocation(EventLocation eventLocation) {
         LOGGER.info("Save event location {}", eventLocation);
         return eventLocationRepository.save(eventLocation);
+    }
+
+    @Override
+    public List<Show> getShowsForEventLocation(Long eventLocationId) {
+        LOGGER.info("Get all shows for event location {}", eventLocationId);
+        return showRepository.findAllByEvent_Location_IdOrderByDateAsc(eventLocationId);
     }
 }
