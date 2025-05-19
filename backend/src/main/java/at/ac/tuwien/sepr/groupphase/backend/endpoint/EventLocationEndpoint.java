@@ -7,6 +7,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLoca
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventLocationMapper;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.service.EventLocationService;
@@ -38,12 +39,14 @@ public class EventLocationEndpoint {
     private final EventLocationService eventLocationService;
     private final EventLocationMapper eventLocationMapper;
     private final SearchService searchService;
+    private final ShowMapper showMapper;
 
     @Autowired
-    public EventLocationEndpoint(EventLocationService eventLocationService, EventLocationMapper eventLocationMapper, SearchService searchService) {
+    public EventLocationEndpoint(EventLocationService eventLocationService, EventLocationMapper eventLocationMapper, SearchService searchService, ShowMapper showMapper) {
         this.eventLocationService = eventLocationService;
         this.eventLocationMapper = eventLocationMapper;
         this.searchService = searchService;
+        this.showMapper = showMapper;
     }
 
     @GetMapping("/{id}")
@@ -110,6 +113,9 @@ public class EventLocationEndpoint {
     )
     public List<ShowDetailDto> getShowsForEventLocation(@PathVariable("eventLocationId") Long eventLocationId) {
         LOGGER.info("GET /api/v1/locations/{}/shows", eventLocationId);
-        return searchService.getShowsForEventLocation(eventLocationId);
+
+        return showMapper.showsToShowDetailDtos(
+            eventLocationService.getShowsForEventLocation(eventLocationId)
+        );
     }
 }
