@@ -49,14 +49,6 @@ public interface SearchService {
     Page<EventSearchResultDto> searchEvents(EventSearchDto criteria) throws ValidationException;
 
     /**
-     * Search performances by date/time, price (± tolerance), event, or hall.
-     *
-     * @param criteria the search criteria
-     * @return page of matching performances
-     */
-    List<PerformanceDto> searchPerformances(PerformanceSearchDto criteria);
-
-    /**
      * Searches for shows based on the given criteria and returns a paginated list of results.
      *
      * @param criteria the search criteria including optional filters like date range, event, room, name, and price
