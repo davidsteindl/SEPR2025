@@ -159,6 +159,7 @@ public class TicketServiceImpl implements TicketService {
     public List<TicketDto> cancelReservations(List<Long> ticketIds) {
         LOGGER.debug("Cancel ticket reservations request: {}", ticketIds);
         return List.of();
+
     }
 
     @Override
