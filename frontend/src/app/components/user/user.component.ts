@@ -12,7 +12,7 @@ import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-del
   selector: 'app-user',
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss'],
-  imports: [DatePipe, RouterLink, ConfirmDeleteDialogComponent, NgIf]
+  imports: [DatePipe, RouterLink, ConfirmDeleteDialogComponent]
 })
 
 export class UserComponent implements OnInit {

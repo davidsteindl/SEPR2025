@@ -79,7 +79,7 @@ export class CreateArtistComponent implements OnInit {
         if (createdArtist) {
           console.log('Artist created:', createdArtist);
           this.notification.success(`Artist ${createdArtist.stagename || createdArtist.firstname + ` ` + createdArtist.lastname} created successfully!`, 'Success');
-          this.router.navigate(['/']);
+          this.router.navigate(['/admin']);
         }
         this.artist = {
           firstname: '',

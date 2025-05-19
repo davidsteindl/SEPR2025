@@ -19,6 +19,7 @@ import { CreateLocationComponent } from './components/create-content/create-loca
 import { AdminComponent } from './components/admin/admin.component';
 import { ArtistEventsComponent } from './components/artist-events/artist-events.component';
 import {EventOverviewComponent} from "./components/event-overview/event-overview.component";
+import { CreateRoomComponent } from './components/create-content/create-room/create-room.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -35,6 +36,7 @@ const routes: Routes = [
   { path: 'create-artist', component: CreateArtistComponent, canActivate: [AdminGuard] },
   { path: 'create-show', component: CreateShowComponent, canActivate: [AdminGuard] },
   { path: 'create-location', component: CreateLocationComponent, canActivate: [AdminGuard] },
+  { path: 'create-room', component: CreateRoomComponent, canActivate: [AdminGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [AdminGuard]},
   { path: 'artists/:id/events', component: ArtistEventsComponent, canActivate: [AuthGuard] },
   { path: 'events/:id/overview', component: EventOverviewComponent, canActivate: [AuthGuard] }

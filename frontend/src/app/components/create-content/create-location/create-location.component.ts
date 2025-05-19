@@ -57,7 +57,7 @@ export class CreateLocationComponent {
             enableHtml: true,
             timeOut: 8000,
           });
-          this.router.navigate(['/']);
+          this.router.navigate(['/admin']);
         }
       },
       error: (err) => {
