@@ -39,7 +39,7 @@ public class EventLocationEndpointSearchTest {
 
     @MockitoBean
     private EventLocationMapper eventLocationMapper;
-    
+
     @MockitoBean
     private ShowMapper showMapper;
 
