@@ -1,6 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.PaymentSessionDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
@@ -38,7 +38,7 @@ public class TicketEndpoint {
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Initiate ticket purchase", security = @SecurityRequirement(name = "apiKey"))
-    public PaymentSessionDto buyTickets(
+    public OrderDto buyTickets(
         @RequestBody @Valid TicketRequestDto ticketRequestDto) {
         LOGGER.info("POST /api/v1/tickets/buy with request {}", ticketRequestDto);
         return ticketService.buyTickets(ticketRequestDto);
@@ -58,11 +58,11 @@ public class TicketEndpoint {
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Purchase previously reserved tickets", security = @SecurityRequirement(name = "apiKey"))
-    public PaymentSessionDto buyReservedTickets(
+    public OrderDto buyReservedTickets(
         @PathVariable("reservationId") Long reservationId,
         @RequestBody List<Long> ticketIds) {
         LOGGER.info("POST /api/v1/tickets/reservations/{}/buy with tickets {}", reservationId, ticketIds);
-        return ticketService.buyReservedTickets(reservationId, ticketIds);
+        return ticketService.buyReservedTickets(ticketIds);
     }
 
     @PostMapping("/cancel-reservations")

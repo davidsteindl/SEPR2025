@@ -25,8 +25,7 @@ public class Order {
     LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PaymentSession> paymentSessions;
-
+    List<Ticket> tickets;
 
     Long userId;
 
@@ -56,10 +55,13 @@ public class Order {
         this.tickets = tickets;
     }
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    List<Ticket> tickets;
+
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

@@ -11,5 +11,11 @@ public class TicketValidator {
 
     public void validateForBuyTickets(TicketRequestDto ticketRequestDto) {
         LOGGER.debug("validateForBuyTickets: {}", ticketRequestDto);
+
+        // is there a hold on the selected seats?
+
+        // does the show exist?
+
+        // can i buy tickets for this show? (30 mins before start)
     }
 }

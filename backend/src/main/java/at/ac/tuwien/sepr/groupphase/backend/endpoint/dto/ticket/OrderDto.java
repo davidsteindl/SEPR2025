@@ -9,8 +9,7 @@ import java.util.Objects;
 
 public class OrderDto {
     private Long id;
-    private Long userId;
-    private LocalDateTime date;
+    private LocalDateTime createdAt;
     private List<TicketDto> tickets;
     private PaymentType paymentType;
     private UserDetailDto customer;
@@ -24,20 +23,14 @@ public class OrderDto {
         this.id = id;
     }
 
-    public Long getUserId() {
-        return userId;
+
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDateTime date) {
-        this.date = date;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public List<TicketDto> getTickets() {
@@ -81,8 +74,7 @@ public class OrderDto {
             return false;
         }
         return Objects.equals(id, that.id)
-            && Objects.equals(userId, that.userId)
-            && Objects.equals(date, that.date)
+            && Objects.equals(createdAt, that.createdAt)
             && Objects.equals(tickets, that.tickets)
             && paymentType == that.paymentType
             && Objects.equals(customer, that.customer)
@@ -91,15 +83,14 @@ public class OrderDto {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, userId, date, tickets, paymentType, customer, paymentAdress);
+        return Objects.hash(id, createdAt, tickets, paymentType, customer, paymentAdress);
     }
 
     @Override
     public String toString() {
         return "OrderDto{"
             + "id=" + id
-            + ", userId=" + userId
-            + ", date=" + date
+            + ", date=" + createdAt
             + ", tickets=" + tickets
             + ", paymentType=" + paymentType
             + ", customer=" + customer
@@ -109,7 +100,6 @@ public class OrderDto {
 
     public static final class OrderDtoBuilder {
         private Long id;
-        private Long userId;
         private LocalDateTime date;
         private List<TicketDto> tickets;
         private PaymentType paymentType;
@@ -125,11 +115,6 @@ public class OrderDto {
 
         public OrderDtoBuilder withId(Long id) {
             this.id = id;
-            return this;
-        }
-
-        public OrderDtoBuilder withUserId(Long userId) {
-            this.userId = userId;
             return this;
         }
 
@@ -161,8 +146,7 @@ public class OrderDto {
         public OrderDto build() {
             OrderDto dto = new OrderDto();
             dto.setId(id);
-            dto.setUserId(userId);
-            dto.setDate(date);
+            dto.setCreatedAt(date);
             dto.setTickets(tickets);
             dto.setPaymentType(paymentType);
             dto.setCustomer(customer);
