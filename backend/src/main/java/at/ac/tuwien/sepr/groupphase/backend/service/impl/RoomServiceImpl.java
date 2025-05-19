@@ -72,7 +72,6 @@ public class RoomServiceImpl implements RoomService {
             .orElseThrow(() -> new EntityNotFoundException("Room not found: " + id));
 
         room.setName(dto.getName());
-        room.setHorizontal(dto.isHorizontal());
 
         syncSectors(room, dto.getSectors());
 
@@ -111,7 +110,6 @@ public class RoomServiceImpl implements RoomService {
         LOGGER.debug("Building a new room with details: {}", dto);
         Room room = new Room();
         room.setName(dto.getName());
-        room.setHorizontal(dto.isHorizontal());
         room.setEventLocation(location);
 
         for (int i = 0; i < dto.getNumberOfSectors(); i++) {
@@ -243,7 +241,6 @@ public class RoomServiceImpl implements RoomService {
             .id(room.getId())
             .name(room.getName())
             .sectors(sectors)
-            .isHorizontal(room.isHorizontal())
             .build();
     }
 
