@@ -1,16 +1,22 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.CreateEventLocationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventLocationMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.service.EventLocationService;
+import at.ac.tuwien.sepr.groupphase.backend.service.SearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,11 +36,13 @@ public class EventLocationEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final EventLocationService eventLocationService;
     private final EventLocationMapper eventLocationMapper;
+    private final SearchService searchService;
 
     @Autowired
-    public EventLocationEndpoint(EventLocationService eventLocationService, EventLocationMapper eventLocationMapper) {
+    public EventLocationEndpoint(EventLocationService eventLocationService, EventLocationMapper eventLocationMapper, SearchService searchService) {
         this.eventLocationService = eventLocationService;
         this.eventLocationMapper = eventLocationMapper;
+        this.searchService = searchService;
     }
 
     @GetMapping("/{id}")
@@ -63,5 +71,19 @@ public class EventLocationEndpoint {
         LOGGER.info("POST /api/v1/locations");
         EventLocation eventLocation = eventLocationService.createEventLocation(eventLocationMapper.createEventLocationDtoToEventLocation(createEventLocationDetailDto));
         return eventLocationMapper.eventLocationToEventLocationDetailDto(eventLocation);
+    }
+
+
+    @PostMapping("/search")
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(
+        summary = "Search eventlocations",
+        description = "Search eventlocations by name, street, city, country or postal code with page and size parameters.",
+        security = @SecurityRequirement(name = "apiKey")
+    )
+    public Page<EventLocationDetailDto> search(@RequestBody @Valid EventLocationSearchDto eventLocationSearchDto) throws ValidationException {
+        LOGGER.info("POST /api/v1/locations/search {}", eventLocationSearchDto);
+        return searchService.searchEventLocations(eventLocationSearchDto);
     }
 }
