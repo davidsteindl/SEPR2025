@@ -24,11 +24,11 @@ import {Sector} from "../../dtos/sector";
   templateUrl: './room.component.html',
   styleUrl: './room.component.scss'
 })
-export class RoomComponent implements OnInit{
+export class RoomComponent implements OnInit {
 
   room: Room | null = null;
 
- // Testwerte zum testen bis GetById im Backend fertig ist
+  // Testwerte zum testen bis GetById im Backend fertig ist
   testLocation: Location = {
     id: 1,
     name: "TestLocation",
@@ -67,6 +67,13 @@ export class RoomComponent implements OnInit{
     deleted: false
   }
 
+  testSeat5: Seat = {
+    id: 5,
+    rowNumber: 1,
+    columnNumber: 3,
+    deleted: false
+  }
+
   testSector1: StandingSector = {
     id: 1,
     capacity: 100,
@@ -76,7 +83,14 @@ export class RoomComponent implements OnInit{
   }
   testSector2: SeatedSector = {
     id: 2,
-    rows: [this.testSeat1,this.testSeat2,this.testSeat3,this.testSeat4],
+    rows: [this.testSeat1, this.testSeat2, this.testSeat3, this.testSeat4, this.testSeat5],
+    price: 10,
+    room: null,
+    type: SectorType.SEATED
+  }
+  testSector3: SeatedSector = {
+    id: 3,
+    rows: [this.testSeat1, this.testSeat2, this.testSeat3, this.testSeat4],
     price: 10,
     room: null,
     type: SectorType.SEATED
@@ -85,12 +99,13 @@ export class RoomComponent implements OnInit{
 
   testRoom: Room = {
     id: 2,
-    sectors: [this.testSector1, this.testSector2],
+    sectors: [this.testSector1, this.testSector2, this.testSector3],
     name: "Testroom",
     eventLocation: this.testLocation
   }
 
   selectedSeat: Seat;
+  globalRow: number;
 
 
   constructor(private route: ActivatedRoute,
@@ -114,13 +129,17 @@ export class RoomComponent implements OnInit{
         this.room = room;
 
       },
-      error: err =>  {
+      error: err => {
         this.notification.error(this.errorFormatter.format(err), 'Loading events failed', {
           enableHtml: true,
           timeOut: 8000,
         });
       }
     });
+  }
+
+  get seatedSectors(): SeatedSector[] {
+    return this.room.sectors.filter(s => this.asSeatedSector(s)) as SeatedSector[];
   }
 
   asSeatedSector(sector: Sector): SeatedSector | undefined {
@@ -132,12 +151,33 @@ export class RoomComponent implements OnInit{
 
   getMaxRows(sector: SeatedSector): number[] {
     const max = Math.max(...sector.rows.map(seat => seat.rowNumber));
-    return Array.from({ length: max }, (_, i) => i + 1);
+    return Array.from({length: max}, (_, i) => i + 1);
   }
 
-  getMaxColumns(sector: SeatedSector): number[] {
-    const max = Math.max(...sector.rows.map(seat => seat.columnNumber));
-    return Array.from({ length: max }, (_, i) => i + 1);
+  isSeat(sector: SeatedSector, row: number, col: number) : boolean {
+    const seat = sector.rows.find(s => s.rowNumber === row && s.columnNumber === col && !s.deleted);
+    if (seat) return true;
+    else return false
+  }
+
+
+  get globalColumns(): number[] {
+    let maxCol = 0;
+    for (const sector of this.seatedSectors) {
+      for (const seat of sector.rows) {
+        if (seat.columnNumber > maxCol) {
+          maxCol = seat.columnNumber;
+        }
+      }
+    }
+    return Array.from({length: maxCol}, (_, i) => i + 1);
+  }
+
+
+  getRowOffset(index: number): number {
+    return this.seatedSectors
+      .slice(0, index)
+      .reduce((acc, s) => acc + this.getMaxRows(s).length, 0);
   }
 
   toColumnLetter(col: number): string {
@@ -149,7 +189,9 @@ export class RoomComponent implements OnInit{
     const seat = sector.rows.find(s => s.rowNumber === row && s.columnNumber === col && !s.deleted);
     if (seat) {
       this.selectedSeat = seat;
-      console.log(`Clicked seat ${seat.rowNumber}${this.toColumnLetter(seat.columnNumber)}`);
+      const sectorIndex = this.seatedSectors.findIndex(s => s.id === sector.id);
+      this.globalRow = seat.rowNumber + this.getRowOffset(sectorIndex);
+      console.log(`Clicked seat ${this.globalRow}${this.toColumnLetter(seat.columnNumber)}`);
     }
   }
 
