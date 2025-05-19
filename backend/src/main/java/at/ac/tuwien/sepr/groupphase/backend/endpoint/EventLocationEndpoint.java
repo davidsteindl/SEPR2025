@@ -74,6 +74,12 @@ public class EventLocationEndpoint {
     }
 
 
+    /**
+     * Searches for event locations based on the given search criteria.
+     *
+     * @param eventLocationSearchDto the search criteria
+     * @return a page of event locations matching the search criteria
+     */
     @PostMapping("/search")
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)

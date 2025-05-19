@@ -28,7 +28,7 @@ public interface SearchService {
      * Search artists by first name, last name, or band names or pseudonyms.
      *
      * @param criteria the search criteria
-     * @return list of matching artists
+     * @return page of matching artists
      */
     Page<ArtistSearchResultDto> searchArtists(ArtistSearchDto criteria) throws ValidationException;
 
@@ -36,7 +36,7 @@ public interface SearchService {
      * Search eventlocations by name, street, city, country, or postal code.
      *
      * @param criteria the search criteria
-     * @return list of matching eventlocations
+     * @return page of matching eventlocations
      */
     Page<EventLocationDetailDto> searchEventLocations(EventLocationSearchDto criteria) throws ValidationException;
 
@@ -44,7 +44,7 @@ public interface SearchService {
      * Search events by title, category, duration (± 30min), or content.
      *
      * @param criteria the search criteria
-     * @return list of matching events
+     * @return page of matching events
      */
     Page<EventSearchResultDto> searchEvents(EventSearchDto criteria) throws ValidationException;
 
@@ -52,7 +52,7 @@ public interface SearchService {
      * Search performances by date/time, price (± tolerance), event, or hall.
      *
      * @param criteria the search criteria
-     * @return list of matching performances
+     * @return page of matching performances
      */
     List<PerformanceDto> searchPerformances(PerformanceSearchDto criteria);
 
