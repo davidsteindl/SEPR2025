@@ -64,6 +64,9 @@ class CustomSearchServiceTest {
     @Mock
     private ShowRepository showRepo;
 
+    @Mock
+    private EventLocationRepository eventLocationRepo;
+
     private Artist artist;
     private ArtistSearchResultDto dto;
     private Event event;
