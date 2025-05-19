@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.EventLocationEndpoint;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventLocationMapper;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
 import at.ac.tuwien.sepr.groupphase.backend.service.EventLocationService;
 import at.ac.tuwien.sepr.groupphase.backend.service.SearchService;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,9 @@ public class EventLocationEndpointSearchTest {
 
     @MockitoBean
     private EventLocationMapper eventLocationMapper;
+    
+    @MockitoBean
+    private ShowMapper showMapper;
 
     @MockitoBean
     private SecurityProperties securityProperties;
