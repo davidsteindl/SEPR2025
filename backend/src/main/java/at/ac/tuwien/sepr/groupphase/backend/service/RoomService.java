@@ -2,7 +2,6 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StandingSectorUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
@@ -61,7 +60,7 @@ public interface RoomService {
      * Retrieves the seating and standing occupancy information for the room assigned to the specified show.
      *
      * <p>
-     * Returns a {@link RoomUsageDto} containing:
+     * Returns a {@link RoomDetailDto} containing:
      * <ul>
      *   <li>a list of {@link SeatUsageDto} entries, each indicating whether a particular seat is available;</li>
      *   <li>a list of {@link StandingSectorUsageDto} entries, each indicating the total capacity and the remaining available capacity for a standing sector.</li>

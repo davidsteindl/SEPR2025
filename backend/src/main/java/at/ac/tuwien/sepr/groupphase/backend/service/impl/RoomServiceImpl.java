@@ -2,7 +2,12 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.*;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatUsageDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatedSectorDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StandingSectorDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StandingSectorUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;

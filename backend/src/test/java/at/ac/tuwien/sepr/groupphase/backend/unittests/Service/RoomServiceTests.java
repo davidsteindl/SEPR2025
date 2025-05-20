@@ -14,6 +14,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.SeatRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
+import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.RoomServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -33,7 +35,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@DataJpaTest
+@SpringBootTest
 @ActiveProfiles("test")
 public class RoomServiceTests {
 
@@ -43,21 +45,27 @@ public class RoomServiceTests {
     @Autowired
     private RoomRepository roomRepository;
 
-    private RoomServiceImpl roomService;
-    private EventLocation testLocation;
-    private CreateRoomDto createRoomDto;
     @Autowired
     private SectorRepository sectorRepository;
+
     @Autowired
     private SeatRepository seatRepository;
+
     @Autowired
     private ShowService showService;
+
     @Autowired
     private TicketRepository ticketRepository;
 
+    // <-- let Spring inject the @Service (and its @Transactional proxy)
+    @Autowired
+    private RoomService roomService;
+
+    private EventLocation testLocation;
+    private CreateRoomDto createRoomDto;
+
     @BeforeEach
     public void setUp() {
-        roomService = new RoomServiceImpl(eventLocationRepository, roomRepository,sectorRepository,seatRepository,showService,ticketRepository);
         testLocation = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Test Venue")
             .withCountry("Austria")
@@ -192,7 +200,6 @@ public class RoomServiceTests {
         RoomDetailDto toUpdate = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
             .id(roomId)
             .name(original.getName())
-            .isHorizontal(original.isHorizontal())
             .sectors(updatedSectors)
             .build();
 
@@ -241,7 +248,6 @@ public class RoomServiceTests {
         RoomDetailDto toUpdate = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
             .id(roomId)
             .name(original.getName())
-            .isHorizontal(original.isHorizontal())
             .sectors(updatedSectors)
             .build();
 
@@ -260,7 +266,6 @@ public class RoomServiceTests {
         RoomDetailDto bogus = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
             .id(999L)
             .name("Doesn't Matter")
-            .isHorizontal(true)
             .sectors(List.of())
             .build();
 
@@ -280,7 +285,6 @@ public class RoomServiceTests {
         RoomDetailDto toUpdate = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
             .id(roomId)
             .name(original.getName())
-            .isHorizontal(original.isHorizontal())
             .sectors(List.of(keep))
             .build();
 
@@ -315,7 +319,6 @@ public class RoomServiceTests {
         RoomDetailDto toUpdate = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
             .id(roomId)
             .name( original.getName() )
-            .isHorizontal( original.isHorizontal() )
             .sectors( updatedSectors )
             .build();
 

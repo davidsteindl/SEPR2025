@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.CreateShowDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchDto;
