@@ -4,22 +4,23 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.LocationDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.LocationSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.performance.PerformanceDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.performance.PerformanceSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ArtistMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
+import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.SearchService;
 import at.ac.tuwien.sepr.groupphase.backend.service.specifications.ArtistSpecifications;
+import at.ac.tuwien.sepr.groupphase.backend.service.specifications.EventLocationSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.specifications.EventSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.specifications.ShowSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SearchValidator;
@@ -44,16 +45,18 @@ public class CustomSearchService implements SearchService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final EventRepository eventRepo;
+    private final EventLocationRepository eventLocationRepo;
     private final ShowRepository showRepo;
     private final SearchValidator searchValidator;
     private final ArtistRepository artistRepo;
     private final ArtistMapper artistMapper;
 
     @Autowired
-    public CustomSearchService(EventRepository eventRepo, ShowRepository showRepo, SearchValidator searchValidator, ArtistRepository artistRepo,
+    public CustomSearchService(EventRepository eventRepo, ShowRepository showRepo, EventLocationRepository eventLocationRepo, SearchValidator searchValidator, ArtistRepository artistRepo,
                                ArtistMapper artistMapper) {
         this.eventRepo = eventRepo;
         this.showRepo = showRepo;
+        this.eventLocationRepo = eventLocationRepo;
         this.searchValidator = searchValidator;
         this.artistRepo = artistRepo;
         this.artistMapper = artistMapper;
@@ -86,8 +89,33 @@ public class CustomSearchService implements SearchService {
     }
 
     @Override
-    public List<LocationDto> searchLocations(LocationSearchDto criteria) {
-        return List.of();
+    public Page<EventLocationDetailDto> searchEventLocations(EventLocationSearchDto eventLocationSearchDto) throws ValidationException {
+        LOGGER.debug("Search eventlocations with criteria: {}", eventLocationSearchDto);
+
+        searchValidator.validateForEventLocations(eventLocationSearchDto);
+
+        Specification<EventLocation> spec = (root, query, cb) -> cb.conjunction();
+        spec = spec
+            .and(EventLocationSpecifications.hasNameLike(eventLocationSearchDto.getName()))
+            .and(EventLocationSpecifications.hasStreetLike(eventLocationSearchDto.getStreet()))
+            .and(EventLocationSpecifications.hasCityLike(eventLocationSearchDto.getCity()))
+            .and(EventLocationSpecifications.hasCountryLike(eventLocationSearchDto.getCountry()))
+            .and(EventLocationSpecifications.hasPostalCodeLike(eventLocationSearchDto.getPostalCode()));
+
+        Page<EventLocation> page = eventLocationRepo.findAll(spec, PageRequest.of(eventLocationSearchDto.getPage(), eventLocationSearchDto.getSize()));
+
+        List<EventLocationDetailDto> dtos = page.getContent().stream()
+            .map(eventLocation -> EventLocationDetailDto.EventLocationDtoBuilder.anEventLocationDto()
+                .id(eventLocation.getId())
+                .name(eventLocation.getName())
+                .street(eventLocation.getStreet())
+                .city(eventLocation.getCity())
+                .country(eventLocation.getCountry())
+                .postalCode(eventLocation.getPostalCode())
+                .build())
+            .collect(Collectors.toList());
+
+        return new PageImpl<>(dtos, page.getPageable(), page.getTotalElements());
     }
 
     @Override
@@ -118,12 +146,6 @@ public class CustomSearchService implements SearchService {
             .build()).collect(Collectors.toList());
 
         return new PageImpl<>(dtos, page.getPageable(), page.getTotalElements());
-    }
-
-
-    @Override
-    public List<PerformanceDto> searchPerformances(PerformanceSearchDto criteria) {
-        return List.of();
     }
 
 
@@ -160,6 +182,5 @@ public class CustomSearchService implements SearchService {
 
         return new PageImpl<>(result, pageable, page.getTotalElements());
     }
-
 }
 

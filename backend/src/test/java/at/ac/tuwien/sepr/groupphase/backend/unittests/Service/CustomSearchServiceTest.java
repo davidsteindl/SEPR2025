@@ -6,6 +6,10 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchResultDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ArtistMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
@@ -13,9 +17,13 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Event.EventCategory;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomSearchService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SearchValidator;
@@ -56,11 +64,16 @@ class CustomSearchServiceTest {
     @Mock
     private ShowRepository showRepo;
 
+    @Mock
+    private EventLocationRepository eventLocationRepo;
+
     private Artist artist;
     private ArtistSearchResultDto dto;
     private Event event;
     private Show show;
     private Room room;
+
+    private EventLocation location;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -86,6 +99,14 @@ class CustomSearchServiceTest {
         Field f = Event.class.getDeclaredField("duration");
         f.setAccessible(true);
         f.set(event, 90);
+
+        location = new EventLocation();
+        location.setId(5L);
+        location.setName("Gasometer");
+        location.setStreet("Guglgasse 6");
+        location.setCity("Vienna");
+        location.setCountry("Austria");
+        location.setPostalCode("1110");
 
         room = new Room();
         room.setId(3L);
@@ -156,6 +177,66 @@ class CustomSearchServiceTest {
         verify(validator).validateForArtists(searchDto);
         verify(artistRepo).findAll(
             ArgumentMatchers.<Specification<Artist>>any(),
+            eq(PageRequest.of(0, 10))
+        );
+    }
+
+    @Test
+    void givenValidSearchDto_whenSearchEventLocations_thenReturnsMappedDtoPage() throws ValidationException {
+        Page<EventLocation> stubPage = new PageImpl<>(List.of(location), PageRequest.of(0, 10), 1);
+        when(eventLocationRepo.findAll(
+            ArgumentMatchers.<Specification<EventLocation>>any(),
+            any(Pageable.class)))
+            .thenReturn(stubPage);
+
+        doNothing().when(validator).validateForEventLocations(any(EventLocationSearchDto.class));
+
+        EventLocationSearchDto searchDto = new EventLocationSearchDto();
+        searchDto.setPage(0);
+        searchDto.setSize(10);
+
+        Page<EventLocationDetailDto> result = service.searchEventLocations(searchDto);
+
+        assertEquals(1, result.getTotalElements());
+        EventLocationDetailDto out = result.getContent().get(0);
+        assertAll(
+            () -> assertEquals(5L, out.getId()),
+            () -> assertEquals("Gasometer", out.getName()),
+            () -> assertEquals("Guglgasse 6", out.getStreet()),
+            () -> assertEquals("Vienna", out.getCity()),
+            () -> assertEquals("Austria", out.getCountry()),
+            () -> assertEquals("1110", out.getPostalCode())
+        );
+
+        verify(validator).validateForEventLocations(searchDto);
+        verify(eventLocationRepo).findAll(
+            ArgumentMatchers.<Specification<EventLocation>>any(),
+            eq(PageRequest.of(0, 10))
+        );
+    }
+
+    @Test
+    void givenNoMatches_whenSearchEventLocations_thenReturnsEmptyPage() throws ValidationException {
+        when(eventLocationRepo.findAll(
+            ArgumentMatchers.<Specification<EventLocation>>any(),
+            any(Pageable.class)))
+            .thenReturn(Page.empty());
+
+        doNothing().when(validator).validateForEventLocations(any(EventLocationSearchDto.class));
+
+        EventLocationSearchDto searchDto = new EventLocationSearchDto();
+        searchDto.setPage(0);
+        searchDto.setSize(10);
+
+        Page<EventLocationDetailDto> result = service.searchEventLocations(searchDto);
+
+        assertNotNull(result);
+        assertEquals(0, result.getTotalElements());
+        assertTrue(result.getContent().isEmpty());
+
+        verify(validator).validateForEventLocations(searchDto);
+        verify(eventLocationRepo).findAll(
+            ArgumentMatchers.<Specification<EventLocation>>any(),
             eq(PageRequest.of(0, 10))
         );
     }

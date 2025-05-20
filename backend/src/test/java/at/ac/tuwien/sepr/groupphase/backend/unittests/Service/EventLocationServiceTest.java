@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.EventLocationServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,11 +27,13 @@ public class EventLocationServiceTest {
 
   private EventLocationServiceImpl eventLocationService;
 
+  private ShowRepository showRepository;
+
   private EventLocation testLocation;
 
   @BeforeEach
   public void setUp() {
-    eventLocationService = new EventLocationServiceImpl(eventLocationRepository);
+    eventLocationService = new EventLocationServiceImpl(eventLocationRepository, showRepository);
 
     testLocation = EventLocation.EventLocationBuilder.anEventLocation()
         .withName("Wiener Staatsoper")

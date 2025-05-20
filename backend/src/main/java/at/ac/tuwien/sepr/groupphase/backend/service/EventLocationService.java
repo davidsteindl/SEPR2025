@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 
 import java.util.List;
 
@@ -27,4 +28,12 @@ public interface EventLocationService {
      * @return the saved event location
      */
     EventLocation createEventLocation(EventLocation eventLocation);
+
+    /**
+     * Returns all shows for the given event location.
+     *
+     * @param eventLocationId the id of the event location
+     * @return a list of shows for the event location
+     */
+    List<Show> getShowsForEventLocation(Long eventLocationId);
 }

@@ -6,8 +6,8 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.LocationDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.LocationSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.performance.PerformanceDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.performance.PerformanceSearchDto;
 
@@ -28,33 +28,25 @@ public interface SearchService {
      * Search artists by first name, last name, or band names or pseudonyms.
      *
      * @param criteria the search criteria
-     * @return list of matching artists
+     * @return page of matching artists
      */
     Page<ArtistSearchResultDto> searchArtists(ArtistSearchDto criteria) throws ValidationException;
 
     /**
-     * Search locations by name, street, city, country, or postal code.
+     * Search eventlocations by name, street, city, country, or postal code.
      *
      * @param criteria the search criteria
-     * @return list of matching locations
+     * @return page of matching eventlocations
      */
-    List<LocationDto> searchLocations(LocationSearchDto criteria);
+    Page<EventLocationDetailDto> searchEventLocations(EventLocationSearchDto criteria) throws ValidationException;
 
     /**
      * Search events by title, category, duration (± 30min), or content.
      *
      * @param criteria the search criteria
-     * @return list of matching events
+     * @return page of matching events
      */
     Page<EventSearchResultDto> searchEvents(EventSearchDto criteria) throws ValidationException;
-
-    /**
-     * Search performances by date/time, price (± tolerance), event, or hall.
-     *
-     * @param criteria the search criteria
-     * @return list of matching performances
-     */
-    List<PerformanceDto> searchPerformances(PerformanceSearchDto criteria);
 
     /**
      * Searches for shows based on the given criteria and returns a paginated list of results.
