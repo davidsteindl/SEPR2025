@@ -87,7 +87,7 @@ export class RoomEditComponent implements OnInit {
     return Array.from({length: max}, (_, i) => i + 1);
   }
 
-  isSeat(sector: SeatedSector, row: number, col: number) : boolean {
+  isSeat(sector: SeatedSector, row: number, col: number): boolean {
     const seat = sector.rows.find(s => s.rowNumber === row && s.columnNumber === col && !s.deleted);
     if (seat) return true;
     else return false
@@ -122,7 +122,6 @@ export class RoomEditComponent implements OnInit {
     const seat = sector.rows.find(s => s.rowNumber === row && s.columnNumber === col && !s.deleted);
 
 
-
     if (seat) {
       this.selectedSeat = seat;
       const sectorIndex = this.seatedSectors.findIndex(s => s.id === sector.id);
@@ -140,6 +139,19 @@ export class RoomEditComponent implements OnInit {
   onSectorClick(sector: Sector): void {
     console.log(`Clicked sector ${sector.id}`);
   }
+
+  addSector(): void {
+
+  }
+
+  deleteSeat(): void {
+    this.selectedSeat.deleted = true;
+  }
+
+  unClickSeat(): void {
+    this.selectedSeat = null;
+  }
+
 
   edit(): void {
     this.roomService.edit(this.room).subscribe({
@@ -161,4 +173,6 @@ export class RoomEditComponent implements OnInit {
       }
     });
   }
+
+
 }
