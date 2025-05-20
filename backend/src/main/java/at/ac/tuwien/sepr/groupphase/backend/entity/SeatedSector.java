@@ -19,11 +19,9 @@ public class SeatedSector extends Sector {
         mappedBy = "sector",
         cascade = CascadeType.ALL,
         orphanRemoval = true,
-        fetch = FetchType.LAZY
+        fetch = FetchType.EAGER
     )
     private List<Seat> seats = new ArrayList<>();
-
-
 
     public List<Seat> getSeats() {
         return seats;
@@ -45,8 +43,6 @@ public class SeatedSector extends Sector {
         seat.setSector(null);
         this.seats.remove(seat);
     }
-
-
 
     @Override
     public int hashCode() {
@@ -79,7 +75,7 @@ public class SeatedSector extends Sector {
     }
 
 
-    
+
     public static final class SeatedSectorBuilder {
         private Long id;
         private int price;
