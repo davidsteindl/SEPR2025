@@ -25,7 +25,7 @@ public class Room {
         mappedBy = "room",
         cascade = CascadeType.ALL,
         orphanRemoval = true,
-        fetch = FetchType.LAZY
+        fetch = FetchType.EAGER
     )
     private List<Sector> sectors = new ArrayList<>();
 
