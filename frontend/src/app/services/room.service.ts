@@ -21,9 +21,9 @@ export class RoomService {
    *
    * @param room to create
    */
-  create(room: CreateRoom): Observable<void> {
+  create(room: CreateRoom): Observable<Room> {
     console.log('Create show with name: ' + room.name);
-    return this.httpClient.post<void>(this.roomBaseUri, room);
+    return this.httpClient.post<Room>(this.roomBaseUri, room);
   }
 
   /**

@@ -125,8 +125,8 @@ export class RoomComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    //this.getRoomById();
-    this.room = this.testRoom;
+    this.getRoomById();
+    //this.room = this.testRoom;
     console.log(this.room);
   }
 
