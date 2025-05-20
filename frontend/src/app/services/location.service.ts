@@ -1,9 +1,12 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Globals } from '../global/globals';
-import { Observable } from 'rxjs';
-import { Location } from '../dtos/location';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Globals} from '../global/globals';
+import {Observable} from 'rxjs';
+import {EventLocationSearchDto, Location} from '../dtos/location';
 import {CreateLocation} from "../dtos/create-location";
+import {EventSearchDto, EventSearchResultDto} from "../dtos/event";
+import {Page} from "../dtos/page";
+import {ShowSearchResult} from "../dtos/show";
 
 @Injectable({
   providedIn: 'root'
@@ -47,4 +50,30 @@ export class LocationService {
   getLocationById(id: number): Observable<Location> {
     return this.httpClient.get<Location>(`${this.locationBaseUri}/${id}`);
   }
+
+  /**
+   * Retrieves all eventlocations specified by the search criteria, paginated.
+   *
+   * @param criteria Search criteria for filtering eventlocations
+   * @returns An Observable of a paginated list of location objects
+   */
+  searchEventLocations(criteria: EventLocationSearchDto): Observable<Page<Location>> {
+    return this.httpClient.post<Page<Location>>(
+      this.locationBaseUri + '/search',
+      criteria
+    );
+  }
+
+  /**
+   * Retrieves all events for the given location ID
+   *
+   * @param locationId ID of the location to retrieve events for
+   */
+  getShowsForEventLocation(locationId: number): Observable<ShowSearchResult[]> {
+    return this.httpClient.get<ShowSearchResult[]>(
+      `${this.locationBaseUri}/${locationId}/shows`
+    );
+  }
+
+
 }
