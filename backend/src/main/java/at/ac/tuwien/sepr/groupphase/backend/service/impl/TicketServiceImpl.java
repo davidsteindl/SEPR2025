@@ -2,7 +2,14 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.*;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CreateHoldDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetSeatedDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetStandingDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.TicketMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Hold;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
