@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
-import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatedSectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
@@ -16,14 +15,12 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
-import at.ac.tuwien.sepr.groupphase.backend.service.impl.RoomServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -323,5 +320,29 @@ public class RoomServiceTests {
         assertThrows(EntityNotFoundException.class,
             () -> roomService.updateRoom(roomId, toUpdate));
     }
+
+    @Test
+    public void testGetAllRooms_returnsAllPersistedRooms() {
+        RoomDetailDto room1 = roomService.createRoom(createRoomDto);
+
+        CreateRoomDto secondRoomDto = CreateRoomDto.CreateRoomDtoBuilder
+            .aCreateRoomDtoBuilder()
+            .eventLocationId(testLocation.getId())
+            .name("Room B")
+            .numberOfSectors(1)
+            .rowsPerSector(2)
+            .seatsPerRow(3)
+            .build();
+        RoomDetailDto room2 = roomService.createRoom(secondRoomDto);
+
+        List<RoomDetailDto> rooms = roomService.getAllRooms();
+
+        assertNotNull(rooms, "Returned room list should not be null");
+        assertEquals(2, rooms.size(), "Should return exactly 2 rooms");
+        List<String> roomNames = rooms.stream().map(RoomDetailDto::getName).toList();
+        assertTrue(roomNames.contains("Room A"));
+        assertTrue(roomNames.contains("Room B"));
+    }
+
 
 }

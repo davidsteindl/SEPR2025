@@ -34,4 +34,13 @@ export class RoomService {
   getEventById(id: number): Observable<Room> {
     return this.httpClient.get<Room>(`${this.roomBaseUri}/${id}`);
   }
+
+  /**
+   * Retrieves all rooms from the backend.
+   *
+   * @returns An {@link Observable} emitting an array of {@link Room}
+   */
+  getAll(): Observable<Room[]> {
+    return this.httpClient.get<Room[]>(this.roomBaseUri);
+  }
 }
