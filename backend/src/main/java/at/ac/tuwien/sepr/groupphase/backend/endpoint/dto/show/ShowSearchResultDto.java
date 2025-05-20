@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class ShowSearchResultDto {
@@ -14,6 +15,10 @@ public class ShowSearchResultDto {
 
     private Long roomId;
     private String roomName;
+
+    private BigDecimal minPrice;
+    private BigDecimal maxPrice;
+
 
     public Long getId() {
         return id;
@@ -79,6 +84,24 @@ public class ShowSearchResultDto {
         this.roomName = roomName;
     }
 
+    public BigDecimal getMinPrice() {
+        return minPrice;
+    }
+
+    public void setMinPrice(BigDecimal minPrice) {
+        this.minPrice = minPrice;
+    }
+
+    public BigDecimal getMaxPrice() {
+        return maxPrice;
+    }
+
+    public void setMaxPrice(BigDecimal maxPrice) {
+        this.maxPrice = maxPrice;
+    }
+
+
+
     @Override
     public String toString() {
         return "ShowSearchResultDto{"
@@ -90,6 +113,8 @@ public class ShowSearchResultDto {
             + ", eventName='" + eventName + '\''
             + ", roomId=" + roomId
             + ", roomName='" + roomName + '\''
+            + ", minPrice=" + minPrice
+            + ", maxPrice=" + maxPrice
             + '}';
     }
 }

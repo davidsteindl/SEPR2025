@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.specifications;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -62,5 +63,27 @@ public final class ShowSpecifications {
             return cb.like(cb.lower(root.get("name")), "%" + keyword.toLowerCase() + "%");
         };
     }
+
+    public static Specification<Show> hasPriceBetween(BigDecimal min, BigDecimal max) {
+        return (root, query, cb) -> {
+            if (min == null && max == null) {
+                return null;
+            }
+
+            var sectorsJoin = root.join("room").join("sectors");
+
+            query.distinct(true);
+
+            if (min != null && max != null) {
+                return cb.between(sectorsJoin.get("price"), min, max);
+            } else if (min != null) {
+                return cb.greaterThanOrEqualTo(sectorsJoin.get("price"), min);
+            } else {
+                return cb.lessThanOrEqualTo(sectorsJoin.get("price"), max);
+            }
+        };
+    }
+
+
 
 }
