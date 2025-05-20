@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
-import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
 import at.ac.tuwien.sepr.groupphase.backend.entity.SeatedSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
@@ -54,7 +53,7 @@ public class RoomDataGenerator {
         for (EventLocation loc : locations) {
             for (int r = 0; r < ROOMS_PER_LOCATION; r++) {
                 Room room = Room.RoomBuilder.aRoom()
-                    .name(loc.getName() + " - Room " + (r+1))
+                    .name(loc.getName() + " - Room " + (r + 1))
                     .eventLocation(loc)
                     .build();
 

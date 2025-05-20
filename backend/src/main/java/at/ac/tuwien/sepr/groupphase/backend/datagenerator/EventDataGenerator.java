@@ -99,7 +99,7 @@ public class EventDataGenerator {
                     Show show = Show.ShowBuilder.aShow()
                         .withName(events.get(i).getName() + " - Show " + j)
                         .withDuration(120)
-                        .withDate(LocalDateTime.of(2025, 6, i+1, 12 + j*4, 0))
+                        .withDate(LocalDateTime.of(2025, 6, i + 1, 12 + j * 4, 0))
                         .withEvent(events.get(i))
                         .withRoom(rooms.get(i % rooms.size()))
                         .withArtists(Set.of(a1, a2))

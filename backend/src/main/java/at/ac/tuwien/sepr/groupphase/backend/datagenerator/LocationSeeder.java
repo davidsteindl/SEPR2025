@@ -12,7 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 1) Seed EventLocations
+ * Generates a list of EventLocations and saves them to the database.
+ * This class is only active when the "generateData" profile is active.
  */
 @Component("locationSeeder")
 @Profile("generateData")
