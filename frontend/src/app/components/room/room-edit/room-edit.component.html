@@ -54,17 +54,18 @@
       </table>
     </div>
 
-    <div class="info-box">
-      <p *ngIf="selectedSeat">
-        Sitz: {{ selectedSeat.rowNumber }}{{ toColumnLetter(selectedSeat.columnNumber) }}<br/>
-        Preis: {{ selectedSector?.price }} €
-      </p>
-    </div>
 
-    <div>
-      <button class="btn btn-success mt-4" type="submit" (click) = "edit()">Done</button>
-    </div>
-
-
+  <div class="info-box">
+    <p *ngIf="selectedSeat">
+      Sitz: {{ selectedSeat.rowNumber }}{{ toColumnLetter(selectedSeat.columnNumber) }}<br/>
+      Preis: {{ selectedSector?.price }} €
+    </p>
   </div>
+  </div>
+
+  <div>
+    <button class="btn btn-success mt-4" type="submit" (click)="edit()">Done</button>
+  </div>
+
+
 </div>

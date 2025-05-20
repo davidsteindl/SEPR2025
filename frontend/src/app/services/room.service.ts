@@ -33,7 +33,7 @@ export class RoomService {
    */
   edit(room: Room): Observable<Room> {
     console.log('Edit room with name: ' + room.name);
-    return this.httpClient.post<Room>(this.roomBaseUri, room);
+    return this.httpClient.put<Room>(`${this.roomBaseUri}/${room.id}`, room);
   }
 
   /**
