@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Globals } from '../global/globals';
-import { Observable } from 'rxjs';
-import { Location } from '../dtos/location';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Globals} from '../global/globals';
+import {map, Observable} from 'rxjs';
+import {Location} from '../dtos/location';
 import {CreateLocation} from "../dtos/create-location";
 
 @Injectable({
@@ -46,5 +46,13 @@ export class LocationService {
    */
   getLocationById(id: number): Observable<Location> {
     return this.httpClient.get<Location>(`${this.locationBaseUri}/${id}`);
+  }
+
+  getCountries(): Observable<string[]> {
+    return this.httpClient.get('assets/countrynames.csv', {responseType: 'text'}).pipe(
+      map((data) => {
+        return data.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+      })
+    );
   }
 }

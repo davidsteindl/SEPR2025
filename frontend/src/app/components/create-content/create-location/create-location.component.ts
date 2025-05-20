@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {LocationService} from '../../../services/location.service';
@@ -6,7 +6,7 @@ import {Location} from "../../../dtos/location";
 import {CreateLocation} from "../../../dtos/create-location";
 import {ToastrService} from 'ngx-toastr';
 import {ErrorFormatterService} from '../../../services/error-formatter.service';
-import { Router } from '@angular/router';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-create-location',
@@ -18,11 +18,11 @@ import { Router } from '@angular/router';
   templateUrl: './create-location.component.html',
   styleUrl: './create-location.component.scss'
 })
-export class CreateLocationComponent {
+export class CreateLocationComponent implements OnInit {
   location: CreateLocation = {
     name: '',
-    type: '',
-    country: '',
+    type: null,
+    country: null,
     city: '',
     street: '',
     postalCode: ''
@@ -36,8 +36,15 @@ export class CreateLocationComponent {
   ) {
   }
 
+  ngOnInit(): void {
+    this.locationService.getCountries().subscribe((countries) => {
+      this.countries = countries;
+    });
+  }
+
   createdLocation: Location = null;
   locationTypeOptions = locationTypeOptions;
+  countries: string[] = [];
 
   createLocation() {
     this.locationService.create(this.location).subscribe({
