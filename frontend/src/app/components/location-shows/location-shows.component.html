@@ -21,7 +21,7 @@
       <th>Name</th>
       <th>Date &amp; Time</th>
       <th>Duration</th>
-      <th>Tickets</th>
+      <th style="width: 250px;">Tickets</th>
     </tr>
     </thead>
     <tbody>
@@ -29,9 +29,17 @@
       <td><strong>{{ s.name }}</strong></td>
       <td>{{ s.date | date:'short' }}</td>
       <td>{{ s.duration }} min</td>
-      <td>
-        <button class="btn btn-sm btn-primary" [routerLink]="['/shows', s.id, 'tickets']">
-          Tickets
+      <td class="d-flex justify-content-center gap-2">
+        <button
+          class="btn btn-sm btn-primary"
+          [routerLink]="['/shows', s.id, 'tickets', 'buy']">
+          Buy Ticket
+        </button>
+
+        <button
+          class="btn btn-sm btn-primary"
+          [routerLink]="['/shows', s.id, 'tickets', 'reserve']">
+          Reserve Ticket
         </button>
       </td>
     </tr>
