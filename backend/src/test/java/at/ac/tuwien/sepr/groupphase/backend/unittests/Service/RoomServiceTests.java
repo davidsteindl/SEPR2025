@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
-import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatedSectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
@@ -16,14 +15,12 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
-import at.ac.tuwien.sepr.groupphase.backend.service.impl.RoomServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
