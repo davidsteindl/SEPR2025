@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatDto;
@@ -123,9 +124,15 @@ public class RoomServiceImpl implements RoomService {
 
         // tickets sold
         List<Ticket> tickets = ticketRepository.findByShowId(showId);
+
+        tickets = tickets.stream()
+                .filter(t -> t.getStatus() == TicketStatus.BOUGHT)
+                .toList();
+
         Set<Long> occupiedSeatIds = tickets.stream()
                 .map(Ticket::getSeat)
                 .filter(Objects::nonNull)
+
                 .map(Seat::getId)
                 .collect(Collectors.toSet());
         Map<Long, Long> soldStandingCounts = tickets.stream()
