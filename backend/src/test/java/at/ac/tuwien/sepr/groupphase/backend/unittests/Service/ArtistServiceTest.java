@@ -67,7 +67,6 @@ public class ArtistServiceTest {
 
         Room testRoom = Room.RoomBuilder.aRoom()
             .name("Main Room")
-            .horizontal(true)
             .eventLocation(testLocation)
             .build();
         roomRepository.save(testRoom);

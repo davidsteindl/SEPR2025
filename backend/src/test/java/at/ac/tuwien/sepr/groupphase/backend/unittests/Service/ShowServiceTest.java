@@ -55,7 +55,6 @@ public class ShowServiceTest {
 
         testRoom = Room.RoomBuilder.aRoom()
             .name("Main Room")
-            .horizontal(true)
             .eventLocation(location)
             .build();
         roomRepository.save(testRoom);

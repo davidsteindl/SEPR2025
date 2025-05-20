@@ -4,5 +4,4 @@ export interface CreateRoom {
   rowsPerSector: number,
   seatsPerRow: number,
   eventLocationId: number,
-  isHorizontal: boolean
 }

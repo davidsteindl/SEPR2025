@@ -12,6 +12,7 @@ import {ToastrService} from "ngx-toastr";
 import {ErrorFormatterService} from "../../../services/error-formatter.service";
 import {Router} from "@angular/router";
 import {RoomService} from "../../../services/room.service";
+import {Room} from "../../../dtos/room";
 
 @Component({
   selector: 'app-create-room',
@@ -32,7 +33,6 @@ export class CreateRoomComponent implements OnInit {
     rowsPerSector: 3,
     seatsPerRow: 3,
     eventLocationId: null,
-    isHorizontal: true
   };
   nameOfRoom: string;
   locations: Location[] = [];
@@ -64,7 +64,7 @@ export class CreateRoomComponent implements OnInit {
 
   createRoom(): void {
     this.roomService.create(this.room).subscribe({
-      next: () => {
+      next: (room: Room) => {
         console.log('Show created:', this.room.name);
         this.nameOfRoom = this.room.name;
         this.room = {
@@ -73,17 +73,16 @@ export class CreateRoomComponent implements OnInit {
           rowsPerSector: 3,
           seatsPerRow: 3,
           eventLocationId: null,
-          isHorizontal: true
         };
           this.notification.success(`Room ${this.nameOfRoom} created successfully!`, 'Success', {
             enableHtml: true,
             timeOut: 8000,
           });
-          this.router.navigate(['/admin']);
+          this.router.navigate(['/rooms', room.id, 'overview']);
       },
       error: (err) => {
-        console.error('Error creating show:', err);
-        this.notification.error(this.errorFormatter.format(err), 'Error while creating show', {
+        console.error('Error creating room:', err);
+        this.notification.error(this.errorFormatter.format(err), 'Error while creating room', {
           enableHtml: true,
           timeOut: 8000,
         });
