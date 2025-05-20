@@ -55,17 +55,28 @@
     </div>
 
 
-  <div class="info-box">
-    <p *ngIf="selectedSeat">
-      Sitz: {{ selectedSeat.rowNumber }}{{ toColumnLetter(selectedSeat.columnNumber) }}<br/>
-      Preis: {{ selectedSector?.price }} €
-    </p>
-  </div>
+    <div class="info-box">
+      <ng-container *ngIf="!selectedSeat; else seatInfo">
+        <button class="add-button" (click)="addSector()">
+          <span class="plus-icon">+</span>
+        </button>
+        <div class="info-label">Add Sector</div>
+      </ng-container>
+
+      <ng-template #seatInfo>
+        <p>Seat: {{ selectedSeat.rowNumber }}{{ toColumnLetter(selectedSeat.columnNumber) }}<br/>
+          <button class="btn btn-outline-danger" (click)="deleteSeat()">
+            <i class="bi bi-trash"></i> Delete
+          </button>
+          <br>
+          <button class="btn btn-success mt-4" type="submit" (click)="unClickSeat()">Done</button>
+        </p>
+      </ng-template>
+    </div>
   </div>
 
   <div>
     <button class="btn btn-success mt-4" type="submit" (click)="edit()">Done</button>
   </div>
-
-
 </div>
+
