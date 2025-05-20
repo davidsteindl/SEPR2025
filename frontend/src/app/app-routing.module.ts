@@ -21,6 +21,7 @@ import { ArtistEventsComponent } from './components/artist-events/artist-events.
 import {EventOverviewComponent} from "./components/event-overview/event-overview.component";
 import { CreateRoomComponent } from './components/create-content/create-room/create-room.component';
 import {RoomComponent} from "./components/room/room.component";
+import { RoomEditComponent } from './components/room/room-edit/room-edit.component';
 import {LocationShowsComponent} from "./components/location-shows/location-shows.component";
 import { PaymentFormComponent } from './components/payment-form/payment-form.component';
 import {OrderOverviewComponent} from "./components/order-overview/order-overview.component";
@@ -46,9 +47,9 @@ const routes: Routes = [
   { path: 'artists/:id/events', component: ArtistEventsComponent, canActivate: [AuthGuard] },
   { path: 'events/:id/overview', component: EventOverviewComponent, canActivate: [AuthGuard] },
   { path: 'rooms/:id/overview', component: RoomComponent, canActivate: [AdminGuard] },
-  { path: 'rooms/:id/edit', component: RoomComponent, canActivate: [AdminGuard] },
+  { path: 'rooms/:id/edit', component: RoomEditComponent, canActivate: [AdminGuard] },
   { path: 'locations/:id/shows', component: LocationShowsComponent, canActivate: [AuthGuard] },
-  { path: 'orders', component: OrderOverviewComponent },
+  { path: 'orders', component: OrderOverviewComponent }
 ];
 
 @NgModule({

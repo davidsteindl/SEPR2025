@@ -8,54 +8,63 @@
   <div class="stage">STAGE</div>
   <hr>
 
-
-  <table>
-    <thead>
-    <tr>
-      <th></th>
-      <th *ngFor="let col of globalColumns"> {{ toColumnLetter(col) }}</th>
-    </tr>
-    </thead>
-    <tbody>
-    <ng-container *ngFor="let sector of seatedSectors; let i = index">
-      <ng-container *ngIf="asSeatedSector(sector) as seatedSector">
-        <tr
-          *ngFor="let row of getMaxRows(seatedSector)">
-          <th>{{ row + getRowOffset(i) }}</th>
-          <td *ngFor="let col of globalColumns"
-              [ngClass]="getSectorColorClass(seatedSector)"
-              (click)="onSectorClick(seatedSector)">
-            <button
-              class="seat"
-              *ngIf="isSeat(seatedSector, row, col)"
-              (click)="onSeatClick(seatedSector, row, col); $event.stopPropagation()">
-            </button>
-          </td>
-        </tr>
-      </ng-container>
-    </ng-container>
-    </tbody>
-  </table>
-
-  <table>
-
-    <ng-container *ngFor="let sector of standingSectors; let i = index">
-      <ng-container *ngIf="asStandingSector(sector) as standingSector">
+  <div style="display: flex; align-items: flex-start; gap: 2rem;">
+    <div class="seat-layout">
+      <table>
+        <thead>
         <tr>
-          <button
-            class="standingSector"
-            (click)="onSectorClick(standingSector)">
-            {{ standingSector.capacity }}
-          </button>
+          <th></th>
+          <th *ngFor="let col of globalColumns"> {{ toColumnLetter(col) }}</th>
         </tr>
-      </ng-container>
-    </ng-container>
-  </table>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let sector of seatedSectors; let i = index">
+          <ng-container *ngIf="asSeatedSector(sector) as seatedSector">
+            <tr
+              *ngFor="let row of getMaxRows(seatedSector)">
+              <th>{{ row + getRowOffset(i) }}</th>
+              <td *ngFor="let col of globalColumns"
+                  [ngClass]="getSectorColorClass(seatedSector)"
+                  (click)="onSectorClick(seatedSector)">
+                <button
+                  class="seat"
+                  *ngIf="isSeat(seatedSector, row, col)"
+                  (click)="onSeatClick(seatedSector, row, col); $event.stopPropagation()">
+                </button>
+              </td>
+            </tr>
+          </ng-container>
+        </ng-container>
+        </tbody>
+      </table>
+
+      <table>
+
+        <ng-container *ngFor="let sector of standingSectors; let i = index">
+          <ng-container *ngIf="asStandingSector(sector) as standingSector">
+            <tr>
+              <button
+                class="standingSector"
+                (click)="onSectorClick(standingSector)">
+                {{ standingSector.capacity }}
+              </button>
+            </tr>
+          </ng-container>
+        </ng-container>
+      </table>
+    </div>
+
+    <div class="info-box">
+      <p *ngIf="selectedSeat">
+        Sitz: {{ selectedSeat.rowNumber }}{{ toColumnLetter(selectedSeat.columnNumber) }}<br/>
+        Preis: {{ selectedSector?.price }} €
+      </p>
+    </div>
+
+    <div>
+      <button class="btn btn-success mt-4" type="submit" (click) = "edit()">Done</button>
+    </div>
 
 
-  <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 2rem;">
-    <button class="btn btn-success mt-4" type="submit" [routerLink]="['/admin']">Done</button>
   </div>
-
-
 </div>

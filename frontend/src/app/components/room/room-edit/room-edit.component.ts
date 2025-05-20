@@ -1,14 +1,11 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, RouterLink} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {ErrorFormatterService} from "../../../services/error-formatter.service";
 import {RoomService} from "../../../services/room.service";
-import {Location} from "../../../dtos/location";
 import {Room} from "../../../dtos/room";
-import {NgClass, NgForOf, NgIf, NgTemplateOutlet} from "@angular/common";
-import {LocationType} from "../../create-content/create-location/create-location.component";
+import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {StandingSector} from "../../../dtos/standing-sector";
-import {SectorType} from "../../../dtos/sector-type";
 import {SeatedSector} from "../../../dtos/seated-sector";
 import {Seat} from "../../../dtos/seat";
 import {Sector} from "../../../dtos/sector";
@@ -18,25 +15,26 @@ import {Sector} from "../../../dtos/sector";
   imports: [
     NgIf,
     NgClass,
-    RouterLink,
     NgForOf
   ],
-  templateUrl: './room.component.html',
-  styleUrl: './room.component.scss'
+  templateUrl: './room-edit.component.html',
+  styleUrl: './room-edit.component.scss'
 })
-export class RoomComponent implements OnInit {
+export class RoomEditComponent implements OnInit {
 
   room: Room | null = null;
 
 
   selectedSeat: Seat;
+  selectedSector: Sector;
   globalRow: number;
 
 
   constructor(private route: ActivatedRoute,
               private roomService: RoomService,
               private notification: ToastrService,
-              private errorFormatter: ErrorFormatterService
+              private errorFormatter: ErrorFormatterService,
+              private router: Router
   ) {
   }
 
@@ -122,6 +120,9 @@ export class RoomComponent implements OnInit {
 
   onSeatClick(sector: SeatedSector, row: number, col: number) {
     const seat = sector.rows.find(s => s.rowNumber === row && s.columnNumber === col && !s.deleted);
+
+
+
     if (seat) {
       this.selectedSeat = seat;
       const sectorIndex = this.seatedSectors.findIndex(s => s.id === sector.id);
@@ -140,4 +141,24 @@ export class RoomComponent implements OnInit {
     console.log(`Clicked sector ${sector.id}`);
   }
 
+  edit(): void {
+    this.roomService.edit(this.room).subscribe({
+      next: (response) => {
+        if (response) {
+          this.notification.success(`Room ${response.name} edited successfully!`, 'Success', {
+            enableHtml: true,
+            timeOut: 8000,
+          });
+          this.router.navigate(['/rooms', this.room.id, 'overview']);
+        }
+      },
+      error: (err) => {
+        console.error('Error while editing room:', err);
+        this.notification.error(this.errorFormatter.format(err), 'Error while editing room', {
+          enableHtml: true,
+          timeOut: 8000,
+        });
+      }
+    });
+  }
 }

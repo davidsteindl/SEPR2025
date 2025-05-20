@@ -22,7 +22,17 @@ export class RoomService {
    * @param room to create
    */
   create(room: CreateRoom): Observable<Room> {
-    console.log('Create show with name: ' + room.name);
+    console.log('Create room with name: ' + room.name);
+    return this.httpClient.post<Room>(this.roomBaseUri, room);
+  }
+
+  /**
+   * Creates a new room
+   *
+   * @param room to create
+   */
+  edit(room: Room): Observable<Room> {
+    console.log('Edit room with name: ' + room.name);
     return this.httpClient.post<Room>(this.roomBaseUri, room);
   }
 
