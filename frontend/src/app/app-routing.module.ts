@@ -41,7 +41,8 @@ const routes: Routes = [
   { path: 'admin', component: AdminComponent, canActivate: [AdminGuard]},
   { path: 'artists/:id/events', component: ArtistEventsComponent, canActivate: [AuthGuard] },
   { path: 'events/:id/overview', component: EventOverviewComponent, canActivate: [AuthGuard] },
-  { path: 'rooms/:id/overview', component: RoomComponent, canActivate: [AdminGuard] }
+  { path: 'rooms/:id/overview', component: RoomComponent, canActivate: [AdminGuard] },
+  { path: 'rooms/:id/edit', component: RoomComponent, canActivate: [AdminGuard] }
 ];
 
 @NgModule({

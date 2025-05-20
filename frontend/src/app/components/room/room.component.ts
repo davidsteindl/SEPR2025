@@ -28,91 +28,6 @@ export class RoomComponent implements OnInit {
 
   room: Room | null = null;
 
-  // Testwerte zum testen bis GetById im Backend fertig ist
-  testLocation: Location = {
-    id: 1,
-    name: "TestLocation",
-    type: LocationType.STADIUM,
-    country: "Austria",
-    city: "Vienna",
-    street: "Stadiongasse",
-    postalCode: "1200"
-  }
-
-  testSeat1: Seat = {
-    id: 1,
-    rowNumber: 1,
-    columnNumber: 1,
-    deleted: false
-  }
-
-  testSeat2: Seat = {
-    id: 2,
-    rowNumber: 1,
-    columnNumber: 2,
-    deleted: false
-  }
-
-  testSeat3: Seat = {
-    id: 3,
-    rowNumber: 2,
-    columnNumber: 1,
-    deleted: false
-  }
-
-  testSeat4: Seat = {
-    id: 4,
-    rowNumber: 2,
-    columnNumber: 2,
-    deleted: false
-  }
-
-  testSeat5: Seat = {
-    id: 5,
-    rowNumber: 1,
-    columnNumber: 3,
-    deleted: false
-  }
-
-  testSector1: StandingSector = {
-    id: 1,
-    capacity: 100,
-    price: 10,
-    room: null,
-    type: SectorType.STANDING
-  }
-
-  testSector2: SeatedSector = {
-    id: 2,
-    rows: [this.testSeat1, this.testSeat2, this.testSeat4, this.testSeat5],
-    price: 10,
-    room: null,
-    type: SectorType.SEATED
-  }
-  testSector3: SeatedSector = {
-    id: 3,
-    rows: [this.testSeat1, this.testSeat2, this.testSeat3, this.testSeat4],
-    price: 10,
-    room: null,
-    type: SectorType.SEATED
-  }
-
-  testSector4: StandingSector = {
-    id: 4,
-    capacity: 50,
-    price: 10,
-    room: null,
-    type: SectorType.STANDING
-  }
-
-
-  testRoom: Room = {
-    id: 2,
-    sectors: [this.testSector1, this.testSector2, this.testSector3, this.testSector4],
-    name: "Testroom",
-    eventLocation: this.testLocation
-  }
-
   selectedSeat: Seat;
   globalRow: number;
 
@@ -126,7 +41,6 @@ export class RoomComponent implements OnInit {
 
   ngOnInit(): void {
     this.getRoomById();
-    //this.room = this.testRoom;
     console.log(this.room);
   }
 
