@@ -58,7 +58,7 @@ public class EventEndpoint {
     }
 
     @GetMapping("/{id}")
-    @Secured("ROLE_ADMIN")
+    @Secured({"ROLE_ADMIN", "ROLE_USER"})
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get event by id", security = @SecurityRequirement(name = "apiKey"))
     public EventDetailDto getEventById(@PathVariable("id") Long id) {

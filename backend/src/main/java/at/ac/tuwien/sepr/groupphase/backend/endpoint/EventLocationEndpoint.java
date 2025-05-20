@@ -49,7 +49,7 @@ public class EventLocationEndpoint {
     }
 
     @GetMapping("/{id}")
-    @Secured("ROLE_ADMIN")
+    @Secured({"ROLE_ADMIN", "ROLE_USER"})
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get event location by id", security = @SecurityRequirement(name = "apiKey"))
     public EventLocationDetailDto getEventLocationById(@PathVariable("id") Long id) {
