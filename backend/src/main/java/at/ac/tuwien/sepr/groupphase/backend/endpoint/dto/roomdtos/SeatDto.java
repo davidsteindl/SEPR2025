@@ -18,6 +18,8 @@ public class SeatDto {
 
     private boolean deleted;
 
+    private boolean available;
+
 
     public Long getId() {
         return id;
@@ -49,6 +51,14 @@ public class SeatDto {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 
     @Override

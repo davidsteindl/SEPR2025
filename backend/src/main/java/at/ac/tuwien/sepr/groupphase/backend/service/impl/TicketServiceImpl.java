@@ -1,27 +1,23 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
-import at.ac.tuwien.sepr.groupphase.backend.config.type.TransactionStatus;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.PaymentCallbackDataDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.PaymentResultDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.PaymentSessionDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetSeatedDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetStandingDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.TicketMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
 import at.ac.tuwien.sepr.groupphase.backend.entity.SeatedSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Order;
-import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.PaymentSession;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.PaymentSessionRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
@@ -36,6 +32,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TicketServiceImpl implements TicketService {
@@ -45,16 +42,16 @@ public class TicketServiceImpl implements TicketService {
     private final TicketRepository ticketRepository;
     private final RoomService roomService;
     private final OrderRepository orderRepository;
-    private final PaymentSessionRepository paymentSessionRepository;
+    private final TicketMapper ticketMapper;
 
     @Autowired
-    public TicketServiceImpl(TicketValidator ticketValidator, ShowService showService, TicketRepository ticketRepository, RoomService roomService, OrderRepository orderRepository, PaymentSessionRepository paymentSessionRepository) {
+    public TicketServiceImpl(TicketValidator ticketValidator, ShowService showService, TicketRepository ticketRepository, RoomService roomService, OrderRepository orderRepository,  TicketMapper ticketMapper) {
         this.ticketValidator = ticketValidator;
         this.showService = showService;
         this.ticketRepository = ticketRepository;
         this.roomService = roomService;
         this.orderRepository = orderRepository;
-        this.paymentSessionRepository = paymentSessionRepository;
+        this.ticketMapper = ticketMapper;
     }
 
     @Override
@@ -69,7 +66,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public PaymentSessionDto buyTickets(TicketRequestDto ticketRequestDto) {
+    public OrderDto buyTickets(TicketRequestDto ticketRequestDto) {
         LOGGER.debug("Buy tickets request: {}", ticketRequestDto);
         ticketValidator.validateForBuyTickets(ticketRequestDto);
 
@@ -84,8 +81,8 @@ public class TicketServiceImpl implements TicketService {
         order.setCreatedAt(LocalDateTime.now());
         order.setTickets(List.of());
         order.setUserId(null); // TODO: Find out how to get the userId
+        order.setOrderType(OrderType.ORDER);
         order = orderRepository.save(order);
-
 
         List<Ticket> created = new ArrayList<>();
         int totalPriceInCents = 0;
@@ -94,13 +91,13 @@ public class TicketServiceImpl implements TicketService {
                 SeatedSector sector = (SeatedSector) roomService.getSectorById(seated.getSectorId());
                 Seat seat           = roomService.getSeatById(seated.getSeatId());
 
-
                 Ticket ticket = new Ticket();
                 ticket.setOrder(order);
                 ticket.setShow(show);
-                ticket.setStatus(TicketStatus.PAYMENT_PENDING);
+                ticket.setStatus(TicketStatus.BOUGHT);
                 ticket.setSector(sector);
                 ticket.setSeat(seat);
+                ticket.setCreatedAt(LocalDateTime.now());
 
                 created.add(ticket);
 
@@ -109,17 +106,18 @@ public class TicketServiceImpl implements TicketService {
 
             } else if (targetDto instanceof TicketTargetStandingDto standing) {
                 StandingSector sector = (StandingSector) roomService.getSectorById(standing.getSectorId());
-                int unitPrice         = sector.getPrice();
+                int priceCents      = sector.getPrice();
 
                 for (int i = 0; i < standing.getQuantity(); i++) {
                     Ticket ticket = new Ticket();
                     ticket.setOrder(order);
                     ticket.setShow(show);
-                    ticket.setStatus(TicketStatus.PAYMENT_PENDING);
+                    ticket.setStatus(TicketStatus.BOUGHT);
                     ticket.setSector(sector);
+                    ticket.setCreatedAt(LocalDateTime.now());
 
                     created.add(ticket);
-                    totalPriceInCents += unitPrice;
+                    totalPriceInCents += priceCents;
                 }
             }
         }
@@ -131,46 +129,42 @@ public class TicketServiceImpl implements TicketService {
         order.setTickets(created);
         orderRepository.save(order);
 
+        // Map entities to DTOs
+        List<TicketDto> ticketDtos = created.stream()
+                .map(ticketMapper::toDto)
+                .collect(Collectors.toList());
 
-        PaymentSession session = new PaymentSession();
-        session.setOrder(order);
-        session.setTickets(created);
-        session.setTransactionStatus(TransactionStatus.PENDING);
-        session.setCreatedAt(LocalDateTime.now());
-        session.setTotalPrice(totalPriceInCents);
+        OrderDto dto = new OrderDto();
+        dto.setId(order.getId());
+        dto.setCreatedAt(order.getCreatedAt());
+        dto.setOrderType(order.getOrderType());
+        dto.setTickets(ticketDtos);
 
-        session = paymentSessionRepository.save(session);
-
-        PaymentSessionDto dto = new PaymentSessionDto();
-        dto.setPaymentUrl("localhost:8080"); // TODO: we need the frontend url for this
-        dto.setSessionId(session.getId());
-        dto.setTarget(ticketRequestDto);
-        dto.setTotalPrice(totalPriceInCents);
         return dto;
     }
 
     @Override
     public ReservationDto reserveTickets(TicketRequestDto ticketRequestDto) {
+        LOGGER.debug("Reserve tickets request: {}", ticketRequestDto);
         return null;
     }
 
     @Override
-    public PaymentSessionDto buyReservedTickets(Long reservationId, List<Long> ticketIds) {
+    public OrderDto buyReservedTickets(List<Long> ticketIds) {
+        LOGGER.debug("Buy reserved tickets request: {}", ticketIds);
         return null;
     }
 
     @Override
     public List<TicketDto> cancelReservations(List<Long> ticketIds) {
+        LOGGER.debug("Cancel ticket reservations request: {}", ticketIds);
         return List.of();
+
     }
 
     @Override
     public List<TicketDto> refundTickets(List<Long> ticketIds) {
+        LOGGER.debug("Refund tickets request: {}", ticketIds);
         return List.of();
-    }
-
-    @Override
-    public PaymentResultDto completePurchase(Long sessionId, PaymentCallbackDataDto paymentCallbackDataDto) {
-        return null;
     }
 }

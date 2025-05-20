@@ -85,7 +85,6 @@ public class RoomServiceTests {
         assertAll(
             () -> assertNotNull(result.getId(), "Room ID should be generated"),
             () -> assertEquals("Room A", result.getName(), "Room name should match input"),
-            () -> assertTrue(result.isHorizontal(), "Horizontal flag should be true"),
             () -> assertEquals(2, result.getSectors().size(), "Should create two sectors")
         );
     }

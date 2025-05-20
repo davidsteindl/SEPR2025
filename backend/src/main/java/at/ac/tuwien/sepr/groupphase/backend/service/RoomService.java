@@ -28,7 +28,28 @@ public interface RoomService {
      */
     RoomDetailDto updateRoom(Long id, RoomDetailDto roomDetailDto);
 
+
+    /**
+     * Returns the sector with the given ID.
+     *
+     * @param sectorId the ID of the sector to retrieve
+     * @return the sector with the given ID, or null if no such sector exists
+     */
     Sector getSectorById(Long sectorId);
 
+    /**
+     * Returns the seat with the given ID.
+     *
+     * @param seatId the ID of the seat to retrieve
+     * @return the seat with the given ID, or null if no such seat exists
+     */
     Seat getSeatById(Long seatId);
+
+    /**
+     * Returns the room with the given ID.
+     *
+     * @param id the ID of the room to retrieve
+     * @return the room with the given ID, or null if no such room exists
+     */
+    RoomDetailDto getRoomById(Long id);
 }

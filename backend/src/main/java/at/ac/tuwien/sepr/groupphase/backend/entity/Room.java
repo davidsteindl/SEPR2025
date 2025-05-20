@@ -21,12 +21,9 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private boolean horizontal;
-
     @OneToMany(
-        mappedBy = "room", 
-        cascade = CascadeType.ALL, 
+        mappedBy = "room",
+        cascade = CascadeType.ALL,
         orphanRemoval = true,
         fetch = FetchType.LAZY
     )
@@ -39,7 +36,7 @@ public class Room {
     @JoinColumn(name = "event_location_id", nullable = false)
     private EventLocation eventLocation;
 
-    
+
 
     public Long getId() {
         return id;
@@ -55,14 +52,6 @@ public class Room {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public boolean isHorizontal() {
-        return horizontal;
-    }
-
-    public void setHorizontal(boolean horizontal) {
-        this.horizontal = horizontal;
     }
 
     public EventLocation getEventLocation() {
@@ -92,40 +81,6 @@ public class Room {
     public void removeSector(Sector sector) {
         sector.setRoom(null);
         this.sectors.remove(sector);
-    }
-
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, horizontal, eventLocation, sectors);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Room)) {
-            return false;
-        }
-        Room that = (Room) o;
-        return horizontal == that.horizontal
-               && Objects.equals(id, that.id)
-               && Objects.equals(name, that.name)
-               && Objects.equals(eventLocation, that.eventLocation)
-               && Objects.equals(sectors, that.sectors);
-    }
-
-    @Override
-    public String toString() {
-        return "Room{"
-               + "id=" + id
-               + ", name='" + name + '\''
-               + ", horizontal=" + horizontal
-               + ", eventLocation=" + eventLocation
-               + ", sectors=" + sectors
-               + '}';
     }
 
 
@@ -171,7 +126,6 @@ public class Room {
             Room room = new Room();
             room.setId(id);
             room.setName(name);
-            room.setHorizontal(horizontal);
             room.setEventLocation(eventLocation);
             room.setSectors(sectors);
             return room;
