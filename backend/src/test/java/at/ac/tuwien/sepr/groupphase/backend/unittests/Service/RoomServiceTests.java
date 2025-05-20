@@ -324,4 +324,28 @@ public class RoomServiceTests {
             () -> roomService.updateRoom(roomId, toUpdate));
     }
 
+    @Test
+    public void testGetAllRooms_returnsAllPersistedRooms() {
+        RoomDetailDto room1 = roomService.createRoom(createRoomDto);
+
+        CreateRoomDto secondRoomDto = CreateRoomDto.CreateRoomDtoBuilder
+            .aCreateRoomDtoBuilder()
+            .eventLocationId(testLocation.getId())
+            .name("Room B")
+            .numberOfSectors(1)
+            .rowsPerSector(2)
+            .seatsPerRow(3)
+            .build();
+        RoomDetailDto room2 = roomService.createRoom(secondRoomDto);
+
+        List<RoomDetailDto> rooms = roomService.getAllRooms();
+
+        assertNotNull(rooms, "Returned room list should not be null");
+        assertEquals(2, rooms.size(), "Should return exactly 2 rooms");
+        List<String> roomNames = rooms.stream().map(RoomDetailDto::getName).toList();
+        assertTrue(roomNames.contains("Room A"));
+        assertTrue(roomNames.contains("Room B"));
+    }
+
+
 }
