@@ -10,6 +10,8 @@ import {Artist} from '../../../dtos/artist';
 import {ToastrService} from 'ngx-toastr';
 import {ErrorFormatterService} from '../../../services/error-formatter.service';
 import {Router} from '@angular/router';
+import {Room} from "../../../dtos/room";
+import {RoomService} from "../../../services/room.service";
 
 @Component({
   selector: 'app-create-show',
@@ -27,16 +29,19 @@ export class CreateShowComponent implements OnInit {
     duration: 60,
     date: '',
     eventId: null,
-    artistIds: []
+    artistIds: [],
+    roomId: null
   };
 
   events: Event[] = [];
   artists: Artist[] = [];
+  rooms: Room[] = [];
 
   constructor(
     private showService: ShowService,
     private eventService: EventService,
     private artistService: ArtistService,
+    private roomService: RoomService,
     private notification: ToastrService,
     private errorFormatter: ErrorFormatterService,
     private router: Router
@@ -69,6 +74,17 @@ export class CreateShowComponent implements OnInit {
         });
       }
     });
+
+    this.roomService.getAll().subscribe({
+      next: (result) => this.rooms = result,
+      error: (err) => {
+        console.error('Error fetching rooms:', err);
+        this.notification.error(this.errorFormatter.format(err), 'Error while fetching rooms', {
+          enableHtml: true,
+          timeOut: 8000,
+        });
+      }
+    });
   }
 
   isArtistSelected(artistId: number): boolean {
@@ -94,7 +110,8 @@ export class CreateShowComponent implements OnInit {
           duration: 60,
           date: '',
           eventId: null,
-          artistIds: []
+          artistIds: [],
+          roomId: null
         };
         if (createdShow) {
           this.notification.success(`Show ${createdShow.name} created successfully!`, 'Success', {
