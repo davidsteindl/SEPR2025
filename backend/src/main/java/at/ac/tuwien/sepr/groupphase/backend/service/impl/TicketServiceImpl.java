@@ -10,13 +10,11 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetSeatedDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetStandingDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.TicketMapper;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
-import at.ac.tuwien.sepr.groupphase.backend.entity.SeatedSector;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
-import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
+import at.ac.tuwien.sepr.groupphase.backend.entity.*;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Order;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.HoldRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
@@ -43,15 +41,17 @@ public class TicketServiceImpl implements TicketService {
     private final RoomService roomService;
     private final OrderRepository orderRepository;
     private final TicketMapper ticketMapper;
+    private final HoldRepository holdRepository;
 
     @Autowired
-    public TicketServiceImpl(TicketValidator ticketValidator, ShowService showService, TicketRepository ticketRepository, RoomService roomService, OrderRepository orderRepository,  TicketMapper ticketMapper) {
+    public TicketServiceImpl(TicketValidator ticketValidator, ShowService showService, TicketRepository ticketRepository, RoomService roomService, OrderRepository orderRepository, TicketMapper ticketMapper, HoldRepository holdRepository) {
         this.ticketValidator = ticketValidator;
         this.showService = showService;
         this.ticketRepository = ticketRepository;
         this.roomService = roomService;
         this.orderRepository = orderRepository;
         this.ticketMapper = ticketMapper;
+        this.holdRepository = holdRepository;
     }
 
     @Override
@@ -166,5 +166,23 @@ public class TicketServiceImpl implements TicketService {
     public List<TicketDto> refundTickets(List<Long> ticketIds) {
         LOGGER.debug("Refund tickets request: {}", ticketIds);
         return List.of();
+    }
+
+    @Override
+    public void holdSeat(Long showId, Long sectorId, Long seatId, Long userId) {
+        LOGGER.debug("Hold seat with id {} for show {}", seatId, showId);
+
+        ticketValidator.validateHold(showId, sectorId, seatId, userId);
+
+        Hold hold = new Hold();
+        hold.setShowId(showId);
+        hold.setSeatId(seatId);
+        hold.setUserId(seatId);
+        hold.setSectorId(sectorId);
+        hold.setValidUntil(LocalDateTime.now().plusMinutes(30));
+
+        holdRepository.save(hold);
+
+
     }
 }

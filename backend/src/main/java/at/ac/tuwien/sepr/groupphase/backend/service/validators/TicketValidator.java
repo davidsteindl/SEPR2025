@@ -17,5 +17,28 @@ public class TicketValidator {
         // does the show exist?
 
         // can i buy tickets for this show? (30 mins before start)
+
+        // is there a ticket booked for this seat at this show already?
+    }
+
+    public void validateHold(Long showId, Long sectorId, Long seatId, Long userId) {
+
+        LOGGER.debug("validateHold: showId={}, sectorId={}, seatId={}, userId={}", showId, sectorId, seatId, userId);
+
+        // is there a currently valid hold on the selected seat?
+
+        // is there a ticket booked for this seat at this show?
+
+        // does the show exist?
+
+        // can i hold tickets for this show?
+
+        // is the seat in the selected sector?
+
+        // is the sector part of the show?
+
+        // is the seat part of the sector? (if it is a seated sector)
+
+
     }
 }

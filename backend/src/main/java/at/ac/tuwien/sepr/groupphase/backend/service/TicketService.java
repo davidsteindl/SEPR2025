@@ -109,5 +109,17 @@ public interface TicketService {
      */
     List<TicketDto> refundTickets(List<Long> ticketIds);
 
+    /**
+     * Creates a temporary hold for a seat in a show.
+     * Once the hold is created, the seat is reserved for 30 minutes.
+     * In this time, no other user can book the seat. If the user does not
+     * book the seat within 30 minutes, the hold is released.
+     *
+     * @param showId The ID of the show
+     * @param sectorId The ID of the sector
+     * @param seatId The ID of the seat
+     */
+    void holdSeat(Long showId, Long sectorId, Long seatId, Long userId);
+
 
 }

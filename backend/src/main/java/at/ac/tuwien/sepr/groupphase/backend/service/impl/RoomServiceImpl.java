@@ -8,18 +8,9 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatedSectorDt
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StandingSectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StandingSectorUsageDto;
-import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
-import at.ac.tuwien.sepr.groupphase.backend.entity.SeatedSector;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
-import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
+import at.ac.tuwien.sepr.groupphase.backend.entity.*;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
-import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.SeatRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.*;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
@@ -29,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,15 +39,17 @@ public class RoomServiceImpl implements RoomService {
     private final SeatRepository seatRepository;
     private final ShowService showService;
     private final TicketRepository ticketRepository;
+    private final HoldRepository holdRepository;
 
     public RoomServiceImpl(EventLocationRepository eventLocationRepository,
-                           RoomRepository roomRepository, SectorRepository sectorRepository, SeatRepository seatRepository, ShowService showService, TicketRepository ticketRepository) {
+                           RoomRepository roomRepository, SectorRepository sectorRepository, SeatRepository seatRepository, ShowService showService, TicketRepository ticketRepository, HoldRepository holdRepository) {
         this.eventLocationRepository = eventLocationRepository;
         this.roomRepository = roomRepository;
         this.sectorRepository = sectorRepository;
         this.seatRepository = seatRepository;
         this.showService = showService;
         this.ticketRepository = ticketRepository;
+        this.holdRepository = holdRepository;
     }
 
     @Override
@@ -111,61 +105,88 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public RoomDetailDto getRoomUsageForShow(Long showId) {
+        LOGGER.debug("Retrieving room usage for show with id: {}", showId);
 
         Show show = showService.getShowWithRoomAndSectors(showId);
         Room room = show.getRoom();
 
+        // tickets sold
         List<Ticket> tickets = ticketRepository.findByShowId(showId);
-
         Set<Long> occupiedSeatIds = tickets.stream()
-            .map(Ticket::getSeat)
-            .filter(Objects::nonNull)
-            .map(Seat::getId)
-            .collect(Collectors.toSet());
+                .map(Ticket::getSeat)
+                .filter(Objects::nonNull)
+                .map(Seat::getId)
+                .collect(Collectors.toSet());
+        Map<Long, Long> soldStandingCounts = tickets.stream()
+                .filter(t -> t.getSeat() == null)
+                .collect(Collectors.groupingBy(
+                        t -> t.getSector().getId(),
+                        Collectors.counting()
+                ));
 
-        // count the number of standing tickets per sector ( = occupied capacity per standing sector)
-        Map<Long, Long> standingCounts = tickets.stream()
-            .filter(t -> t.getSeat() == null)
-            .collect(Collectors.groupingBy(
-                t -> t.getSector().getId(),
-                Collectors.counting()
-            ));
+        // holds that are still valid
+        List<Hold> validHolds = holdRepository.findByShowId(showId).stream()
+                .filter(h -> h.getValidUntil().isAfter(LocalDateTime.now()))
+                .toList();
+
+        // separate out held seats vs. held standing spots
+        Set<Long> heldSeatIds = validHolds.stream()
+                .map(Hold::getSeatId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        Map<Long, Long> standingHoldCounts = validHolds.stream()
+                .filter(h -> h.getSeatId() == null)
+                .collect(Collectors.groupingBy(
+                        Hold::getSectorId,
+                        Collectors.counting()
+                ));
 
         List<SectorDto> usageSectors = new ArrayList<>();
 
         for (Sector sec : room.getSectors()) {
             if (sec instanceof SeatedSector seated) {
-                // map each Seat to a SeatUsageDto
                 List<SeatUsageDto> seatDtos = seated.getSeats().stream()
-                    .map(seat -> {
-                        SeatUsageDto dto = new SeatUsageDto();
-                        dto.setId(seat.getId());
-                        dto.setRowNumber(seat.getRowNumber());
-                        dto.setColumnNumber(seat.getColumnNumber());
-                        dto.setDeleted(seat.isDeleted());
-                        dto.setAvailable(!occupiedSeatIds.contains(seat.getId()));
-                        return dto;
-                    })
-                    .toList();
+                        .map(seat -> {
+                            SeatUsageDto dto = new SeatUsageDto();
+                            dto.setId(seat.getId());
+                            dto.setRowNumber(seat.getRowNumber());
+                            dto.setColumnNumber(seat.getColumnNumber());
+                            dto.setDeleted(seat.isDeleted());
+                            // unavailable if sold OR held
+
+                            boolean isNotOccupiedByTicket = !occupiedSeatIds.contains(seat.getId());
+                            boolean isNotOccupiedByHold = !heldSeatIds.contains(seat.getId());
+
+                            boolean isAvailable = isNotOccupiedByTicket && isNotOccupiedByHold;
+
+                            dto.setAvailable(isAvailable);
+                            return dto;
+                        })
+                        .toList();
 
                 SeatedSectorDto sdto = SeatedSectorDto.SeatedSectorDtoBuilder
-                    .aSeatedSectorDto()
-                    .id(seated.getId())
-                    .price(seated.getPrice())
-                    .rows(seatDtos)
-                    .build();
+                        .aSeatedSectorDto()
+                        .id(seated.getId())
+                        .price(seated.getPrice())
+                        .rows(seatDtos)
+                        .build();
 
                 usageSectors.add(sdto);
 
             } else if (sec instanceof StandingSector standing) {
-                // compute how many left
-                long sold = standingCounts.getOrDefault(standing.getId(), 0L);
-                int availableCapacity = standing.getCapacity() - (int) sold;
+                long sold    = soldStandingCounts.getOrDefault(standing.getId(), 0L);
+                long held    = standingHoldCounts.getOrDefault(standing.getId(), 0L);
+                int capacity = standing.getCapacity();
+
+                int availableCapacity = capacity
+                        - Math.toIntExact(sold)
+                        - Math.toIntExact(held);
 
                 StandingSectorUsageDto udto = new StandingSectorUsageDto();
                 udto.setId(standing.getId());
                 udto.setPrice(standing.getPrice());
-                udto.setCapacity(standing.getCapacity());
+                udto.setCapacity(capacity);
                 udto.setAvailableCapacity(availableCapacity);
 
                 usageSectors.add(udto);
@@ -173,11 +194,12 @@ public class RoomServiceImpl implements RoomService {
         }
 
         return RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
-            .id(room.getId())
-            .name(room.getName())
-            .sectors(usageSectors)
-            .build();
+                .id(room.getId())
+                .name(room.getName())
+                .sectors(usageSectors)
+                .build();
     }
+
 
 
     /**
