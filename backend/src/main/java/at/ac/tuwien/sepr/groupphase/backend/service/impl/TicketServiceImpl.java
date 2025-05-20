@@ -2,13 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetSeatedDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetStandingDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.*;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.TicketMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Hold;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
@@ -173,16 +167,16 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public void holdSeat(Long showId, Long sectorId, Long seatId, Long userId) {
-        LOGGER.debug("Hold seat with id {} for show {}", seatId, showId);
+    public void createTicketHold(CreateHoldDto createHoldDto) {
+        LOGGER.debug("Hold seat with id {} for show {}", createHoldDto.getSeatId(), createHoldDto.getShowId());
 
-        ticketValidator.validateHold(showId, sectorId, seatId, userId);
+        ticketValidator.validateHold(createHoldDto.getShowId(), createHoldDto.getSectorId(), createHoldDto.getSeatId(), createHoldDto.getUserId());
 
         Hold hold = new Hold();
-        hold.setShowId(showId);
-        hold.setSeatId(seatId);
-        hold.setUserId(seatId);
-        hold.setSectorId(sectorId);
+        hold.setShowId(createHoldDto.getShowId());
+        hold.setSeatId(createHoldDto.getSeatId());
+        hold.setUserId(createHoldDto.getSeatId());
+        hold.setSectorId(createHoldDto.getSectorId());
         hold.setValidUntil(LocalDateTime.now().plusMinutes(30));
 
         holdRepository.save(hold);

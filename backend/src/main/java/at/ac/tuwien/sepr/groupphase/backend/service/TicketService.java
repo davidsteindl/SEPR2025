@@ -1,9 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.*;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ReservationExpiredException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ReservationNotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.SeatUnavailableException;
@@ -115,11 +112,9 @@ public interface TicketService {
      * In this time, no other user can book the seat. If the user does not
      * book the seat within 30 minutes, the hold is released.
      *
-     * @param showId The ID of the show
-     * @param sectorId The ID of the sector
-     * @param seatId The ID of the seat
+     * @param createHoldDto
      */
-    void holdSeat(Long showId, Long sectorId, Long seatId, Long userId);
+    void createTicketHold(CreateHoldDto createHoldDto);
 
 
 }
