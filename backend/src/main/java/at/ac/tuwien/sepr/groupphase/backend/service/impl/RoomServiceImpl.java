@@ -112,7 +112,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public RoomDetailDto getRoomUsageForShow(Long showId) {
 
-        Show show = showService.getShowById(showId);
+        Show show = showService.getShowWithRoomAndSectors(showId);
         Room room = show.getRoom();
 
         List<Ticket> tickets = ticketRepository.findByShowId(showId);
