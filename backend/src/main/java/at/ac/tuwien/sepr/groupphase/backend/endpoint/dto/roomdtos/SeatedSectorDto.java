@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import jakarta.validation.constraints.NotEmpty;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,8 +23,8 @@ public class SeatedSectorDto extends SectorDto {
         return rows;
     }
 
-    public void setRows(List<SeatDto> rows) {
-        this.rows = rows;
+    public void setRows(List<? extends SeatDto> rows) {
+        this.rows = new ArrayList<>(rows);
     }
 
     @Override
@@ -78,8 +79,8 @@ public class SeatedSectorDto extends SectorDto {
             return this;
         }
 
-        public SeatedSectorDtoBuilder rows(List<SeatDto> rows) {
-            this.rows = rows;
+        public SeatedSectorDtoBuilder rows(List<? extends SeatDto> rows) {
+            this.rows = new ArrayList<>(rows);
             return this;
         }
 

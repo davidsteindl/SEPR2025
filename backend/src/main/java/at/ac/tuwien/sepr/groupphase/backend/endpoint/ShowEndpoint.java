@@ -1,5 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.CreateShowDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchDto;
@@ -9,6 +11,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.service.SearchService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
+import at.ac.tuwien.sepr.groupphase.backend.service.impl.RoomServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -35,12 +38,14 @@ public class ShowEndpoint {
     private final ShowService showService;
     private final ShowMapper showMapper;
     private final SearchService searchService;
+    private final RoomServiceImpl roomService;
 
     @Autowired
-    public ShowEndpoint(ShowService showService, ShowMapper showMapper, SearchService searchService) {
+    public ShowEndpoint(ShowService showService, ShowMapper showMapper, SearchService searchService, RoomServiceImpl roomService) {
         this.showService = showService;
         this.showMapper = showMapper;
         this.searchService = searchService;
+        this.roomService = roomService;
     }
 
     @GetMapping("/{id}")
@@ -78,5 +83,21 @@ public class ShowEndpoint {
     public Page<ShowSearchResultDto> searchShows(@RequestBody @Valid ShowSearchDto searchDto) throws ValidationException {
         LOGGER.info("POST /api/v1/shows/search with criteria: {}", searchDto);
         return searchService.searchShows(searchDto);
+    }
+
+
+    @GetMapping("/{showId}/room-usage")
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(
+        summary = "Get room layout + occupancy for a show",
+        description = "Returns the room's seats with isAvailable flags and standing sectors with availableCapacity, for the given show",
+        security = @SecurityRequirement(name = "apiKey")
+    )
+    public RoomDetailDto getRoomUsageForShow(
+        @PathVariable("showId") Long showId
+    ) {
+        LOGGER.info("GET /api/v1/shows/{}/room-usage", showId);
+        return roomService.getRoomUsageForShow(showId);
     }
 }

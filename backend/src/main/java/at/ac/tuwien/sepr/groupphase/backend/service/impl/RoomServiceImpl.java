@@ -2,21 +2,22 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatedSectorDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StandingSectorDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.*;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
-import at.ac.tuwien.sepr.groupphase.backend.entity.SeatedSector;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
+import at.ac.tuwien.sepr.groupphase.backend.entity.SeatedSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.SeatRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
+import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -38,13 +40,17 @@ public class RoomServiceImpl implements RoomService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RoomServiceImpl.class);
     private final SectorRepository sectorRepository;
     private final SeatRepository seatRepository;
+    private final ShowService showService;
+    private final TicketRepository ticketRepository;
 
     public RoomServiceImpl(EventLocationRepository eventLocationRepository,
-                           RoomRepository roomRepository, SectorRepository sectorRepository, SeatRepository seatRepository) {
+                           RoomRepository roomRepository, SectorRepository sectorRepository, SeatRepository seatRepository, ShowService showService, TicketRepository ticketRepository) {
         this.eventLocationRepository = eventLocationRepository;
         this.roomRepository = roomRepository;
         this.sectorRepository = sectorRepository;
         this.seatRepository = seatRepository;
+        this.showService = showService;
+        this.ticketRepository = ticketRepository;
     }
 
     @Override
@@ -96,6 +102,76 @@ public class RoomServiceImpl implements RoomService {
         LOGGER.debug("Retrieving a room with details: {}", id);
         Room room = roomRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         return mapToDto(room);
+    }
+
+    @Override
+    public RoomDetailDto getRoomUsageForShow(Long showId) {
+
+        Show show = showService.getShowById(showId);
+        Room room = show.getRoom();
+
+        List<Ticket> tickets = ticketRepository.findByShowId(showId);
+
+        Set<Long> occupiedSeatIds = tickets.stream()
+            .map(Ticket::getSeat)
+            .filter(Objects::nonNull)
+            .map(Seat::getId)
+            .collect(Collectors.toSet());
+
+        // count the number of standing tickets per sector ( = occupied capacity per standing sector)
+        Map<Long, Long> standingCounts = tickets.stream()
+            .filter(t -> t.getSeat() == null)
+            .collect(Collectors.groupingBy(
+                t -> t.getSector().getId(),
+                Collectors.counting()
+            ));
+
+        List<SectorDto> usageSectors = new ArrayList<>();
+
+        for (Sector sec : room.getSectors()) {
+            if (sec instanceof SeatedSector seated) {
+                // map each Seat to a SeatUsageDto
+                List<SeatUsageDto> seatDtos = seated.getSeats().stream()
+                    .map(seat -> {
+                        SeatUsageDto dto = new SeatUsageDto();
+                        dto.setId(seat.getId());
+                        dto.setRowNumber(seat.getRowNumber());
+                        dto.setColumnNumber(seat.getColumnNumber());
+                        dto.setDeleted(seat.isDeleted());
+                        dto.setAvailable(!occupiedSeatIds.contains(seat.getId()));
+                        return dto;
+                    })
+                    .toList();
+
+                SeatedSectorDto sdto = SeatedSectorDto.SeatedSectorDtoBuilder
+                    .aSeatedSectorDto()
+                    .id(seated.getId())
+                    .price(seated.getPrice())
+                    .rows(seatDtos)
+                    .build();
+
+                usageSectors.add(sdto);
+
+            } else if (sec instanceof StandingSector standing) {
+                // compute how many left
+                long sold = standingCounts.getOrDefault(standing.getId(), 0L);
+                int availableCapacity = standing.getCapacity() - (int) sold;
+
+                StandingSectorUsageDto udto = new StandingSectorUsageDto();
+                udto.setId(standing.getId());
+                udto.setPrice(standing.getPrice());
+                udto.setCapacity(standing.getCapacity());
+                udto.setAvailableCapacity(availableCapacity);
+
+                usageSectors.add(udto);
+            }
+        }
+
+        return RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
+            .id(room.getId())
+            .name(room.getName())
+            .sectors(usageSectors)
+            .build();
     }
 
 

@@ -12,8 +12,6 @@ public class StandingSectorDto extends SectorDto {
     @Positive(message = "Capacity must be positive")
     private int capacity;
 
-    private int availableCapacity;
-
     public StandingSectorDto() {
         super();
         setType(SectorType.STANDING);
@@ -27,14 +25,6 @@ public class StandingSectorDto extends SectorDto {
         this.capacity = capacity;
     }
 
-
-    public int getAvailableCapacity() {
-        return availableCapacity;
-    }
-
-    public void setAvailableCapacity(int availableCapacity) {
-        this.availableCapacity = availableCapacity;
-    }
 
     @Override
     public int hashCode() {
