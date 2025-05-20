@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/rooms")
@@ -62,4 +63,12 @@ public class RoomEndpoint {
         return roomservice.getRoomById(id);
     }
 
+    @GetMapping
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get all rooms", security = @SecurityRequirement(name = "apiKey"))
+    public List<RoomDetailDto> getAllRooms() {
+        LOGGER.info("GET /api/v1/rooms");
+        return roomservice.getAllRooms();
+    }
 }

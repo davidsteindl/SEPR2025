@@ -179,6 +179,14 @@ public class RoomServiceImpl implements RoomService {
             .build();
     }
 
+    @Override
+    public List<RoomDetailDto> getAllRooms() {
+        LOGGER.info("Fetching all rooms");
+        return roomRepository.findAll().stream()
+            .map(this::mapToDto)
+            .toList();
+    }
+
 
     /**
      * Constructs a new Room entity from the provided DTO and EventLocation.

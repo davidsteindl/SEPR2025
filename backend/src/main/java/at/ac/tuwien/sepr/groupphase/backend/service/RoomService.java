@@ -8,6 +8,8 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 
+import java.util.List;
+
 public interface RoomService {
 
     /**
@@ -71,4 +73,11 @@ public interface RoomService {
      * @throws NotFoundException if no show with the given {@code showId} exists, or if the show has no associated room
      */
     RoomDetailDto getRoomUsageForShow(Long showId);
+
+    /**
+     * Retrieves all rooms in the system.
+     *
+     * @return a list of {@link RoomDetailDto} representing all rooms
+     */
+    List<RoomDetailDto> getAllRooms();
 }
