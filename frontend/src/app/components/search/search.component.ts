@@ -50,7 +50,7 @@ export class SearchComponent implements OnInit {
     if (tab !== 'event') {
       this.eventname = '';
       this.eventcategory = null;
-      this.eventduration = 0;
+      this.eventduration = null;
       this.eventdescription = '';
       this.artistPage = undefined;
       this.artistTriggered = false;
