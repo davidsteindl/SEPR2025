@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {FormsModule} from "@angular/forms";
 import {CommonModule} from '@angular/common';
 import {ArtistService} from '../../services/artist.service';
-import {RouterLink} from "@angular/router";
+import {ActivatedRoute, RouterLink} from "@angular/router";
 import {ArtistSearchDto, ArtistSearchResultDto} from "../../dtos/artist";
 import {ToastrService} from "ngx-toastr";
 import {ErrorFormatterService} from "../../services/error-formatter.service";
@@ -12,6 +12,8 @@ import {EventService} from "../../services/event.service";
 import {EventCategory} from "../create-content/create-event/create-event.component";
 import {ShowSearch, ShowSearchResult} from "../../dtos/show";
 import {ShowService} from "../../services/show.service";
+import {LocationService} from "../../services/location.service";
+import {EventLocationSearchDto, Location as EventLocationDto} from "../../dtos/location";
 
 
 @Component({
@@ -48,10 +50,10 @@ export class SearchComponent implements OnInit {
     if (tab !== 'location') {
     }
     if (tab !== 'event') {
-      this.eventname = '';
-      this.eventcategory = null;
-      this.eventduration = 0;
-      this.eventdescription = '';
+      this.eventName = '';
+      this.eventCategory = null;
+      this.eventDuration = 0;
+      this.eventDescription = '';
       this.artistPage = undefined;
       this.artistTriggered = false;
     }
@@ -63,24 +65,40 @@ export class SearchComponent implements OnInit {
   firstname: string = '';
   lastname: string = '';
   stagename: string = '';
+
   artistPage?: Page<ArtistSearchResultDto>;
   artistLoading = false;
   artistTriggered = false;
   artistCurrentPage = 0;
   artistPageSize = 10;
 
-  //event variables
-  eventCategories =Object.values(EventCategory);
+  //event location variables
+  eventLocationName: string = '';
+  eventLocationStreet: string = '';
+  eventLocationCity: string = '';
+  eventLocationCountry: string = '';
+  eventLocationPostalCode: string = '';
 
-  eventname: string = '';
-  eventcategory: EventCategory | null = null;
-  eventduration: number | null = null;
-  eventdescription: string = '';
+  eventLocationPage?: Page<EventLocationDto>;
+  eventLocationLoading = false;
+  eventLocationTriggered = false;
+  eventLocationCurrentPage = 0;
+  eventLocationPageSize = 10;
+
+  //event variables
+  eventCategories = Object.values(EventCategory);
+
+  eventName: string = '';
+  eventCategory: EventCategory | null = null;
+  eventDuration: number | null = null;
+  eventDescription: string = '';
+
   eventPage?: Page<EventSearchResultDto>;
   eventLoading = false;
   eventTriggered = false;
   eventCurrentPage = 0;
   eventPageSize = 10;
+
 
   // performance (Show) search
   showName: string = '';
@@ -98,15 +116,23 @@ export class SearchComponent implements OnInit {
   showPageSize = 10;
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      const tab = params['tab'];
+      if (tab === 'artist' || tab === 'location' || tab === 'event' || tab === 'performance') {
+        this.currentActiveTab = tab;
+      }
+    });
   }
 
   //constructor
   constructor(
     private artistService: ArtistService,
+    private locationService: LocationService,
     private eventService: EventService,
     private showService: ShowService,
     private notification: ToastrService,
-    private errorFormatter: ErrorFormatterService
+    private errorFormatter: ErrorFormatterService,
+    private route: ActivatedRoute
   ) {
   }
 
@@ -118,7 +144,7 @@ export class SearchComponent implements OnInit {
         this.searchArtists();
         break;
       case 'location':
-        //this.searchLocations();
+        this.searchLocations();
         break;
       case 'event':
         this.searchEvents();
@@ -161,27 +187,54 @@ export class SearchComponent implements OnInit {
   }
 
   searchLocations(): void {
-    // Implement location search
-    console.log('Location search not implemented yet');
+    const searchDto: EventLocationSearchDto = {
+      name: this.eventLocationName?.trim() || undefined,
+      street: this.eventLocationStreet?.trim() || undefined,
+      city: this.eventLocationCity || undefined,
+      country: this.eventLocationCountry?.trim() || undefined,
+      postalCode: this.eventLocationPostalCode?.trim() || undefined,
+      page: this.eventLocationCurrentPage,
+      size: this.eventLocationPageSize
+    };
+
+    this.eventLocationLoading = true;
+    this.eventLocationTriggered = true;
+
+    this.locationService.searchEventLocations(searchDto).subscribe({
+      next: (pageResult) => {
+        this.eventLocationPage = pageResult;
+        this.eventLocationCurrentPage = pageResult.number;
+        this.eventLocationLoading = false;
+      },
+      error: (err) => {
+        this.eventLocationPage = undefined;
+        this.eventLocationLoading = false;
+        this.eventLocationTriggered = false;
+        this.notification.error(this.errorFormatter.format(err), 'Search failed', {
+          enableHtml: true,
+          timeOut: 8000,
+        });
+      }
+    });
   }
 
   validateDuration(): void {
-    if (this.eventduration == null) {
+    if (this.eventDuration == null) {
       return;
     }
-    if (this.eventduration < 10) {
-      this.eventduration = 10;
-    } else if (this.eventduration > 10000) {
-      this.eventduration = 10000;
+    if (this.eventDuration < 10) {
+      this.eventDuration = 10;
+    } else if (this.eventDuration > 10000) {
+      this.eventDuration = 10000;
     }
   }
 
   searchEvents(): void {
     const searchDto: EventSearchDto = {
-      name: this.eventname?.trim() || undefined,
-      category: this.eventcategory?.trim() || undefined,
-      duration: this.eventduration || undefined,
-      description: this.eventdescription?.trim() || undefined,
+      name: this.eventName?.trim() || undefined,
+      category: this.eventCategory?.trim() || undefined,
+      duration: this.eventDuration || undefined,
+      description: this.eventDescription?.trim() || undefined,
       page: this.eventCurrentPage,
       size: this.eventPageSize
     };
