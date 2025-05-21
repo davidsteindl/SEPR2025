@@ -41,4 +41,17 @@ public class TicketValidator {
 
 
     }
+
+    public void validateForReserveTickets(TicketRequestDto ticketRequestDto) {
+
+        LOGGER.debug("validateForReserveTickets: {}", ticketRequestDto);
+
+        // is there a hold on the selected seats?
+
+        // does the show exist?
+
+        // can i reserve tickets for this show? (30 mins before start)
+
+        // is there a ticket booked for this seat at this show already?
+    }
 }
