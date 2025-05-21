@@ -63,7 +63,7 @@ th, td {
 }
 
 .info-box {
-  width: 200px;
+  width: 220px;
   height: 400px;
   background-color: #e0e0e0;
   padding: 1rem;
@@ -110,4 +110,43 @@ th, td {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  background-color: transparent;
+  outline: none;
+  padding: 4px 0;
+  font-size: 14px;
+  margin-left: 10px;
+  width: 30%;
+  transition: border-color 0.3s;
+}
+
+select,
+textarea {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  background-color: transparent;
+  outline: none;
+  padding: 4px 0;
+  font-size: 14px;
+  margin-left: 10px;
+  width: 40%;
+  transition: border-color 0.3s;
+}
+
+input:focus,
+textarea:focus {
+  border-bottom: 1px solid #333;
+}
+
+.form-inline {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
