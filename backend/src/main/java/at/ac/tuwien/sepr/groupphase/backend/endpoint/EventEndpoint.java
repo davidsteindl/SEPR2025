@@ -118,7 +118,7 @@ public class EventEndpoint {
         description = "Returns all shows of the given event, sorted by date.",
         security = @SecurityRequirement(name = "apiKey")
     )
-    public Page<ShowDetailDto> getShowsForEvent(@PathVariable("eventId") Long eventId) {
+    public List<ShowDetailDto> getShowsForEvent(@PathVariable("eventId") Long eventId) {
         LOGGER.info("GET /api/v1/events/{}/shows", eventId);
         return showMapper.showsToShowDetailDtos(showService.findShowsByEventId(eventId));
     }
