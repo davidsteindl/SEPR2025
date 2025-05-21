@@ -14,6 +14,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.TicketMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Hold;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
 import at.ac.tuwien.sepr.groupphase.backend.entity.SeatedSector;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Order;
@@ -50,6 +51,9 @@ public class TicketServiceImpl implements TicketService {
     private final HoldRepository holdRepository;
     private final AuthenticationFacade authFacade;
 
+    private record TicketCreationResult(List<Ticket> tickets, int totalPrice) {
+    }
+
     @Autowired
     public TicketServiceImpl(
         TicketValidator ticketValidator,
@@ -83,95 +87,188 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public OrderDto buyTickets(TicketRequestDto ticketRequestDto) {
-        LOGGER.debug("Buy tickets request: {}", ticketRequestDto);
-        ticketValidator.validateForBuyTickets(ticketRequestDto);
+    public OrderDto buyTickets(TicketRequestDto request) {
+        LOGGER.debug("Buy tickets request: {}", request);
+        ticketValidator.validateForBuyTickets(request);
 
-        // Load Show
-        Show show = showService.getShowById(ticketRequestDto.getShowId());
+        Show show = loadShow(request.getShowId());
+        Order order = initOrder(authFacade.getCurrentUserId(), OrderType.ORDER);
+
+        TicketCreationResult result = createTickets(order, show, request.getTargets(), TicketStatus.BOUGHT);
+        finalizeOrder(order, result.tickets);
+
+        return buildOrderDto(order, result.tickets);
+    }
+
+    @Override
+    @Transactional
+    public ReservationDto reserveTickets(TicketRequestDto request) {
+        LOGGER.debug("Reserve tickets request: {}", request);
+        ticketValidator.validateForReserveTickets(request);
+
+        Show show = loadShow(request.getShowId());
+        Order order = initOrder(authFacade.getCurrentUserId(), OrderType.RESERVATION);
+
+        TicketCreationResult result = createTickets(order, show, request.getTargets(), TicketStatus.RESERVED);
+        finalizeOrder(order, result.tickets);
+
+        return buildReservationDto(order, result.tickets, show.getDate().minusMinutes(30));
+    }
+
+    /**
+     * Loads a Show by its ID or throws NotFoundException if not found.
+     *
+     * @param showId the ID of the show to load
+     * @return the Show entity
+     * @throws NotFoundException if no Show exists with the provided ID
+     */
+    private Show loadShow(Long showId) {
+        Show show = showService.getShowById(showId);
         if (show == null) {
-            throw new NotFoundException("Show with id " + ticketRequestDto.getShowId() + " not found");
+            throw new NotFoundException("Show with id " + showId + " not found");
         }
+        return show;
+    }
 
-        Long userId = authFacade.getCurrentUserId();
-
-        // Save new order
+    /**
+     * Initializes a new Order for a user with the specified type and persists it.
+     *
+     * @param userId the ID of the user placing the order
+     * @param type the type of the order (ORDER or RESERVATION)
+     * @return the persisted Order entity
+     */
+    private Order initOrder(Long userId, OrderType type) {
         Order order = new Order();
         order.setCreatedAt(LocalDateTime.now());
         order.setTickets(List.of());
         order.setUserId(userId);
-        order.setOrderType(OrderType.ORDER);
-        order = orderRepository.save(order);
+        order.setOrderType(type);
+        return orderRepository.save(order);
+    }
 
-        List<Ticket> created = new ArrayList<>();
-        int totalPriceInCents = 0;
-        for (TicketTargetDto targetDto : ticketRequestDto.getTargets()) {
-            if (targetDto instanceof TicketTargetSeatedDto seated) {
+    /**
+     * Creates tickets for the given order and show based on target DTOs, saves them, and calculates total price.
+     *
+     * @param order the Order to attach tickets to
+     * @param show the Show for which tickets are created
+     * @param targets the list of ticket target DTOs specifying seats or quantities
+     * @param status the status to apply to created tickets (BOUGHT or RESERVED)
+     * @return a TicketCreationResult containing saved tickets and total price in cents
+     */
+    private TicketCreationResult createTickets(Order order,
+                                               Show show,
+                                               List<TicketTargetDto> targets,
+                                               TicketStatus status) {
+        List<Ticket> tickets = new ArrayList<>();
+        int totalPrice = 0;
+
+        for (TicketTargetDto target : targets) {
+            if (target instanceof TicketTargetSeatedDto seated) {
                 SeatedSector sector = (SeatedSector) roomService.getSectorById(seated.getSectorId());
-                Seat seat           = roomService.getSeatById(seated.getSeatId());
+                Seat seat = roomService.getSeatById(seated.getSeatId());
 
-                Ticket ticket = new Ticket();
-                ticket.setOrder(order);
-                ticket.setShow(show);
-                ticket.setStatus(TicketStatus.BOUGHT);
-                ticket.setSector(sector);
-                ticket.setSeat(seat);
-                ticket.setCreatedAt(LocalDateTime.now());
+                Ticket ticket = buildTicket(order, show, sector, seat, status);
+                tickets.add(ticket);
+                totalPrice += (status == TicketStatus.BOUGHT ? sector.getPrice() : 0);
 
-                created.add(ticket);
-
-                int priceCents      = sector.getPrice();
-                totalPriceInCents += priceCents;
-
-            } else if (targetDto instanceof TicketTargetStandingDto standing) {
+            } else if (target instanceof TicketTargetStandingDto standing) {
                 StandingSector sector = (StandingSector) roomService.getSectorById(standing.getSectorId());
-                int priceCents      = sector.getPrice();
-
                 for (int i = 0; i < standing.getQuantity(); i++) {
-                    Ticket ticket = new Ticket();
-                    ticket.setOrder(order);
-                    ticket.setShow(show);
-                    ticket.setStatus(TicketStatus.BOUGHT);
-                    ticket.setSector(sector);
-                    ticket.setCreatedAt(LocalDateTime.now());
-
-                    created.add(ticket);
-                    totalPriceInCents += priceCents;
+                    Ticket ticket = buildTicket(order, show, sector, null, status);
+                    tickets.add(ticket);
+                    totalPrice += (status == TicketStatus.BOUGHT ? sector.getPrice() : 0);
                 }
             }
         }
 
-        // Save all tickets in batch
-        created = ticketRepository.saveAll(created);
+        List<Ticket> saved = ticketRepository.saveAll(tickets);
+        return new TicketCreationResult(saved, totalPrice);
+    }
 
+    /**
+     * Builds a Ticket entity with the specified order, show, sector, seat, and status.
+     *
+     * @param order the Order to which the ticket belongs
+     * @param show the Show associated with the ticket
+     * @param sector the Sector (seated or standing) for the ticket
+     * @param seat the Seat for seated tickets (null for standing tickets)
+     * @param status the status to assign to the ticket
+     * @return the constructed Ticket entity
+     */
+    private Ticket buildTicket(Order order,
+                               Show show,
+                               Sector sector,
+                               Seat seat,
+                               TicketStatus status) {
+        Ticket ticket = new Ticket();
+        ticket.setOrder(order);
+        ticket.setShow(show);
+        ticket.setStatus(status);
+        ticket.setSector(sector);
+        if (seat != null) {
+            ticket.setSeat(seat);
+        }
+        ticket.setCreatedAt(LocalDateTime.now());
+        return ticket;
+    }
 
-        order.setTickets(created);
+    /**
+     * Finalizes the given Order by setting its tickets and persisting the update.
+     *
+     * @param order the Order to finalize
+     * @param tickets the list of tickets to associate with the order
+     */
+    private void finalizeOrder(Order order, List<Ticket> tickets) {
+        order.setTickets(tickets);
         orderRepository.save(order);
+    }
 
-        // Map entities to DTOs
-        List<TicketDto> ticketDtos = created.stream()
-                .map(ticketMapper::toDto)
-                .collect(Collectors.toList());
-
+    /**
+     * Constructs an OrderDto from an Order entity and its tickets.
+     *
+     * @param order the Order entity to convert
+     * @param tickets the list of Ticket entities associated with the order
+     * @return the populated OrderDto
+     */
+    private OrderDto buildOrderDto(Order order, List<Ticket> tickets) {
         OrderDto dto = new OrderDto();
         dto.setId(order.getId());
         dto.setCreatedAt(order.getCreatedAt());
         dto.setOrderType(order.getOrderType());
         dto.setUserId(order.getUserId());
-        dto.setTickets(ticketDtos);
-
+        dto.setTickets(tickets.stream()
+            .map(ticketMapper::toDto)
+            .collect(Collectors.toList()));
         return dto;
     }
 
-    @Override
-    public ReservationDto reserveTickets(TicketRequestDto ticketRequestDto) {
-        LOGGER.debug("Reserve tickets request: {}", ticketRequestDto);
-        return null;
+    /**
+     * Constructs a ReservationDto from an Order entity, its tickets, and expiration time.
+     *
+     * @param order the Order entity to convert
+     * @param tickets the list of Ticket entities associated with the order
+     * @param expiresAt the timestamp when the reservation expires
+     * @return the populated ReservationDto
+     */
+    private ReservationDto buildReservationDto(Order order,
+                                               List<Ticket> tickets,
+                                               LocalDateTime expiresAt) {
+        ReservationDto dto = new ReservationDto();
+        dto.setId(order.getId());
+        dto.setCreatedAt(order.getCreatedAt());
+        dto.setOrderType(order.getOrderType());
+        dto.setUserId(order.getUserId());
+        dto.setTickets(tickets.stream()
+            .map(ticketMapper::toDto)
+            .collect(Collectors.toList()));
+        dto.setExpiresAt(expiresAt);
+        return dto;
     }
 
     @Override
     public OrderDto buyReservedTickets(List<Long> ticketIds) {
         LOGGER.debug("Buy reserved tickets request: {}", ticketIds);
+
         return null;
     }
 
