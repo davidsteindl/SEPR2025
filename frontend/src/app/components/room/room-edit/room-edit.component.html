@@ -29,6 +29,7 @@
                 <button
                   class="seat"
                   *ngIf="isSeat(seatedSector, row, col)"
+                  [ngClass]="{ 'selected': isSelected(seatedSector, row, col) }"
                   (click)="onSeatClick(seatedSector, row, col); $event.stopPropagation()">
                 </button>
               </td>
@@ -67,7 +68,7 @@
       <ng-template #seatInfo>
         <br/><br/><br/><br/>
 
-        <p class="seatText">Seat: {{ selectedSeat.rowNumber }}{{ toColumnLetter(selectedSeat.columnNumber) }}<br/><br/>
+        <p class="seatText">Seat: {{ this.globalRow }}{{ toColumnLetter(selectedSeat.columnNumber) }}<br/><br/>
           <button class="btn btn-danger" (click)="deleteSeat()">
             <i class="bi bi-trash"></i> Delete
           </button>

@@ -49,7 +49,6 @@ export class RoomEditComponent implements OnInit {
     this.roomService.getEventById(eventId).subscribe({
       next: room => {
         this.room = room;
-
       },
       error: err => {
         this.notification.error(this.errorFormatter.format(err), 'Loading events failed', {
@@ -93,6 +92,13 @@ export class RoomEditComponent implements OnInit {
     else return false
   }
 
+  isSelected(sector: SeatedSector, row: number, col: number): boolean {
+    return this.selectedSeat &&
+      this.selectedSeat.rowNumber === row &&
+      this.selectedSeat.columnNumber === col &&
+      this.selectedSector?.id === sector.id;
+  }
+
 
   get globalColumns(): number[] {
     let maxCol = 0;
@@ -121,13 +127,17 @@ export class RoomEditComponent implements OnInit {
   onSeatClick(sector: SeatedSector, row: number, col: number) {
     const seat = sector.rows.find(s => s.rowNumber === row && s.columnNumber === col && !s.deleted);
 
-
     if (seat) {
       this.selectedSeat = seat;
-      const sectorIndex = this.seatedSectors.findIndex(s => s.id === sector.id);
-      this.globalRow = seat.rowNumber + this.getRowOffset(sectorIndex);
+      this.selectedSector = sector;
+      this.getSeatInfo(seat, sector);
       console.log(`Clicked seat ${this.globalRow}${this.toColumnLetter(seat.columnNumber)}`);
     }
+  }
+
+  getSeatInfo(seat: Seat, sector: SeatedSector): void {
+    const sectorIndex = this.seatedSectors.findIndex(s => s.id === sector.id);
+    this.globalRow = seat.rowNumber + this.getRowOffset(sectorIndex);
   }
 
   getSectorColorClass(sector: Sector): string {
@@ -137,6 +147,10 @@ export class RoomEditComponent implements OnInit {
 
 
   onSectorClick(sector: Sector): void {
+    this.selectedSeat = null;
+
+
+
     console.log(`Clicked sector ${sector.id}`);
   }
 
