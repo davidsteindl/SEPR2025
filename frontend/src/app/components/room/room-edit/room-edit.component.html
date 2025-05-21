@@ -52,7 +52,7 @@
             <tr>
               <button
                 class="standingSector"
-                (click)="onSectorClick(standingSector); $event.stopPropagation()">
+                (click)="onStandingSectorClick(standingSector); $event.stopPropagation()">
                 {{ standingSector.capacity }}
               </button>
             </tr>
@@ -72,10 +72,20 @@
       </ng-container>
 
       <ng-container *ngIf="!selectedSeat && selectedSector">
-        <br/><br/><br/><br/>
-        <p class="seatText">Sector: {{ this.selectedSector.id }}<br/><br/>
-
+        <p class="sectorText">Sector: {{ this.selectedSector.id }}<br/><br/>
+        <p class="sectorText">Type:  {{ this.selectedSector.type }} </p>
+        <p class="sectorText">Amount Rows: {{this.rowsForSector}}</p>
+        <p class="sectorText">Seats per Row: {{this.seatsForRow}} </p>
+        <p class="sectorText">Sector Price: {{ this.selectedSector.price }} </p>
+        <p>
+          <button class="btn btn-danger" (click)="deleteSeat(); $event.stopPropagation()">
+            <i class="bi bi-trash"></i> Delete
+          </button>
+          <br>
+          <button class="btn btn-success mt-4" type="submit" (click)="unClickSeat(); $event.stopPropagation()">Done
+          </button>
         </p>
+
       </ng-container>
 
       <ng-container *ngIf="selectedSeat">
