@@ -22,6 +22,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.HoldRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
+import at.ac.tuwien.sepr.groupphase.backend.security.AuthenticationFacade;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
 import at.ac.tuwien.sepr.groupphase.backend.service.TicketService;
@@ -47,9 +48,19 @@ public class TicketServiceImpl implements TicketService {
     private final OrderRepository orderRepository;
     private final TicketMapper ticketMapper;
     private final HoldRepository holdRepository;
+    private final AuthenticationFacade authFacade;
 
     @Autowired
-    public TicketServiceImpl(TicketValidator ticketValidator, ShowService showService, TicketRepository ticketRepository, RoomService roomService, OrderRepository orderRepository, TicketMapper ticketMapper, HoldRepository holdRepository) {
+    public TicketServiceImpl(
+        TicketValidator ticketValidator,
+        ShowService showService,
+        TicketRepository ticketRepository,
+        RoomService roomService,
+        OrderRepository orderRepository,
+        TicketMapper ticketMapper,
+        HoldRepository holdRepository,
+        AuthenticationFacade authFacade) {
+
         this.ticketValidator = ticketValidator;
         this.showService = showService;
         this.ticketRepository = ticketRepository;
@@ -57,6 +68,7 @@ public class TicketServiceImpl implements TicketService {
         this.orderRepository = orderRepository;
         this.ticketMapper = ticketMapper;
         this.holdRepository = holdRepository;
+        this.authFacade = authFacade;
     }
 
     @Override
@@ -81,11 +93,13 @@ public class TicketServiceImpl implements TicketService {
             throw new NotFoundException("Show with id " + ticketRequestDto.getShowId() + " not found");
         }
 
+        Long userId = authFacade.getCurrentUserId();
+
         // Save new order
         Order order = new Order();
         order.setCreatedAt(LocalDateTime.now());
         order.setTickets(List.of());
-        order.setUserId(null); // TODO: Find out how to get the userId
+        order.setUserId(userId);
         order.setOrderType(OrderType.ORDER);
         order = orderRepository.save(order);
 
@@ -143,6 +157,7 @@ public class TicketServiceImpl implements TicketService {
         dto.setId(order.getId());
         dto.setCreatedAt(order.getCreatedAt());
         dto.setOrderType(order.getOrderType());
+        dto.setUserId(order.getUserId());
         dto.setTickets(ticketDtos);
 
         return dto;

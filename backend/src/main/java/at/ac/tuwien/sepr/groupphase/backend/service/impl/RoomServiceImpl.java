@@ -126,7 +126,7 @@ public class RoomServiceImpl implements RoomService {
         List<Ticket> tickets = ticketRepository.findByShowId(showId);
 
         tickets = tickets.stream()
-                .filter(t -> t.getStatus() == TicketStatus.BOUGHT)
+                .filter(t -> (t.getStatus() == TicketStatus.BOUGHT) || (t.getStatus() == TicketStatus.RESERVED))
                 .toList();
 
         Set<Long> occupiedSeatIds = tickets.stream()
