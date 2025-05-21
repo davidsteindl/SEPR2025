@@ -55,8 +55,9 @@
     </div>
 
 
-    <div class="info-box">
+    <div class="info-box" style="text-align: center; font-weight: bold">
       <ng-container *ngIf="!selectedSeat; else seatInfo">
+        <br/><br/><br/><br/>
         <button class="add-button" (click)="addSector()">
           <span class="plus-icon">+</span>
         </button>
@@ -64,8 +65,10 @@
       </ng-container>
 
       <ng-template #seatInfo>
-        <p>Seat: {{ selectedSeat.rowNumber }}{{ toColumnLetter(selectedSeat.columnNumber) }}<br/>
-          <button class="btn btn-outline-danger" (click)="deleteSeat()">
+        <br/><br/><br/><br/>
+
+        <p class="seatText">Seat: {{ selectedSeat.rowNumber }}{{ toColumnLetter(selectedSeat.columnNumber) }}<br/><br/>
+          <button class="btn btn-danger" (click)="deleteSeat()">
             <i class="bi bi-trash"></i> Delete
           </button>
           <br>
