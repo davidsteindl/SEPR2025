@@ -64,8 +64,12 @@ public class OrderOverviewDto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof OrderOverviewDto that)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof OrderOverviewDto that)) {
+            return false;
+        }
         return Objects.equals(orderId, that.orderId)
             && Objects.equals(createdAt, that.createdAt)
             && Objects.equals(showName, that.showName)
