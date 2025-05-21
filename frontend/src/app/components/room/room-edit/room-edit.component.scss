@@ -32,6 +32,10 @@ th, td {
   cursor: pointer;
 }
 
+.seat.selected {
+  border: 2px solid black ;
+}
+
 .seat.empty {
   background-color: transparent;
   border: none;
