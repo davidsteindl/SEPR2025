@@ -10,6 +10,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Set;
@@ -27,7 +28,7 @@ public interface ShowMapper {
     @Mapping(target = "room", source = "roomId", qualifiedByName = "mapRoomIdToRoom")
     Show createShowDtoToShow(CreateShowDto createShowDto);
 
-    List<ShowDetailDto> showsToShowDetailDtos(List<Show> shows);
+    Page<ShowDetailDto> showsToShowDetailDtos(List<Show> shows);
 
     @Named("mapEventIdToEvent")
     default Event mapEventIdToEvent(Long eventId) throws ValidationException {
