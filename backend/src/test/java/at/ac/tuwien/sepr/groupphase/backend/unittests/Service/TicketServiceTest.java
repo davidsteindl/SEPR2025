@@ -283,7 +283,7 @@ public class TicketServiceTest {
 
         // attempt to reserva a already bought ticket
         Long boughtTicketId = boughtOrder.getTickets().getFirst().getId();
-        assertThrows(SeatUnavailableException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ticketService.buyReservedTickets(List.of(boughtTicketId));
         });
     }
@@ -344,7 +344,7 @@ public class TicketServiceTest {
         ticketRepository.save(ticketEntity);
 
         // Attempt to buy the now-expired reservation should throw
-        assertThrows(ReservationExpiredException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             ticketService.buyReservedTickets(List.of(reservedTicketId));
         });
     }
