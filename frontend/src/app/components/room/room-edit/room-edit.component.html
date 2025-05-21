@@ -8,24 +8,31 @@
   <div class="stage">STAGE</div>
   <hr>
 
-  <div style="display: flex; align-items: flex-start; gap: 2rem;">
-    <div class="seat-layout">
+  <div style="text-align:center; display: flex; align-items: flex-start">
+    <div class="seat-layout" (click)="resetSector()">
       <table>
         <thead>
         <tr>
           <th></th>
-          <th *ngFor="let col of globalColumns"> {{ toColumnLetter(col) }}</th>
+          <th *ngFor="let col of globalColumns">
+            <div class="header-letter">{{ toColumnLetter(col) }}</div>
+          </th>
         </tr>
         </thead>
-        <tbody>
-        <ng-container *ngFor="let sector of seatedSectors; let i = index">
+
+        <ng-container *ngFor="let sector of seatedSectors; let i = index" class="sector">
+          <tbody [ngClass]="{ 'sector': true, 'selected': isSelectedSector(sector) }">
           <ng-container *ngIf="asSeatedSector(sector) as seatedSector">
             <tr
               *ngFor="let row of getMaxRows(seatedSector)">
-              <th>{{ row + getRowOffset(i) }}</th>
+              <th>
+                <div style="margin-top:4px">
+                  {{ row + getRowOffset(i) }}
+                </div>
+              </th>
               <td *ngFor="let col of globalColumns"
                   [ngClass]="getSectorColorClass(seatedSector)"
-                  (click)="onSectorClick(seatedSector)">
+                  (click)="onSectorClick(seatedSector); $event.stopPropagation()">
                 <button
                   class="seat"
                   *ngIf="isSeat(seatedSector, row, col)"
@@ -33,10 +40,9 @@
                   (click)="onSeatClick(seatedSector, row, col); $event.stopPropagation()">
                 </button>
               </td>
-            </tr>
           </ng-container>
+          </tbody>
         </ng-container>
-        </tbody>
       </table>
 
       <table>
@@ -46,7 +52,7 @@
             <tr>
               <button
                 class="standingSector"
-                (click)="onSectorClick(standingSector)">
+                (click)="onSectorClick(standingSector); $event.stopPropagation()">
                 {{ standingSector.capacity }}
               </button>
             </tr>
@@ -57,30 +63,39 @@
 
 
     <div class="info-box" style="text-align: center; font-weight: bold">
-      <ng-container *ngIf="!selectedSeat; else seatInfo">
+      <ng-container *ngIf="!selectedSeat && !selectedSector">
         <br/><br/><br/><br/>
-        <button class="add-button" (click)="addSector()">
+        <button class="add-button" (click)="addSector(); $event.stopPropagation()">
           <span class="plus-icon">+</span>
         </button>
         <div class="info-label">Add Sector</div>
       </ng-container>
 
-      <ng-template #seatInfo>
+      <ng-container *ngIf="!selectedSeat && selectedSector">
         <br/><br/><br/><br/>
+        <p class="seatText">Sector: {{ this.selectedSector.id }}<br/><br/>
 
+        </p>
+      </ng-container>
+
+      <ng-container *ngIf="selectedSeat">
+        <br/><br/><br/><br/>
         <p class="seatText">Seat: {{ this.globalRow }}{{ toColumnLetter(selectedSeat.columnNumber) }}<br/><br/>
-          <button class="btn btn-danger" (click)="deleteSeat()">
+          <button class="btn btn-danger" (click)="deleteSeat(); $event.stopPropagation()">
             <i class="bi bi-trash"></i> Delete
           </button>
           <br>
-          <button class="btn btn-success mt-4" type="submit" (click)="unClickSeat()">Done</button>
+          <button class="btn btn-success mt-4" type="submit" (click)="unClickSeat(); $event.stopPropagation()">Done
+          </button>
         </p>
-      </ng-template>
+      </ng-container>
     </div>
+
+
   </div>
 
   <div>
-    <button class="btn btn-success mt-4" type="submit" (click)="edit()">Done</button>
+    <button class="btn btn-success mt-4" type="submit" (click)="edit(); $event.stopPropagation()">Done</button>
   </div>
 </div>
 
