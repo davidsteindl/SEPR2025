@@ -203,8 +203,7 @@
           <td>{{ ev.duration }}</td>
           <td>{{ ev.description }}</td>
           <td class="text-right">
-            <button class="view-button"
-                    [routerLink]="['/events', ev.id, 'overview']">
+            <button class="view-button" [routerLink]="['/events', ev.id, 'overview']" [queryParams]="{ from: 'event', tab: 'event'  }">
               View Event
             </button>
           </td>
