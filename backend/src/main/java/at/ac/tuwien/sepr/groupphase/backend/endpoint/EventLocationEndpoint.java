@@ -1,13 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.CreateEventLocationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventLocationMapper;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.service.EventLocationService;
@@ -43,15 +40,12 @@ public class EventLocationEndpoint {
     private final EventLocationService eventLocationService;
     private final EventLocationMapper eventLocationMapper;
     private final SearchService searchService;
-    private final ShowMapper showMapper;
 
     @Autowired
-    public EventLocationEndpoint(EventLocationService eventLocationService, EventLocationMapper eventLocationMapper, SearchService searchService,
-                                 ShowMapper showMapper) {
+    public EventLocationEndpoint(EventLocationService eventLocationService, EventLocationMapper eventLocationMapper, SearchService searchService) {
         this.eventLocationService = eventLocationService;
         this.eventLocationMapper = eventLocationMapper;
         this.searchService = searchService;
-        this.showMapper = showMapper;
     }
 
     @GetMapping("/{id}")
@@ -120,7 +114,7 @@ public class EventLocationEndpoint {
     public Page<ShowDetailDto> getShowsForEventLocation(@PathVariable("eventLocationId") Long eventLocationId,
                                                         @RequestParam(name = "page", defaultValue = "0") int page,
                                                         @RequestParam(name = "size", defaultValue = "5") int size) {
-        LOGGER.info("GET /api/v1/locations/{}/shows/paginated?page={}&size={}", eventLocationId);
+        LOGGER.info("GET /api/v1/locations/{}/shows/paginated?page={}&size={}", eventLocationId, page, size);
         Pageable pageable = PageRequest.of(page, size, Sort.by("date").ascending());
         return eventLocationService.getShowsForEventLocation(eventLocationId, pageable);
     }
