@@ -1,10 +1,9 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {Globals} from '../global/globals';
 import {Observable} from 'rxjs';
 import {EventLocationSearchDto, Location} from '../dtos/location';
 import {CreateLocation} from "../dtos/create-location";
-import {EventSearchDto, EventSearchResultDto} from "../dtos/event";
 import {Page} from "../dtos/page";
 import {ShowSearchResult} from "../dtos/show";
 
@@ -69,10 +68,9 @@ export class LocationService {
    *
    * @param locationId ID of the location to retrieve events for
    */
-  getShowsForEventLocation(locationId: number): Observable<ShowSearchResult[]> {
-    return this.httpClient.get<ShowSearchResult[]>(
-      `${this.locationBaseUri}/${locationId}/shows`
-    );
+  getShowsForEventLocation(locationId: number, page: number, size: number): Observable<Page<ShowSearchResult>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.httpClient.get<Page<ShowSearchResult>>(`${this.locationBaseUri}/${locationId}/shows/paginated`, {params});
   }
 
 
