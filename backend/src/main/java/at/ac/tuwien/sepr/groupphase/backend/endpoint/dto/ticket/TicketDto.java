@@ -30,6 +30,8 @@ public class TicketDto {
     private Long seatId;
     private Long sectorId;
     private TicketStatus status;
+    // TODO: row number
+    // TODO: column number
 
 
     public Long getId() {

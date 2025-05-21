@@ -13,6 +13,8 @@ public class OrderDto {
     private Long userId;
     private OrderType orderType;
     private int totalPrice;
+    // TODO: Event name
+    // TODO : Event date
 
     public Long getId() {
         return id;

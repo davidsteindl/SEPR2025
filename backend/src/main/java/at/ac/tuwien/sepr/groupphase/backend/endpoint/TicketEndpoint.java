@@ -95,5 +95,13 @@ public class TicketEndpoint {
         ticketService.createTicketHold(createHoldDto);
     }
 
+    // TODO: get all orders for current user for events in the future ( purchased orders in figma)
+
+    // TODO: get all reservfations for current user for events in the future ( reserved orders in figma)
+
+    // TODO: get all orders that are expired ( past orders in figma)
+
+    // TODO: get order by id
+
 
 }
