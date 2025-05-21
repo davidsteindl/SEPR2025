@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
@@ -27,13 +28,16 @@ public class EventLocationServiceTest {
 
   private EventLocationServiceImpl eventLocationService;
 
+  @Autowired
   private ShowRepository showRepository;
+
+  private ShowMapper showMapper;
 
   private EventLocation testLocation;
 
   @BeforeEach
   public void setUp() {
-    eventLocationService = new EventLocationServiceImpl(eventLocationRepository, showRepository);
+    eventLocationService = new EventLocationServiceImpl(eventLocationRepository, showRepository,showMapper);
 
     testLocation = EventLocation.EventLocationBuilder.anEventLocation()
         .withName("Wiener Staatsoper")
