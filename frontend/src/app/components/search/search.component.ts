@@ -37,28 +37,6 @@ export class SearchComponent implements OnInit {
 
   set currentActiveTab(tab: 'artist' | 'location' | 'event' | 'show') {
     this.activeTab = tab;
-
-    if (tab !== 'artist') {
-      this.firstname = '';
-      this.lastname = '';
-      this.stagename = '';
-      this.artistPage = undefined;
-      this.artistTriggered = false;
-    }
-
-    // Implement reset for tabs
-    if (tab !== 'location') {
-    }
-    if (tab !== 'event') {
-      this.eventName = '';
-      this.eventCategory = null;
-      this.eventDuration = null;
-      this.eventDescription = '';
-      this.eventPage = undefined;
-      this.eventTriggered = false;
-    }
-    if (tab !== 'show') {
-    }
   }
 
   //artist variables
