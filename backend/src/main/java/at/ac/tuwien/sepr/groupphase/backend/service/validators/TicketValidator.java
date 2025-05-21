@@ -1,9 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class TicketValidator {
@@ -53,5 +56,21 @@ public class TicketValidator {
         // can i reserve tickets for this show? (30 mins before start)
 
         // is there a ticket booked for this seat at this show already?
+    }
+
+    public void validateForBuyReservedTickets(List<Long> ticketIds, List<Ticket> tickets) {
+        LOGGER.debug("validateForBuyReservedTickets: ticketIds={}, tickets={}", ticketIds, tickets);
+
+        // is there a hold on the selected seats?
+
+        // are the tickets all status reserved
+
+        // is the resevation still valid? (show start point - 30 mins)
+
+        // am i the user who reserved the tickets?
+
+
+
+
     }
 }

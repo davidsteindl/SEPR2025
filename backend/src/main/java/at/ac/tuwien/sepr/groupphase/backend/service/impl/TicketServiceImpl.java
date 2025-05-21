@@ -266,10 +266,49 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    @Transactional
     public OrderDto buyReservedTickets(List<Long> ticketIds) {
         LOGGER.debug("Buy reserved tickets request: {}", ticketIds);
+        List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
+        ticketValidator.validateForBuyReservedTickets(ticketIds, tickets);
 
-        return null;
+        // Record the original reservation order
+        Order oldReservation = tickets.getFirst().getOrder();
+
+        // 2. Create new purchase order
+        Order purchaseOrder = initOrder(authFacade.getCurrentUserId(), OrderType.ORDER);
+
+        // 3. Re-assign tickets & update status, also compute total price
+        int totalPrice = 0;
+        for (Ticket ticket : tickets) {
+            // Remove from old order side (so it doesn't orphan-delete them)
+            oldReservation.getTickets().remove(ticket);
+
+            // Assign to new order
+            ticket.setOrder(purchaseOrder);
+            ticket.setStatus(TicketStatus.BOUGHT);
+
+            // Accumulate price
+            int price = ticket.getSector() instanceof SeatedSector
+                ? ((SeatedSector) ticket.getSector()).getPrice()
+                : ((StandingSector) ticket.getSector()).getPrice();
+            totalPrice += price;
+        }
+
+        // 4. Persist changes
+        // Save updated old reservation so its tickets list is updated
+        orderRepository.save(oldReservation);
+
+        // Save new tickets under purchase order
+        List<Ticket> savedTickets = ticketRepository.saveAll(tickets);
+
+        // Finalize and save the new order with its tickets
+        finalizeOrder(purchaseOrder, savedTickets);
+
+        // 5. Build and return DTO
+        OrderDto dto = buildOrderDto(purchaseOrder, savedTickets);
+        dto.setTotalPrice(totalPrice);
+        return dto;
     }
 
     @Override
