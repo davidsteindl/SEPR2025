@@ -55,8 +55,8 @@ public class EventLocationServiceImpl implements EventLocationService {
         eventLocationRepository.findById(eventLocationId)
             .orElseThrow(() -> new IllegalArgumentException("Location not found with id: " + eventLocationId));
 
-        return showRepository
-            .findAllByEvent_Location_IdOrderByDateAsc(eventLocationId, pageable)
-            .map(showMapper::showToShowDetailDto);
+        return showMapper.pageToDto(
+            showRepository.findAllByEvent_Location_IdOrderByDateAsc(eventLocationId, pageable)
+        );
     }
 }
