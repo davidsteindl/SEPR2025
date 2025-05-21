@@ -9,13 +9,16 @@ import {StandingSector} from "../../../dtos/standing-sector";
 import {SeatedSector} from "../../../dtos/seated-sector";
 import {Seat} from "../../../dtos/seat";
 import {Sector} from "../../../dtos/sector";
+import {FormsModule} from "@angular/forms";
+import {SectorType} from "../../../dtos/sector-type";
 
 @Component({
   selector: 'app-room',
   imports: [
     NgIf,
     NgClass,
-    NgForOf
+    NgForOf,
+    FormsModule
   ],
   templateUrl: './room-edit.component.html',
   styleUrl: './room-edit.component.scss'
@@ -30,7 +33,7 @@ export class RoomEditComponent implements OnInit {
   globalRow: number;
   rowsForSector: number;
   seatsForRow: number;
-
+  sectorType =  SectorType;
 
   constructor(private route: ActivatedRoute,
               private roomService: RoomService,
@@ -188,6 +191,16 @@ export class RoomEditComponent implements OnInit {
     this.selectedSector = null;
   }
 
+  validatePrice(): void {
+    if (this.selectedSector == null) {
+      return;
+    }
+    if (this.selectedSector.price < 10) {
+      this.selectedSector.price = 10;
+    } else if (this.selectedSector.price > 200) {
+      this.selectedSector.price = 200;
+    }
+  }
 
   edit(): void {
     this.roomService.edit(this.room).subscribe({
@@ -209,6 +222,5 @@ export class RoomEditComponent implements OnInit {
       }
     });
   }
-
 
 }
