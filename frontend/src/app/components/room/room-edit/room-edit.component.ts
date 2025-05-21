@@ -28,6 +28,8 @@ export class RoomEditComponent implements OnInit {
   selectedSeat: Seat;
   selectedSector: Sector;
   globalRow: number;
+  rowsForSector: number;
+  seatsForRow: number;
 
 
   constructor(private route: ActivatedRoute,
@@ -150,10 +152,19 @@ export class RoomEditComponent implements OnInit {
   }
 
 
-  onSectorClick(sector: Sector): void {
+  onSectorClick(sector: SeatedSector): void {
     this.selectedSeat = null;
     this.selectedSector = sector;
+    this.rowsForSector =  Math.max(...sector.rows.map(seat => seat.rowNumber));
+    this.seatsForRow =  Math.max(...sector.rows.map(seat => seat.columnNumber));
 
+
+    console.log(`Clicked sector ${sector.id}`);
+  }
+
+  onStandingSectorClick(sector: StandingSector): void {
+    this.selectedSeat = null;
+    this.selectedSector = sector;
 
     console.log(`Clicked sector ${sector.id}`);
   }
