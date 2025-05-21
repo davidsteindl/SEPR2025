@@ -29,4 +29,6 @@ export interface ShowSearchResult {
   eventName: string;
   roomId: number;
   roomName: string;
+  minPrice: number | null;
+  maxPrice: number | null;
 }

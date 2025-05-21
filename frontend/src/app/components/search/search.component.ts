@@ -29,36 +29,14 @@ import {EventLocationSearchDto, Location as EventLocationDto} from "../../dtos/l
 })
 export class SearchComponent implements OnInit {
   //tabs + reset
-  private activeTab: 'artist' | 'location' | 'event' | 'performance' = 'artist';
+  private activeTab: 'artist' | 'location' | 'event' | 'show' = 'artist';
 
-  get currentActiveTab(): 'artist' | 'location' | 'event' | 'performance' {
+  get currentActiveTab(): 'artist' | 'location' | 'event' | 'show' {
     return this.activeTab;
   }
 
-  set currentActiveTab(tab: 'artist' | 'location' | 'event' | 'performance') {
+  set currentActiveTab(tab: 'artist' | 'location' | 'event' | 'show') {
     this.activeTab = tab;
-
-    if (tab !== 'artist') {
-      this.firstname = '';
-      this.lastname = '';
-      this.stagename = '';
-      this.artistPage = undefined;
-      this.artistTriggered = false;
-    }
-
-    // Implement reset for tabs
-    if (tab !== 'location') {
-    }
-    if (tab !== 'event') {
-      this.eventName = '';
-      this.eventCategory = null;
-      this.eventDuration = null;
-      this.eventDescription = '';
-      this.eventPage = undefined;
-      this.eventTriggered = false;
-    }
-    if (tab !== 'performance') {
-    }
   }
 
   //artist variables
@@ -99,8 +77,7 @@ export class SearchComponent implements OnInit {
   eventCurrentPage = 0;
   eventPageSize = 10;
 
-
-  // performance (Show) search
+  // show search
   showName: string = '';
   showEventName: string = '';
   showRoomName: string = '';
@@ -118,7 +95,7 @@ export class SearchComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const tab = params['tab'];
-      if (tab === 'artist' || tab === 'location' || tab === 'event' || tab === 'performance') {
+      if (tab === 'artist' || tab === 'location' || tab === 'event' || tab === 'show') {
         this.currentActiveTab = tab;
       }
     });
@@ -149,7 +126,7 @@ export class SearchComponent implements OnInit {
       case 'event':
         this.searchEvents();
         break;
-      case 'performance':
+      case 'show':
         this.searchShows();
         break;
     }
