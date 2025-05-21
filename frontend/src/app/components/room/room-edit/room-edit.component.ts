@@ -88,8 +88,7 @@ export class RoomEditComponent implements OnInit {
 
   isSeat(sector: SeatedSector, row: number, col: number): boolean {
     const seat = sector.rows.find(s => s.rowNumber === row && s.columnNumber === col && !s.deleted);
-    if (seat) return true;
-    else return false
+    return !!seat;
   }
 
   isSelected(sector: SeatedSector, row: number, col: number): boolean {
@@ -145,13 +144,22 @@ export class RoomEditComponent implements OnInit {
     return ['blue-sector', 'yellow-sector', 'green-sector'][sectorIndex % 3];
   }
 
+  isSelectedSector(sector: Sector): boolean {
+    if(this.selectedSeat) return false;
+    return this.selectedSector?.id === sector.id;
+  }
+
 
   onSectorClick(sector: Sector): void {
     this.selectedSeat = null;
-
+    this.selectedSector = sector;
 
 
     console.log(`Clicked sector ${sector.id}`);
+  }
+
+  resetSector(): void {
+    this.selectedSector = null;
   }
 
   addSector(): void {
@@ -160,10 +168,13 @@ export class RoomEditComponent implements OnInit {
 
   deleteSeat(): void {
     this.selectedSeat.deleted = true;
+    this.selectedSeat = null;
+    this.selectedSector = null;
   }
 
   unClickSeat(): void {
     this.selectedSeat = null;
+    this.selectedSector = null;
   }
 
 

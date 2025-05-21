@@ -36,6 +36,10 @@ th, td {
   border: 2px solid black ;
 }
 
+.sector.selected {
+  border: 2px solid black ;
+}
+
 .seat.empty {
   background-color: transparent;
   border: none;
@@ -96,4 +100,10 @@ th, td {
 
 .seatText {
   font-size: 25px;
+}
+
+.header-letter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
