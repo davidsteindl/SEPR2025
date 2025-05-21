@@ -7,3 +7,14 @@ export interface Location {
   street: string,
   postalCode: string
 }
+
+export interface EventLocationSearchDto {
+  name?: string,
+  street?: string,
+  city?: string,
+  country?: string,
+  postalCode?: string,
+  page?: number,
+  size?: number;
+}
+
