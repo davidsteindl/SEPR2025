@@ -123,6 +123,7 @@ public class TicketServiceImpl implements TicketService {
      * @throws NotFoundException if no Show exists with the provided ID
      */
     private Show loadShow(Long showId) {
+        LOGGER.debug("Loading show with id: {}", showId);
         Show show = showService.getShowById(showId);
         if (show == null) {
             throw new NotFoundException("Show with id " + showId + " not found");
@@ -138,6 +139,7 @@ public class TicketServiceImpl implements TicketService {
      * @return the persisted Order entity
      */
     private Order initOrder(Long userId, OrderType type) {
+        LOGGER.debug("Initializing order for user: {}, type: {}", userId, type);
         Order order = new Order();
         order.setCreatedAt(LocalDateTime.now());
         order.setTickets(List.of());
@@ -159,6 +161,7 @@ public class TicketServiceImpl implements TicketService {
                                                Show show,
                                                List<TicketTargetDto> targets,
                                                TicketStatus status) {
+        LOGGER.debug("Creating tickets for order: {}, show: {}, targets: {}, status: {}", order, show, targets, status);
         List<Ticket> tickets = new ArrayList<>();
         int totalPrice = 0;
 
@@ -200,6 +203,7 @@ public class TicketServiceImpl implements TicketService {
                                Sector sector,
                                Seat seat,
                                TicketStatus status) {
+        LOGGER.debug("Building ticket for order: {}, show: {}, sector: {}, seat: {}, status: {}", order, show, sector, seat, status);
         Ticket ticket = new Ticket();
         ticket.setOrder(order);
         ticket.setShow(show);
@@ -219,6 +223,7 @@ public class TicketServiceImpl implements TicketService {
      * @param tickets the list of tickets to associate with the order
      */
     private void finalizeOrder(Order order, List<Ticket> tickets) {
+        LOGGER.debug("Finalize order: {}", order);
         order.setTickets(tickets);
         orderRepository.save(order);
     }
@@ -231,6 +236,7 @@ public class TicketServiceImpl implements TicketService {
      * @return the populated OrderDto
      */
     private OrderDto buildOrderDto(Order order, List<Ticket> tickets) {
+        LOGGER.debug("Build order: {}", order);
         OrderDto dto = new OrderDto();
         dto.setId(order.getId());
         dto.setCreatedAt(order.getCreatedAt());
@@ -253,6 +259,7 @@ public class TicketServiceImpl implements TicketService {
     private ReservationDto buildReservationDto(Order order,
                                                List<Ticket> tickets,
                                                LocalDateTime expiresAt) {
+        LOGGER.debug("Building reservation DTO with expiration at {}", expiresAt);
         ReservationDto dto = new ReservationDto();
         dto.setId(order.getId());
         dto.setCreatedAt(order.getCreatedAt());
@@ -272,55 +279,72 @@ public class TicketServiceImpl implements TicketService {
         List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
         ticketValidator.validateForBuyReservedTickets(ticketIds, tickets);
 
-        // Record the original reservation order
         Order oldReservation = tickets.getFirst().getOrder();
 
-        // 2. Create new purchase order
         Order purchaseOrder = initOrder(authFacade.getCurrentUserId(), OrderType.ORDER);
 
-        // 3. Re-assign tickets & update status, also compute total price
         int totalPrice = 0;
         for (Ticket ticket : tickets) {
-            // Remove from old order side (so it doesn't orphan-delete them)
             oldReservation.getTickets().remove(ticket);
 
-            // Assign to new order
             ticket.setOrder(purchaseOrder);
             ticket.setStatus(TicketStatus.BOUGHT);
 
-            // Accumulate price
             int price = ticket.getSector() instanceof SeatedSector
                 ? ((SeatedSector) ticket.getSector()).getPrice()
                 : ((StandingSector) ticket.getSector()).getPrice();
             totalPrice += price;
         }
 
-        // 4. Persist changes
-        // Save updated old reservation so its tickets list is updated
         orderRepository.save(oldReservation);
 
-        // Save new tickets under purchase order
         List<Ticket> savedTickets = ticketRepository.saveAll(tickets);
 
-        // Finalize and save the new order with its tickets
         finalizeOrder(purchaseOrder, savedTickets);
 
-        // 5. Build and return DTO
         OrderDto dto = buildOrderDto(purchaseOrder, savedTickets);
         dto.setTotalPrice(totalPrice);
+
+        // TODO: what to do with the old order object if it is now empty? should we delete it? will it be deleted automatically?
         return dto;
     }
 
     @Override
     public List<TicketDto> cancelReservations(List<Long> ticketIds) {
         LOGGER.debug("Cancel ticket reservations request: {}", ticketIds);
-        return List.of();
+        List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
+        ticketValidator.validateForCancelReservations(ticketIds, tickets);
+        if (tickets.isEmpty()) {
+            return List.of();
+        }
 
+        Order oldReservation = tickets.getFirst().getOrder();
+
+        Order cancelOrder = initOrder(authFacade.getCurrentUserId(), OrderType.CANCELLATION);
+
+        for (Ticket ticket : tickets) {
+            oldReservation.getTickets().remove(ticket);
+
+            ticket.setOrder(cancelOrder);
+            ticket.setStatus(TicketStatus.CANCELLED);
+        }
+
+        orderRepository.save(oldReservation);
+        List<Ticket> saved = ticketRepository.saveAll(tickets);
+        finalizeOrder(cancelOrder, saved);
+
+        // TODO: what to do with the old order object if it is now empty? should we delete it? will it be deleted automatically?
+
+        return saved.stream()
+            .map(ticketMapper::toDto)
+            .collect(Collectors.toList());
     }
 
     @Override
     public List<TicketDto> refundTickets(List<Long> ticketIds) {
         LOGGER.debug("Refund tickets request: {}", ticketIds);
+        List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
+        ticketValidator.validateForRefundTickets(ticketIds, tickets);
         return List.of();
     }
 

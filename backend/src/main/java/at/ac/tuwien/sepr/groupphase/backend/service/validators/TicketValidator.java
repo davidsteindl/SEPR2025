@@ -42,7 +42,6 @@ public class TicketValidator {
 
         // is the seat part of the sector? (if it is a seated sector)
 
-
     }
 
     public void validateForReserveTickets(TicketRequestDto ticketRequestDto) {
@@ -69,8 +68,32 @@ public class TicketValidator {
 
         // am i the user who reserved the tickets?
 
+        // are both lists the same size? ( means all tickets were valid tickets when quering the DB)
 
 
+    }
 
+    public void validateForCancelReservations(List<Long> ticketIds, List<Ticket> tickets) {
+        LOGGER.debug("validateForCancelReservations: ticketIds={}, tickets={}", ticketIds, tickets);
+
+        // is the ticket status reserved?
+
+        // am i the user who reserved the tickets?
+
+        // is the reservation still valid? (show start point - 30 mins)
+
+        // are both lists the same size? ( means all tickets were valid tickets when quering the DB)
+    }
+
+    public void validateForRefundTickets(List<Long> ticketIds, List<Ticket> tickets) {
+        LOGGER.debug("validateForRefundTickets: ticketIds={}, tickets={}", ticketIds, tickets);
+
+        // is the ticket status bought?
+
+        // am i the user who bought the tickets?
+
+        // can i still refund the tickets? (show start point - 30 mins)
+
+        // are both lists the same size? ( means all tickets were valid tickets when quering the DB)
     }
 }
