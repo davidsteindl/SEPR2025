@@ -69,8 +69,14 @@ export class LocationService {
    * @param locationId ID of the location to retrieve events for
    */
   getShowsForEventLocation(locationId: number, page: number, size: number): Observable<Page<ShowSearchResult>> {
-    const params = new HttpParams().set('page', page).set('size', size);
-    return this.httpClient.get<Page<ShowSearchResult>>(`${this.locationBaseUri}/${locationId}/shows/paginated`, {params});
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.httpClient
+      .get<Page<ShowSearchResult>>(
+        `${this.locationBaseUri}/${locationId}/shows/paginated`,
+        { params }
+      );
   }
 
 

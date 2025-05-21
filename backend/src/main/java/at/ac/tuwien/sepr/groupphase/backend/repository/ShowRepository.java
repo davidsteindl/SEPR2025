@@ -44,7 +44,7 @@ public interface ShowRepository extends JpaRepository<Show, Long>, JpaSpecificat
     Page<Event> findEventsByArtistId(@Param("artistId") Long artistId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"artists"})
-    List<Show> findAllByEvent_Location_IdOrderByDateAsc(Long locationId);
+    Page<Show> findAllByEvent_Location_IdOrderByDateAsc(Long locationId, Pageable pageable);
 
     @Query("""
         SELECT MIN(s.date)
