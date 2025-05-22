@@ -10,6 +10,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetSeatedDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetStandingDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.OrderMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.TicketMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Hold;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
@@ -32,6 +33,8 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -50,6 +53,7 @@ public class TicketServiceImpl implements TicketService {
     private final TicketMapper ticketMapper;
     private final HoldRepository holdRepository;
     private final AuthenticationFacade authFacade;
+    private final OrderMapper orderMapper;
 
     private record TicketCreationResult(List<Ticket> tickets, int totalPrice) {
     }
@@ -63,7 +67,8 @@ public class TicketServiceImpl implements TicketService {
         OrderRepository orderRepository,
         TicketMapper ticketMapper,
         HoldRepository holdRepository,
-        AuthenticationFacade authFacade) {
+        AuthenticationFacade authFacade,
+        OrderMapper orderMapper) {
 
         this.ticketValidator = ticketValidator;
         this.showService = showService;
@@ -73,6 +78,7 @@ public class TicketServiceImpl implements TicketService {
         this.ticketMapper = ticketMapper;
         this.holdRepository = holdRepository;
         this.authFacade = authFacade;
+        this.orderMapper = orderMapper;
     }
 
     @Override
@@ -420,5 +426,14 @@ public class TicketServiceImpl implements TicketService {
 
     }
 
+    @Override
+    public Page<OrderDto> getOrdersForUser(Long userId, OrderType type, boolean past, Pageable pageable) {
+        if (type != OrderType.ORDER && type != OrderType.RESERVATION) {
+            return Page.empty(pageable);
+        }
 
+        LocalDateTime now = LocalDateTime.now();
+        Page<Order> orders = orderRepository.findOrdersByTypeAndPast(userId, type, past, now, pageable);
+        return orders.map(orderMapper::toDto);
+    }
 }

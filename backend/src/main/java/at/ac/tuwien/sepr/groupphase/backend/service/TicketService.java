@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CreateHoldDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
@@ -8,6 +9,8 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto
 import at.ac.tuwien.sepr.groupphase.backend.exception.ReservationExpiredException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ReservationNotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.SeatUnavailableException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -121,4 +124,14 @@ public interface TicketService {
     void createTicketHold(CreateHoldDto createHoldDto);
 
 
+    /**
+     * Retrieves a paginated list of orders (purchases or reservations) for the given user.
+     *
+     * @param userId the ID of the user whose orders should be fetched
+     * @param type the type of the order: ODER or RESERVATION
+     * @param past if true, only orders for past shows are returned; if false, only future shows
+     * @param pageable pagination information (page number, size, sort)
+     * @return a paginated list of {@link OrderDto} objects
+     */
+    Page<OrderDto> getOrdersForUser(Long userId, OrderType type, boolean past, Pageable pageable);
 }
