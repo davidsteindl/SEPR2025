@@ -12,6 +12,9 @@ public class OrderDto {
     private PaymentType paymentType;
     private Long userId;
     private OrderType orderType;
+    private int totalPrice;
+    // TODO: Event name
+    // TODO : Event date
 
     public Long getId() {
         return id;
@@ -59,5 +62,13 @@ public class OrderDto {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public int getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(int totalPrice) {
+        this.totalPrice = totalPrice;
     }
 }

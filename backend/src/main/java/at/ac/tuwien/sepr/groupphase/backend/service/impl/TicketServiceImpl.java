@@ -77,12 +77,16 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public OrderDto getOrderById(Long id) {
-        return null;
+        return orderRepository.findById(id)
+            .map(order -> buildOrderDto(order, order.getTickets()))
+            .orElse(null);
     }
 
     @Override
     public TicketDto getTicketById(Long id) {
-        return null;
+        return ticketRepository.findById(id)
+            .map(ticketMapper::toDto)
+            .orElse(null);
     }
 
     @Override
@@ -90,14 +94,14 @@ public class TicketServiceImpl implements TicketService {
     public OrderDto buyTickets(TicketRequestDto request) {
         LOGGER.debug("Buy tickets request: {}", request);
         ticketValidator.validateForBuyTickets(request);
-
         Show show = loadShow(request.getShowId());
         Order order = initOrder(authFacade.getCurrentUserId(), OrderType.ORDER);
 
-        TicketCreationResult result = createTickets(order, show, request.getTargets(), TicketStatus.BOUGHT);
+        var result = createTickets(order, show, request.getTargets(), TicketStatus.BOUGHT);
         finalizeOrder(order, result.tickets);
-
-        return buildOrderDto(order, result.tickets);
+        var dto = buildOrderDto(order, result.tickets);
+        dto.setTotalPrice(result.totalPrice);
+        return dto;
     }
 
     @Override
@@ -105,13 +109,11 @@ public class TicketServiceImpl implements TicketService {
     public ReservationDto reserveTickets(TicketRequestDto request) {
         LOGGER.debug("Reserve tickets request: {}", request);
         ticketValidator.validateForReserveTickets(request);
-
         Show show = loadShow(request.getShowId());
         Order order = initOrder(authFacade.getCurrentUserId(), OrderType.RESERVATION);
 
-        TicketCreationResult result = createTickets(order, show, request.getTargets(), TicketStatus.RESERVED);
+        var result = createTickets(order, show, request.getTargets(), TicketStatus.RESERVED);
         finalizeOrder(order, result.tickets);
-
         return buildReservationDto(order, result.tickets, show.getDate().minusMinutes(30));
     }
 
@@ -123,6 +125,7 @@ public class TicketServiceImpl implements TicketService {
      * @throws NotFoundException if no Show exists with the provided ID
      */
     private Show loadShow(Long showId) {
+        LOGGER.debug("Loading show with id: {}", showId);
         Show show = showService.getShowById(showId);
         if (show == null) {
             throw new NotFoundException("Show with id " + showId + " not found");
@@ -138,6 +141,7 @@ public class TicketServiceImpl implements TicketService {
      * @return the persisted Order entity
      */
     private Order initOrder(Long userId, OrderType type) {
+        LOGGER.debug("Initializing order for user: {}, type: {}", userId, type);
         Order order = new Order();
         order.setCreatedAt(LocalDateTime.now());
         order.setTickets(List.of());
@@ -159,6 +163,7 @@ public class TicketServiceImpl implements TicketService {
                                                Show show,
                                                List<TicketTargetDto> targets,
                                                TicketStatus status) {
+        LOGGER.debug("Creating tickets for order: {}, show: {}, targets: {}, status: {}", order, show, targets, status);
         List<Ticket> tickets = new ArrayList<>();
         int totalPrice = 0;
 
@@ -200,6 +205,7 @@ public class TicketServiceImpl implements TicketService {
                                Sector sector,
                                Seat seat,
                                TicketStatus status) {
+        LOGGER.debug("Building ticket for order: {}, show: {}, sector: {}, seat: {}, status: {}", order, show, sector, seat, status);
         Ticket ticket = new Ticket();
         ticket.setOrder(order);
         ticket.setShow(show);
@@ -219,6 +225,7 @@ public class TicketServiceImpl implements TicketService {
      * @param tickets the list of tickets to associate with the order
      */
     private void finalizeOrder(Order order, List<Ticket> tickets) {
+        LOGGER.debug("Finalize order: {}", order);
         order.setTickets(tickets);
         orderRepository.save(order);
     }
@@ -231,6 +238,7 @@ public class TicketServiceImpl implements TicketService {
      * @return the populated OrderDto
      */
     private OrderDto buildOrderDto(Order order, List<Ticket> tickets) {
+        LOGGER.debug("Build order: {}", order);
         OrderDto dto = new OrderDto();
         dto.setId(order.getId());
         dto.setCreatedAt(order.getCreatedAt());
@@ -253,6 +261,7 @@ public class TicketServiceImpl implements TicketService {
     private ReservationDto buildReservationDto(Order order,
                                                List<Ticket> tickets,
                                                LocalDateTime expiresAt) {
+        LOGGER.debug("Building reservation DTO with expiration at {}", expiresAt);
         ReservationDto dto = new ReservationDto();
         dto.setId(order.getId());
         dto.setCreatedAt(order.getCreatedAt());
@@ -266,23 +275,116 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    @Transactional
     public OrderDto buyReservedTickets(List<Long> ticketIds) {
         LOGGER.debug("Buy reserved tickets request: {}", ticketIds);
+        List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
+        ticketValidator.validateForBuyReservedTickets(ticketIds, tickets);
 
-        return null;
+        Order oldReservation = tickets.getFirst().getOrder();
+        Order newOrder = processTicketTransfer(
+            tickets,
+            oldReservation,
+            OrderType.ORDER,
+            TicketStatus.BOUGHT
+        );
+
+        var saved = ticketRepository.findAllById(ticketIds);
+        var dto = buildOrderDto(newOrder, saved);
+        dto.setTotalPrice(calculateTotalPrice(saved));
+        return dto;
     }
 
     @Override
+    @Transactional
     public List<TicketDto> cancelReservations(List<Long> ticketIds) {
         LOGGER.debug("Cancel ticket reservations request: {}", ticketIds);
-        return List.of();
+        List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
+        ticketValidator.validateForCancelReservations(ticketIds, tickets);
 
+        if (tickets.isEmpty()) {
+            return List.of();
+        }
+
+        Order oldRes = tickets.getFirst().getOrder();
+        Order cancelOrder = processTicketTransfer(
+            tickets,
+            oldRes,
+            OrderType.CANCELLATION,
+            TicketStatus.CANCELLED
+        );
+
+        return ticketRepository.findAllById(ticketIds)
+            .stream()
+            .map(ticketMapper::toDto)
+            .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public List<TicketDto> refundTickets(List<Long> ticketIds) {
         LOGGER.debug("Refund tickets request: {}", ticketIds);
-        return List.of();
+        List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
+        ticketValidator.validateForRefundTickets(ticketIds, tickets);
+
+        if (tickets.isEmpty()) {
+            return List.of();
+        }
+
+        Order original = tickets.getFirst().getOrder();
+        Order refundOrder = processTicketTransfer(
+            tickets,
+            original,
+            OrderType.REFUND,
+            TicketStatus.REFUNDED
+        );
+
+        return ticketRepository.findAllById(ticketIds)
+            .stream()
+            .map(ticketMapper::toDto)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Calculates the sum of prices for a list of tickets.
+     *
+     * @param tickets the tickets whose sector prices will be summed
+     * @return the total price across all provided tickets
+     */
+    private int calculateTotalPrice(List<Ticket> tickets) {
+        return tickets.stream()
+            .mapToInt(t -> t.getSector().getPrice())
+            .sum();
+    }
+
+    /**
+     * Transfers tickets from an existing order to a new order of the specified type and status.
+     *
+     * @param tickets   the tickets to transfer
+     * @param oldOrder  the original order containing these tickets
+     * @param newType   the type to assign to the new order (e.g., ORDER, REFUND)
+     * @param newStatus the status to set on each ticket after transfer
+     * @return the newly created order containing the transferred tickets
+     */
+    private Order processTicketTransfer(
+        List<Ticket> tickets,
+        Order oldOrder,
+        OrderType newType,
+        TicketStatus newStatus
+    ) {
+        Order newOrder = initOrder(authFacade.getCurrentUserId(), newType);
+
+        // detach and reattach
+        tickets.forEach(t -> {
+            oldOrder.getTickets().remove(t);
+            t.setOrder(newOrder);
+            t.setStatus(newStatus);
+        });
+
+        orderRepository.save(oldOrder);
+        ticketRepository.saveAll(tickets);
+        finalizeOrder(newOrder, tickets);
+        return newOrder;
     }
 
     @Override
@@ -302,4 +404,6 @@ public class TicketServiceImpl implements TicketService {
 
 
     }
+
+
 }

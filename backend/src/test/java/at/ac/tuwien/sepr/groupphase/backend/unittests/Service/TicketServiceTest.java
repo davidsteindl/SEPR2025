@@ -4,6 +4,8 @@ import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.*;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.*;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ReservationExpiredException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.SeatUnavailableException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.*;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
@@ -240,5 +242,203 @@ public class TicketServiceTest {
 
         assertEquals(1, orderRepository.findAll().size());
         assertEquals(1, ticketRepository.findAll().size());
+    }
+
+    @Test
+    @Transactional
+    public void testReserveOnAlreadyBoughtTicket_throwsValidationException() {
+        // buy a ticket first
+        TicketRequestDto buyReq = new TicketRequestDto();
+        buyReq.setShowId(testShow.getId());
+        TicketTargetSeatedDto buyTarget = new TicketTargetSeatedDto();
+        buyTarget.setSectorId(seatedSector.getId());
+        buyTarget.setSeatId(seat.getId());
+        buyReq.setTargets(List.of(buyTarget));
+        ticketService.buyTickets(buyReq);
+
+        // now try to reserve the same seat
+        TicketRequestDto reserveReq = new TicketRequestDto();
+        reserveReq.setShowId(testShow.getId());
+        TicketTargetSeatedDto resTarget = new TicketTargetSeatedDto();
+        resTarget.setSectorId(seatedSector.getId());
+        resTarget.setSeatId(seat.getId());
+        reserveReq.setTargets(List.of(resTarget));
+
+        assertThrows(SeatUnavailableException.class, () -> {
+            ticketService.reserveTickets(reserveReq);
+        });
+    }
+
+    @Test
+    @Transactional
+    public void testBuyReservedTickets_onAlreadyBoughtTicket_throwsValidationException() {
+        // buy a ticket first
+        TicketRequestDto buyReq = new TicketRequestDto();
+        buyReq.setShowId(testShow.getId());
+        TicketTargetSeatedDto buyTarget = new TicketTargetSeatedDto();
+        buyTarget.setSectorId(seatedSector.getId());
+        buyTarget.setSeatId(seat.getId());
+        buyReq.setTargets(List.of(buyTarget));
+        OrderDto boughtOrder = ticketService.buyTickets(buyReq);
+
+        // attempt to reserva a already bought ticket
+        Long boughtTicketId = boughtOrder.getTickets().getFirst().getId();
+        assertThrows(IllegalArgumentException.class, () -> {
+            ticketService.buyReservedTickets(List.of(boughtTicketId));
+        });
+    }
+
+    @Test
+    @Transactional
+    public void testBuyReservedTickets_convertsReservationToNewOrder() {
+        // reserve a ticket
+        TicketRequestDto reserveReq = new TicketRequestDto();
+        reserveReq.setShowId(testShow.getId());
+        TicketTargetSeatedDto resTarget = new TicketTargetSeatedDto();
+        resTarget.setSectorId(seatedSector.getId());
+        resTarget.setSeatId(seat.getId());
+        reserveReq.setTargets(List.of(resTarget));
+        ReservationDto reservation = ticketService.reserveTickets(reserveReq);
+
+        assertEquals(OrderType.RESERVATION, reservation.getOrderType());
+        Long reservationOrderId = reservation.getId();
+        Long reservedTicketId   = reservation.getTickets().getFirst().getId();
+
+        // buy the reserved ticket
+        OrderDto newOrder = ticketService.buyReservedTickets(List.of(reservedTicketId));
+
+        // new order should be type ORDER, contain that ticket, and ticket status updated
+        assertEquals(OrderType.ORDER, newOrder.getOrderType());
+        assertEquals(1, newOrder.getTickets().size());
+        TicketDto bought = newOrder.getTickets().getFirst();
+        assertEquals(reservedTicketId, bought.getId());
+        assertEquals(TicketStatus.BOUGHT, bought.getStatus());
+
+        // repository now has two orders
+        assertEquals(2, orderRepository.findAll().size());
+
+        // old reservation must no longer own that ticket
+        var oldOrderOpt = orderRepository.findById(reservationOrderId);
+        assertTrue(oldOrderOpt.isPresent());
+        assertTrue(oldOrderOpt.get().getTickets().isEmpty());
+    }
+
+    @Test
+    @Transactional
+    public void testBuyReservedTickets_onExpiredReservation_throwsReservationExpiredException() {
+        // Reserve a ticket
+        TicketRequestDto reserveReq = new TicketRequestDto();
+        reserveReq.setShowId(testShow.getId());
+        TicketTargetSeatedDto resTarget = new TicketTargetSeatedDto();
+        resTarget.setSectorId(seatedSector.getId());
+        resTarget.setSeatId(seat.getId());
+        reserveReq.setTargets(List.of(resTarget));
+        ReservationDto reservation = ticketService.reserveTickets(reserveReq);
+
+        Long reservedTicketId = reservation.getTickets().getFirst().getId();
+
+        // Simulate expiration by marking the ticket EXPIRED directly in the repo
+        var ticketEntity = ticketRepository.findById(reservedTicketId)
+            .orElseThrow();
+        ticketEntity.setStatus(TicketStatus.EXPIRED);
+        ticketRepository.save(ticketEntity);
+
+        // Attempt to buy the now-expired reservation should throw
+        assertThrows(IllegalArgumentException.class, () -> {
+            ticketService.buyReservedTickets(List.of(reservedTicketId));
+        });
+    }
+
+    @Test
+    @Transactional
+    public void testCancelReservations_releasesSeat_forNewReservation() {
+        // Reserve a seat
+        TicketRequestDto reserveReq = new TicketRequestDto();
+        reserveReq.setShowId(testShow.getId());
+        TicketTargetSeatedDto target = new TicketTargetSeatedDto();
+        target.setSectorId(seatedSector.getId());
+        target.setSeatId(seat.getId());
+        reserveReq.setTargets(List.of(target));
+        ReservationDto reservation = ticketService.reserveTickets(reserveReq);
+
+        Long reservedTicketId = reservation.getTickets().getFirst().getId();
+        Long reservationOrderId = reservation.getId();
+
+        // Cancel that reservation
+        List<TicketDto> cancelled = ticketService.cancelReservations(List.of(reservedTicketId));
+        assertEquals(1, cancelled.size());
+        assertEquals(TicketStatus.CANCELLED, cancelled.getFirst().getStatus());
+
+        // Now we should be able to reserve the same seat again
+        ReservationDto newRes = ticketService.reserveTickets(reserveReq);
+        assertNotNull(newRes.getId());
+        assertNotEquals(reservationOrderId, newRes.getId());
+        assertEquals(TicketStatus.RESERVED, newRes.getTickets().getFirst().getStatus());
+    }
+
+    @Test
+    @Transactional
+    public void testRefundTickets_freesSeat_forRebuy() {
+        // Buy a seat
+        TicketRequestDto buyReq = new TicketRequestDto();
+        buyReq.setShowId(testShow.getId());
+        TicketTargetSeatedDto buyTarget = new TicketTargetSeatedDto();
+        buyTarget.setSectorId(seatedSector.getId());
+        buyTarget.setSeatId(seat.getId());
+        buyReq.setTargets(List.of(buyTarget));
+        OrderDto buyOrder = ticketService.buyTickets(buyReq);
+
+        Long boughtTicketId = buyOrder.getTickets().getFirst().getId();
+
+        // Refund it
+        List<TicketDto> refunded = ticketService.refundTickets(List.of(boughtTicketId));
+        assertEquals(1, refunded.size());
+        assertEquals(TicketStatus.REFUNDED, refunded.getFirst().getStatus());
+
+        // buy the same seat again
+        OrderDto rebuy = ticketService.buyTickets(buyReq);
+        assertNotNull(rebuy.getId());
+        assertNotEquals(buyOrder.getId(), rebuy.getId());
+        TicketDto newTicket = rebuy.getTickets().getFirst();
+        assertEquals(seat.getId(), newTicket.getSeatId());
+        assertEquals(TicketStatus.BOUGHT, newTicket.getStatus());
+    }
+
+    @Test
+    @Transactional
+    public void testCancelReservations_updatesTicketStatusToCancelled() {
+        // Reserve first
+        TicketRequestDto req = new TicketRequestDto();
+        req.setShowId(testShow.getId());
+        TicketTargetSeatedDto t = new TicketTargetSeatedDto();
+        t.setSectorId(seatedSector.getId());
+        t.setSeatId(seat.getId());
+        req.setTargets(List.of(t));
+        ReservationDto res = ticketService.reserveTickets(req);
+
+        Long id = res.getTickets().getFirst().getId();
+        List<TicketDto> dtos = ticketService.cancelReservations(List.of(id));
+
+        assertEquals(1, dtos.size());
+        assertEquals(TicketStatus.CANCELLED, dtos.getFirst().getStatus());
+    }
+
+    @Test
+    @Transactional
+    public void testRefundTickets_updatesTicketStatusToRefunded() {
+        // Buy first
+        TicketRequestDto req = new TicketRequestDto();
+        req.setShowId(testShow.getId());
+        TicketTargetSeatedDto t = new TicketTargetSeatedDto();
+        t.setSectorId(seatedSector.getId());
+        t.setSeatId(seat.getId());
+        req.setTargets(List.of(t));
+        OrderDto ord = ticketService.buyTickets(req);
+
+        Long id = ord.getTickets().getFirst().getId();
+        List<TicketDto> dtos = ticketService.refundTickets(List.of(id));
+
+        assertEquals(1, dtos.size());
+        assertEquals(TicketStatus.REFUNDED, dtos.getFirst().getStatus());
     }
 }
