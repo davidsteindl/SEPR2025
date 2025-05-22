@@ -29,7 +29,7 @@
           required
           class="form-control"
           #locationType="ngModel">
-          <option [ngValue]="null" disabled>Select type</option>
+          <option [ngValue]="null" disabled selected>Select type</option>
           <option *ngFor="let option of locationTypeOptions" [value]="option.value">{{ option.label }}</option>
         </select>
         <div *ngIf="locationType.invalid && locationType.touched" class="text-danger">
@@ -39,17 +39,21 @@
 
       <div class="form-group mt-3">
         <label for="locationCountry">Country <span class="text-danger">*</span></label>
-        <input
+        <select
           id="locationCountry"
           [(ngModel)]="location.country"
           name="locationCountry"
           required
           class="form-control"
-          #locationCountry="ngModel"/>
+          #locationCountry="ngModel">
+          <option [ngValue]="null" disabled selected>Select country</option>
+          <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+        </select>
         <div *ngIf="locationCountry.invalid && locationCountry.touched" class="text-danger">
           Country is required.
         </div>
       </div>
+
 
       <div class="form-group mt-3">
         <label for="locationCity">City <span class="text-danger">*</span></label>

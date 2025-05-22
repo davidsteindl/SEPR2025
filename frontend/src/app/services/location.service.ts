@@ -1,11 +1,11 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {Globals} from '../global/globals';
-import {Observable} from 'rxjs';
-import {EventLocationSearchDto, Location} from '../dtos/location';
-import {CreateLocation} from "../dtos/create-location";
-import {Page} from "../dtos/page";
-import {ShowSearchResult} from "../dtos/show";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Globals } from '../global/globals';
+import { map, Observable } from 'rxjs';
+import { EventLocationSearchDto, Location } from '../dtos/location';
+import { CreateLocation } from "../dtos/create-location";
+import { Page } from "../dtos/page";
+import { ShowSearchResult } from "../dtos/show";
 
 @Injectable({
   providedIn: 'root'
@@ -19,8 +19,6 @@ export class LocationService {
 
   /**
    * Creates a new location
-   *
-   * @param location to create
    */
   create(location: CreateLocation): Observable<Location> {
     console.log('Create location with name: ' + location.name);
@@ -43,18 +41,24 @@ export class LocationService {
 
   /**
    * Retrieves the location with the given ID from the backend
-   *
-   * @param id to find
    */
   getLocationById(id: number): Observable<Location> {
     return this.httpClient.get<Location>(`${this.locationBaseUri}/${id}`);
   }
 
   /**
+   * Retrieves the list of countries from a CSV file
+   */
+  getCountries(): Observable<string[]> {
+    return this.httpClient.get('assets/countrynames.csv', { responseType: 'text' }).pipe(
+      map((data) => {
+        return data.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+      })
+    );
+  }
+
+  /**
    * Retrieves all eventlocations specified by the search criteria, paginated.
-   *
-   * @param criteria Search criteria for filtering eventlocations
-   * @returns An Observable of a paginated list of location objects
    */
   searchEventLocations(criteria: EventLocationSearchDto): Observable<Page<Location>> {
     return this.httpClient.post<Page<Location>>(
@@ -65,19 +69,14 @@ export class LocationService {
 
   /**
    * Retrieves all events for the given location ID
-   *
-   * @param locationId ID of the location to retrieve events for
    */
   getShowsForEventLocation(locationId: number, page: number, size: number): Observable<Page<ShowSearchResult>> {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-    return this.httpClient
-      .get<Page<ShowSearchResult>>(
-        `${this.locationBaseUri}/${locationId}/shows/paginated`,
-        { params }
-      );
+    return this.httpClient.get<Page<ShowSearchResult>>(
+      `${this.locationBaseUri}/${locationId}/shows/paginated`,
+      { params }
+    );
   }
-
-
 }
