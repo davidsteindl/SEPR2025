@@ -4,6 +4,10 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { PaymentItem } from "../../dtos/payment-item";
 import { CartService } from 'src/app/services/cart.service';
 import { TEST_PAYMENT_ITEMS } from './test-payment-data'; // Import test data
+import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
+import { TicketService } from 'src/app/services/ticket.service';
+import { OrderDto } from 'src/app/dtos/order';
 
 @Component({
   selector: 'app-payment-form',
@@ -17,8 +21,15 @@ export class PaymentFormComponent implements OnInit {
   items: PaymentItem[] = [];
 
   paymentForm!: FormGroup;
+  loading = false;
 
-  constructor(private fb: FormBuilder, private cart: CartService) {}
+  constructor(
+    private fb: FormBuilder, 
+    private cart: CartService,
+    private ticketService: TicketService,
+    private toastr: ToastrService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     // use this in prod
@@ -76,7 +87,25 @@ export class PaymentFormComponent implements OnInit {
       this.paymentForm.markAllAsTouched();
       return;
     }
-    // TODO: emit or call payment API
-    console.log('Paying with', this.paymentForm.value, 'for items', this.items);
+
+    this.loading = true;
+    this.ticketService.buyTickets(this.items[0].showId, this.items)
+      .subscribe({
+        next: (order: OrderDto) => {
+          const dt = new Date(order.createdAt);
+          this.toastr.success(
+            `Order #${order.id} placed on ${dt.toLocaleString()}`,
+            'Payment Complete'
+          );
+          this.router.navigate(['/my-orders']);
+        },
+        error: (err) => {
+          this.toastr.error(
+            err?.message ?? 'Something went wrong.',
+            'Payment Failed'
+          );
+        }
+      })
+      .add(() => (this.loading = false));
   }
 }

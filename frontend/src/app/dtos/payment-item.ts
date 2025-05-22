@@ -3,7 +3,9 @@ export interface PaymentItem {
   type: 'SEATED' | 'STANDING';
   price: number;
   sectorId: number;
+  seatId?: number;
   rowNumber?: number;
   columnNumber?: number;
   quantity?: number;
+  showId?: number;
 }

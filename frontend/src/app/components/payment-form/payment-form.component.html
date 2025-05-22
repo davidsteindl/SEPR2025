@@ -134,9 +134,14 @@
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary w-100 mt-4">
-        <i class="bi bi-lock-fill"></i> Pay now
-      </button>
+  <button
+    type="submit"
+    class="btn btn-primary w-100 mt-4"
+    [disabled]="loading"
+  >
+    <i class="bi bi-lock-fill"></i>
+    {{ loading ? 'Processing…' : 'Pay now' }}
+  </button>
     </div>
 
     <!-- Right: Order Summary (6 of 12 cols) -->

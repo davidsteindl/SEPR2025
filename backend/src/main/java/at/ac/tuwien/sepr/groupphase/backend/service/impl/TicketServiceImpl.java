@@ -164,7 +164,14 @@ public class TicketServiceImpl implements TicketService {
 
         for (TicketTargetDto target : targets) {
             if (target instanceof TicketTargetSeatedDto seated) {
-                SeatedSector sector = (SeatedSector) roomService.getSectorById(seated.getSectorId());
+
+                Sector raw = roomService.getSectorById(seated.getSectorId());
+                // …then verify it really is a SeatedSector
+                if (!(raw instanceof SeatedSector sector)) {
+                    throw new IllegalArgumentException(
+                        "Sector " + seated.getSectorId() + " is not a seated sector"
+                    );
+                }
                 Seat seat = roomService.getSeatById(seated.getSeatId());
 
                 Ticket ticket = buildTicket(order, show, sector, seat, status);
@@ -172,12 +179,20 @@ public class TicketServiceImpl implements TicketService {
                 totalPrice += (status == TicketStatus.BOUGHT ? sector.getPrice() : 0);
 
             } else if (target instanceof TicketTargetStandingDto standing) {
-                StandingSector sector = (StandingSector) roomService.getSectorById(standing.getSectorId());
+                Sector raw = roomService.getSectorById(standing.getSectorId());
+                if (!(raw instanceof StandingSector sector)) {
+                    throw new IllegalArgumentException(
+                        "Sector " + standing.getSectorId() + " is not a standing sector"
+                    );
+                }
+
                 for (int i = 0; i < standing.getQuantity(); i++) {
                     Ticket ticket = buildTicket(order, show, sector, null, status);
                     tickets.add(ticket);
                     totalPrice += (status == TicketStatus.BOUGHT ? sector.getPrice() : 0);
                 }
+            } else {
+                throw new IllegalArgumentException("Unknown ticket target type: " + target);
             }
         }
 
