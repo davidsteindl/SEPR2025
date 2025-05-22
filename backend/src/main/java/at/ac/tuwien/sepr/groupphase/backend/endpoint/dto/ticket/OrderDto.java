@@ -13,8 +13,9 @@ public class OrderDto {
     private Long userId;
     private OrderType orderType;
     private int totalPrice;
-    // TODO: Event name
-    // TODO : Event date
+    private String showName;
+    private LocalDateTime showDate;
+    private String locationName;
 
     public Long getId() {
         return id;
@@ -70,5 +71,29 @@ public class OrderDto {
 
     public void setTotalPrice(int totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public String getShowName() {
+        return showName;
+    }
+
+    public void setShowName(String showName) {
+        this.showName = showName;
+    }
+
+    public LocalDateTime getShowDate() {
+        return showDate;
+    }
+
+    public void setShowDate(LocalDateTime showDate) {
+        this.showDate = showDate;
+    }
+
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 }
