@@ -1,0 +1,167 @@
+<form [formGroup]="paymentForm" (ngSubmit)="onSubmit()" class="container-fluid pt-4 pb-4">
+  <div class="row" style="--bs-gutter-x: 20px;">
+    <!-- Left: Payment & Billing (6 of 12 cols) -->
+    <div class="col-12 col-lg-6">
+      <h2 class=""><strong>Payment</strong></h2>
+      <small class="text-muted d-block mb-4">All transactions are secure and encrypted.</small>
+
+      <!-- Card Number -->
+      <div class="mb-3">
+        <label class="form-label">Card number</label>
+        <input
+          type="text"
+          formControlName="cardNumber"
+          class="form-control"
+          [class.is-invalid]="paymentForm.get('cardNumber')?.invalid && paymentForm.get('cardNumber')?.touched"
+        />
+        <div class="invalid-feedback">
+          Please enter a valid card number.
+        </div>
+      </div>
+
+      <!-- Expiration & CVC -->
+      <div class="row">
+        <div class="col-6 mb-3">
+          <label class="form-label">Expiration date (MM/YY)</label>
+          <input
+            type="text"
+            formControlName="expirationDate"
+            class="form-control"
+            placeholder="MM/YY"
+            [class.is-invalid]="paymentForm.get('expirationDate')?.invalid && paymentForm.get('expirationDate')?.touched"
+          />
+          <div class="invalid-feedback">
+            Use MM/YY format.
+          </div>
+        </div>
+        <div class="col-6 mb-3">
+          <label class="form-label">Security Code</label>
+          <input
+            type="text"
+            formControlName="securityCode"
+            class="form-control"
+            placeholder="CVC"
+            [class.is-invalid]="paymentForm.get('securityCode')?.invalid && paymentForm.get('securityCode')?.touched"
+          />
+          <div class="invalid-feedback">
+            3 or 4 digits.
+          </div>
+        </div>
+      </div>
+
+      <h3 class="mt-4">Billing address</h3>
+      <!-- Country -->
+      <div class="mb-3">
+        <label class="form-label">Country / Region</label>
+        <input
+          type="text"
+          formControlName="country"
+          class="form-control"
+          [class.is-invalid]="paymentForm.get('country')?.invalid && paymentForm.get('country')?.touched"
+        />
+        <div class="invalid-feedback">
+          Country is required.
+        </div>
+      </div>
+
+      <!-- Name -->
+      <div class="row">
+        <div class="col-6 mb-3">
+          <label class="form-label">First Name</label>
+          <input
+            type="text"
+            formControlName="firstName"
+            class="form-control"
+            [class.is-invalid]="paymentForm.get('firstName')?.invalid && paymentForm.get('firstName')?.touched"
+          />
+          <div class="invalid-feedback">
+            First name is required.
+          </div>
+        </div>
+        <div class="col-6 mb-3">
+          <label class="form-label">Last Name</label>
+          <input
+            type="text"
+            formControlName="lastName"
+            class="form-control"
+            [class.is-invalid]="paymentForm.get('lastName')?.invalid && paymentForm.get('lastName')?.touched"
+          />
+          <div class="invalid-feedback">
+            Last name is required.
+          </div>
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="mb-3">
+        <label class="form-label">Apartment, suite, etc.</label>
+        <input
+          type="text"
+          formControlName="address"
+          class="form-control"
+          [class.is-invalid]="paymentForm.get('address')?.invalid && paymentForm.get('address')?.touched"
+        />
+        <div class="invalid-feedback">
+          Address is required.
+        </div>
+      </div>
+
+      <!-- Postal & City -->
+      <div class="row">
+        <div class="col-6 mb-3">
+          <label class="form-label">Postal code</label>
+          <input
+            type="text"
+            formControlName="postalCode"
+            class="form-control"
+            [class.is-invalid]="paymentForm.get('postalCode')?.invalid && paymentForm.get('postalCode')?.touched"
+          />
+          <div class="invalid-feedback">
+            A valid postal code.
+          </div>
+        </div>
+        <div class="col-6 mb-3">
+          <label class="form-label">City</label>
+          <input
+            type="text"
+            formControlName="city"
+            class="form-control"
+            [class.is-invalid]="paymentForm.get('city')?.invalid && paymentForm.get('city')?.touched"
+          />
+          <div class="invalid-feedback">
+            City is required.
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 mt-4">
+        <i class="bi bi-lock-fill"></i> Pay now
+      </button>
+    </div>
+
+    <!-- Right: Order Summary (6 of 12 cols) -->
+    <div class="col-12 col-lg-6 px-5">
+      <h2>Summary</h2>
+      <ul class="list-unstyled">
+        <li *ngFor="let it of items" class="d-flex justify-content-between mb-2">
+          <div>
+            <ng-container *ngIf="it.type==='SEATED'">
+              {{ it.eventName }}, Sektor {{ it.sectorId }}, {{ it.rowNumber }}A
+            </ng-container>
+            <ng-container *ngIf="it.type==='STANDING'">
+              {{ it.quantity }}× {{ it.eventName }}, Sektor {{ it.sectorId }}, Stehplatz
+            </ng-container>
+          </div>
+          <div>€ {{ it.price | number:'1.2-2' }}</div>
+        </li>
+      </ul>
+
+      <hr />
+
+      <div class="d-flex justify-content-between align-items-center">
+        <strong>Total</strong>
+        <h4 class="mb-0">€ {{ total | number:'1.2-2' }}</h4>
+      </div>
+    </div>
+  </div>
+</form>
