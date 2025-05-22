@@ -15,8 +15,8 @@
       <a class="nav-link" [class.active]="currentActiveTab === 'event'" (click)="currentActiveTab = 'event'">Event</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" [class.active]="currentActiveTab === 'performance'"
-         (click)="currentActiveTab = 'performance'">Shows</a>
+      <a class="nav-link" [class.active]="currentActiveTab === 'show'"
+         (click)="currentActiveTab = 'show'">Shows</a>
     </li>
   </ul>
 
@@ -60,7 +60,7 @@
 
       <ul class="pagination justify-content-center">
         <li class="page-item" [class.disabled]="artistCurrentPage === 0">
-          <a class="page-link" style="cursor: pointer;"  (click)="searchArtists(artistCurrentPage - 1)">Previous</a>
+          <a class="page-link" style="cursor: pointer;" (click)="searchArtists(artistCurrentPage - 1)">Previous</a>
         </li>
         <li class="page-item disabled">
           <span class="page-link">Page {{ artistCurrentPage + 1 }} of {{ artistPage?.totalPages }}</span>
@@ -78,18 +78,84 @@
   </div>
 
   <div *ngIf="currentActiveTab === 'location'" class="tab-box">
-    <p class="text-muted">[Location search not yet implemented]</p>
+    <div class="row">
+      <div class="form.group col-md-6">
+        <label for="eventLocationName"> Location name</label>
+        <input id="eventLocationName" [(ngModel)]="eventLocationName" class="form-control"/>
+      </div>
+      <div class="form-group col-md-6">
+        <label for="eventLocationStreet">Street</label>
+        <input id="eventLocationStreet" [(ngModel)]="eventLocationStreet" class="form-control"/>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group col-md-6">
+        <label for="eventLocationCity">City</label>
+        <input id="eventLocationCity" [(ngModel)]="eventLocationCity" class="form-control"/>
+      </div>
+      <div class="form-group col-md-6">
+        <label for="eventLocationCountry">Country</label>
+        <input id="eventLocationCountry" [(ngModel)]="eventLocationCountry" class="form-control"/>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group col-md-6">
+        <label for="eventLocatioPostalCode">City´s Postal Code</label>
+        <input id="eventLocationPostalCode" [(ngModel)]="eventLocationPostalCode" class="form-control"/>
+      </div>
+      <div class="text-center">
+        <button type="button" class="btn btn-primary mt-3" (click)="search()">Search</button>
+      </div>
+
+      <div *ngIf="eventLocationLoading" class="text-center my-3">
+        Searching…
+      </div>
+      <div class="mt-4" *ngIf="!eventLocationLoading && eventLocationTriggered">
+        <h5 class="text-primary">Results:</h5>
+        <table class="table table-bordered">
+          <thead>
+          <tr>
+            <th>Location name</th>
+            <th>Street</th>
+            <th>City</th>
+            <th>Country</th>
+            <th>Postal Code</th>
+            <th>Shows</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let location of eventLocationPage?.content">
+            <td><strong>{{ location.name }}</strong></td>
+            <td>{{ location.street }}</td>
+            <td>{{ location.city }}</td>
+            <td>{{ location.country }}</td>
+            <td>{{ location.postalCode }}</td>
+            <td class="text-right">
+              <button class="view-button"
+                      [routerLink]="['/locations', location.id, 'shows']">
+                View Shows for location
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <div *ngIf="eventLocationPage?.content.length === 0" class="text-center text-muted">
+          No locations found.
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <div *ngIf="currentActiveTab === 'event'" class="tab-box">
     <div class="row">
       <div class="form-group col-md-6">
-        <label for="eventname">Event name</label>
-        <input id="eventname" [(ngModel)]="eventname" class="form-control"/>
+        <label for="eventName">Event name</label>
+        <input id="eventName" [(ngModel)]="eventName" class="form-control"/>
       </div>
       <div class="form-group col-md-6">
-        <label for="eventcategory">Event category</label>
-        <select id="eventcategory" [(ngModel)]="eventcategory" class="form-control">
+        <label for="eventCategory">Event category</label>
+        <select id="eventCategory" [(ngModel)]="eventCategory" class="form-control">
           <option [ngValue]="null"></option>
           <option *ngFor="let cat of eventCategories" [value]="cat">
             {{ cat }}
@@ -100,13 +166,14 @@
 
     <div class="row">
       <div class="form-group col-md-4">
-        <label for="eventduration">Duration:</label>
-        <input type="number" id="eventduration" [(ngModel)]="eventduration" class="form-control" min="10" max="10000"
+        <label for="eventDuration">Duration:</label>
+        <input type="number" id="eventDuration" [(ngModel)]="eventDuration" class="form-control" min="10"
+               max="10000"
                placeholder="10min–10000min" title="Duration in minutes" (blur)="validateDuration()"/>
       </div>
       <div class="form-group col-md-8">
-        <label for="eventdescription">Description:</label>
-        <input id="eventdescription" [(ngModel)]="eventdescription" class="form-control"/>
+        <label for="eventDescription">Description:</label>
+        <input id="eventDescription" [(ngModel)]="eventDescription" class="form-control"/>
       </div>
     </div>
 
@@ -136,8 +203,7 @@
           <td>{{ ev.duration }}</td>
           <td>{{ ev.description }}</td>
           <td class="text-right">
-            <button class="view-button"
-                    [routerLink]="['/events', ev.id, 'overview']">
+            <button class="view-button" [routerLink]="['/events', ev.id, 'overview']" [queryParams]="{ from: 'event', tab: 'event'  }">
               View Event
             </button>
           </td>
@@ -150,7 +216,7 @@
     </div>
   </div>
 
-  <div *ngIf="currentActiveTab === 'performance'" class="tab-box">
+  <div *ngIf="currentActiveTab === 'show'" class="tab-box">
     <div class="row">
       <div class="form-group col-md-6">
         <label for="eventName">Event name</label>
@@ -165,7 +231,8 @@
     <div class="row">
       <div class="form-group col-md-6">
         <label for="startDate">Start date</label>
-        <input id="startDate" type="datetime-local" [(ngModel)]="showStartDate" name="startDate" class="form-control"/>
+        <input id="startDate" type="datetime-local" [(ngModel)]="showStartDate" name="startDate"
+               class="form-control"/>
       </div>
       <div class="form-group col-md-6">
         <label for="endDate">End date</label>
@@ -203,6 +270,8 @@
             <th>Duration</th>
             <th>Event</th>
             <th>Room</th>
+            <th>Price (€)</th>
+            <th>Get Ticket</th>
           </tr>
           </thead>
           <tbody>
@@ -212,6 +281,18 @@
             <td>{{ s.duration }} min</td>
             <td>{{ s.eventName }}</td>
             <td>{{ s.roomName }}</td>
+            <td>
+              <ng-container *ngIf="s.minPrice !== null && s.maxPrice !== null; else noPrice">
+                {{ s.minPrice | number:'1.2-2' }} – {{ s.maxPrice | number:'1.2-2' }} €
+              </ng-container>
+              <ng-template #noPrice>–</ng-template>
+            </td>
+            <td class="text-center">
+              <button class="btn btn-primary btn-sm">
+                Buy/Reserve Ticket
+              </button>
+            </td>
+
           </tr>
           </tbody>
         </table>

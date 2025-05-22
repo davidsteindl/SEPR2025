@@ -12,6 +12,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ArtistMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
@@ -24,6 +25,8 @@ import at.ac.tuwien.sepr.groupphase.backend.service.specifications.EventLocation
 import at.ac.tuwien.sepr.groupphase.backend.service.specifications.EventSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.specifications.ShowSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SearchValidator;
+import java.util.Comparator;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +40,9 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -161,8 +166,8 @@ public class CustomSearchService implements SearchService {
             .and(ShowSpecifications.dateBetween(criteria.getStartDate(), criteria.getEndDate()))
             .and(ShowSpecifications.hasEventName(criteria.getEventName()))
             .and(ShowSpecifications.hasRoomName(criteria.getRoomName()))
-            .and(ShowSpecifications.nameContains(criteria.getName()));
-        // .and(ShowSpecifications.hasTicketPriceBetween(...)) // later
+            .and(ShowSpecifications.nameContains(criteria.getName()))
+            .and(ShowSpecifications.hasPriceBetween(criteria.getMinPrice(), criteria.getMaxPrice()));
 
         PageRequest pageable = PageRequest.of(criteria.getPage(), criteria.getSize());
         Page<Show> page = showRepo.findAll(spec, pageable);
@@ -177,6 +182,22 @@ public class CustomSearchService implements SearchService {
             dto.setEventName(show.getEvent().getName());
             dto.setRoomId(show.getRoom().getId());
             dto.setRoomName(show.getRoom().getName());
+
+            var sectorPrices = show.getRoom().getSectors().stream()
+                .map(sector -> BigDecimal.valueOf(sector.getPrice()))
+                .toList();
+
+            BigDecimal min = sectorPrices.stream()
+                .min(Comparator.naturalOrder())
+                .orElse(null);
+
+            BigDecimal max = sectorPrices.stream()
+                .max(Comparator.naturalOrder())
+                .orElse(null);
+
+
+            dto.setMinPrice(min);
+            dto.setMaxPrice(max);
             return dto;
         }).collect(Collectors.toList());
 

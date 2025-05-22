@@ -1,7 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -30,10 +32,10 @@ public interface EventLocationService {
     EventLocation createEventLocation(EventLocation eventLocation);
 
     /**
-     * Returns all shows for the given event location.
+     * Returns a paginated list of all shows for the given event location.
      *
      * @param eventLocationId the id of the event location
-     * @return a list of shows for the event location
+     * @return a paginated list of shows for the event location
      */
-    List<Show> getShowsForEventLocation(Long eventLocationId);
+    Page<ShowDetailDto> getShowsForEventLocation(Long eventLocationId, Pageable pageable);
 }

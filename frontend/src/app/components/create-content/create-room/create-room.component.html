@@ -90,17 +90,6 @@
 
       <br>
 
-      <div>
-        <label style="margin-right: 20px;">Type</label>
-        <div class="toggle-group">
-          <input type="radio" id="isHorizontal" name="type" [value]="true" [(ngModel)]="room.isHorizontal">
-          <label for="isHorizontal" class="horizontal"> &#8646; </label>
-
-          <input type="radio" id="isNotHorizontal" name="type" [value]="false" [(ngModel)]="room.isHorizontal" checked>
-          <label for="isNotHorizontal" class="horizontal">  &#8693;</label>
-        </div>
-      </div>
-
 
       <div class="text-center">
         <button class="btn btn-success mt-4" type="submit" [disabled]="roomForm.invalid">Create Room</button>

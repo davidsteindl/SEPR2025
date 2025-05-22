@@ -37,5 +37,8 @@ public interface ShowService {
      * @return a list of shows for the given event ID
      */
     public List<Show> findShowsByEventId(Long eventId);
+
+    Show getShowWithRoomAndSectors(Long id);
+
 }
 

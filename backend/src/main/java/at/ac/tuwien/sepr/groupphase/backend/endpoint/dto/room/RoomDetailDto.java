@@ -23,8 +23,6 @@ public class RoomDetailDto {
     @NotNull(message = "Sectors must not be null")
     private List<SectorDto> sectors;
 
-    private boolean isHorizontal;
-
     public Long getId() {
         return id;
     }
@@ -49,49 +47,10 @@ public class RoomDetailDto {
         this.sectors = sectors;
     }
 
-    public boolean isHorizontal() {
-        return isHorizontal;
-    }
-
-    public void setHorizontal(boolean isHorizontal) {
-        this.isHorizontal = isHorizontal;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, sectors, isHorizontal);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        RoomDetailDto that = (RoomDetailDto) o;
-        return isHorizontal == that.isHorizontal
-                && Objects.equals(id, that.id)
-                && Objects.equals(name, that.name)
-                && Objects.equals(sectors, that.sectors);
-    }
-
-    @Override
-    public String toString() {
-        return "RoomDetailDto{"
-                + "id=" + id
-                + ", name='" + name + '\''
-                + ", sectors=" + sectors
-                + ", isHorizontal=" + isHorizontal
-                + '}';
-    }
-
     public static final class RoomDetailDtoBuilder {
         private Long id;
         private String name;
         private List<SectorDto> sectors;
-        private boolean isHorizontal;
 
         private RoomDetailDtoBuilder() {
         }
@@ -115,17 +74,11 @@ public class RoomDetailDto {
             return this;
         }
 
-        public RoomDetailDtoBuilder isHorizontal(boolean isHorizontal) {
-            this.isHorizontal = isHorizontal;
-            return this;
-        }
-
         public RoomDetailDto build() {
             RoomDetailDto dto = new RoomDetailDto();
             dto.setId(id);
             dto.setName(name);
             dto.setSectors(sectors);
-            dto.setHorizontal(isHorizontal);
             return dto;
         }
     }

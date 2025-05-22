@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, RouterLink} from '@angular/router';
 import { EventService } from '../../services/event.service';
 import { Event } from '../../dtos/event';
 import { Show } from '../../dtos/show';
@@ -18,7 +18,8 @@ import {ErrorFormatterService} from "../../services/error-formatter.service";
   imports: [
     NgIf,
     NgForOf,
-    DatePipe
+    DatePipe,
+    RouterLink
   ]
 })
 export class EventOverviewComponent implements OnInit {
@@ -26,6 +27,8 @@ export class EventOverviewComponent implements OnInit {
   shows: Show[] = [];
   location: Location | null = null;
   artistMap: { [showId: number]: Artist[] } = {};
+  backLink: any[] = ['/search'];
+  backParams: any = { tab: 'event' };
   page = 0;
   pageSize = 5;
   totalPages = 0;
@@ -42,6 +45,18 @@ export class EventOverviewComponent implements OnInit {
 
   ngOnInit(): void {
     const eventId = Number(this.route.snapshot.paramMap.get('id'));
+
+    const qp = this.route.snapshot.queryParams;
+    switch (qp['from']) {
+      case 'artist':
+        this.backLink = ['/artists', qp['artistId'], 'events'];
+        this.backParams = {};
+        break;
+      case 'event':
+        this.backLink = ['/search'];
+        this.backParams = { tab: 'event' };
+        break;
+    }
 
     this.eventService.getEventById(eventId).subscribe({
       next: event => {

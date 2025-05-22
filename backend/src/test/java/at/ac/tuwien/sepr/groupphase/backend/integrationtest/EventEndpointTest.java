@@ -102,7 +102,6 @@ public class EventEndpointTest implements TestData {
 
         testRoom = Room.RoomBuilder.aRoom()
             .name("Test Room A")
-            .horizontal(true)
             .eventLocation(testLocation)
             .build();
         roomRepository.save(testRoom);

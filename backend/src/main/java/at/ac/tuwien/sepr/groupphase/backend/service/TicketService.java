@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CreateHoldDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
@@ -108,6 +109,16 @@ public interface TicketService {
      * @throws IllegalArgumentException if any ticketId is invalid or not in BOUGHT status.
      */
     List<TicketDto> refundTickets(List<Long> ticketIds);
+
+    /**
+     * Creates a temporary hold for a seat in a show.
+     * Once the hold is created, the seat is reserved for 30 minutes.
+     * In this time, no other user can book the seat. If the user does not
+     * book the seat within 30 minutes, the hold is released.
+     *
+     * @param createHoldDto DTO containing event ID, sector info, seat‐selection, ...
+     */
+    void createTicketHold(CreateHoldDto createHoldDto);
 
 
 }

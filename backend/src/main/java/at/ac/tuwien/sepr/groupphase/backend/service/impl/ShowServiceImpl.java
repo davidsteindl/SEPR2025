@@ -87,4 +87,12 @@ public class ShowServiceImpl implements ShowService {
             .orElseThrow(() -> new EntityNotFoundException("Event not found"));
         return showRepository.findByEventOrderByDateAsc(event);
     }
+
+    @Override
+    public Show getShowWithRoomAndSectors(Long id) {
+        LOGGER.debug("Find show with id {} including room and sectors", id);
+        return showRepository
+            .findByIdWithRoomAndSectors(id)
+            .orElseThrow(() -> new EntityNotFoundException("Show not found"));
+    }
 }

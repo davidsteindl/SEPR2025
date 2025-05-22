@@ -20,6 +20,9 @@ import { AdminComponent } from './components/admin/admin.component';
 import { ArtistEventsComponent } from './components/artist-events/artist-events.component';
 import {EventOverviewComponent} from "./components/event-overview/event-overview.component";
 import { CreateRoomComponent } from './components/create-content/create-room/create-room.component';
+import {RoomComponent} from "./components/room/room.component";
+import {LocationShowsComponent} from "./components/location-shows/location-shows.component";
+import { PaymentFormComponent } from './components/payment-form/payment-form.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -28,6 +31,7 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent},
   { path: 'termsandconditions', component: TermsandconditionsComponent},
   { path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent },
+  { path: 'checkout', component: PaymentFormComponent },
   { path: 'user', component: UserComponent, canActivate: [AuthGuard]},
   { path: 'user-edit', component: UserEditComponent, canActivate: [AuthGuard]},
   { path: 'user-orders', component: UserOrdersComponent, canActivate: [AuthGuard]},
@@ -39,7 +43,10 @@ const routes: Routes = [
   { path: 'create-room', component: CreateRoomComponent, canActivate: [AdminGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [AdminGuard]},
   { path: 'artists/:id/events', component: ArtistEventsComponent, canActivate: [AuthGuard] },
-  { path: 'events/:id/overview', component: EventOverviewComponent, canActivate: [AuthGuard] }
+  { path: 'events/:id/overview', component: EventOverviewComponent, canActivate: [AuthGuard] },
+  { path: 'rooms/:id/overview', component: RoomComponent, canActivate: [AdminGuard] },
+  { path: 'rooms/:id/edit', component: RoomComponent, canActivate: [AdminGuard] },
+  { path: 'locations/:id/shows', component: LocationShowsComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({

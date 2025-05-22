@@ -43,7 +43,8 @@ public interface ShowRepository extends JpaRepository<Show, Long>, JpaSpecificat
     @Query("SELECT DISTINCT s.event FROM Show s JOIN s.artists a WHERE a.id = :artistId")
     Page<Event> findEventsByArtistId(@Param("artistId") Long artistId, Pageable pageable);
 
-    List<Show> findAllByEvent_Location_IdOrderByDateAsc(Long locationId);
+    @EntityGraph(attributePaths = {"artists"})
+    Page<Show> findAllByEvent_Location_IdOrderByDateAsc(Long locationId, Pageable pageable);
 
     @Query("""
         SELECT MIN(s.date)
@@ -51,4 +52,14 @@ public interface ShowRepository extends JpaRepository<Show, Long>, JpaSpecificat
         WHERE s.event.id = :eventId
         """)
     LocalDateTime findEarliestShowDateByEventId(@Param("eventId") Long eventId);
+
+    @Query("""
+        select s
+          from Show s
+          join fetch s.room r
+          join fetch r.sectors sec
+         where s.id = :id
+            """)
+    Optional<Show> findByIdWithRoomAndSectors(@Param("id") Long id);
+
 }

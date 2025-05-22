@@ -25,7 +25,7 @@ public class Room {
         mappedBy = "room",
         cascade = CascadeType.ALL,
         orphanRemoval = true,
-        fetch = FetchType.LAZY
+        fetch = FetchType.EAGER
     )
     private List<Sector> sectors = new ArrayList<>();
 
@@ -87,7 +87,6 @@ public class Room {
     public static final class RoomBuilder {
         private Long id;
         private String name;
-        private boolean horizontal;
         private EventLocation eventLocation;
         private List<Sector> sectors = new ArrayList<>();
 
@@ -104,11 +103,6 @@ public class Room {
 
         public RoomBuilder name(String name) {
             this.name = name;
-            return this;
-        }
-
-        public RoomBuilder horizontal(boolean horizontal) {
-            this.horizontal = horizontal;
             return this;
         }
 

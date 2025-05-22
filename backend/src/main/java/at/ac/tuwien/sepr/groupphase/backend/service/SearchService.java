@@ -57,4 +57,5 @@ public interface SearchService {
      */
     Page<ShowSearchResultDto> searchShows(ShowSearchDto criteria) throws ValidationException;
 
+
 }

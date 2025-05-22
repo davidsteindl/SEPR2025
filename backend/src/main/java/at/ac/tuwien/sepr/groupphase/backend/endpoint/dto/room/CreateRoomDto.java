@@ -25,8 +25,6 @@ public class CreateRoomDto {
     @NotNull(message = "Event location ID must not be null")
     private Long eventLocationId;
 
-    private boolean isHorizontal;
-
     public String getName() {
         return name;
     }
@@ -67,17 +65,10 @@ public class CreateRoomDto {
         this.eventLocationId = eventLocationId;
     }
 
-    public boolean isHorizontal() {
-        return isHorizontal;
-    }
-
-    public void setHorizontal(boolean isHorizontal) {
-        this.isHorizontal = isHorizontal;
-    }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, numberOfSectors, rowsPerSector, seatsPerRow, eventLocationId, isHorizontal);
+        return Objects.hash(name, numberOfSectors, rowsPerSector, seatsPerRow, eventLocationId);
     }
 
     @Override
@@ -92,7 +83,6 @@ public class CreateRoomDto {
         return numberOfSectors == that.numberOfSectors
                 && rowsPerSector == that.rowsPerSector
                 && seatsPerRow == that.seatsPerRow
-                && isHorizontal == that.isHorizontal
                 && Objects.equals(name, that.name)
                 && Objects.equals(eventLocationId, that.eventLocationId);
     }
@@ -105,7 +95,6 @@ public class CreateRoomDto {
                 + ", rowsPerSector=" + rowsPerSector
                 + ", seatsPerRow=" + seatsPerRow
                 + ", eventLocationId=" + eventLocationId
-                + ", isHorizontal=" + isHorizontal
                 + '}';
     }
 
@@ -115,7 +104,6 @@ public class CreateRoomDto {
         private int rowsPerSector;
         private int seatsPerRow;
         private Long eventLocationId;
-        private boolean isHorizontal;
 
         private CreateRoomDtoBuilder() {
         }
@@ -149,10 +137,6 @@ public class CreateRoomDto {
             return this;
         }
 
-        public CreateRoomDtoBuilder isHorizontal(boolean isHorizontal) {
-            this.isHorizontal = isHorizontal;
-            return this;
-        }
 
         public CreateRoomDto build() {
             CreateRoomDto dto = new CreateRoomDto();
@@ -161,7 +145,6 @@ public class CreateRoomDto {
             dto.setRowsPerSector(rowsPerSector);
             dto.setSeatsPerRow(seatsPerRow);
             dto.setEventLocationId(eventLocationId);
-            dto.setHorizontal(isHorizontal);
             return dto;
         }
     }
