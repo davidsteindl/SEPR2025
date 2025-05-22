@@ -1,0 +1,8 @@
+:host {
+  display: block;
+}
+
+/* Override Bootstrap 5 horizontal gutter to exactly 20px */
+:host .row {
+  --bs-gutter-x: 20px;
+}

@@ -22,6 +22,7 @@ import {EventOverviewComponent} from "./components/event-overview/event-overview
 import { CreateRoomComponent } from './components/create-content/create-room/create-room.component';
 import {RoomComponent} from "./components/room/room.component";
 import {LocationShowsComponent} from "./components/location-shows/location-shows.component";
+import { PaymentFormComponent } from './components/payment-form/payment-form.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -30,6 +31,7 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent},
   { path: 'termsandconditions', component: TermsandconditionsComponent},
   { path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent },
+  { path: 'checkout', component: PaymentFormComponent },
   { path: 'user', component: UserComponent, canActivate: [AuthGuard]},
   { path: 'user-edit', component: UserEditComponent, canActivate: [AuthGuard]},
   { path: 'user-orders', component: UserOrdersComponent, canActivate: [AuthGuard]},
