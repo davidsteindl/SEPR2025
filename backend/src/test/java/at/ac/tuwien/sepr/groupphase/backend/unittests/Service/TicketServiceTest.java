@@ -486,8 +486,8 @@ public class TicketServiceTest {
 
         assertAll(
             () -> assertEquals(1, result.getTotalElements(), "Should return one future order"),
-            () -> assertEquals(OrderType.ORDER, result.getContent().get(0).getOrderType()),
-            () -> assertFalse(result.getContent().get(0).getShowDate().isBefore(LocalDateTime.now()))
+            () -> assertEquals(OrderType.ORDER, result.getContent().getFirst().getOrderType()),
+            () -> assertFalse(result.getContent().getFirst().getShowDate().isBefore(LocalDateTime.now()))
         );
     }
 
@@ -522,8 +522,8 @@ public class TicketServiceTest {
 
         assertAll(
             () -> assertEquals(1, result.getTotalElements(), "Should return one active reservation"),
-            () -> assertEquals(OrderType.RESERVATION, result.getContent().get(0).getOrderType()),
-            () -> assertFalse(result.getContent().get(0).getShowDate().isBefore(LocalDateTime.now()))
+            () -> assertEquals(OrderType.RESERVATION, result.getContent().getFirst().getOrderType()),
+            () -> assertFalse(result.getContent().getFirst().getShowDate().isBefore(LocalDateTime.now()))
         );
     }
 

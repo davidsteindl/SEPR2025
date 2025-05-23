@@ -127,8 +127,8 @@ public class TicketEndpointTest implements TestData {
         List<OrderDto> orders = objectMapper.readerForListOf(OrderDto.class).readValue(content);
         assertAll(
             () -> assertEquals(1, orders.size(), "Should return one future order"),
-            () -> assertEquals(OrderType.ORDER, orders.get(0).getOrderType()),
-            () -> assertEquals("Test Show", orders.get(0).getShowName())
+            () -> assertEquals(OrderType.ORDER, orders.getFirst().getOrderType()),
+            () -> assertEquals("Test Show", orders.getFirst().getShowName())
         );
     }
 
@@ -160,8 +160,8 @@ public class TicketEndpointTest implements TestData {
         List<OrderDto> orders = objectMapper.readerForListOf(OrderDto.class).readValue(content);
         assertAll(
             () -> assertEquals(1, orders.size(), "Should return one reservation"),
-            () -> assertEquals(OrderType.RESERVATION, orders.get(0).getOrderType()),
-            () -> assertEquals("Test Show", orders.get(0).getShowName())
+            () -> assertEquals(OrderType.RESERVATION, orders.getFirst().getOrderType()),
+            () -> assertEquals("Test Show", orders.getFirst().getShowName())
         );
     }
 }
