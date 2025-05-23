@@ -24,6 +24,16 @@ import {RoomComponent} from "./components/room/room.component";
 import {LocationShowsComponent} from "./components/location-shows/location-shows.component";
 import { PaymentFormComponent } from './components/payment-form/payment-form.component';
 import {OrderOverviewComponent} from "./components/order-overview/order-overview.component";
+import {
+  PurchasedOrderDetailComponent
+} from "./components/order-detail/purchased-order-detail/purchased-order-detail.component";
+import {
+  ReservedOrderDetailComponent
+} from "./components/order-detail/reserved-order-detail/reserved-order-detail.component";
+import {
+  RefundedOrderDetailComponent
+} from "./components/order-detail/refunded-order-detail/refunded-order-detail.component";
+import {PastOrderDetailComponent} from "./components/order-detail/past-order-detail/past-order-detail.component";
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -48,7 +58,11 @@ const routes: Routes = [
   { path: 'rooms/:id/overview', component: RoomComponent, canActivate: [AdminGuard] },
   { path: 'rooms/:id/edit', component: RoomComponent, canActivate: [AdminGuard] },
   { path: 'locations/:id/shows', component: LocationShowsComponent, canActivate: [AuthGuard] },
-  { path: 'orders', component: OrderOverviewComponent },
+  { path: 'orders', component: OrderOverviewComponent, canActivate: [AuthGuard] },
+  { path: 'orders/purchased/:id', component: PurchasedOrderDetailComponent, canActivate: [AuthGuard] },
+  { path: 'orders/reserved/:id', component: ReservedOrderDetailComponent, canActivate: [AuthGuard] },
+  { path: 'orders/refunded/:id', component: RefundedOrderDetailComponent, canActivate: [AuthGuard] },
+  { path: 'orders/past/:id', component: PastOrderDetailComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({
