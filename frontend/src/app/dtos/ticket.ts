@@ -8,8 +8,10 @@ export type TicketStatus =
 export interface TicketDto {
   id: number;
   showName: string;
-  price: number;     
+  price: number;
   seatId: number | null;
   sectorId: number;
   status: TicketStatus;
+  rowNumber: number;
+  seatLabel: string;
 }

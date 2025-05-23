@@ -40,7 +40,7 @@ export class OrderService {
   /**
    * Retrieves paginated tickets for a specific order.
    */
-  getTicketsForOrder(orderId: number, page = 0, size = 50): Observable<Page<TicketDto>> {
+  getTicketsForOrder(orderId: number, page = 0, size = 10): Observable<Page<TicketDto>> {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
