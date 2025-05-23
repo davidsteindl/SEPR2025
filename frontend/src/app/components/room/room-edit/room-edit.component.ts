@@ -33,7 +33,15 @@ export class RoomEditComponent implements OnInit {
   globalRow: number;
   rowsForSector: number;
   seatsForRow: number;
-  sectorType =  SectorType;
+  capacity: number;
+  sectorType = SectorType;
+
+  addingNewSector = false;
+  newSectorType: SectorType = this.sectorType.SEATED;
+  newSectorRows: number;
+  newSectorSeatsForRow: number;
+  newSectorPrice: number;
+  newSectorCapacity: number;
 
   constructor(private route: ActivatedRoute,
               private roomService: RoomService,
@@ -150,7 +158,7 @@ export class RoomEditComponent implements OnInit {
   }
 
   isSelectedSector(sector: Sector): boolean {
-    if(this.selectedSeat) return false;
+    if (this.selectedSeat) return false;
     return this.selectedSector?.id === sector.id;
   }
 
@@ -158,8 +166,8 @@ export class RoomEditComponent implements OnInit {
   onSectorClick(sector: SeatedSector): void {
     this.selectedSeat = null;
     this.selectedSector = sector;
-    this.rowsForSector =  Math.max(...sector.rows.map(seat => seat.rowNumber));
-    this.seatsForRow =  Math.max(...sector.rows.map(seat => seat.columnNumber));
+    this.rowsForSector = Math.max(...sector.rows.map(seat => seat.rowNumber));
+    this.seatsForRow = Math.max(...sector.rows.map(seat => seat.columnNumber));
 
 
     console.log(`Clicked sector ${sector.id}`);
@@ -168,6 +176,7 @@ export class RoomEditComponent implements OnInit {
   onStandingSectorClick(sector: StandingSector): void {
     this.selectedSeat = null;
     this.selectedSector = sector;
+    this.capacity = sector.capacity;
 
     console.log(`Clicked sector ${sector.id}`);
   }
@@ -177,7 +186,13 @@ export class RoomEditComponent implements OnInit {
   }
 
   addSector(): void {
+    this.addingNewSector = true;
+    this.selectedSeat = null;
+    this.selectedSector = null;
+  }
 
+  cancelAddSector(): void {
+    this.addingNewSector = false;
   }
 
   deleteSeat(): void {

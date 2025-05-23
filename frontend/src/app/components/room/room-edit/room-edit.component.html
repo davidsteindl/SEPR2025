@@ -29,12 +29,12 @@
               </th>
               <td *ngFor="let col of globalColumns"
                   [ngClass]="getSectorColorClass(seatedSector)"
-                  (click)="onSectorClick(seatedSector); $event.stopPropagation()">
+                  (click)="onSectorClick(seatedSector); cancelAddSector(); $event.stopPropagation()">
                 <button
                   class="seat"
                   *ngIf="isSeat(seatedSector, row, col)"
                   [ngClass]="{ 'selected': isSelected(seatedSector, row, col) }"
-                  (click)="onSeatClick(seatedSector, row, col); $event.stopPropagation()">
+                  (click)="onSeatClick(seatedSector, row, col); cancelAddSector(); $event.stopPropagation()">
                 </button>
               </td>
             </tr>
@@ -46,7 +46,7 @@
               <td [attr.colspan]="globalColumns.length + 1">
                 <button
                   class="standingSector"
-                  (click)="onStandingSectorClick(standingSector); $event.stopPropagation()">
+                  (click)="onStandingSectorClick(standingSector); cancelAddSector(); $event.stopPropagation()">
                   {{ standingSector.capacity }}
                 </button>
               </td>
@@ -58,15 +58,54 @@
     </div>
 
 
-
     <div class="info-box" style="text-align: center; font-weight: bold">
-      <ng-container *ngIf="!selectedSeat && !selectedSector">
+      <ng-container *ngIf="!selectedSeat && !selectedSector && !addingNewSector">
         <br/><br/><br/><br/>
         <button class="add-button" (click)="addSector(); $event.stopPropagation()">
           <span class="plus-icon">+</span>
         </button>
         <div class="info-label">Add Sector</div>
       </ng-container>
+
+      <ng-container *ngIf="addingNewSector && !selectedSeat && !selectedSector">
+        <div style="margin-bottom: 10px;" class="form-inline">
+          <label for="NewSectorType">Sector Type:</label>
+          <select id="NewSectorType" [(ngModel)]="newSectorType" name="SectorType" class="form-control">
+            <option [ngValue]="sectorType.SEATED">SEATED</option>
+            <option [ngValue]="sectorType.STANDING">STANDING</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 10px;" *ngIf="newSectorType === sectorType.SEATED">
+          <label for="NewAmountRows">Amount Rows:</label>
+          <input type="number" id="NewAmountRows" class="custom-input" min="1" max="50"
+                 [(ngModel)]="newSectorRows"/>
+        </div>
+
+        <div style="margin-bottom: 10px;" *ngIf="newSectorType === sectorType.SEATED">
+          <label for="NewSeatsPerRow">Seats per Row:</label>
+          <input type="number" id="NewSeatsPerRow" class="custom-input" min="1" max="50"
+                 [(ngModel)]="newSectorSeatsForRow"/>
+        </div>
+
+        <div style="margin-bottom: 10px;" *ngIf="newSectorType === sectorType.STANDING">
+          <label for="NewCapacity">Capacity:</label>
+          <input type="number" id="NewCapacity" class="custom-input" min="1" max="9999"
+                 [(ngModel)]="newSectorCapacity"/>
+        </div>
+
+        <div>
+          <label for="NewSectorPrice">Sector Price:</label>
+          <input type="number" id="NewSectorPrice" class="custom-input" min="1" max="200"
+                 [(ngModel)]="newSectorPrice" (blur)="validatePrice()"/>
+        </div>
+        <br>
+
+        <button class="btn btn-success mt-4" type="submit" (click)="cancelAddSector(); $event.stopPropagation()">
+          Cancel
+        </button>
+      </ng-container>
+
 
       <ng-container *ngIf="!selectedSeat && selectedSector">
         <p class="sectorText">Sector: {{ this.selectedSector.id }}<br/><br/></p>
@@ -78,16 +117,23 @@
             <option [ngValue]="sectorType.STANDING">STANDING</option>
           </select>
         </div>
-        <div style="margin-bottom: 10px;">
+        <div style="margin-bottom: 10px;" *ngIf="selectedSector.type === sectorType.SEATED">
           <label for="AmountRows">Amount Rows:</label>
           <input type="number" id="AmountRows" class="custom-input" min="1" max="50"
                  [(ngModel)]="this.rowsForSector"/>
         </div>
-        <div style="margin-bottom: 10px;">
+        <div style="margin-bottom: 10px;" *ngIf="selectedSector.type === sectorType.SEATED">
           <label for="SeatsPerRow">Seats per Row:</label>
           <input type="number" id="SeatsPerRow" class="custom-input" min="1" max="50"
                  [(ngModel)]="this.seatsForRow"/>
         </div>
+
+        <div style="margin-bottom: 10px;" *ngIf="selectedSector.type === sectorType.STANDING">
+          <label for="Capacity">Capacity:</label>
+          <input type="number" id="Capacity" class="custom-input" min="1" max="9999"
+                 [(ngModel)]="this.capacity"/>
+        </div>
+
         <div>
           <label for="SectorPrice">Sector Price:</label>
           <input type="number" id="SectorPrice" class="custom-input" min="1" max="200"
