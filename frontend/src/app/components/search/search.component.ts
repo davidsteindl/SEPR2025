@@ -163,14 +163,14 @@ export class SearchComponent implements OnInit {
     });
   }
 
-  searchLocations(): void {
+  searchLocations(page:number=0): void {
     const searchDto: EventLocationSearchDto = {
       name: this.eventLocationName?.trim() || undefined,
       street: this.eventLocationStreet?.trim() || undefined,
       city: this.eventLocationCity || undefined,
       country: this.eventLocationCountry?.trim() || undefined,
       postalCode: this.eventLocationPostalCode?.trim() || undefined,
-      page: this.eventLocationCurrentPage,
+      page: page,
       size: this.eventLocationPageSize
     };
 
@@ -180,7 +180,7 @@ export class SearchComponent implements OnInit {
     this.locationService.searchEventLocations(searchDto).subscribe({
       next: (pageResult) => {
         this.eventLocationPage = pageResult;
-        this.eventLocationCurrentPage = pageResult.number;
+        this.eventLocationCurrentPage = page;
         this.eventLocationLoading = false;
       },
       error: (err) => {
@@ -206,13 +206,13 @@ export class SearchComponent implements OnInit {
     }
   }
 
-  searchEvents(): void {
+  searchEvents(page:number = 0): void {
     const searchDto: EventSearchDto = {
       name: this.eventName?.trim() || undefined,
       category: this.eventCategory?.trim() || undefined,
       duration: this.eventDuration || undefined,
       description: this.eventDescription?.trim() || undefined,
-      page: this.eventCurrentPage,
+      page: page,
       size: this.eventPageSize
     };
 
@@ -222,7 +222,7 @@ export class SearchComponent implements OnInit {
     this.eventService.searchEvents(searchDto).subscribe({
       next: (pageResult) => {
         this.eventPage = pageResult;
-        this.eventCurrentPage = pageResult.number;
+        this.eventCurrentPage = page;
         this.eventLoading = false;
       },
       error: (err) => {

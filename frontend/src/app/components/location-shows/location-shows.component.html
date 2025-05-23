@@ -2,8 +2,7 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Shows in this location</h2>
-        <button class="btn btn-outline-secondary"
-                [routerLink]="['/search']" [queryParams]="{ tab: 'location' }">
+        <button class="btn btn-outline-secondary" [routerLink]="['/search']" [queryParams]="{ tab: 'location' }">
             ← Back to Search
         </button>
     </div>
@@ -15,12 +14,7 @@
         {{ errorMsg }}
     </div>
 
-    <table
-            *ngIf="!loading && shows.length > 0"
-            class="table w-100"
-            style="table-layout: fixed;"
-    >
-
+    <table *ngIf="!loading && showPage?.content?.length > 0" class="table w-100" style="table-layout: fixed;">
         <thead class="table-light">
         <tr>
             <th>Show</th>
@@ -30,14 +24,12 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let s of shows">
+        <tr *ngFor="let s of showPage?.content">
             <td>{{ s.name }}</td>
             <td>{{ s.date | date:'short' }}</td>
             <td>{{ s.duration }} min</td>
             <td class="d-flex justify-content-center gap-2">
-                <button
-                        class="btn btn-sm btn-primary"
-                        [routerLink]="['/shows', s.id, 'tickets']">
+                <button class="btn btn-sm btn-primary" [routerLink]="['/shows', s.id, 'tickets']">
                     Buy / Reserve Ticket
                 </button>
             </td>
@@ -46,32 +38,24 @@
     </table>
 
     <ul class="pagination justify-content-center mt-3">
-        <li class="page-item" [class.disabled]="page === 0">
-            <button
-                    class="page-link"
-                    (click)="prevPage()"
-                    [disabled]="page === 0">
+        <li class="page-item" [class.disabled]="showCurrentPage === 0">
+          <a class="page-link"  style="cursor: pointer;" (click)="loadShows(showCurrentPage - 1)">
                 Previous
-            </button>
+          </a>
         </li>
         <li class="page-item disabled">
       <span class="page-link">
-        Page {{ page + 1 }} of {{ totalPages }}
+        Page {{ showCurrentPage + 1 }} of {{ showPage?.totalPages}}
       </span>
         </li>
-        <li class="page-item" [class.disabled]="page + 1 >= totalPages">
-            <button
-                    class="page-link"
-                    (click)="nextPage()"
-                    [disabled]="page + 1 >= totalPages">
+      <li class="page-item" [class.disabled]="showCurrentPage >= (showPage?.totalPages || 1) - 1">
+            <a class="page-link" style="cursor: pointer;" (click)="loadShows(showCurrentPage + 1)">
                 Next
-            </button>
+            </a>
         </li>
     </ul>
 
-    <div
-            *ngIf="!loading && shows.length === 0"
-            class="text-muted text-center">
+    <div *ngIf="!loading && showPage?.content?.length === 0" class="text-muted text-center">
         No shows found.
     </div>
 </div>
