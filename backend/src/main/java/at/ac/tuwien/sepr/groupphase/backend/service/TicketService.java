@@ -144,4 +144,11 @@ public interface TicketService {
      */
     Page<TicketDto> getTicketsForOrder(Long orderId, Pageable pageable);
 
+    /**
+     * Retrieves order (without tickets) for the given order ID.
+     *
+     * @param orderId the ID of the order to retrieve
+     * @return an {@link OrderDto} with metadata only (no tickets), or null if not found
+     */
+    OrderDto getOrderByIdWithoutTickets(Long orderId);
 }

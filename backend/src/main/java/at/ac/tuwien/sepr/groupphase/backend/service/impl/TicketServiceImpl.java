@@ -452,4 +452,47 @@ public class TicketServiceImpl implements TicketService {
             .map(ticketMapper::toDto);
     }
 
+    @Override
+    public OrderDto getOrderByIdWithoutTickets(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new NotFoundException("Order with ID " + orderId + " not found"));
+
+        return buildOrderDtoWithoutTickets(order);
+    }
+
+    /**
+     * Constructs a lightweight {@link OrderDto} from the given {@link Order} entity,
+     * containing only metadata such as show details, order type, user ID, and total price.
+     *
+     * <p>
+     * This version intentionally omits the list of tickets to reduce payload size,
+     * as tickets are expected to be loaded separately via pagination.
+     * </p>
+     *
+     * @param order the {@link Order} entity to convert
+     * @return a populated {@link OrderDto} without the ticket list
+     */
+    private OrderDto buildOrderDtoWithoutTickets(Order order) {
+        LOGGER.debug("Build order header DTO (without tickets) for order: {}", order);
+
+        OrderDto dto = new OrderDto();
+        dto.setId(order.getId());
+        dto.setCreatedAt(order.getCreatedAt());
+        dto.setOrderType(order.getOrderType());
+        dto.setUserId(order.getUserId());
+
+        List<Ticket> tickets = order.getTickets();
+        if (!tickets.isEmpty()) {
+            Ticket ref = tickets.get(0);
+            dto.setShowName(ref.getShow().getName());
+            dto.setShowDate(ref.getShow().getDate());
+            dto.setLocationName(ref.getShow().getEvent().getLocation().getName());
+            dto.setTotalPrice(tickets.stream().mapToInt(t -> t.getSector().getPrice()).sum());
+        }
+
+        dto.setTickets(null);
+        return dto;
+    }
+
+
 }
