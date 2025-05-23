@@ -428,7 +428,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public Page<OrderDto> getOrdersForUser(Long userId, OrderType type, boolean past, Pageable pageable) {
-        if (type != OrderType.ORDER && type != OrderType.RESERVATION) {
+        if (type != OrderType.ORDER && type != OrderType.RESERVATION && type != OrderType.REFUND) {
             return Page.empty(pageable);
         }
 

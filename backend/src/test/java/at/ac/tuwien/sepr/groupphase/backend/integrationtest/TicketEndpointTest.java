@@ -13,6 +13,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -100,6 +101,7 @@ public class TicketEndpointTest implements TestData {
     }
 
     @Test
+    @Transactional
     public void getUpcomingOrders_shouldReturnOrderWithFutureShow() throws Exception {
         TicketTargetStandingDto target = new TicketTargetStandingDto();
         target.setSectorId(sector.getId());
@@ -133,6 +135,7 @@ public class TicketEndpointTest implements TestData {
     }
 
     @Test
+    @Transactional
     public void getReservations_shouldReturnReservationIfExists() throws Exception {
         TicketTargetStandingDto target = new TicketTargetStandingDto();
         target.setSectorId(sector.getId());
