@@ -15,7 +15,7 @@
       <a class="nav-link" [class.active]="activeTab === 'past'" (click)="setTab('past')">Past</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" [class.active]="activeTab === 'refund'" (click)="setTab('refund')">Refunded</a>
+      <a class="nav-link" [class.active]="activeTab === 'refunded'" (click)="setTab('refunded')">Refunded</a>
     </li>
   </ul>
 
@@ -123,8 +123,8 @@
   </div>
 
   <!-- Refund Orders -->
-  <div *ngIf="activeTab === 'refund'" class="tab-box pt-3">
-    <div *ngIf="refundOrders?.content?.length > 0; else noUpcoming">
+  <div *ngIf="activeTab === 'refunded'" class="tab-box pt-3">
+    <div *ngIf="refundedOrders?.content?.length > 0; else noUpcoming">
       <div class="list-group">
         <div *ngFor="let order of upcomingOrders.content" class="order-card">
           <strong>Order #{{ order.id }}  </strong><br>

@@ -9,7 +9,7 @@ export class OrderService {
 
   constructor(private http: HttpClient) {}
 
-  getOrders(type: 'upcoming' | 'reservations' | 'past', page = 0, size = 10) {
+  getOrders(type: 'upcoming' | 'reservations' | 'past' | 'refunded', page = 0, size = 10) {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
