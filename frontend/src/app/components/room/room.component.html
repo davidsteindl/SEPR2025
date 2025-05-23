@@ -17,10 +17,9 @@
     </tr>
     </thead>
     <tbody>
-    <ng-container *ngFor="let sector of seatedSectors; let i = index">
+    <ng-container *ngFor="let sector of room?.sectors; let i = index">
       <ng-container *ngIf="asSeatedSector(sector) as seatedSector">
-        <tr
-          *ngFor="let row of getMaxRows(seatedSector)">
+        <tr *ngFor="let row of getMaxRows(seatedSector)">
           <th>{{ row + getRowOffset(i) }}</th>
           <td *ngFor="let col of globalColumns"
               [ngClass]="getSectorColorClass(seatedSector)"
@@ -33,24 +32,21 @@
           </td>
         </tr>
       </ng-container>
+      <ng-container *ngIf="asStandingSector(sector) as standingSector">
+        <tr>
+          <td [attr.colspan]="globalColumns.length + 1">
+            <button
+              class="standingSector"
+              (click)="onSectorClick(standingSector)">
+              {{ standingSector.capacity }}
+            </button>
+          </td>
+        </tr>
+      </ng-container>
     </ng-container>
     </tbody>
   </table>
 
-  <table>
-
-    <ng-container *ngFor="let sector of standingSectors; let i = index">
-      <ng-container *ngIf="asStandingSector(sector) as standingSector">
-        <tr>
-          <button
-            class="standingSector"
-            (click)="onSectorClick(standingSector)">
-            {{ standingSector.capacity }}
-          </button>
-        </tr>
-      </ng-container>
-    </ng-container>
-  </table>
 
 
   <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 2rem;">

@@ -19,16 +19,13 @@
           </th>
         </tr>
         </thead>
-
-        <ng-container *ngFor="let sector of seatedSectors; let i = index" class="sector">
-          <tbody [ngClass]="{ 'sector': true, 'selected': isSelectedSector(sector) }">
+        <tbody>
+        <ng-container *ngFor="let sector of room?.sectors; let i = index">
+          <!-- Seated Sector -->
           <ng-container *ngIf="asSeatedSector(sector) as seatedSector">
-            <tr
-              *ngFor="let row of getMaxRows(seatedSector)">
+            <tr *ngFor="let row of getMaxRows(seatedSector)">
               <th>
-                <div style="margin-top:4px">
-                  {{ row + getRowOffset(i) }}
-                </div>
+                <div style="margin-top:4px">{{ row + getRowOffset(i) }}</div>
               </th>
               <td *ngFor="let col of globalColumns"
                   [ngClass]="getSectorColorClass(seatedSector)"
@@ -40,26 +37,26 @@
                   (click)="onSeatClick(seatedSector, row, col); $event.stopPropagation()">
                 </button>
               </td>
+            </tr>
           </ng-container>
-          </tbody>
-        </ng-container>
-      </table>
 
-      <table>
-
-        <ng-container *ngFor="let sector of standingSectors; let i = index">
+          <!-- Standing Sector -->
           <ng-container *ngIf="asStandingSector(sector) as standingSector">
             <tr>
-              <button
-                class="standingSector"
-                (click)="onStandingSectorClick(standingSector); $event.stopPropagation()">
-                {{ standingSector.capacity }}
-              </button>
+              <td [attr.colspan]="globalColumns.length + 1">
+                <button
+                  class="standingSector"
+                  (click)="onStandingSectorClick(standingSector); $event.stopPropagation()">
+                  {{ standingSector.capacity }}
+                </button>
+              </td>
             </tr>
           </ng-container>
         </ng-container>
+        </tbody>
       </table>
     </div>
+
 
 
     <div class="info-box" style="text-align: center; font-weight: bold">
