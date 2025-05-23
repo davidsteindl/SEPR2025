@@ -15,14 +15,11 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("""
             SELECT DISTINCT o FROM Order o
-            JOIN o.tickets t
+            JOIN FETCH o.tickets t
+            JOIN FETCH t.show s
             WHERE o.userId = :userId
               AND o.orderType = :orderType
-              AND (
-                (:past = TRUE AND t.show.date < :now) OR
-                (:past = FALSE AND t.show.date >= :now)
-              )
-            ORDER BY o.createdAt DESC
+              AND (:past = true AND s.date < :now OR :past = false AND s.date >= :now)
         """)
     Page<Order> findOrdersByTypeAndPast(
         @Param("userId") Long userId,

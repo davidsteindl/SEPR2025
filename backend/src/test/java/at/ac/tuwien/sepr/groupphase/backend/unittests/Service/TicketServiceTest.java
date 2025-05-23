@@ -4,6 +4,8 @@ import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.*;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.*;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Order;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ReservationExpiredException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.SeatUnavailableException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -53,6 +56,8 @@ public class TicketServiceTest {
     private Seat seat;
     private StandingSector standingSector;
     private Show testShow;
+    private Show pastShow;
+    private Seat pastSeat;
 
     @BeforeEach
     public void setUp() {
@@ -126,6 +131,30 @@ public class TicketServiceTest {
             .build();
         try {
             testShow = showService.createShow(show);
+        } catch (ValidationException e) {
+            throw new RuntimeException(e);
+        }
+
+        // create and persist a show in the past + event
+        Event pastEvent = Event.EventBuilder.anEvent()
+            .withName("Past Event")
+            .withCategory(Event.EventCategory.CLASSICAL)
+            .withDescription("Past event for testing")
+            .withDuration(60)
+            .withLocation(location)
+            .build();
+        eventRepository.save(pastEvent);
+
+        pastShow = Show.ShowBuilder.aShow()
+            .withName("Past Show")
+            .withDuration(40)
+            .withDate(LocalDateTime.now().minusDays(1))
+            .withEvent(pastEvent)
+            .withArtists(testShow.getArtists())
+            .withRoom(testRoom)
+            .build();
+        try {
+            pastShow = showService.createShow(pastShow);
         } catch (ValidationException e) {
             throw new RuntimeException(e);
         }
@@ -441,4 +470,74 @@ public class TicketServiceTest {
         assertEquals(1, dtos.size());
         assertEquals(TicketStatus.REFUNDED, dtos.getFirst().getStatus());
     }
+
+    @Test
+    @Transactional
+    public void getOrdersForUser_futureOrders_returnsOnlyFutureOrders() {
+        // Buy ticket for future show
+        TicketRequestDto request = new TicketRequestDto();
+        request.setShowId(testShow.getId());
+
+        TicketTargetSeatedDto target = new TicketTargetSeatedDto();
+        target.setSectorId(seatedSector.getId());
+        target.setSeatId(seat.getId());
+        request.setTargets(List.of(target));
+
+        ticketService.buyTickets(request);
+
+        var result = ticketService.getOrdersForUser(1L, OrderType.ORDER, false, Pageable.ofSize(10));
+
+        assertAll(
+            () -> assertEquals(1, result.getTotalElements(), "Should return one future order"),
+            () -> assertEquals(OrderType.ORDER, result.getContent().get(0).getOrderType()),
+            () -> assertFalse(result.getContent().get(0).getShowDate().isBefore(LocalDateTime.now()))
+        );
+    }
+
+    @Test
+    @Transactional
+    public void getOrdersForUser_reservations_returnsOnlyActiveReservations() {
+        Seat reserveSeat = new Seat();
+        reserveSeat.setRowNumber(2);
+        reserveSeat.setColumnNumber(42);
+        reserveSeat.setDeleted(false);
+        seatedSector.addSeat(reserveSeat);
+
+        reserveSeat = roomRepository.save(testRoom).getSectors().stream()
+            .filter(s -> s instanceof SeatedSector)
+            .map(s -> ((SeatedSector) s).getSeats())
+            .flatMap(List::stream)
+            .filter(se -> se.getColumnNumber() == 42)
+            .findFirst()
+            .orElseThrow();
+
+        TicketRequestDto request = new TicketRequestDto();
+        request.setShowId(testShow.getId());
+
+        TicketTargetSeatedDto target = new TicketTargetSeatedDto();
+        target.setSectorId(seatedSector.getId());
+        target.setSeatId(reserveSeat.getId());
+        request.setTargets(List.of(target));
+
+        ticketService.reserveTickets(request);
+
+        var result = ticketService.getOrdersForUser(1L, OrderType.RESERVATION, false, Pageable.ofSize(10));
+
+        assertAll(
+            () -> assertEquals(1, result.getTotalElements(), "Should return one active reservation"),
+            () -> assertEquals(OrderType.RESERVATION, result.getContent().get(0).getOrderType()),
+            () -> assertFalse(result.getContent().get(0).getShowDate().isBefore(LocalDateTime.now()))
+        );
+    }
+
+    @Test
+    @Transactional
+    public void getOrdersForUser_pastReservations_returnsEmptyList() {
+        var result = ticketService.getOrdersForUser(1L, OrderType.RESERVATION, true, Pageable.ofSize(10));
+
+        assertAll(
+            () -> assertEquals(0, result.getTotalElements(), "Should return no past reservations")
+        );
+    }
+
 }
