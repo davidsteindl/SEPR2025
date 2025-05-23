@@ -26,4 +26,41 @@
 }
 
 
+.order-card {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 4px;
+}
+
+.order-buttons {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-pdf {
+  background-color: #fbc02d;
+  color: #000;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+.pdf-button {
+  background-color: #ffe08a;
+  border: 1px solid #f9a825;
+  color: #663c00;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pdf-button:hover {
+  background-color: #ffd54f;
+}
+
+
 

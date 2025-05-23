@@ -14,6 +14,9 @@
     <li class="nav-item">
       <a class="nav-link" [class.active]="activeTab === 'past'" (click)="setTab('past')">Past</a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'refund'" (click)="setTab('refund')">Refunded</a>
+    </li>
   </ul>
 
   <!-- Loading spinner -->
@@ -22,14 +25,19 @@
   </div>
 
   <!-- Purchased Orders -->
-  <div *ngIf="activeTab === 'upcoming'" class="tab-box mt-4">
+  <div *ngIf="activeTab === 'upcoming'" class="tab-box pt-3">
     <div *ngIf="upcomingOrders?.content?.length > 0; else noUpcoming">
       <div class="list-group">
-        <div *ngFor="let order of upcomingOrders.content" class="list-group-item">
-          <strong>Order #{{ order.id }}</strong> – {{ order.showName }} <br>
+        <div *ngFor="let order of upcomingOrders.content" class="order-card">
+          <strong>Order #{{ order.id }}  </strong><br>
+          Show: {{ order.showName }} <br>
           Date: {{ order.showDate | date: 'short' }} <br>
           Location: {{ order.location }} <br>
-          Total: {{ order.totalPrice | currency }}
+
+          <div class="order-buttons">
+            <button class="view-button">View full order</button>
+            <button class="pdf-button">Download invoice</button>
+          </div>
         </div>
       </div>
       <ul class="pagination justify-content-center mt-3">
@@ -50,14 +58,18 @@
   </div>
 
   <!-- Reserved Orders -->
-  <div *ngIf="activeTab === 'reservations'" class="tab-box mt-4">
+  <div *ngIf="activeTab === 'reservations'" class="tab-box pt-3">
     <div *ngIf="reservations?.content?.length > 0; else noReservations">
       <div class="list-group">
-        <div *ngFor="let order of reservations.content" class="list-group-item">
-          <strong>Reservation #{{ order.id }}</strong> – {{ order.showName }} <br>
+        <div *ngFor="let order of reservations.content" class="order-card">
+          <strong>Order #{{ order.id }}  </strong><br>
+          Show: {{ order.showName }} <br>
           Date: {{ order.showDate | date: 'short' }} <br>
           Location: {{ order.location }} <br>
-          Total: {{ order.totalPrice | currency }}
+
+          <div class="order-buttons">
+            <button class="view-button">View full order</button>
+          </div>
         </div>
       </div>
       <ul class="pagination justify-content-center mt-3">
@@ -78,14 +90,19 @@
   </div>
 
   <!-- Past Orders -->
-  <div *ngIf="activeTab === 'past'" class="tab-box mt-4">
+  <div *ngIf="activeTab === 'past'" class="tab-box pt-3">
     <div *ngIf="pastOrders?.content?.length > 0; else noPast">
       <div class="list-group">
-        <div *ngFor="let order of pastOrders.content" class="list-group-item">
-          <strong>Past Order #{{ order.id }}</strong> – {{ order.showName }} <br>
+        <div *ngFor="let order of pastOrders.content" class="order-card">
+          <strong>Past Order #{{ order.id }}  </strong><br>
+          Show: {{ order.showName }} <br>
           Date: {{ order.showDate | date: 'short' }} <br>
           Location: {{ order.location }} <br>
-          Total: {{ order.totalPrice | currency }}
+
+          <div class="order-buttons">
+            <button class="view-button">View full order</button>
+            <button class="pdf-button">Download invoice</button>
+          </div>
         </div>
       </div>
       <ul class="pagination justify-content-center mt-3">
@@ -102,6 +119,39 @@
     </div>
     <ng-template #noPast>
       <div class="text-center text-muted">No past orders found.</div>
+    </ng-template>
+  </div>
+
+  <!-- Refund Orders -->
+  <div *ngIf="activeTab === 'refund'" class="tab-box pt-3">
+    <div *ngIf="refundOrders?.content?.length > 0; else noUpcoming">
+      <div class="list-group">
+        <div *ngFor="let order of upcomingOrders.content" class="order-card">
+          <strong>Order #{{ order.id }}  </strong><br>
+          Show: {{ order.showName }} <br>
+          Date: {{ order.showDate | date: 'short' }} <br>
+          Location: {{ order.location }} <br>
+
+          <div class="order-buttons">
+            <button class="view-button">View full order</button>
+            <button class="pdf-button">Download cancellation invoice</button>
+          </div>
+        </div>
+      </div>
+      <ul class="pagination justify-content-center mt-3">
+        <li class="page-item" [class.disabled]="upcomingPage === 0">
+          <a class="page-link" (click)="loadOrders('upcoming', upcomingPage - 1)">Previous</a>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link">Page {{ upcomingPage + 1 }} of {{ upcomingOrders?.totalPages }}</span>
+        </li>
+        <li class="page-item" [class.disabled]="upcomingPage >= (upcomingOrders?.totalPages || 1) - 1">
+          <a class="page-link" (click)="loadOrders('upcoming', upcomingPage + 1)">Next</a>
+        </li>
+      </ul>
+    </div>
+    <ng-template #noUpcoming>
+      <div class="text-center text-muted">No refund orders found.</div>
     </ng-template>
   </div>
 </div>
