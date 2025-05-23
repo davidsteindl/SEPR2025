@@ -23,6 +23,7 @@ import { CreateRoomComponent } from './components/create-content/create-room/cre
 import {RoomComponent} from "./components/room/room.component";
 import {LocationShowsComponent} from "./components/location-shows/location-shows.component";
 import { PaymentFormComponent } from './components/payment-form/payment-form.component';
+import {OrderOverviewComponent} from "./components/order-overview/order-overview.component";
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -47,6 +48,7 @@ const routes: Routes = [
   { path: 'rooms/:id/overview', component: RoomComponent, canActivate: [AdminGuard] },
   { path: 'rooms/:id/edit', component: RoomComponent, canActivate: [AdminGuard] },
   { path: 'locations/:id/shows', component: LocationShowsComponent, canActivate: [AuthGuard] },
+  { path: 'orders', component: OrderOverviewComponent },
 ];
 
 @NgModule({

@@ -22,3 +22,15 @@
 .ticket {
   margin-left: 15px;
 }
+
+.btn.order {
+  background-color: #ffc107;
+  color: #000000;
+  margin-left: 5px;
+  height: auto;
+  white-space: nowrap;
+}
+
+.btn.order.active {
+  color: #fff;
+}

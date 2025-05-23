@@ -14,6 +14,11 @@
 
     <ul class="navbar-nav mr-5">
       <li class="nav-item ms auto">
+        <a class="nav-link btn order" *ngIf="authService.isLoggedIn()" routerLink="/orders" routerLinkActive="active">My Orders</a>
+      </li>
+    </ul>
+    <ul class="navbar-nav mr-5">
+      <li class="nav-item ms auto">
         <a class="nav-link btn admin" *ngIf="authService.isLoggedIn() && isAdmin()" routerLink="/admin" routerLinkActive="active">Admin</a>
       </li>
     </ul>
