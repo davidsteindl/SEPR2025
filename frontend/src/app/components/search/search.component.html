@@ -225,6 +225,20 @@
         </tr>
         </tbody>
       </table>
+      <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="eventCurrentPage === 0">
+          <a class="page-link" style="cursor: pointer;" (click)="searchEvents(eventCurrentPage - 1)">Previous</a>
+        </li>
+        <li class="page-item disabled">
+              <span class="page-link">Page {{ eventCurrentPage + 1 }}
+                of {{ eventPage?.totalPages }}</span>
+        </li>
+        <li class="page-item"
+            [class.disabled]="eventCurrentPage >= (eventPage?.totalPages || 1) - 1">
+          <a class="page-link" style="cursor: pointer;"
+             (click)="searchEvents(eventCurrentPage + 1)">Next</a>
+        </li>
+      </ul>
       <div *ngIf="eventPage?.content.length === 0" class="text-center text-muted">
         No events found.
       </div>

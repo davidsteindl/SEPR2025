@@ -206,7 +206,7 @@ export class SearchComponent implements OnInit {
     }
   }
 
-  searchEvents(): void {
+  searchEvents(page:number = 0): void {
     const searchDto: EventSearchDto = {
       name: this.eventName?.trim() || undefined,
       category: this.eventCategory?.trim() || undefined,
