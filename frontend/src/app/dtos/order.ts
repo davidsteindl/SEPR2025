@@ -13,5 +13,5 @@ export interface OrderDto {
   totalPrice: number;
   showName: string;
   showDate: string;
-  location: string;
+  locationName: string;
 }
