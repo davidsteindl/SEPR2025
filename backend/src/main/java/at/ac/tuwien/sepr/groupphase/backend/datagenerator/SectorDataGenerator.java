@@ -37,7 +37,7 @@ public class SectorDataGenerator {
         Room room = rooms.getFirst();
 
         for (int i = 0; i < 3; i++) {
-            SeatedSector sector = new SeatedSector(); // ← deine konkrete Subklasse!
+            SeatedSector sector = new SeatedSector();
             sector.setPrice(1500 + i * 100);
             sector.setRoom(room);
             sectorRepository.save(sector);
