@@ -143,7 +143,7 @@ public class TicketEndpoint {
     @Secured("ROLE_USER")
     @Operation(summary = "Get paginated tickets for a specific order", security = @SecurityRequirement(name = "apiKey"))
     public Page<TicketDto> getTicketsForOrder(
-        @PathVariable("orderId") Long orderId, // <-- das brauchst du
+        @PathVariable("orderId") Long orderId,
         Pageable pageable) {
 
         LOGGER.info("GET /api/v1/tickets/orders/{}/tickets by user {}", orderId, authenticationFacade.getCurrentUserId());
