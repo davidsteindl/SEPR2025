@@ -139,9 +139,23 @@
           </tr>
           </tbody>
         </table>
-        <div *ngIf="eventLocationPage?.content.length === 0" class="text-center text-muted">
-          No locations found.
-        </div>
+          <ul class="pagination justify-content-center">
+            <li class="page-item" [class.disabled]="eventLocationCurrentPage === 0">
+              <a class="page-link" style="cursor: pointer;" (click)="searchLocations(eventLocationCurrentPage - 1)">Previous</a>
+            </li>
+            <li class="page-item disabled">
+              <span class="page-link">Page {{ eventLocationCurrentPage + 1 }}
+                of {{ eventLocationPage?.totalPages }}</span>
+            </li>
+            <li class="page-item"
+                [class.disabled]="eventLocationCurrentPage >= (eventLocationPage?.totalPages || 1) - 1">
+              <a class="page-link" style="cursor: pointer;"
+                 (click)="searchLocations(eventLocationCurrentPage + 1)">Next</a>
+            </li>
+          </ul>
+          <div *ngIf="eventLocationPage?.content.length === 0" class="text-center text-muted">
+            No locations found.
+          </div>
       </div>
 
     </div>
@@ -203,7 +217,8 @@
           <td>{{ ev.duration }}</td>
           <td>{{ ev.description }}</td>
           <td class="text-right">
-            <button class="view-button" [routerLink]="['/events', ev.id, 'overview']" [queryParams]="{ from: 'event', tab: 'event'  }">
+            <button class="view-button" [routerLink]="['/events', ev.id, 'overview']"
+                    [queryParams]="{ from: 'event', tab: 'event'  }">
               View Event
             </button>
           </td>

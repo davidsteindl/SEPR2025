@@ -163,7 +163,7 @@ export class SearchComponent implements OnInit {
     });
   }
 
-  searchLocations(): void {
+  searchLocations(page:number=0): void {
     const searchDto: EventLocationSearchDto = {
       name: this.eventLocationName?.trim() || undefined,
       street: this.eventLocationStreet?.trim() || undefined,
