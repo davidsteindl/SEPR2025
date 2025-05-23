@@ -440,4 +440,16 @@ public class TicketServiceImpl implements TicketService {
         return new PageImpl<>(orderDtos, pageable, orderIdsPage.getTotalElements());
     }
 
+    @Override
+    public Page<TicketDto> getTicketsForOrder(Long orderId, Pageable pageable) {
+        LOGGER.debug("Fetching paginated tickets for orderId={}, page={}, size={}", orderId, pageable.getPageNumber(), pageable.getPageSize());
+
+        if (!orderRepository.existsById(orderId)) {
+            throw new NotFoundException("Order with ID " + orderId + " not found");
+        }
+
+        return ticketRepository.findByOrderId(orderId, pageable)
+            .map(ticketMapper::toDto);
+    }
+
 }

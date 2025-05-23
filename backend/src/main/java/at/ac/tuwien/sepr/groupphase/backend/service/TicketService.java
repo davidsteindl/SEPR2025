@@ -134,4 +134,14 @@ public interface TicketService {
      * @return a paginated list of {@link OrderDto} objects
      */
     Page<OrderDto> getOrdersForUser(Long userId, OrderType type, boolean past, Pageable pageable);
+
+    /**
+     * Retrieves a paginated list of tickets belonging to a specific order.
+     *
+     * @param orderId the ID of the order whose tickets should be retrieved
+     * @param pageable pagination configuration (page, size, sort)
+     * @return a page of {@link TicketDto} objects for that order
+     */
+    Page<TicketDto> getTicketsForOrder(Long orderId, Pageable pageable);
+
 }
