@@ -130,6 +130,15 @@ public class TicketEndpoint {
         return ticketService.getOrdersForUser(userId, OrderType.ORDER, true, pageable);
     }
 
+    @GetMapping("/orders/refunded")
+    @Secured("ROLE_USER")
+    @Operation(summary = "Get refunded orders", security = @SecurityRequirement(name = "apiKey"))
+    public Page<OrderDto> getRefundedOrders(Pageable pageable) {
+        Long userId = authenticationFacade.getCurrentUserId();
+        LOGGER.info("GET /api/v1/tickets/orders/refunded by user {}", userId);
+        return ticketService.getOrdersForUser(userId, OrderType.REFUND, false, pageable);
+    }
+
 
     // TODO: get order by id
 

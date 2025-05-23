@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -427,13 +428,16 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public Page<OrderDto> getOrdersForUser(Long userId, OrderType type, boolean past, Pageable pageable) {
-        if (type != OrderType.ORDER && type != OrderType.RESERVATION) {
-            return Page.empty(pageable);
-        }
-
+    public Page<OrderDto> getOrdersForUser(Long userId, OrderType orderType, boolean past, Pageable pageable) {
         LocalDateTime now = LocalDateTime.now();
-        Page<Order> orders = orderRepository.findOrdersByTypeAndPast(userId, type, past, now, pageable);
-        return orders.map(orderMapper::toDto);
+
+        Page<Long> orderIdsPage = orderRepository.findOrderIdsByTypeAndPast(userId, orderType, past, now, pageable);
+
+        List<Order> fullOrders = orderRepository.findAllWithDetailsByIdIn(orderIdsPage.getContent());
+
+        List<OrderDto> orderDtos = orderMapper.toDto(fullOrders);
+
+        return new PageImpl<>(orderDtos, pageable, orderIdsPage.getTotalElements());
     }
+
 }
