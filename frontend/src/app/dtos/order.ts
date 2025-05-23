@@ -10,4 +10,8 @@ export interface OrderDto {
   paymentType: PaymentType;
   userId: number;
   orderType: OrderType;
+  totalPrice: number;
+  showName: string;
+  showDate: string;
+  location: string;
 }
