@@ -1,10 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CreateHoldDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
+import at.ac.tuwien.sepr.groupphase.backend.security.AuthenticationFacade;
 import at.ac.tuwien.sepr.groupphase.backend.service.TicketService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -12,8 +14,11 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,10 +34,12 @@ import java.util.List;
 public class TicketEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final TicketService ticketService;
+    private final AuthenticationFacade authenticationFacade;
 
     @Autowired
-    public TicketEndpoint(TicketService ticketService) {
+    public TicketEndpoint(TicketService ticketService, AuthenticationFacade authenticationFacade) {
         this.ticketService = ticketService;
+        this.authenticationFacade = authenticationFacade;
     }
 
     @PostMapping("/buy")
@@ -95,11 +102,34 @@ public class TicketEndpoint {
         ticketService.createTicketHold(createHoldDto);
     }
 
-    // TODO: get all orders for current user for events in the future ( purchased orders in figma)
 
-    // TODO: get all reservfations for current user for events in the future ( reserved orders in figma)
+    @GetMapping("/orders/upcoming")
+    @Secured("ROLE_USER")
+    @Operation(summary = "Get purchased upcoming orders", security = @SecurityRequirement(name = "apiKey"))
+    public Page<OrderDto> getUpcomingPurchasedOrders(Pageable pageable) {
+        Long userId = authenticationFacade.getCurrentUserId();
+        LOGGER.info("GET /api/v1/tickets/orders/upcoming by user {}", userId);
+        return ticketService.getOrdersForUser(userId, OrderType.ORDER, false, pageable);
+    }
 
-    // TODO: get all orders that are expired ( past orders in figma)
+    @GetMapping("/orders/reservations")
+    @Secured("ROLE_USER")
+    @Operation(summary = "Get active reservations", security = @SecurityRequirement(name = "apiKey"))
+    public Page<OrderDto> getUpcomingReservations(Pageable pageable) {
+        Long userId = authenticationFacade.getCurrentUserId();
+        LOGGER.info("GET /api/v1/tickets/orders/reservations by user {}", userId);
+        return ticketService.getOrdersForUser(userId, OrderType.RESERVATION, false, pageable);
+    }
+
+    @GetMapping("/orders/past")
+    @Secured("ROLE_USER")
+    @Operation(summary = "Get past purchased orders", security = @SecurityRequirement(name = "apiKey"))
+    public Page<OrderDto> getPastOrders(Pageable pageable) {
+        Long userId = authenticationFacade.getCurrentUserId();
+        LOGGER.info("GET /api/v1/tickets/orders/past by user {}", userId);
+        return ticketService.getOrdersForUser(userId, OrderType.ORDER, true, pageable);
+    }
+
 
     // TODO: get order by id
 

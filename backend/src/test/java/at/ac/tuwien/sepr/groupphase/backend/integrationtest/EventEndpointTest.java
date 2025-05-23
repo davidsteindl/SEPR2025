@@ -16,6 +16,8 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,6 +64,9 @@ public class EventEndpointTest implements TestData {
     private RoomRepository roomRepository;
     @Autowired
     private ArtistRepository artistRepository;
+    @Autowired private TicketRepository ticketRepository;
+    @Autowired private OrderRepository orderRepository;
+
 
     private EventLocation testLocation;
     private Event testEvent;
@@ -71,6 +76,8 @@ public class EventEndpointTest implements TestData {
 
     @BeforeEach
     public void setup() {
+        ticketRepository.deleteAll();
+        orderRepository.deleteAll();
         artistRepository.deleteAll();
         showRepository.deleteAll();
         eventRepository.deleteAll();
