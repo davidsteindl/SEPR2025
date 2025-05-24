@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {ActivatedRoute, RouterLink} from '@angular/router';
 import { OrderService } from 'src/app/services/order.service';
 import { OrderDto } from 'src/app/dtos/order';
 import { TicketDto } from 'src/app/dtos/ticket';
 import {FormsModule} from "@angular/forms";
-import {CurrencyPipe, DatePipe} from "@angular/common";
+import {CurrencyPipe, DatePipe, NgForOf, NgIf} from "@angular/common";
+import { TicketService } from 'src/app/services/ticket.service';
+
 
 @Component({
   selector: 'app-purchased-order-detail',
@@ -13,7 +15,10 @@ import {CurrencyPipe, DatePipe} from "@angular/common";
   imports: [
     FormsModule,
     CurrencyPipe,
-    DatePipe
+    DatePipe,
+    NgIf,
+    NgForOf,
+    RouterLink
   ],
   styleUrls: ['./purchased-order-detail.component.scss']
 })
@@ -25,7 +30,8 @@ export class PurchasedOrderDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private ticketService: TicketService
   ) {}
 
   ngOnInit(): void {
@@ -55,7 +61,26 @@ export class PurchasedOrderDetailComponent implements OnInit {
   }
 
   refundSelected(): void {
-    alert('Refund not implemented yet');
+    const ticketIds = Object.keys(this.selected)
+      .filter(id => this.selected[+id])
+      .map(id => +id);
+
+    if (ticketIds.length === 0) return;
+
+    this.ticketService.refundTickets(ticketIds).subscribe({
+      next: () => {
+        this.selected = {};
+        this.loadTickets(this.order?.id!);
+      },
+      error: err => {
+        console.error('Refund failed', err);
+        alert('Refund failed');
+      }
+    });
+  }
+
+  hasSelection(): boolean {
+    return Object.values(this.selected).some(v => v);
   }
 
 

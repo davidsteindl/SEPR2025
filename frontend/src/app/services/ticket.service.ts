@@ -52,4 +52,12 @@ export class TicketService {
     const payload: TicketRequestDto = { showId, targets };
     return this.http.post<OrderDto>(`${this.base}/buy`, payload);
   }
+
+  refundTickets(ticketIds: number[]): Observable<TicketDto[]> {
+    return this.http.post<TicketDto[]>(
+      `${this.base}/refund`,
+      ticketIds
+    );
+  }
+
 }
