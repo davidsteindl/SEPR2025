@@ -29,12 +29,12 @@
               </th>
               <td *ngFor="let col of globalColumns"
                   [ngClass]="getSectorColorClass(seatedSector)"
-                  (click)="onSectorClick(seatedSector); cancelAddSector(); $event.stopPropagation()">
+                  (click)="onSectorClick(seatedSector); cancelAddingSector(); $event.stopPropagation()">
                 <button
                   class="seat"
                   *ngIf="isSeat(seatedSector, row, col)"
                   [ngClass]="{ 'selected': isSelected(seatedSector, row, col) }"
-                  (click)="onSeatClick(seatedSector, row, col); cancelAddSector(); $event.stopPropagation()">
+                  (click)="onSeatClick(seatedSector, row, col); cancelAddingSector(); $event.stopPropagation()">
                 </button>
               </td>
             </tr>
@@ -46,7 +46,7 @@
               <td [attr.colspan]="globalColumns.length + 1">
                 <button
                   class="standingSector"
-                  (click)="onStandingSectorClick(standingSector); cancelAddSector(); $event.stopPropagation()">
+                  (click)="onStandingSectorClick(standingSector); cancelAddingSector(); $event.stopPropagation()">
                   {{ standingSector.capacity }}
                 </button>
               </td>
@@ -61,7 +61,7 @@
     <div class="info-box" style="text-align: center; font-weight: bold">
       <ng-container *ngIf="!selectedSeat && !selectedSector && !addingNewSector">
         <br/><br/><br/><br/>
-        <button class="add-button" (click)="addSector(); $event.stopPropagation()">
+        <button class="add-button" (click)="addingSector(); $event.stopPropagation()">
           <span class="plus-icon">+</span>
         </button>
         <div class="info-label">Add Sector</div>
@@ -101,14 +101,18 @@
         </div>
         <br>
 
-        <button class="btn btn-success mt-4" type="submit" (click)="cancelAddSector(); $event.stopPropagation()">
+        <button class="btn btn-success mt-4" type="submit" (click)="cancelAddingSector(); $event.stopPropagation()">
           Cancel
+        </button>
+
+        <button class="btn btn-success mt-4" type="submit" (click)="submitSector(); $event.stopPropagation()">
+          Add Sector
         </button>
       </ng-container>
 
 
       <ng-container *ngIf="!selectedSeat && selectedSector">
-        <p class="sectorText">Sector: {{ getSelectedSectorIndex() }}<br/><br/></p>
+        <p class="sectorText">Sector {{ getSelectedSectorIndex() }}<br/><br/></p>
 
         <div style="margin-bottom: 10px;" class="form-inline">
           <label for="SectorType">Sector Type:</label>

@@ -185,13 +185,50 @@ export class RoomEditComponent implements OnInit {
     this.selectedSector = null;
   }
 
-  addSector(): void {
+  addingSector(): void {
     this.addingNewSector = true;
     this.selectedSeat = null;
     this.selectedSector = null;
   }
 
-  cancelAddSector(): void {
+  submitSector(): void {
+    if (this.newSectorType === this.sectorType.SEATED) {
+      const newSector = new SeatedSector();
+      newSector.id = null;
+      newSector.type = this.sectorType.SEATED;
+      newSector.rows = [];
+      newSector.price = this.newSectorPrice;
+      for (let i = 1; i <= this.newSectorRows; i++) {
+        for (let j = 1; j <= this.newSectorSeatsForRow; j++) {
+          const seat: Seat = {
+            id: null,
+            rowNumber: i,
+            columnNumber: j,
+            deleted: false
+          };
+          newSector.rows.push(seat);
+        }
+      }
+      this.room.sectors.push(newSector);
+    } else if (this.newSectorType === this.sectorType.STANDING) {
+      const newSector = new StandingSector();
+      newSector.id = null;
+      newSector.type = this.sectorType.STANDING;
+      newSector.capacity = this.newSectorCapacity;
+      newSector.price = this.newSectorPrice;
+      this.room.sectors.push(newSector);
+    }
+
+    this.edit();
+
+    this.addingNewSector = false;
+    this.newSectorRows = null;
+    this.newSectorSeatsForRow = null;
+    this.newSectorPrice = null;
+    this.newSectorCapacity = null;
+  }
+
+  cancelAddingSector(): void {
     this.addingNewSector = false;
   }
 
