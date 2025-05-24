@@ -395,10 +395,14 @@ public class ShowServiceTest {
         testEvent.setDuration(200);
         eventRepository.save(testEvent);
 
+        LocalDateTime eventStart   = testEvent.getDateTime();
+        LocalDateTime existingDate = eventStart.plusMinutes(60);
+        LocalDateTime secondDate   = eventStart.plusMinutes(60 - 30);
+
         Show existing = Show.ShowBuilder.aShow()
             .withName("Anchor")
             .withDuration(90)
-            .withDate(LocalDateTime.now().plusDays(1).withHour(18))
+            .withDate(existingDate)
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
             .withRoom(testRoom)
@@ -407,7 +411,7 @@ public class ShowServiceTest {
         Show tooEarlyAndLong = Show.ShowBuilder.aShow()
             .withName("Too Early")
             .withDuration(120)
-            .withDate(LocalDateTime.now().plusDays(1).withHour(16))
+            .withDate(secondDate)
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
             .withRoom(testRoom)

@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.CreateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.UpdateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
@@ -323,8 +324,7 @@ public class EventEndpointTest implements TestData {
     public void updateEvent_withValidData_shouldSucceed() throws Exception {
         showRepository.deleteAll();
 
-        EventDetailDto dto = EventDetailDto.EventDtoBuilder.anEventDto()
-            .id(testEvent.getId())
+        UpdateEventDto dto = UpdateEventDto.UpdateEventDtoBuilder.anUpdateEventDto()
             .name("Updated Concert")
             .category(testEvent.getCategory().name())
             .description("Updated description")
@@ -343,8 +343,8 @@ public class EventEndpointTest implements TestData {
             .andReturn();
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        EventDetailDto updated = objectMapper.readValue(
-            result.getResponse().getContentAsString(), EventDetailDto.class);
+        UpdateEventDto updated = objectMapper.readValue(
+            result.getResponse().getContentAsString(), UpdateEventDto.class);
 
         assertAll(
             () -> assertEquals(dto.getName(), updated.getName()),
@@ -357,8 +357,7 @@ public class EventEndpointTest implements TestData {
 
     @Test
     public void updateEvent_withInvalidData_shouldReturn422() throws Exception {
-        EventDetailDto dto = EventDetailDto.EventDtoBuilder.anEventDto()
-            .id(testEvent.getId())
+        UpdateEventDto dto = UpdateEventDto.UpdateEventDtoBuilder.anUpdateEventDto()
             .name("   ")
             .category(testEvent.getCategory().name())
             .description("Desc")
@@ -387,8 +386,7 @@ public class EventEndpointTest implements TestData {
     public void updateEvent_asAdmin_shouldSucceed() throws Exception {
         showRepository.deleteAll();
 
-        EventDetailDto dto = EventDetailDto.EventDtoBuilder.anEventDto()
-            .id(testEvent.getId())
+        UpdateEventDto dto = UpdateEventDto.UpdateEventDtoBuilder.anUpdateEventDto()
             .name("JazzNacht")
             .category(testEvent.getCategory().name())
             .description("Mit Groove")
@@ -407,7 +405,7 @@ public class EventEndpointTest implements TestData {
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
 
-        EventDetailDto updated = objectMapper.readValue(result.getResponse().getContentAsString(), EventDetailDto.class);
+        UpdateEventDto updated = objectMapper.readValue(result.getResponse().getContentAsString(), UpdateEventDto.class);
         assertAll(
             () -> assertEquals(dto.getName(),        updated.getName()),
             () -> assertEquals(dto.getDescription(), updated.getDescription()),
@@ -419,8 +417,7 @@ public class EventEndpointTest implements TestData {
 
     @Test
     public void updateEvent_asUser_shouldFailWith403() throws Exception {
-        EventDetailDto dto = EventDetailDto.EventDtoBuilder.anEventDto()
-            .id(testEvent.getId())
+        UpdateEventDto dto = UpdateEventDto.UpdateEventDtoBuilder.anUpdateEventDto()
             .name("UserUpdate")
             .category("POP")
             .description("Normaler User darf nicht")

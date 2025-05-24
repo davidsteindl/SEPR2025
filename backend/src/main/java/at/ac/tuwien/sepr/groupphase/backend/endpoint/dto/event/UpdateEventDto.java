@@ -120,6 +120,10 @@ public class UpdateEventDto {
         private LocalDateTime dateTime;
         private Long locationId;
 
+        public static UpdateEventDtoBuilder anUpdateEventDto() {
+            return new UpdateEventDtoBuilder();
+        }
+
         public UpdateEventDtoBuilder name(String name) {
             this.name = name;
             return this;
