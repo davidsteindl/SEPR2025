@@ -253,7 +253,7 @@ public class EventServiceTest {
             () -> assertEquals(mockShowDto, result.getContent().getFirst())
         );
 
-        verify(showRepository).findByEvent(event, pageable);
+        verify(showRepository).findByEvent(any(Event.class), eq(pageable));
         verify(showMapper).showToShowDetailDto(mockShow);
     }
 }
