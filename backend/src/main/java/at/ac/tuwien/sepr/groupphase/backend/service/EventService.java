@@ -37,6 +37,14 @@ public interface EventService {
     Event createEvent(Event event) throws ValidationException;
 
     /**
+     * Updates the given event.
+     *
+     * @param event the event to update
+     * @return the updated event
+     */
+    Event updateEvent(Long id, Event event) throws ValidationException;
+
+    /**
      * Retrieves a paginated list of events associated with the given artist.
      *
      * @param artistId the ID of the artist whose events should be retrieved
