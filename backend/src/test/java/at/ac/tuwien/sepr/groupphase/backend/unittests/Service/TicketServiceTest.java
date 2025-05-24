@@ -104,6 +104,7 @@ public class TicketServiceTest {
             .withName("Test Event")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("Test description")
+            .withDateTime(LocalDateTime.now().plusDays(1))
             .withDuration(120)
             .withLocation(location)
             .build();
@@ -121,7 +122,7 @@ public class TicketServiceTest {
         Show show = Show.ShowBuilder.aShow()
             .withName("Test Show")
             .withDuration(60)
-            .withDate(LocalDateTime.now().plusDays(1))
+            .withDate(LocalDateTime.now().plusDays(2))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
             .withRoom(testRoom)
@@ -137,6 +138,7 @@ public class TicketServiceTest {
             .withName("Past Event")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("Past event for testing")
+            .withDateTime(LocalDateTime.now().minusDays(2))
             .withDuration(60)
             .withLocation(location)
             .build();

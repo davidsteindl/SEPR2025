@@ -63,6 +63,7 @@ public class ShowServiceTest {
             .withName("Beethoven Night")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("An evening of Beethoven")
+            .withDateTime(LocalDateTime.now().plusDays(1))
             .withDuration(300)
             .withLocation(location)
             .build();

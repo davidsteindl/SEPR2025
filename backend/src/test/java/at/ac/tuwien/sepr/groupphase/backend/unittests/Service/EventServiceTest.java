@@ -27,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -85,6 +86,7 @@ public class EventServiceTest {
             .withName("Test Event")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDuration(800)
+            .withDateTime(LocalDateTime.now().plusDays(1))
             .withDescription("A beautiful classical concert.")
             .withLocation(testLocation)
             .build();
@@ -97,6 +99,9 @@ public class EventServiceTest {
         eventDetailDto.setId(eventId);
         eventDetailDto.setName(event.getName());
         eventDetailDto.setCategory(event.getCategory().name());
+        eventDetailDto.setDuration(event.getDuration());
+        eventDetailDto.setDescription(event.getDescription());
+        eventDetailDto.setDateTime(event.getDateTime());
         eventDetailDto.setLocationId(testLocation.getId());
 
         mockShow = new Show();
@@ -158,6 +163,7 @@ public class EventServiceTest {
         Event newEvent = Event.EventBuilder.anEvent()
             .withName("New Event")
             .withCategory(Event.EventCategory.CLASSICAL)
+            .withDateTime(LocalDateTime.now().plusDays(2))
             .withDuration(120)
             .withDescription("A new classical concert.")
             .withLocation(testLocation)
@@ -234,7 +240,8 @@ public class EventServiceTest {
         Pageable pageable = PageRequest.of(0, 5);
         Page<Show> showPage = new PageImpl<>(List.of(mockShow), pageable, 1);
 
-        when(showRepository.findByEvent(event, pageable)).thenReturn(showPage);
+        when(showRepository.findByEvent(any(Event.class), eq(pageable)))
+            .thenReturn(showPage);
         when(showMapper.showToShowDetailDto(mockShow)).thenReturn(mockShowDto);
 
         Page<ShowDetailDto> result = eventService.getPaginatedShowsForEvent(eventId, pageable);
