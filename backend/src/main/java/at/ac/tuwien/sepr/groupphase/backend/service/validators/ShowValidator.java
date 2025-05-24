@@ -9,11 +9,9 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
-import at.ac.tuwien.sepr.groupphase.backend.util.MinMaxTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,20 +70,10 @@ public class ShowValidator {
         Event event = eventRepository.findById(eventId)
             .orElseThrow(() -> new NotFoundException("Event not found"));
 
-        MinMaxTime result = showRepository.findMinStartAndMaxEndByEventId(eventId);
-        LocalDateTime min = result.getMinDate() != null ? result.getMinDate().toLocalDateTime() : null;
-        LocalDateTime max = result.getMaxEnd() != null ? result.getMaxEnd().toLocalDateTime() : null;
+        LocalDateTime eventStart = event.getDateTime();
+        LocalDateTime eventEnd = eventStart.plusMinutes(event.getDuration());
 
-        LocalDateTime newEnd = showStart.plusMinutes(showDuration);
-
-        if (min == null || showStart.isBefore(min)) {
-            min = showStart;
-        }
-        if (max == null || newEnd.isAfter(max)) {
-            max = newEnd;
-        }
-
-        long totalBlockMinutes = Duration.between(min, max).toMinutes();
-        return event.getDuration() >= totalBlockMinutes;
+        LocalDateTime showEnd = showStart.plusMinutes(showDuration);
+        return !showStart.isBefore(eventStart) && !showEnd.isAfter(eventEnd);
     }
 }
