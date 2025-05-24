@@ -537,4 +537,29 @@ public class TicketServiceTest {
         );
     }
 
+    @Test
+    @Transactional
+    public void getOrderByIdWithoutTickets_validUser_returnsMetadataOnly() {
+        TicketRequestDto req = new TicketRequestDto();
+        req.setShowId(testShow.getId());
+        TicketTargetSeatedDto t = new TicketTargetSeatedDto();
+        t.setSectorId(seatedSector.getId());
+        t.setSeatId(seat.getId());
+        req.setTargets(List.of(t));
+
+        OrderDto order = ticketService.buyTickets(req);
+        Long orderId = order.getId();
+
+        OrderDto result = ticketService.getOrderByIdWithoutTickets(orderId);
+
+        assertAll(
+            () -> assertEquals(orderId, result.getId()),
+            () -> assertEquals(testShow.getName(), result.getShowName()),
+            () -> assertEquals(testShow.getDate(), result.getShowDate()),
+            () -> assertEquals(location.getName(), result.getLocationName()),
+            () -> assertNull(result.getTickets(), "Ticket list should be null or empty")
+        );
+    }
+
+
 }

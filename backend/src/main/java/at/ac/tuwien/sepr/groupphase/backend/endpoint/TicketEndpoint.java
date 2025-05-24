@@ -139,8 +139,25 @@ public class TicketEndpoint {
         return ticketService.getOrdersForUser(userId, OrderType.REFUND, false, pageable);
     }
 
+    @GetMapping("/orders/{orderId}/tickets")
+    @Secured("ROLE_USER")
+    @Operation(summary = "Get paginated tickets for a specific order", security = @SecurityRequirement(name = "apiKey"))
+    public Page<TicketDto> getTicketsForOrder(
+        @PathVariable("orderId") Long orderId,
+        Pageable pageable) {
 
-    // TODO: get order by id
+        LOGGER.info("GET /api/v1/tickets/orders/{}/tickets by user {}", orderId, authenticationFacade.getCurrentUserId());
+        return ticketService.getTicketsForOrder(orderId, pageable);
+    }
+
+
+    @GetMapping("/orders/{orderId}")
+    @Secured("ROLE_USER")
+    @Operation(summary = "Get order metadata without tickets", security = @SecurityRequirement(name = "apiKey"))
+    public OrderDto getOrderById(@PathVariable("orderId") Long orderId) {
+        LOGGER.info("GET /api/v1/tickets/orders/{} by user {}", orderId, authenticationFacade.getCurrentUserId());
+        return ticketService.getOrderByIdWithoutTickets(orderId);
+    }
 
 
 }
