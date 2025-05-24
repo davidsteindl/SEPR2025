@@ -43,6 +43,13 @@ export class RoomEditComponent implements OnInit {
   newSectorPrice: number;
   newSectorCapacity: number;
 
+  editedSectorType: SectorType;
+  editedRows: number;
+  editedSeatsPerRow: number;
+  editedCapacity: number;
+  editedPrice: number;
+
+
   constructor(private route: ActivatedRoute,
               private roomService: RoomService,
               private notification: ToastrService,
@@ -173,6 +180,18 @@ export class RoomEditComponent implements OnInit {
     this.rowsForSector = Math.max(...sector.rows.map(seat => seat.rowNumber));
     this.seatsForRow = Math.max(...sector.rows.map(seat => seat.columnNumber));
 
+    this.editedSectorType = sector.type;
+    this.editedPrice = sector.price;
+
+    if (this.asSeatedSector(sector)) {
+      const seated = this.asSeatedSector(sector);
+      this.editedRows = Math.max(...seated.rows.map(seat => seat.rowNumber));
+      this.editedSeatsPerRow = Math.max(...seated.rows.map(seat => seat.columnNumber));
+    } else if (this.asStandingSector(sector)) {
+      const standing = this.asStandingSector(sector);
+      this.editedCapacity = standing.capacity;
+    }
+
 
     console.log(`Clicked sector ${sector.id}`);
   }
@@ -181,6 +200,18 @@ export class RoomEditComponent implements OnInit {
     this.selectedSeat = null;
     this.selectedSector = sector;
     this.capacity = sector.capacity;
+
+    this.editedSectorType = sector.type;
+    this.editedPrice = sector.price;
+
+    if (this.asSeatedSector(sector)) {
+      const seated = this.asSeatedSector(sector);
+      this.editedRows = Math.max(...seated.rows.map(seat => seat.rowNumber));
+      this.editedSeatsPerRow = Math.max(...seated.rows.map(seat => seat.columnNumber));
+    } else if (this.asStandingSector(sector)) {
+      const standing = this.asStandingSector(sector);
+      this.editedCapacity = standing.capacity;
+    }
 
     console.log(`Clicked sector ${sector.id}`);
   }
@@ -223,7 +254,7 @@ export class RoomEditComponent implements OnInit {
       this.room.sectors.push(newSector);
     }
 
-    this.edit();
+    this.editAndStay();
 
     this.addingNewSector = false;
     this.newSectorRows = null;
@@ -253,8 +284,79 @@ export class RoomEditComponent implements OnInit {
     this.selectedSector = null;
     this.selectedSeat = null;
 
-    this.edit();
+    this.editAndStay();
   }
+
+  editSector(): void {
+    if (!this.selectedSector || !this.room) return;
+
+    const index = this.room.sectors.indexOf(this.selectedSector);
+    if (index === -1) return;
+
+
+    if (this.selectedSector.type !== this.editedSectorType) {
+      let updatedSector: Sector;
+
+      if (this.editedSectorType === this.sectorType.SEATED) {
+        const seated = new SeatedSector();
+        seated.id = null;
+        seated.type = SectorType.SEATED;
+        seated.price = this.editedPrice;
+        seated.rows = [];
+
+        for (let i = 1; i <= this.editedRows; i++) {
+          for (let j = 1; j <= this.editedSeatsPerRow; j++) {
+            seated.rows.push({ id: null, rowNumber: i, columnNumber: j, deleted: false });
+          }
+        }
+
+        updatedSector = seated;
+      } else {
+        const standing = new StandingSector();
+        standing.id = null;
+        standing.type = SectorType.STANDING;
+        standing.price = this.editedPrice;
+        standing.capacity = this.editedCapacity;
+
+        updatedSector = standing;
+      }
+
+      this.room.sectors[index] = updatedSector;
+    } else {
+
+      this.selectedSector.price = this.editedPrice;
+
+      if (this.editedSectorType === this.sectorType.STANDING && this.asStandingSector(this.selectedSector)) {
+        const standing = this.asStandingSector(this.selectedSector);
+        standing.capacity = this.editedCapacity;
+      }
+
+      if (this.editedSectorType === this.sectorType.SEATED && this.asSeatedSector(this.selectedSector)) {
+        const seated = this.asSeatedSector(this.selectedSector);
+
+        const existingSeats: Seat[] = seated.rows.filter(seat => !seat.deleted);
+
+        const newSeats: Seat[] = [];
+        for (let i = 1; i <= this.editedRows; i++) {
+          for (let j = 1; j <= this.editedSeatsPerRow; j++) {
+            const existing = seated.rows.find(s => s.rowNumber === i && s.columnNumber === j);
+            if (existing) {
+              newSeats.push(existing);
+            } else {
+              newSeats.push({ id: null, rowNumber: i, columnNumber: j, deleted: false });
+            }
+          }
+        }
+
+        seated.rows = newSeats;
+      }
+    }
+
+    this.selectedSector = null;
+    this.editAndStay();
+  }
+
+
 
   getSelectedSectorIndex(): number | null {
     if (!this.selectedSector || !this.room) return null;
@@ -299,4 +401,25 @@ export class RoomEditComponent implements OnInit {
     });
   }
 
+  editAndStay(): void {
+    this.roomService.edit(this.room).subscribe({
+      next: (response) => {
+        if (response) {
+          this.notification.success(`Room ${response.name} edited successfully!`, 'Success', {
+            enableHtml: true,
+            timeOut: 8000,
+          });
+          this.router.navigate(['/rooms', this.room.id, 'edit']);
+        }
+      },
+      error: (err) => {
+        console.error('Error while editing room:', err);
+        this.notification.error(this.errorFormatter.format(err), 'Error while editing room', {
+          enableHtml: true,
+          timeOut: 8000,
+        });
+        this.getRoomById();
+      }
+    });
+  }
 }
