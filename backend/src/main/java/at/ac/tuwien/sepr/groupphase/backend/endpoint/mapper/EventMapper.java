@@ -17,6 +17,7 @@ public interface EventMapper {
     EventDetailDto eventToEventDetailDto(Event event);
 
     @Mapping(target = "category", source = "category", qualifiedByName = "mapStringToEventCategory")
+    @Mapping(target = "dateTime", source = "dateTime")
     @Mapping(target = "location", source = "locationId", qualifiedByName = "mapLocationIdToEventLocation")
     Event createEventDtoToEvent(CreateEventDto createEventDto);
 

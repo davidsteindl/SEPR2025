@@ -33,6 +33,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -98,6 +100,7 @@ public class EventEndpointTest implements TestData {
         testEvent.setCategory(EventCategory.JAZZ);
         testEvent.setDescription("Jazz für alle");
         testEvent.setDuration(120);
+        testEvent.setDateTime(LocalDateTime.of(2025, Month.JANUARY, 1, 10, 0));
         testEvent.setLocation(testLocation);
         eventRepository.save(testEvent);
 
@@ -157,6 +160,7 @@ public class EventEndpointTest implements TestData {
             .name("Rocknacht")
             .category("ROCK")
             .description("Laut und wild")
+            .dateTime(LocalDateTime.of(2025, Month.FEBRUARY, 1, 20, 0))
             .duration(180)
             .locationId(testLocation.getId())
             .build();
@@ -184,6 +188,7 @@ public class EventEndpointTest implements TestData {
             .name("UserEvent")
             .category("POP")
             .description("Normaler User darf nicht")
+            .dateTime(LocalDateTime.of(2025, Month.MARCH, 1, 18, 0))
             .duration(90)
             .locationId(testLocation.getId())
             .build();
@@ -205,6 +210,7 @@ public class EventEndpointTest implements TestData {
             .name("Anonymous")
             .category("CLASSICAL")
             .description("Kein Token vorhanden")
+            .dateTime(LocalDateTime.of(2025, Month.APRIL, 1, 19, 0))
             .duration(60)
             .locationId(testLocation.getId())
             .build();
