@@ -50,11 +50,31 @@
         </tbody>
       </table>
       <div class="actions">
-        <button class="btn btn-danger" (click)="refundSelected()" [disabled]="!hasSelection()">
+        <button class="btn btn-danger" (click)="openRefundConfirm()" [disabled]="!hasSelection()">
           Refund Selected
         </button>
       </div>
     </section>
+
+    <div class="modal-overlay" *ngIf="showConfirmModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5>Refund Tickets</h5>
+          <button class="close-button" (click)="cancelRefund()">×</button>
+        </div>
+        <div class="modal-body">
+          <p>Do you really want to refund the selected tickets?</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-danger" (click)="confirmRefund()">
+            Yes, refund selected
+          </button>
+          <button class="btn btn-primary" (click)="cancelRefund()">
+            Exit, keep tickets
+          </button>
+        </div>
+      </div>
+    </div>
 
 
   </div>

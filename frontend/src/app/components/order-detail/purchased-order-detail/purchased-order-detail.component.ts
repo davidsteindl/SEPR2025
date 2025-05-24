@@ -27,6 +27,7 @@ export class PurchasedOrderDetailComponent implements OnInit {
   tickets: TicketDto[] = [];
   selected: { [ticketId: number]: boolean } = {};
   isLoading = true;
+  showConfirmModal = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -79,12 +80,33 @@ export class PurchasedOrderDetailComponent implements OnInit {
     });
   }
 
+  openRefundConfirm(): void {
+    if (this.hasSelection()) {
+      this.showConfirmModal = true;
+    }
+  }
+
+  confirmRefund(): void {
+    const ticketIds = Object.keys(this.selected)
+      .filter(id => this.selected[+id])
+      .map(id => +id);
+
+    this.ticketService.refundTickets(ticketIds).subscribe(() => {
+      this.selected = {};
+      this.showConfirmModal = false;
+      this.loadTickets(this.order!.id);
+    });
+  }
+
+  cancelRefund(): void {
+    this.showConfirmModal = false;
+  }
+
+
   hasSelection(): boolean {
     return Object.values(this.selected).some(v => v);
   }
 
-
   downloadPdf(ticketId: number): void {
-    alert('PDF download not implemented yet');
   }
 }
