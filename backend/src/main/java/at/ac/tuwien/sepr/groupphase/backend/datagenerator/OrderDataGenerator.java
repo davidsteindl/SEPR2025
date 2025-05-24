@@ -53,48 +53,28 @@ public class OrderDataGenerator {
         LOGGER.debug("Generating test orders...");
 
         Optional<ApplicationUser> optionalUser = Optional.ofNullable(userRepository.findByEmail("user@email.com"));
-        if (optionalUser.isEmpty()) {
-            LOGGER.warn("No user with email 'user@email.com' found");
-            return;
-        }
+        Optional<ApplicationUser> optionalAdmin = Optional.ofNullable(userRepository.findByEmail("admin@email.com"));
 
         List<Show> shows = showRepository.findAll();
         List<Sector> sectors = sectorRepository.findAll();
+        Random random = new Random();
 
         if (shows.isEmpty() || sectors.isEmpty()) {
             LOGGER.warn("No shows or sectors available, cannot generate tickets");
             return;
         }
 
-        ApplicationUser user = optionalUser.get();
-        Random random = new Random();
-
-        for (int i = 0; i < 12; i++) {
-            Order order = new Order();
-            order.setUserId(user.getId());
-            OrderType orderType = randomOrderType(random);
-            order.setOrderType(orderType);
-            order.setCreatedAt(LocalDateTime.now().minusDays(i));
-            orderRepository.save(order);
-
-            Ticket ticket = new Ticket();
-            ticket.setOrder(order);
-            ticket.setShow(shows.get(random.nextInt(shows.size())));
-            ticket.setSector(sectors.get(random.nextInt(sectors.size())));
-            ticket.setCreatedAt(LocalDateTime.now().minusDays(i));
-
-            TicketStatus status = switch (orderType) {
-                case ORDER -> TicketStatus.BOUGHT;
-                case RESERVATION -> random.nextInt(10) < 7 ? TicketStatus.RESERVED : TicketStatus.EXPIRED;
-                case REFUND -> random.nextInt(10) < 7 ? TicketStatus.REFUNDED : TicketStatus.CANCELLED;
-                default -> TicketStatus.BOUGHT;
-            };
-            ticket.setStatus(status);
-
-            ticketRepository.save(ticket);
+        if (optionalUser.isPresent()) {
+            generateOrdersForUser(optionalUser.get(), shows, sectors, random, "user");
+        } else {
+            LOGGER.warn("No user with email 'user@email.com' found");
         }
 
-        LOGGER.debug("Created 12 orders with tickets for user: {}", user.getEmail());
+        if (optionalAdmin.isPresent()) {
+            generateOrdersForUser(optionalAdmin.get(), shows, sectors, random, "admin");
+        } else {
+            LOGGER.warn("No admin with email 'admin@email.com' found");
+        }
     }
 
     private OrderType randomOrderType(Random random) {
@@ -105,4 +85,35 @@ public class OrderDataGenerator {
             default -> OrderType.ORDER;
         };
     }
+
+    private void generateOrdersForUser(ApplicationUser user, List<Show> shows, List<Sector> sectors, Random random, String label) {
+        for (int i = 0; i < 10; i++) {
+            Order order = new Order();
+            order.setUserId(user.getId());
+            OrderType orderType = randomOrderType(random);
+            order.setOrderType(orderType);
+            order.setCreatedAt(LocalDateTime.now().minusDays(i));
+            order = orderRepository.save(order);
+
+            int ticketCount = 2 + random.nextInt(3);
+            for (int j = 0; j < ticketCount; j++) {
+                Ticket ticket = new Ticket();
+                ticket.setOrder(order);
+                ticket.setShow(shows.get(random.nextInt(shows.size())));
+                ticket.setSector(sectors.get(random.nextInt(sectors.size())));
+                ticket.setCreatedAt(LocalDateTime.now().minusDays(i));
+
+                TicketStatus status = switch (orderType) {
+                    case ORDER -> TicketStatus.BOUGHT;
+                    case RESERVATION -> random.nextInt(10) < 7 ? TicketStatus.RESERVED : TicketStatus.EXPIRED;
+                    case REFUND -> random.nextInt(10) < 7 ? TicketStatus.REFUNDED : TicketStatus.CANCELLED;
+                    default -> TicketStatus.BOUGHT;
+                };
+                ticket.setStatus(status);
+                ticketRepository.save(ticket);
+            }
+        }
+        LOGGER.debug("Created 10 test orders for {}", label);
+    }
+
 }
