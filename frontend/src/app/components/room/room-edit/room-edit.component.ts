@@ -126,9 +126,13 @@ export class RoomEditComponent implements OnInit {
 
 
   getRowOffset(index: number): number {
-    return this.seatedSectors
+    return this.room.sectors
       .slice(0, index)
-      .reduce((acc, s) => acc + this.getMaxRows(s).length, 0);
+      .filter(s => this.asSeatedSector(s))
+      .reduce((acc, s) => {
+        const seated = this.asSeatedSector(s);
+        return acc + (seated ? this.getMaxRows(seated).length : 0);
+      }, 0);
   }
 
   toColumnLetter(col: number): string {

@@ -34,7 +34,8 @@
       </ng-container>
       <ng-container *ngIf="asStandingSector(sector) as standingSector">
         <tr>
-          <td [attr.colspan]="globalColumns.length + 1">
+          <td></td>
+          <td [attr.colspan]="globalColumns.length">
             <button
               class="standingSector"
               (click)="onSectorClick(standingSector)">
