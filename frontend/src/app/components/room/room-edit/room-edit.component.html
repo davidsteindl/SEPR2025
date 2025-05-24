@@ -108,7 +108,7 @@
 
 
       <ng-container *ngIf="!selectedSeat && selectedSector">
-        <p class="sectorText">Sector: {{ this.selectedSector.id }}<br/><br/></p>
+        <p class="sectorText">Sector: {{ getSelectedSectorIndex() }}<br/><br/></p>
 
         <div style="margin-bottom: 10px;" class="form-inline">
           <label for="SectorType">Sector Type:</label>

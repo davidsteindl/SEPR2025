@@ -201,6 +201,12 @@ export class RoomEditComponent implements OnInit {
     this.selectedSector = null;
   }
 
+  getSelectedSectorIndex(): number | null {
+    if (!this.selectedSector || !this.room) return null;
+    return this.room.sectors.indexOf(this.selectedSector) + 1;
+  }
+
+
   unClickSeat(): void {
     this.selectedSeat = null;
     this.selectedSector = null;
