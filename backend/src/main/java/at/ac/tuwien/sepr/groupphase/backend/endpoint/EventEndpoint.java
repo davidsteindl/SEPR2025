@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventTopTenDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.UpdateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
@@ -89,8 +90,8 @@ public class EventEndpoint {
     /**
      * Updates an existing event.
      *
-     * @param id the ID of the event to update
-     * @param eventDetailDto the updated event data
+     * @param id             the ID of the event to update
+     * @param updateEventDto the updated event data
      * @return the updated event details
      */
     @PutMapping("/{id}")
@@ -103,9 +104,9 @@ public class EventEndpoint {
     )
     public EventDetailDto updateEvent(
         @PathVariable("id") Long id,
-        @RequestBody @Valid EventDetailDto eventDetailDto) throws ValidationException {
-        LOGGER.info("PUT /api/v1/events/{} {}", id, eventDetailDto);
-        Event event = eventService.updateEvent(id, eventMapper.eventDetailDtoToEvent(eventDetailDto));
+        @RequestBody @Valid UpdateEventDto updateEventDto) throws ValidationException {
+        LOGGER.info("PUT /api/v1/events/{} {}", id, updateEventDto);
+        Event event = eventService.updateEvent(id, eventMapper.updateEventDtoToEvent(updateEventDto));
         return eventMapper.eventToEventDetailDto(event);
     }
 

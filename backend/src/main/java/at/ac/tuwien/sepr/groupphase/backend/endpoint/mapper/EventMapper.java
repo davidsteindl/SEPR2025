@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.CreateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.UpdateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import org.mapstruct.Mapper;
@@ -26,7 +27,7 @@ public interface EventMapper {
     @Mapping(target = "category", source = "category", qualifiedByName = "mapStringToEventCategory")
     @Mapping(target = "dateTime", source = "dateTime")
     @Mapping(target = "location", source = "locationId", qualifiedByName = "mapLocationIdToEventLocation")
-    Event eventDetailDtoToEvent(EventDetailDto eventDetailDto);
+    Event updateEventDtoToEvent(UpdateEventDto updateEventDto);
 
     @Named("mapStringToEventCategory")
     default Event.EventCategory mapStringToEventCategory(String category) {
