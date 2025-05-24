@@ -11,6 +11,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.EventServiceImpl;
+import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,7 +70,8 @@ public class EventServiceTest {
         showRepository = mock(ShowRepository.class);
         eventMapper = mock(EventMapper.class);
         showMapper = mock(ShowMapper.class);
-        eventService = new EventServiceImpl(eventRepository, eventLocationRepository, showRepository, eventMapper, showMapper);
+        EventValidator eventValidator = new EventValidator(eventRepository, eventLocationRepository, showRepository);
+        eventService = new EventServiceImpl(eventRepository, eventLocationRepository, showRepository, eventMapper, showMapper, eventValidator);
 
         testLocation = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Test Location")
@@ -255,5 +257,92 @@ public class EventServiceTest {
 
         verify(showRepository).findByEvent(any(Event.class), eq(pageable));
         verify(showMapper).showToShowDetailDto(mockShow);
+    }
+
+    @Test
+    public void testUpdateEvent_validChange_succeeds() throws ValidationException {
+        when(showRepository.findByEventOrderByDateAsc(event))
+            .thenReturn(List.of());
+
+        Event updated = Event.EventBuilder.anEvent()
+            .withName("New Name")
+            .withCategory(Event.EventCategory.CLASSICAL)
+            .withDescription("New Desc")
+            .withDateTime(event.getDateTime().plusHours(1))
+            .withDuration(100)
+            .withLocation(testLocation)
+            .build();
+
+        Event result = eventService.updateEvent(eventId, updated);
+
+        assertAll(
+            () -> assertEquals("New Name", result.getName()),
+            () -> assertEquals("New Desc", result.getDescription()),
+            () -> assertEquals(100, result.getDuration()),
+            () -> assertEquals(testLocation.getId(), result.getLocation().getId())
+        );
+    }
+
+    @Test
+    public void testUpdateEvent_blankName_throwsValidationException() {
+        Event invalid = Event.EventBuilder.anEvent()
+            .withName("   ")
+            .withCategory(Event.EventCategory.CLASSICAL)
+            .withDescription("Desc")
+            .withDateTime(event.getDateTime())
+            .withDuration(120)
+            .withLocation(testLocation)
+            .build();
+
+        ValidationException ex = assertThrows(
+            ValidationException.class,
+            () -> eventService.updateEvent(eventId, invalid)
+        );
+        assertTrue(ex.getMessage().contains("Name must not be blank"));
+    }
+
+    @Test
+    public void testUpdateEvent_showOutsideNewTimeframe_throwsValidationException() {
+        Show s1 = new Show();
+        s1.setId(42L);
+        s1.setDate(event.getDateTime().minusHours(2));
+        s1.setDuration(30);
+        s1.setEvent(event);
+
+        when(showRepository.findByEventOrderByDateAsc(any(Event.class)))
+            .thenReturn(List.of(s1));
+
+        Event invalid = Event.EventBuilder.anEvent()
+            .withName("Name")
+            .withCategory(Event.EventCategory.CLASSICAL)
+            .withDescription("Desc")
+            .withDateTime(event.getDateTime().plusHours(3))
+            .withDuration(60)
+            .withLocation(testLocation)
+            .build();
+
+        ValidationException ex = assertThrows(
+            ValidationException.class,
+            () -> eventService.updateEvent(eventId, invalid)
+        );
+        assertTrue(ex.getMessage().contains("outside event timeframe"));
+    }
+
+    @Test
+    public void testUpdateEvent_invalidLocation_throwsValidationException() {
+        Event invalid = Event.EventBuilder.anEvent()
+            .withName("Name")
+            .withCategory(Event.EventCategory.CLASSICAL)
+            .withDescription("Desc")
+            .withDateTime(event.getDateTime())
+            .withDuration(120)
+            .withLocation(EventLocation.EventLocationBuilder.anEventLocation().build())
+            .build();
+
+        ValidationException ex = assertThrows(
+            ValidationException.class,
+            () -> eventService.updateEvent(eventId, invalid)
+        );
+        assertTrue(ex.getMessage().contains("Location not found"));
     }
 }
