@@ -89,9 +89,8 @@ public class EventServiceImpl implements EventService {
 
         Event existing = eventRepository.findById(id).orElseThrow(() -> new NotFoundException("Event not found with id: " + id));
 
-        Long locId = event.getLocation().getId();
-        EventLocation location = eventLocationRepository.findById(locId)
-            .orElseThrow(() -> new ValidationException("Location not found", List.of("Location not found")));
+        EventLocation location = eventLocationRepository.findById(event.getLocation().getId())
+            .orElseThrow(() -> new ValidationException("No event location given", List.of("No event location given")));
 
         existing.setName(event.getName());
         existing.setCategory(event.getCategory());
