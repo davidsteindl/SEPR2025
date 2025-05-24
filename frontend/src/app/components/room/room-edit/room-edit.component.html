@@ -79,13 +79,13 @@
 
         <div style="margin-bottom: 10px;" *ngIf="newSectorType === sectorType.SEATED">
           <label for="NewAmountRows">Amount Rows:</label>
-          <input type="number" id="NewAmountRows" class="custom-input" min="1" max="50"
+          <input type="number" id="NewAmountRows" class="custom-input" min="1" max="200"
                  [(ngModel)]="newSectorRows"/>
         </div>
 
         <div style="margin-bottom: 10px;" *ngIf="newSectorType === sectorType.SEATED">
           <label for="NewSeatsPerRow">Seats per Row:</label>
-          <input type="number" id="NewSeatsPerRow" class="custom-input" min="1" max="50"
+          <input type="number" id="NewSeatsPerRow" class="custom-input" min="1" max="100"
                  [(ngModel)]="newSectorSeatsForRow"/>
         </div>
 
@@ -97,8 +97,8 @@
 
         <div>
           <label for="NewSectorPrice">Sector Price:</label>
-          <input type="number" id="NewSectorPrice" class="custom-input" min="1" max="200"
-                 [(ngModel)]="newSectorPrice" (blur)="validatePrice()"/>
+          <input type="number" id="NewSectorPrice" class="custom-input" min="1" max="9999"
+                 [(ngModel)]="newSectorPrice"/>
         </div>
         <br>
 
@@ -113,6 +113,8 @@
 
 
       <ng-container *ngIf="!selectedSeat && selectedSector">
+        <p class="sectorText">Sector {{ getSelectedSectorIndex() }}<br/><br/></p>
+
         <div style="margin-bottom: 10px;" class="form-inline">
           <label for="SectorType">Sector Type:</label>
           <select id="SectorType" [(ngModel)]="editedSectorType" name="SectorType" class="form-control">
@@ -123,13 +125,13 @@
 
         <div style="margin-bottom: 10px;" *ngIf="editedSectorType === sectorType.SEATED">
           <label for="AmountRows">Amount Rows:</label>
-          <input type="number" id="AmountRows" class="custom-input" min="1" max="50"
+          <input type="number" id="AmountRows" class="custom-input" min="1" max="200"
                  [(ngModel)]="editedRows"/>
         </div>
 
         <div style="margin-bottom: 10px;" *ngIf="editedSectorType === sectorType.SEATED">
           <label for="SeatsPerRow">Seats per Row:</label>
-          <input type="number" id="SeatsPerRow" class="custom-input" min="1" max="50"
+          <input type="number" id="SeatsPerRow" class="custom-input" min="1" max="100"
                  [(ngModel)]="editedSeatsPerRow"/>
         </div>
 
@@ -141,8 +143,8 @@
 
         <div>
           <label for="SectorPrice">Sector Price:</label>
-          <input type="number" id="SectorPrice" class="custom-input" min="1" max="200"
-                 [(ngModel)]="editedPrice" (blur)="validatePrice()"/>
+          <input type="number" id="SectorPrice" class="custom-input" min="1" max="9999"
+                 [(ngModel)]="editedPrice"/>
         </div>
 
         <br>

@@ -227,6 +227,16 @@ export class RoomEditComponent implements OnInit {
   }
 
   submitSector(): void {
+    const validationErrors = this.validateNewSector();
+    if (validationErrors.length > 0) {
+      const htmlList = `<ul>${validationErrors.map(e => `<li>${e}</li>`).join('')}</ul>`;
+      this.notification.error(`<strong>Invalid input:</strong>${htmlList}`, 'Validation Error', {
+        enableHtml: true,
+        timeOut: 8000,
+      });
+      return;
+    }
+
     if (this.newSectorType === this.sectorType.SEATED) {
       const newSector = new SeatedSector();
       newSector.id = null;
@@ -263,6 +273,50 @@ export class RoomEditComponent implements OnInit {
     this.newSectorCapacity = null;
   }
 
+  private validateNewSector(): string[] {
+    const errors: string[] = [];
+
+    if (this.newSectorType === this.sectorType.SEATED) {
+      if (!this.newSectorRows || this.newSectorRows < 1 || this.newSectorRows > 200)
+        errors.push('Amount Rows must be between 1 and 200');
+
+      if (!this.newSectorSeatsForRow || this.newSectorSeatsForRow < 1 || this.newSectorSeatsForRow > 100)
+        errors.push('Seats per Row must be between 1 and 100');
+    }
+
+    if (this.newSectorType === this.sectorType.STANDING) {
+      if (!this.newSectorCapacity || this.newSectorCapacity < 1 || this.newSectorCapacity >= 10000)
+        errors.push('Capacity must be between 1 and 9999');
+    }
+
+    if (!this.newSectorPrice || this.newSectorPrice < 1 || this.newSectorPrice >= 10000)
+      errors.push('Price must be between 1 and 9999');
+
+    return errors;
+  }
+
+  private validateEditedSector(): string[] {
+    const errors: string[] = [];
+
+    if (this.editedSectorType === this.sectorType.SEATED) {
+      if (!this.editedRows || this.editedRows < 1 || this.editedRows > 200)
+        errors.push('Amount Rows must be between 1 and 200');
+
+      if (!this.editedSeatsPerRow || this.editedSeatsPerRow < 1 || this.editedSeatsPerRow > 100)
+        errors.push('Seats per Row must be between 1 and 100');
+    }
+
+    if (this.editedSectorType === this.sectorType.STANDING) {
+      if (!this.editedCapacity || this.editedCapacity < 1 || this.editedCapacity >= 10000)
+        errors.push('Capacity must be between 1 and 9999');
+    }
+
+    if (!this.editedPrice || this.editedPrice < 1 || this.editedPrice >= 10000)
+      errors.push('Price must be between 1 and 9999');
+
+    return errors;
+  }
+
   cancelAddingSector(): void {
     this.addingNewSector = false;
   }
@@ -288,6 +342,16 @@ export class RoomEditComponent implements OnInit {
   }
 
   editSector(): void {
+    const validationErrors = this.validateEditedSector();
+    if (validationErrors.length > 0) {
+      const htmlList = `<ul>${validationErrors.map(e => `<li>${e}</li>`).join('')}</ul>`;
+      this.notification.error(`<strong>Invalid input:</strong>${htmlList}`, 'Validation Error', {
+        enableHtml: true,
+        timeOut: 8000,
+      });
+      return;
+    }
+
     if (!this.selectedSector || !this.room) return;
 
     const index = this.room.sectors.indexOf(this.selectedSector);
@@ -306,7 +370,7 @@ export class RoomEditComponent implements OnInit {
 
         for (let i = 1; i <= this.editedRows; i++) {
           for (let j = 1; j <= this.editedSeatsPerRow; j++) {
-            seated.rows.push({ id: null, rowNumber: i, columnNumber: j, deleted: false });
+            seated.rows.push({id: null, rowNumber: i, columnNumber: j, deleted: false});
           }
         }
 
@@ -343,7 +407,7 @@ export class RoomEditComponent implements OnInit {
             if (existing) {
               newSeats.push(existing);
             } else {
-              newSeats.push({ id: null, rowNumber: i, columnNumber: j, deleted: false });
+              newSeats.push({id: null, rowNumber: i, columnNumber: j, deleted: false});
             }
           }
         }
@@ -357,7 +421,6 @@ export class RoomEditComponent implements OnInit {
   }
 
 
-
   getSelectedSectorIndex(): number | null {
     if (!this.selectedSector || !this.room) return null;
     return this.room.sectors.indexOf(this.selectedSector) + 1;
@@ -367,17 +430,6 @@ export class RoomEditComponent implements OnInit {
   unClickSeat(): void {
     this.selectedSeat = null;
     this.selectedSector = null;
-  }
-
-  validatePrice(): void {
-    if (this.selectedSector == null) {
-      return;
-    }
-    if (this.selectedSector.price < 10) {
-      this.selectedSector.price = 10;
-    } else if (this.selectedSector.price > 200) {
-      this.selectedSector.price = 200;
-    }
   }
 
   edit(): void {
@@ -409,7 +461,7 @@ export class RoomEditComponent implements OnInit {
             enableHtml: true,
             timeOut: 8000,
           });
-          this.router.navigate(['/rooms', this.room.id, 'edit']);
+          this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => this.router.navigate(['/rooms', this.room.id, 'edit']));
         }
       },
       error: (err) => {

@@ -1,19 +1,21 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import java.util.Objects;
 
 public class SeatDto {
 
-    @NotNull(message = "Seat ID must not be null")
     @Positive(message = "Seat ID must be positive")
     private Long id;
 
-    @Positive(message = "Row number must be positive")
+    @Min(value = 1, message = "Row number must be at least 1")
+    @Max(value = 200, message = "Row number must be 200 at most")
     private int rowNumber;
 
-    @Positive(message = "Column number must be positive")
+    @Min(value = 1, message = "Column number must be at least 1")
+    @Max(value = 100, message = "Column number must be 100 at most")
     private int columnNumber;
 
     private boolean deleted;

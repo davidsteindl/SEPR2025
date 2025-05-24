@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -21,7 +22,7 @@ public class RoomDetailDto {
     private String name;
 
     @NotNull(message = "Sectors must not be null")
-    private List<SectorDto> sectors;
+    private List<@Valid SectorDto> sectors;
 
     public Long getId() {
         return id;
