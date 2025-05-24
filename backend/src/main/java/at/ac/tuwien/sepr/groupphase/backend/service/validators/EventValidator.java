@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
-import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -9,7 +8,6 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -54,14 +52,18 @@ public class EventValidator {
             errors.add("Description must not exceed 500 characters");
         }
 
-        if (event.getDateTime() == null) {
+        LocalDateTime start = event.getDateTime();
+        if (start == null) {
             errors.add("Start date/time must not be null");
         }
 
         int duration = event.getDuration();
-
         if (duration < 10 || duration > 10000) {
             errors.add("Duration must be between 10 and 10000 minutes");
+        }
+        Long locationId = event.getLocation() != null ? event.getLocation().getId() : null;
+        if (locationId == null || !locationRepository.existsById(locationId)) {
+            errors.add("Location not found for ID: " + locationId);
         }
 
         if (!errors.isEmpty()) {
@@ -96,7 +98,6 @@ public class EventValidator {
         }
 
         int duration = event.getDuration();
-
         if (duration < 10 || duration > 10000) {
             errors.add("Duration must be between 10 and 10000 minutes");
         }
@@ -111,7 +112,8 @@ public class EventValidator {
 
         LocalDateTime newStart = event.getDateTime();
         LocalDateTime newEnd = newStart.plusMinutes(event.getDuration());
-        List<Show> shows = showRepository.findByEvent(existing, Pageable.unpaged()).getContent();
+        List<Show> shows = showRepository.findByEventOrderByDateAsc(existing);
+
         for (Show s : shows) {
             LocalDateTime start = s.getDate();
             LocalDateTime end = start.plusMinutes(s.getDuration());
