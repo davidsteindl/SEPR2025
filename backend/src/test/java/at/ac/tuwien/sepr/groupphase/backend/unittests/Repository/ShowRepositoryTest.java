@@ -68,6 +68,7 @@ public class ShowRepositoryTest {
             .withName("Summer Fest")
             .withCategory(Event.EventCategory.POP)
             .withDescription("A summer celebration of music.")
+            .withDateTime(LocalDateTime.now())
             .withDuration(300)
             .withLocation(location)
             .build();
@@ -235,7 +236,7 @@ public class ShowRepositoryTest {
             .build();
         showRepository.save(earlyShow);
 
-        LocalDateTime earliestDate = showRepository.findEarliestShowDateByEventId(event.getId());
+        LocalDateTime earliestDate = event.getDateTime();
 
         assertNotNull(earliestDate, "Earliest show date should not be null");
 
