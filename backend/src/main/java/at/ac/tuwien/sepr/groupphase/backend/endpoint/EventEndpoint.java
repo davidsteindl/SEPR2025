@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventTopTenDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.UpdateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
@@ -29,6 +30,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -82,6 +84,29 @@ public class EventEndpoint {
     public EventDetailDto createEvent(@RequestBody @Valid CreateEventDto createEventDto) throws ValidationException {
         LOGGER.info("POST /api/v1/events" + createEventDto);
         Event event = eventService.createEvent(eventMapper.createEventDtoToEvent(createEventDto));
+        return eventMapper.eventToEventDetailDto(event);
+    }
+
+    /**
+     * Updates an existing event.
+     *
+     * @param id             the ID of the event to update
+     * @param updateEventDto the updated event data
+     * @return the updated event details
+     */
+    @PutMapping("/{id}")
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(
+        summary = "Update an existing event",
+        description = "Updates an existing event with the provided data.",
+        security = @SecurityRequirement(name = "apiKey")
+    )
+    public EventDetailDto updateEvent(
+        @PathVariable("id") Long id,
+        @RequestBody @Valid UpdateEventDto updateEventDto) throws ValidationException {
+        LOGGER.info("PUT /api/v1/events/{} {}", id, updateEventDto);
+        Event event = eventService.updateEvent(id, eventMapper.updateEventDtoToEvent(updateEventDto));
         return eventMapper.eventToEventDetailDto(event);
     }
 

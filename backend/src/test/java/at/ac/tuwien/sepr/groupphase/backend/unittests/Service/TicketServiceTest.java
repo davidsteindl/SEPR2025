@@ -104,6 +104,7 @@ public class TicketServiceTest {
             .withName("Test Event")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("Test description")
+            .withDateTime(LocalDateTime.now().plusDays(1))
             .withDuration(120)
             .withLocation(location)
             .build();
@@ -117,11 +118,12 @@ public class TicketServiceTest {
             .build();
         artistRepository.save(testArtist);
 
+        LocalDateTime eventStart = testEvent.getDateTime();
         // create and persist a show in the future
         Show show = Show.ShowBuilder.aShow()
             .withName("Test Show")
             .withDuration(60)
-            .withDate(LocalDateTime.now().plusDays(1))
+            .withDate(eventStart.plusMinutes(10))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
             .withRoom(testRoom)
@@ -137,15 +139,17 @@ public class TicketServiceTest {
             .withName("Past Event")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("Past event for testing")
+            .withDateTime(LocalDateTime.now().minusDays(2))
             .withDuration(60)
             .withLocation(location)
             .build();
         eventRepository.save(pastEvent);
 
+        LocalDateTime pastEventStart = pastEvent.getDateTime();
         pastShow = Show.ShowBuilder.aShow()
             .withName("Past Show")
             .withDuration(40)
-            .withDate(LocalDateTime.now().minusDays(1))
+            .withDate(pastEventStart.plusMinutes(10))
             .withEvent(pastEvent)
             .withArtists(testShow.getArtists())
             .withRoom(testRoom)

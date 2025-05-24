@@ -9,11 +9,9 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
-import at.ac.tuwien.sepr.groupphase.backend.util.MinMaxTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +39,25 @@ public class ShowValidator {
             errors.add("Event ID is null");
         } else if (!eventRepository.existsById(show.getEvent().getId())) {
             errors.add("Event with ID " + show.getEvent().getId() + " not found");
-        } else if (!validateDuration(show.getEvent().getId(), show.getDate(), show.getDuration())) {
-            errors.add("Event duration is less than the total duration of all shows");
+        } else {
+            if (!validateDuration(show.getEvent().getId(), show.getDate(), show.getDuration())) {
+                errors.add("Show exceeds total event duration");
+            }
+
+            Event event = eventRepository.findById(show.getEvent().getId()).get();
+            LocalDateTime newStart = show.getDate();
+            LocalDateTime newEnd   = newStart.plusMinutes(show.getDuration());
+            List<Show> existingShows = showRepository.findByEventOrderByDateAsc(event);
+            for (Show existing : existingShows) {
+                LocalDateTime existStart = existing.getDate();
+                LocalDateTime existEnd   = existStart.plusMinutes(existing.getDuration());
+                if (newStart.isBefore(existEnd) && existStart.isBefore(newEnd)) {
+                    errors.add("Show overlaps with existing show (ID=" + existing.getId() + ")");
+                    break;
+                }
+            }
         }
+
 
         if (show.getRoom() == null || show.getRoom().getId() == null) {
             errors.add("Room ID is null");
@@ -72,20 +86,10 @@ public class ShowValidator {
         Event event = eventRepository.findById(eventId)
             .orElseThrow(() -> new NotFoundException("Event not found"));
 
-        MinMaxTime result = showRepository.findMinStartAndMaxEndByEventId(eventId);
-        LocalDateTime min = result.getMinDate() != null ? result.getMinDate().toLocalDateTime() : null;
-        LocalDateTime max = result.getMaxEnd() != null ? result.getMaxEnd().toLocalDateTime() : null;
+        LocalDateTime eventStart = event.getDateTime();
+        LocalDateTime eventEnd = eventStart.plusMinutes(event.getDuration());
 
-        LocalDateTime newEnd = showStart.plusMinutes(showDuration);
-
-        if (min == null || showStart.isBefore(min)) {
-            min = showStart;
-        }
-        if (max == null || newEnd.isAfter(max)) {
-            max = newEnd;
-        }
-
-        long totalBlockMinutes = Duration.between(min, max).toMinutes();
-        return event.getDuration() >= totalBlockMinutes;
+        LocalDateTime showEnd = showStart.plusMinutes(showDuration);
+        return !showStart.isBefore(eventStart) && !showEnd.isAfter(eventEnd);
     }
 }
