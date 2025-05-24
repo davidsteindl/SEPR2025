@@ -430,69 +430,18 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public Page<OrderDto> getOrdersForUser(Long userId, OrderType orderType, boolean past, Pageable pageable) {
         LocalDateTime now = LocalDateTime.now();
-
         Page<Long> orderIdsPage = orderRepository.findOrderIdsByTypeAndPast(userId, orderType, past, now, pageable);
-
         List<Order> fullOrders = orderRepository.findAllWithDetailsByIdIn(orderIdsPage.getContent());
-
         List<OrderDto> orderDtos = orderMapper.toDto(fullOrders);
 
         return new PageImpl<>(orderDtos, pageable, orderIdsPage.getTotalElements());
     }
 
     @Override
-    public Page<TicketDto> getTicketsForOrder(Long orderId, Pageable pageable) {
-        LOGGER.debug("Fetching paginated tickets for orderId={}, page={}, size={}", orderId, pageable.getPageNumber(), pageable.getPageSize());
-
-        if (!orderRepository.existsById(orderId)) {
-            throw new NotFoundException("Order with ID " + orderId + " not found");
-        }
-
-        return ticketRepository.findByOrderId(orderId, pageable)
-            .map(ticketMapper::toDto);
-    }
-
-    @Override
-    public OrderDto getOrderByIdWithoutTickets(Long orderId) {
-        Order order = orderRepository.findById(orderId)
+    public OrderDto getOrderWithTicketsById(Long orderId) {
+        return orderRepository.findByIdWithDetails(orderId)
+            .map(orderMapper::toDto)
             .orElseThrow(() -> new NotFoundException("Order with ID " + orderId + " not found"));
-
-        return buildOrderDtoWithoutTickets(order);
     }
-
-    /**
-     * Constructs a lightweight {@link OrderDto} from the given {@link Order} entity,
-     * containing only metadata such as show details, order type, user ID, and total price.
-     *
-     * <p>
-     * This version intentionally omits the list of tickets to reduce payload size,
-     * as tickets are expected to be loaded separately via pagination.
-     * </p>
-     *
-     * @param order the {@link Order} entity to convert
-     * @return a populated {@link OrderDto} without the ticket list
-     */
-    private OrderDto buildOrderDtoWithoutTickets(Order order) {
-        LOGGER.debug("Build order header DTO (without tickets) for order: {}", order);
-
-        OrderDto dto = new OrderDto();
-        dto.setId(order.getId());
-        dto.setCreatedAt(order.getCreatedAt());
-        dto.setOrderType(order.getOrderType());
-        dto.setUserId(order.getUserId());
-
-        List<Ticket> tickets = order.getTickets();
-        if (!tickets.isEmpty()) {
-            Ticket ref = tickets.get(0);
-            dto.setShowName(ref.getShow().getName());
-            dto.setShowDate(ref.getShow().getDate());
-            dto.setLocationName(ref.getShow().getEvent().getLocation().getName());
-            dto.setTotalPrice(tickets.stream().mapToInt(t -> t.getSector().getPrice()).sum());
-        }
-
-        dto.setTickets(null);
-        return dto;
-    }
-
 
 }
