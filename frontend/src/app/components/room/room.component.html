@@ -51,8 +51,8 @@
 
 
   <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 2rem;">
-    <button class="btn btn-success mt-4" type="submit" [routerLink]="['/rooms', room.id, 'edit']">Edit</button>
-    <button class="btn btn-success mt-4" type="submit" [routerLink]="['/admin']">Done</button>
+    <button *ngIf="isAdmin" class="btn btn-success mt-4" type="submit" [routerLink]="['/rooms', room.id, 'edit']">Edit</button>
+    <button *ngIf="isAdmin" class="btn btn-success mt-4" type="submit" [routerLink]="['/admin']">Done</button>
   </div>
 
 

@@ -3,15 +3,13 @@ import {ActivatedRoute, RouterLink} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {ErrorFormatterService} from "../../services/error-formatter.service";
 import {RoomService} from "../../services/room.service";
-import {Location} from "../../dtos/location";
 import {Room} from "../../dtos/room";
 import {NgClass, NgForOf, NgIf, NgTemplateOutlet} from "@angular/common";
-import {LocationType} from "../create-content/create-location/create-location.component";
 import {StandingSector} from "../../dtos/standing-sector";
-import {SectorType} from "../../dtos/sector-type";
 import {SeatedSector} from "../../dtos/seated-sector";
 import {Seat} from "../../dtos/seat";
 import {Sector} from "../../dtos/sector";
+import {AuthService} from "../../services/auth.service";
 
 @Component({
   selector: 'app-room',
@@ -27,6 +25,7 @@ import {Sector} from "../../dtos/sector";
 export class RoomComponent implements OnInit {
 
   room: Room | null = null;
+  isAdmin: boolean;
 
   selectedSeat: Seat;
   globalRow: number;
@@ -35,12 +34,14 @@ export class RoomComponent implements OnInit {
   constructor(private route: ActivatedRoute,
               private roomService: RoomService,
               private notification: ToastrService,
+              private authService: AuthService,
               private errorFormatter: ErrorFormatterService
   ) {
   }
 
   ngOnInit(): void {
     this.getRoomById();
+    this.isAdmin = this.authService.getUserRole() === 'ADMIN';
     console.log(this.room);
   }
 
@@ -88,7 +89,7 @@ export class RoomComponent implements OnInit {
     return Array.from({length: max}, (_, i) => i + 1);
   }
 
-  isSeat(sector: SeatedSector, row: number, col: number) : boolean {
+  isSeat(sector: SeatedSector, row: number, col: number): boolean {
     const seat = sector.rows.find(s => s.rowNumber === row && s.columnNumber === col && !s.deleted);
     if (seat) return true;
     else return false
