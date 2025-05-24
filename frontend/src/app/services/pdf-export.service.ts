@@ -12,14 +12,37 @@ export class PdfExportService {
     this.pdfBaseUri = this.globals.backendUri + '/pdf-export';
   }
 
-  exportPdf(data: any): void {
-    this.http.post(this.pdfBaseUri, data, { responseType: 'blob' }).subscribe(blob => {
+  exportTicketPdf(ticketId : number): void {
+    this.http.get(this.pdfBaseUri + `/tickets/${ticketId}`, { responseType: 'blob' }).subscribe(blob => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${data.type}.pdf`;
+      a.download = `Ticket${ticketId}.pdf`;
       a.click();
       window.URL.revokeObjectURL(url);
     });
   }
+
+  exportInvoicePdf(orderId : number): void {
+    this.http.get(this.pdfBaseUri + `/invoice/${orderId}`, { responseType: 'blob' }).subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Invoice${orderId}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
+  exportCancelInvoicePdf(orderId : number): void {
+    this.http.get(this.pdfBaseUri + `/cancelinvoice/${orderId}`, { responseType: 'blob' }).subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `CancellationInvoice${orderId}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
 }

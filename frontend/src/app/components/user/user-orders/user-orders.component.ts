@@ -16,41 +16,15 @@ export class UserOrdersComponent implements OnInit {
   ngOnInit(): void {}
 
   exportTicket(): void {
-    const dto = {
-      type: 'ticket',
-      firstName: 'Max',
-      lastName: 'Mustermann',
-      eventName: 'Konzert XYZ',
-      eventDate: '2025-05-25',
-      location: 'Wien Stadthalle',
-      price: '59.90'
-    };
-    this.pdfService.exportPdf(dto);
+
+    this.pdfService.exportTicketPdf(5);
   }
 
   exportInvoice(): void {
-    const dto = {
-      type: 'invoice',
-      firstName: 'Max',
-      lastName: 'Mustermann',
-      eventName: 'Konzert XYZ',
-      eventDate: '2025-05-25',
-      location: 'Wien Stadthalle',
-      price: '59.90'
-    };
-    this.pdfService.exportPdf(dto);
+
   }
 
   exportStorno(): void {
-    const dto = {
-      type: 'storno',
-      firstName: 'Max',
-      lastName: 'Mustermann',
-      eventName: 'Konzert XYZ',
-      eventDate: '2025-05-25',
-      location: 'Wien Stadthalle',
-      price: '59.90'
-    };
-    this.pdfService.exportPdf(dto);
+
   }
 }
