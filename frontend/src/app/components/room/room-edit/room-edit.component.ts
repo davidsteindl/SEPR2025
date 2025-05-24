@@ -242,6 +242,20 @@ export class RoomEditComponent implements OnInit {
     this.selectedSector = null;
   }
 
+  deleteSector(): void {
+    if (!this.selectedSector || !this.room) return;
+
+    const index = this.room.sectors.indexOf(this.selectedSector);
+    if (index !== -1) {
+      this.room.sectors.splice(index, 1);
+    }
+
+    this.selectedSector = null;
+    this.selectedSeat = null;
+
+    this.edit();
+  }
+
   getSelectedSectorIndex(): number | null {
     if (!this.selectedSector || !this.room) return null;
     return this.room.sectors.indexOf(this.selectedSector) + 1;
