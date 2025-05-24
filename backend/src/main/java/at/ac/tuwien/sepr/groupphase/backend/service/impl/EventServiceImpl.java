@@ -8,11 +8,14 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.EventService;
+import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,18 +38,20 @@ public class EventServiceImpl implements EventService {
     private final ShowRepository showRepository;
     private final EventMapper eventMapper;
     private final ShowMapper showMapper;
+    private final EventValidator eventValidator;
 
     @Autowired
     public EventServiceImpl(EventRepository eventRepository,
                             EventLocationRepository eventLocationRepository,
                             ShowRepository showRepository,
                             EventMapper eventMapper,
-                            ShowMapper showMapper) {
+                            ShowMapper showMapper, EventValidator eventValidator) {
         this.eventRepository = eventRepository;
         this.eventLocationRepository = eventLocationRepository;
         this.showRepository = showRepository;
         this.eventMapper = eventMapper;
         this.showMapper = showMapper;
+        this.eventValidator = eventValidator;
     }
 
     @Override
@@ -65,6 +70,7 @@ public class EventServiceImpl implements EventService {
     public Event createEvent(Event event) throws ValidationException {
         LOGGER.info("Save event {}", event);
 
+        eventValidator.validateForCreate(event);
         if (event.getLocation() != null) {
             EventLocation location = eventLocationRepository.findById(event.getLocation().getId())
                 .orElseThrow(() -> new ValidationException("No event location given", List.of("No event location given")));
@@ -73,6 +79,28 @@ public class EventServiceImpl implements EventService {
             throw new ValidationException("No event location given", List.of("No event location given"));
         }
         return eventRepository.save(event);
+    }
+
+    @Override
+    public Event updateEvent(Long id, Event event) throws ValidationException {
+        LOGGER.info("Update event {} with data {}", id, event);
+
+        eventValidator.validateForUpdate(id, event);
+
+        Event existing = eventRepository.findById(id).orElseThrow(() -> new NotFoundException("Event not found with id: " + id));
+
+        Long locId = event.getLocation().getId();
+        EventLocation location = eventLocationRepository.findById(locId)
+            .orElseThrow(() -> new ValidationException("Location not found", List.of("Location not found")));
+
+        existing.setName(event.getName());
+        existing.setCategory(event.getCategory());
+        existing.setDescription(event.getDescription());
+        existing.setDateTime(event.getDateTime());
+        existing.setDuration(event.getDuration());
+        existing.setLocation(location);
+
+        return eventRepository.save(existing);
     }
 
     @Override
