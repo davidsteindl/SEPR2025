@@ -23,6 +23,11 @@ public interface EventMapper {
 
     List<EventDetailDto> eventsToEventDetailDtos(List<Event> events);
 
+    @Mapping(target = "category", source = "category", qualifiedByName = "mapStringToEventCategory")
+    @Mapping(target = "dateTime", source = "dateTime")
+    @Mapping(target = "location", source = "locationId", qualifiedByName = "mapLocationIdToEventLocation")
+    Event eventDetailDtoToEvent(EventDetailDto eventDetailDto);
+
     @Named("mapStringToEventCategory")
     default Event.EventCategory mapStringToEventCategory(String category) {
         return Event.EventCategory.valueOf(category.toUpperCase());
