@@ -285,7 +285,9 @@ public class ShowServiceTest {
     public void testCreateShow_multipleShowsWithinEventDuration_savesSuccessfully() throws ValidationException {
         testEvent.setDuration(220);
         eventRepository.save(testEvent);
+
         LocalDateTime start = testEvent.getDateTime().plusMinutes(10);
+        LocalDateTime secondStart = start.plusMinutes(80 + 10);
 
         Show first = Show.ShowBuilder.aShow()
             .withName("Part 1")
@@ -299,7 +301,7 @@ public class ShowServiceTest {
         Show second = Show.ShowBuilder.aShow()
             .withName("Part 2")
             .withDuration(90)
-            .withDate(LocalDateTime.now().plusDays(1).withHour(19))
+            .withDate(secondStart)
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
             .withRoom(testRoom)
@@ -352,10 +354,12 @@ public class ShowServiceTest {
     @Test
     @Transactional
     public void testCreateShow_startsBeforeExistingShow_withinDuration_savesSuccessfully() throws ValidationException {
-        testEvent.setDuration(280);
+        testEvent.setDuration(220);
         eventRepository.save(testEvent);
-        LocalDateTime dateLater = testEvent.getDateTime().plusMinutes(120); // z.B. 10 + 90
+
+        LocalDateTime eventStart = testEvent.getDateTime();
         LocalDateTime dateEarlier = testEvent.getDateTime().plusMinutes(10);
+        LocalDateTime dateLater = eventStart.plusMinutes(120);
 
         Show later = Show.ShowBuilder.aShow()
             .withName("Late Show")
