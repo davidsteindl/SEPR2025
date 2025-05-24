@@ -24,7 +24,6 @@ import { TicketService } from 'src/app/services/ticket.service';
 })
 export class PurchasedOrderDetailComponent implements OnInit {
   order: OrderDto | null = null;
-  tickets: TicketDto[] = [];
   selected: { [ticketId: number]: boolean } = {};
   isLoading = true;
   showConfirmModal = false;
@@ -38,40 +37,33 @@ export class PurchasedOrderDetailComponent implements OnInit {
   ngOnInit(): void {
     const orderId = Number(this.route.snapshot.paramMap.get('id'));
     this.loadOrder(orderId);
-    this.loadTickets(orderId);
   }
 
   loadOrder(orderId: number): void {
-    this.orderService.getOrderById(orderId).subscribe({
-      next: order => this.order = order,
-      error: err => console.error('Failed to load order', err)
-    });
-  }
-
-  loadTickets(orderId: number): void {
-    this.orderService.getTicketsForOrder(orderId, 0, 50).subscribe({
-      next: page => {
-        this.tickets = page.content;
+    this.orderService.getOrderWithTickets(orderId).subscribe({
+      next: order => {
+        this.order = order;
         this.isLoading = false;
       },
       error: err => {
-        console.error('Failed to load tickets', err);
+        console.error('Failed to load order with tickets', err);
         this.isLoading = false;
       }
     });
   }
 
-  refundSelected(): void {
-    const ticketIds = Object.keys(this.selected)
-      .filter(id => this.selected[+id])
-      .map(id => +id);
 
+  refundSelected(): void {
+    const ticketIds = this.getSelectedTicketIds();
     if (ticketIds.length === 0) return;
 
     this.ticketService.refundTickets(ticketIds).subscribe({
-      next: () => {
+      next: refundedTickets => {
         this.selected = {};
-        this.loadTickets(this.order?.id!);
+        refundedTickets.forEach(ref => {
+          const t = this.order!.tickets.find(t => t.id === ref.id);
+          if (t) t.status = ref.status;
+        });
       },
       error: err => {
         console.error('Refund failed', err);
@@ -87,26 +79,25 @@ export class PurchasedOrderDetailComponent implements OnInit {
   }
 
   confirmRefund(): void {
-    const ticketIds = Object.keys(this.selected)
-      .filter(id => this.selected[+id])
-      .map(id => +id);
-
-    this.ticketService.refundTickets(ticketIds).subscribe(() => {
-      this.selected = {};
-      this.showConfirmModal = false;
-      this.loadTickets(this.order!.id);
-    });
+    this.refundSelected();
+    this.showConfirmModal = false;
   }
 
   cancelRefund(): void {
     this.showConfirmModal = false;
   }
 
+  getSelectedTicketIds(): number[] {
+    return Object.keys(this.selected)
+      .filter(id => this.selected[+id])
+      .map(id => +id);
+  }
 
   hasSelection(): boolean {
     return Object.values(this.selected).some(v => v);
   }
 
   downloadPdf(ticketId: number): void {
+    // Not implemented
   }
 }

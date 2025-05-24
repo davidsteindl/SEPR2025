@@ -31,21 +31,14 @@ export class OrderService {
   }
 
   /**
-   * Retrieves the metadata of a single order by its ID (without ticket list).
+   * Retrieves a single order by its ID, including the list of associated tickets.
    */
   getOrderById(orderId: number): Observable<OrderDto> {
     return this.http.get<OrderDto>(`${this.orderBaseUri}/${orderId}`);
   }
 
-  /**
-   * Retrieves paginated tickets for a specific order.
-   */
-  getTicketsForOrder(orderId: number, page = 0, size = 10): Observable<Page<TicketDto>> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
-
-    return this.http.get<Page<TicketDto>>(`${this.orderBaseUri}/${orderId}/tickets`, { params });
+  getOrderWithTickets(orderId: number): Observable<OrderDto> {
+    return this.http.get<OrderDto>(`${this.orderBaseUri}/${orderId}/with-tickets`);
   }
 
 }
