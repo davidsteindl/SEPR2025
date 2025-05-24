@@ -100,6 +100,7 @@ public class ShowEndpointTest implements TestData {
         testEvent.setName("Rock Night");
         testEvent.setCategory(EventCategory.ROCK);
         testEvent.setDescription("A night of rock music");
+        testEvent.setDateTime(LocalDateTime.now().plusDays(5));
         testEvent.setDuration(180);
         testEvent.setLocation(location);
         eventRepository.save(testEvent);

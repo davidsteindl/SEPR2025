@@ -70,6 +70,7 @@ public class ArtistRepositoryTest {
             .withName("Electronic Night")
             .withCategory(Event.EventCategory.ELECTRONIC)
             .withDescription("An electrifying night with the best DJs.")
+            .withDateTime(LocalDateTime.now())
             .withDuration(180)
             .withLocation(location)
             .build();

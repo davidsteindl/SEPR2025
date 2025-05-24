@@ -85,6 +85,7 @@ public class TicketEndpointTest implements TestData {
             .withName("Test Event")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("Test Desc")
+            .withDateTime(LocalDateTime.now().minusDays(1))
             .withDuration(180)
             .withLocation(location)
             .build();
