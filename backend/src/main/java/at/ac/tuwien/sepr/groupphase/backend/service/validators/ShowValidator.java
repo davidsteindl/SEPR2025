@@ -39,9 +39,25 @@ public class ShowValidator {
             errors.add("Event ID is null");
         } else if (!eventRepository.existsById(show.getEvent().getId())) {
             errors.add("Event with ID " + show.getEvent().getId() + " not found");
-        } else if (!validateDuration(show.getEvent().getId(), show.getDate(), show.getDuration())) {
-            errors.add("Event duration is less than the total duration of all shows");
+        } else {
+            if (!validateDuration(show.getEvent().getId(), show.getDate(), show.getDuration())) {
+                errors.add("Show exceeds total event duration");
+            }
+
+            Event event = eventRepository.findById(show.getEvent().getId()).get();
+            LocalDateTime newStart = show.getDate();
+            LocalDateTime newEnd   = newStart.plusMinutes(show.getDuration());
+            List<Show> existingShows = showRepository.findByEventOrderByDateAsc(event);
+            for (Show existing : existingShows) {
+                LocalDateTime existStart = existing.getDate();
+                LocalDateTime existEnd   = existStart.plusMinutes(existing.getDuration());
+                if (newStart.isBefore(existEnd) && existStart.isBefore(newEnd)) {
+                    errors.add("Show overlaps with existing show (ID=" + existing.getId() + ")");
+                    break;
+                }
+            }
         }
+
 
         if (show.getRoom() == null || show.getRoom().getId() == null) {
             errors.add("Room ID is null");
