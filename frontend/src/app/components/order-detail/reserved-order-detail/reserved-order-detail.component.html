@@ -1,1 +1,83 @@
-<p>reserved-order-detail works!</p>
+<div *ngIf="order && order.tickets; else loading">
+  <div class="mt-4 container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>Order #{{ order.id }} - Details</h2>
+      <button class="btn btn-outline-secondary" [routerLink]="['/orders']">
+        ← Back to My Orders
+      </button>
+    </div>
+    <hr>
+
+    <section class="order-meta">
+      <p><strong>Date:</strong> {{ order.showDate | date: 'shortDate' }}</p>
+      <p><strong>Show:</strong> {{ order.showName }}</p>
+      <p><strong>Location:</strong> {{ order.locationName }}</p>
+      <p><strong>Total Price:</strong> {{ order.totalPrice | currency }}</p>
+    </section>
+
+    <section class="ticket-table">
+      <table class="table w-100">
+        <thead class="table-light">
+        <tr>
+          <th>Ticket</th>
+          <th>Seat</th>
+          <th>Status</th>
+          <th>Price</th>
+          <th>Select</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let ticket of order.tickets; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>
+            <ng-container *ngIf="ticket.rowNumber && ticket.seatLabel; else standing">
+              {{ ticket.rowNumber }}{{ ticket.seatLabel }}
+            </ng-container>
+            <ng-template #standing>Standing</ng-template>
+          </td>
+          <td>{{ ticket.status }}</td>
+          <td>{{ ticket.price | currency }}</td>
+          <td>
+            <input type="checkbox" [(ngModel)]="selected[ticket.id]" />
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <div class="actions d-flex justify-content-end gap-2 mt-3">
+        <button class="btn btn-primary" (click)="openConfirm('buy')" [disabled]="!hasSelection()">
+          Buy Selected
+        </button>
+        <button class="btn btn-danger" (click)="openConfirm('cancel')" [disabled]="!hasSelection()">
+          Cancel Selected
+        </button>
+      </div>
+    </section>
+
+    <div class="modal-overlay" *ngIf="showConfirmModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5>Confirm Action</h5>
+          <button class="close-button" (click)="cancelConfirm()">×</button>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-danger" *ngIf="confirmAction === 'buy'" (click)="confirmBuy()">
+            Yes, buy selected
+          </button>
+          <button class="btn btn-danger" *ngIf="confirmAction === 'cancel'" (click)="confirmCancel()">
+            Yes, cancel selected
+          </button>
+          <button class="btn btn-primary" (click)="cancelConfirm()">
+            Exit, keep tickets
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+<ng-template #loading>
+  <p class="text-center text-muted">Loading order details...</p>
+</ng-template>

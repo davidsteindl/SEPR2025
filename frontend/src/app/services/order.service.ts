@@ -30,13 +30,6 @@ export class OrderService {
     return this.http.get<Page<OrderDto>>(`${this.orderBaseUri}/${type}`, { params });
   }
 
-  /**
-   * Retrieves a single order by its ID, including the list of associated tickets.
-   */
-  getOrderById(orderId: number): Observable<OrderDto> {
-    return this.http.get<OrderDto>(`${this.orderBaseUri}/${orderId}`);
-  }
-
   getOrderWithTickets(orderId: number): Observable<OrderDto> {
     return this.http.get<OrderDto>(`${this.orderBaseUri}/${orderId}/with-tickets`);
   }
