@@ -406,7 +406,7 @@ public class ShowServiceTest {
 
         Show tooEarlyAndLong = Show.ShowBuilder.aShow()
             .withName("Too Early")
-            .withDuration(100)
+            .withDuration(120)
             .withDate(LocalDateTime.now().plusDays(1).withHour(16))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
