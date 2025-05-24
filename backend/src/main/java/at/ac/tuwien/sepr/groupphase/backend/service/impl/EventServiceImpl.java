@@ -132,7 +132,7 @@ public class EventServiceImpl implements EventService {
             Event event = (Event) objects[0];
             Long ticketCount = (Long) objects[1];
 
-            LocalDateTime date = showRepository.findEarliestShowDateByEventId(event.getId());
+            LocalDateTime date = event.getDateTime();
 
             EventTopTenDto eventTopTenDto = EventTopTenDto.EventTopTenDtoBuilder.anEventTopTenDto()
                 .id(event.getId())
