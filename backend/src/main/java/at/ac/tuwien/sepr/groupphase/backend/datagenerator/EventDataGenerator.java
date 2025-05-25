@@ -56,6 +56,7 @@ public class EventDataGenerator {
                     .withDescription("Description for Event " + i)
                     .withDuration(180 + i * 10)
                     .withLocation(roomRepository.findAll().get((int) (i % roomRepository.count())).getEventLocation())
+                    .withDateTime(LocalDateTime.now().plusDays(i))
                     .build();
                 events.add(ev);
             }

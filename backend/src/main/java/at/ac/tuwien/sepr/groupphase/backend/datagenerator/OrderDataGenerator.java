@@ -15,6 +15,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,7 @@ import java.util.Optional;
 import java.util.Random;
 
 @Profile("generateData")
+@DependsOn("userDataGenerator")
 @Component
 public class OrderDataGenerator {
 
@@ -87,7 +89,7 @@ public class OrderDataGenerator {
     }
 
     private void generateOrdersForUser(ApplicationUser user, List<Show> shows, List<Sector> sectors, Random random, String label) {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
             Order order = new Order();
             order.setUserId(user.getId());
             OrderType orderType = randomOrderType(random);
@@ -96,24 +98,37 @@ public class OrderDataGenerator {
             order = orderRepository.save(order);
 
             int ticketCount = 2 + random.nextInt(3);
+
+            Show show = shows.get(random.nextInt(shows.size()));
+            if (i % 3 == 0) {
+                show.setDate(LocalDateTime.now().minusDays(5 + i));
+            } else {
+                show.setDate(LocalDateTime.now().plusDays(5 + i));
+            }
+            show = showRepository.save(show);
+
+
             for (int j = 0; j < ticketCount; j++) {
                 Ticket ticket = new Ticket();
                 ticket.setOrder(order);
-                ticket.setShow(shows.get(random.nextInt(shows.size())));
+                ticket.setShow(show);
                 ticket.setSector(sectors.get(random.nextInt(sectors.size())));
+
                 ticket.setCreatedAt(LocalDateTime.now().minusDays(i));
 
                 TicketStatus status = switch (orderType) {
                     case ORDER -> TicketStatus.BOUGHT;
-                    case RESERVATION -> random.nextInt(10) < 7 ? TicketStatus.RESERVED : TicketStatus.EXPIRED;
-                    case REFUND -> random.nextInt(10) < 7 ? TicketStatus.REFUNDED : TicketStatus.CANCELLED;
+                    case RESERVATION -> TicketStatus.RESERVED;
+                    case REFUND -> TicketStatus.REFUNDED;
                     default -> TicketStatus.BOUGHT;
                 };
                 ticket.setStatus(status);
                 ticketRepository.save(ticket);
             }
         }
-        LOGGER.debug("Created 10 test orders for {}", label);
+
+        LOGGER.debug("Created 20 test orders for {}", label);
     }
+
 
 }
