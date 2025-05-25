@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
 
@@ -63,11 +64,12 @@ public class ShowRepositoryTest {
             .build();
         roomRepository.save(testRoom);
 
+        LocalDateTime eventStart = LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.MINUTES);
         Event event = Event.EventBuilder.anEvent()
             .withName("Summer Fest")
             .withCategory(Event.EventCategory.POP)
             .withDescription("A summer celebration of music.")
-            .withDateTime(LocalDateTime.now())
+            .withDateTime(eventStart)
             .withDuration(300)
             .withLocation(location)
             .build();
@@ -76,7 +78,7 @@ public class ShowRepositoryTest {
         Show show = Show.ShowBuilder.aShow()
             .withName("Evening Show")
             .withDuration(150)
-            .withDate(LocalDateTime.now())
+            .withDate(eventStart.plusHours(1))
             .withEvent(event)
             .withRoom(testRoom)
             .build();
@@ -129,10 +131,11 @@ public class ShowRepositoryTest {
     public void testSaveShow_withTooSmallDuration_throwsException() {
         Event event = eventRepository.findAll().getFirst();
 
+        LocalDateTime showDateSmall = LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.MINUTES);
         Show show = Show.ShowBuilder.aShow()
             .withName("Short Show")
             .withDuration(5)
-            .withDate(LocalDateTime.now())
+            .withDate(showDateSmall)
             .withEvent(event)
             .withRoom(testRoom)
             .build();
@@ -145,10 +148,11 @@ public class ShowRepositoryTest {
     public void testSaveShow_withTooLargeDuration_throwsException() {
         Event event = eventRepository.findAll().getFirst();
 
+        LocalDateTime showDateLarge = LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.MINUTES);
         Show show = Show.ShowBuilder.aShow()
             .withName("Long Show")
             .withDuration(1000)
-            .withDate(LocalDateTime.now())
+            .withDate(showDateLarge)
             .withEvent(event)
             .withRoom(testRoom)
             .build();
@@ -161,10 +165,11 @@ public class ShowRepositoryTest {
     public void testSaveShow_withNullDate_throwsException() {
         Event event = eventRepository.findAll().getFirst();
 
+        LocalDateTime showDateNullEvent = LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.MINUTES);
         Show show = Show.ShowBuilder.aShow()
             .withName("No Date Show")
             .withDuration(100)
-            .withDate(null)
+            .withDate(showDateNullEvent)
             .withEvent(event)
             .withRoom(testRoom)
             .build();
@@ -191,10 +196,11 @@ public class ShowRepositoryTest {
     public void testSaveShow_withValidFields_savesSuccessfully() {
         Event event = eventRepository.findAll().getFirst();
 
+        LocalDateTime showDateValid = LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.MINUTES);
         Show show = Show.ShowBuilder.aShow()
             .withName("Main Act")
             .withDuration(120)
-            .withDate(LocalDateTime.now())
+            .withDate(showDateValid)
             .withEvent(event)
             .withRoom(testRoom)
             .build();

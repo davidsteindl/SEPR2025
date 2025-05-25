@@ -21,6 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -66,11 +67,12 @@ public class ArtistRepositoryTest {
             .build();
         roomRepository.save(room);
 
-        Event event = Event.EventBuilder.anEvent()
+        LocalDateTime eventStart = LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.MINUTES);
+            Event event = Event.EventBuilder.anEvent()
             .withName("Electronic Night")
             .withCategory(Event.EventCategory.ELECTRONIC)
             .withDescription("An electrifying night with the best DJs.")
-            .withDateTime(LocalDateTime.now())
+            .withDateTime(eventStart)
             .withDuration(180)
             .withLocation(location)
             .build();
@@ -79,7 +81,7 @@ public class ArtistRepositoryTest {
         Show show = Show.ShowBuilder.aShow()
             .withName("Opening Act")
             .withDuration(90)
-            .withDate(LocalDateTime.now())
+            .withDate(eventStart.plusMinutes(10))
             .withEvent(event)
             .withRoom(room)
             .build();

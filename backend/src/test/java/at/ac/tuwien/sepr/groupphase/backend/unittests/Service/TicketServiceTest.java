@@ -24,6 +24,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 
@@ -35,14 +36,22 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("test")
 public class TicketServiceTest {
 
-    @Autowired private TicketService ticketService;
-    @Autowired private ShowService showService;
-    @Autowired private TicketRepository ticketRepository;
-    @Autowired private OrderRepository orderRepository;
-    @Autowired private EventLocationRepository eventLocationRepository;
-    @Autowired private RoomRepository roomRepository;
-    @Autowired private EventRepository eventRepository;
-    @Autowired private ArtistRepository artistRepository;
+    @Autowired
+    private TicketService ticketService;
+    @Autowired
+    private ShowService showService;
+    @Autowired
+    private TicketRepository ticketRepository;
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private EventLocationRepository eventLocationRepository;
+    @Autowired
+    private RoomRepository roomRepository;
+    @Autowired
+    private EventRepository eventRepository;
+    @Autowired
+    private ArtistRepository artistRepository;
 
     @MockitoBean
     private AuthenticationFacade authenticationFacade;
@@ -53,7 +62,6 @@ public class TicketServiceTest {
     private Seat seat;
     private StandingSector standingSector;
     private Show testShow;
-    private Show pastShow;
     private Seat pastSeat;
 
     @BeforeEach
@@ -99,12 +107,14 @@ public class TicketServiceTest {
 
         testRoom = roomRepository.save(testRoom);
 
-        // create and save an event and artist for the show
+
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+
         Event testEvent = Event.EventBuilder.anEvent()
             .withName("Test Event")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("Test description")
-            .withDateTime(LocalDateTime.now().plusDays(1))
+            .withDateTime(now.plusDays(1))
             .withDuration(120)
             .withLocation(location)
             .build();
@@ -134,31 +144,6 @@ public class TicketServiceTest {
             throw new RuntimeException(e);
         }
 
-        // create and persist a show in the past + event
-        Event pastEvent = Event.EventBuilder.anEvent()
-            .withName("Past Event")
-            .withCategory(Event.EventCategory.CLASSICAL)
-            .withDescription("Past event for testing")
-            .withDateTime(LocalDateTime.now().minusDays(2))
-            .withDuration(60)
-            .withLocation(location)
-            .build();
-        eventRepository.save(pastEvent);
-
-        LocalDateTime pastEventStart = pastEvent.getDateTime();
-        pastShow = Show.ShowBuilder.aShow()
-            .withName("Past Show")
-            .withDuration(40)
-            .withDate(pastEventStart.plusMinutes(10))
-            .withEvent(pastEvent)
-            .withArtists(testShow.getArtists())
-            .withRoom(testRoom)
-            .build();
-        try {
-            pastShow = showService.createShow(pastShow);
-        } catch (ValidationException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Test
@@ -209,9 +194,11 @@ public class TicketServiceTest {
         TicketRequestDto request = new TicketRequestDto();
         request.setShowId(testShow.getId());
         TicketTargetSeatedDto t1 = new TicketTargetSeatedDto();
-        t1.setSectorId(seatedSector.getId()); t1.setSeatId(seat.getId());
+        t1.setSectorId(seatedSector.getId());
+        t1.setSeatId(seat.getId());
         TicketTargetSeatedDto t2 = new TicketTargetSeatedDto();
-        t2.setSectorId(seatedSector.getId()); t2.setSeatId(seat2.getId());
+        t2.setSectorId(seatedSector.getId());
+        t2.setSeatId(seat2.getId());
         request.setTargets(List.of(t1, t2));
 
         OrderDto orderDto = ticketService.buyTickets(request);
@@ -332,7 +319,7 @@ public class TicketServiceTest {
 
         assertEquals(OrderType.RESERVATION, reservation.getOrderType());
         Long reservationOrderId = reservation.getId();
-        Long reservedTicketId   = reservation.getTickets().getFirst().getId();
+        Long reservedTicketId = reservation.getTickets().getFirst().getId();
 
         // buy the reserved ticket
         OrderDto newOrder = ticketService.buyReservedTickets(List.of(reservedTicketId));

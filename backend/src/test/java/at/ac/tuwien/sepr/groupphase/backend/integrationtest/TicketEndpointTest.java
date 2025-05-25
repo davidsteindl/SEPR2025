@@ -30,6 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 
@@ -85,7 +86,7 @@ public class TicketEndpointTest implements TestData {
             .withName("Test Event")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("Test Desc")
-            .withDateTime(LocalDateTime.now().minusDays(1))
+            .withDateTime(LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.MINUTES))
             .withDuration(180)
             .withLocation(location)
             .build();
@@ -93,7 +94,7 @@ public class TicketEndpointTest implements TestData {
 
         futureShow = Show.ShowBuilder.aShow()
             .withName("Test Show")
-            .withDate(LocalDateTime.now().plusDays(1))
+            .withDate(event.getDateTime().plusDays(1).truncatedTo(ChronoUnit.MINUTES))
             .withDuration(60).withRoom(room)
             .withEvent(event)
             .withArtists(Set.of())
