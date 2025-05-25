@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { OrderService } from '../../../services/order.service';
 import { OrderDto } from '../../../dtos/order';
 import { CurrencyPipe, DatePipe, NgIf, NgForOf } from '@angular/common';
+import {PdfExportService} from "../../../services/pdf-export.service";
 
 @Component({
   selector: 'app-refunded-order-detail',
@@ -17,7 +18,8 @@ export class RefundedOrderDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private pdfService: PdfExportService
   ) {}
 
   ngOnInit(): void {
@@ -32,5 +34,10 @@ export class RefundedOrderDetailComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  exportCancelInvoicePdf(orderId: number): void {
+
+    this.pdfService.exportCancelInvoicePdf(orderId);
   }
 }
