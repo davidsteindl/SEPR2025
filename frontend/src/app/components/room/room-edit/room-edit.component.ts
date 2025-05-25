@@ -66,7 +66,7 @@ export class RoomEditComponent implements OnInit {
   getRoomById(): void {
     const eventId = Number(this.route.snapshot.paramMap.get('id'));
 
-    this.roomService.getEventById(eventId).subscribe({
+    this.roomService.getRoomById(eventId).subscribe({
       next: room => {
         this.room = room;
       },

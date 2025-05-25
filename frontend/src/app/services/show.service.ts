@@ -6,6 +6,7 @@ import { CreateShow } from '../dtos/create-show';
 import {Show, ShowSearch, ShowSearchResult} from '../dtos/show';
 import { forkJoin } from 'rxjs';
 import {Page} from "../dtos/page";
+import {Room} from "../dtos/room";
 
 @Injectable({
   providedIn: 'root'
@@ -58,5 +59,9 @@ export class ShowService {
       `${this.showBaseUri}/search`,
       criteria
     );
+  }
+
+  getRoomUsage(showId: number): Observable<Room> {
+    return this.httpClient.get<Room>(`${this.showBaseUri}/${showId}/room-usage`);
   }
 }

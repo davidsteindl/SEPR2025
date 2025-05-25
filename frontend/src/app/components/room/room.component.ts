@@ -46,15 +46,15 @@ export class RoomComponent implements OnInit {
   }
 
   getRoomById(): void {
-    const eventId = Number(this.route.snapshot.paramMap.get('id'));
+    const roomId = Number(this.route.snapshot.paramMap.get('id'));
 
-    this.roomService.getEventById(eventId).subscribe({
+    this.roomService.getRoomById(roomId).subscribe({
       next: room => {
         this.room = room;
 
       },
       error: err => {
-        this.notification.error(this.errorFormatter.format(err), 'Loading events failed', {
+        this.notification.error(this.errorFormatter.format(err), 'Loading room failed', {
           enableHtml: true,
           timeOut: 8000,
         });
@@ -94,7 +94,6 @@ export class RoomComponent implements OnInit {
     if (seat) return true;
     else return false
   }
-
 
   get globalColumns(): number[] {
     let maxCol = 0;

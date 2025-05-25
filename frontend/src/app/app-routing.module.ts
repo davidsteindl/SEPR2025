@@ -25,6 +25,7 @@ import {RoomEditComponent} from './components/room/room-edit/room-edit.component
 import {LocationShowsComponent} from "./components/location-shows/location-shows.component";
 import {PaymentFormComponent} from './components/payment-form/payment-form.component';
 import {OrderOverviewComponent} from "./components/order-overview/order-overview.component";
+import {RoomUsageComponent} from "./components/room/room-usage/room-usage.component";
 
 const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -50,7 +51,7 @@ const routes: Routes = [
   {path: 'rooms/:id/edit', component: RoomEditComponent, canActivate: [AdminGuard]},
   {path: 'locations/:id/shows', component: LocationShowsComponent, canActivate: [AuthGuard]},
   {path: 'orders', component: OrderOverviewComponent},
-  {path: 'shows/:id/room-usage', component: RoomComponent, canActivate: [AuthGuard]},
+  {path: 'shows/:id/room-usage', component: RoomUsageComponent, canActivate: [AuthGuard]},
 ];
 
 @NgModule({

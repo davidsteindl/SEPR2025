@@ -41,7 +41,7 @@ export class RoomService {
    *
    * @param id ID of the room to retrieve
    */
-  getEventById(id: number): Observable<Room> {
+  getRoomById(id: number): Observable<Room> {
     return this.httpClient.get<Room>(`${this.roomBaseUri}/${id}`);
   }
 
