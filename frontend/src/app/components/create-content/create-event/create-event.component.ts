@@ -26,7 +26,7 @@ export class CreateEventComponent implements OnInit {
   event: CreateEvent = {
     name: '',
     description: '',
-    dateTime: new Date().toISOString().slice(0,16),
+    dateTime: '',
     duration: 60,
     category: null,
     locationId: null

@@ -30,6 +30,7 @@ export class EventService {
       name: event.name,
       category: event.category,
       description: event.description,
+      dateTime: event.dateTime,
       duration: event.duration,
       locationId: event.locationId
     });
