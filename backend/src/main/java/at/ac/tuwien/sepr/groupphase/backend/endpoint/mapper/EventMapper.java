@@ -9,6 +9,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -18,14 +20,14 @@ public interface EventMapper {
     EventDetailDto eventToEventDetailDto(Event event);
 
     @Mapping(target = "category", source = "category", qualifiedByName = "mapStringToEventCategory")
-    @Mapping(target = "dateTime", source = "dateTime")
+    @Mapping(target = "dateTime", source = "dateTime", qualifiedByName = "truncateToMinutes")
     @Mapping(target = "location", source = "locationId", qualifiedByName = "mapLocationIdToEventLocation")
     Event createEventDtoToEvent(CreateEventDto createEventDto);
 
     List<EventDetailDto> eventsToEventDetailDtos(List<Event> events);
 
     @Mapping(target = "category", source = "category", qualifiedByName = "mapStringToEventCategory")
-    @Mapping(target = "dateTime", source = "dateTime")
+    @Mapping(target = "dateTime", source = "dateTime", qualifiedByName = "truncateToMinutes")
     @Mapping(target = "location", source = "locationId", qualifiedByName = "mapLocationIdToEventLocation")
     Event updateEventDtoToEvent(UpdateEventDto updateEventDto);
 
@@ -42,5 +44,10 @@ public interface EventMapper {
         EventLocation location = new EventLocation();
         location.setId(locationId);
         return location;
+    }
+
+    @Named("truncateToMinutes")
+    default LocalDateTime truncateToMinutes(LocalDateTime dt) {
+        return dt == null ? null : dt.truncatedTo(ChronoUnit.MINUTES);
     }
 }
