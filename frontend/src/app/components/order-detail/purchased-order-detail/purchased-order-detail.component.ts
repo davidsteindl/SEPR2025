@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import { OrderService } from 'src/app/services/order.service';
 import { OrderDto } from 'src/app/dtos/order';
-import { TicketDto } from 'src/app/dtos/ticket';
 import {FormsModule} from "@angular/forms";
 import {CurrencyPipe, DatePipe, NgForOf, NgIf} from "@angular/common";
 import { TicketService } from 'src/app/services/ticket.service';

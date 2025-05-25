@@ -4,7 +4,6 @@ import { Globals } from '../global/globals';
 import { Observable } from 'rxjs';
 import { Page } from '../dtos/page';
 import { OrderDto } from '../dtos/order';
-import { TicketDto } from '../dtos/ticket';
 
 @Injectable({
   providedIn: 'root'
