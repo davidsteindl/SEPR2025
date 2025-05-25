@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.time.LocalDateTime;
+
 public class EventDetailDto {
 
     @NotNull(message = "ID must not be null")
@@ -20,6 +22,9 @@ public class EventDetailDto {
 
     @NotBlank(message = "Description must not be blank")
     private String description;
+
+    @NotNull(message = "Start date and time must not be null")
+    private LocalDateTime dateTime;
 
     @Min(value = 10, message = "Duration must be at least 10 minutes")
     @Max(value = 10000, message = "Duration must not exceed 10000 minutes")
@@ -60,6 +65,14 @@ public class EventDetailDto {
         this.description = description;
     }
 
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
     public int getDuration() {
         return duration;
     }
@@ -89,6 +102,7 @@ public class EventDetailDto {
             && name.equals(that.name)
             && category.equals(that.category)
             && description.equals(that.description)
+            && dateTime.equals(that.dateTime)
             && locationId.equals(that.locationId);
     }
 
@@ -104,6 +118,7 @@ public class EventDetailDto {
             + ", name='" + name + '\''
             + ", category='" + category + '\''
             + ", description='" + description + '\''
+            + ", dateTime=" + dateTime
             + ", duration=" + duration
             + ", locationId=" + locationId
             + '}';
@@ -114,6 +129,7 @@ public class EventDetailDto {
         private String name;
         private String category;
         private String description;
+        private LocalDateTime dateTime;
         private int duration;
         private Long locationId;
 
@@ -144,6 +160,11 @@ public class EventDetailDto {
             return this;
         }
 
+        public EventDtoBuilder dateTime(LocalDateTime dateTime) {
+            this.dateTime = dateTime;
+            return this;
+        }
+
         public EventDtoBuilder duration(int duration) {
             this.duration = duration;
             return this;
@@ -160,6 +181,7 @@ public class EventDetailDto {
             dto.setName(name);
             dto.setCategory(category);
             dto.setDescription(description);
+            dto.setDateTime(dateTime);
             dto.setDuration(duration);
             dto.setLocationId(locationId);
             return dto;

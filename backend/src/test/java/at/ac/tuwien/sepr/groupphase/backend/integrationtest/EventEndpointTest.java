@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.CreateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.UpdateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
@@ -33,6 +34,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -98,6 +101,7 @@ public class EventEndpointTest implements TestData {
         testEvent.setCategory(EventCategory.JAZZ);
         testEvent.setDescription("Jazz für alle");
         testEvent.setDuration(120);
+        testEvent.setDateTime(LocalDateTime.of(2025, Month.JANUARY, 1, 10, 0));
         testEvent.setLocation(testLocation);
         eventRepository.save(testEvent);
 
@@ -157,6 +161,7 @@ public class EventEndpointTest implements TestData {
             .name("Rocknacht")
             .category("ROCK")
             .description("Laut und wild")
+            .dateTime(LocalDateTime.of(2025, Month.FEBRUARY, 1, 20, 0))
             .duration(180)
             .locationId(testLocation.getId())
             .build();
@@ -184,6 +189,7 @@ public class EventEndpointTest implements TestData {
             .name("UserEvent")
             .category("POP")
             .description("Normaler User darf nicht")
+            .dateTime(LocalDateTime.of(2025, Month.MARCH, 1, 18, 0))
             .duration(90)
             .locationId(testLocation.getId())
             .build();
@@ -205,6 +211,7 @@ public class EventEndpointTest implements TestData {
             .name("Anonymous")
             .category("CLASSICAL")
             .description("Kein Token vorhanden")
+            .dateTime(LocalDateTime.of(2025, Month.APRIL, 1, 19, 0))
             .duration(60)
             .locationId(testLocation.getId())
             .build();
@@ -312,4 +319,124 @@ public class EventEndpointTest implements TestData {
             () -> assertTrue(responseBody.contains("displayName"), "Each category should have a displayName field")
         );
     }
+
+    @Test
+    public void updateEvent_withValidData_shouldSucceed() throws Exception {
+        showRepository.deleteAll();
+
+        UpdateEventDto dto = UpdateEventDto.UpdateEventDtoBuilder.anUpdateEventDto()
+            .name("Updated Concert")
+            .category(testEvent.getCategory().name())
+            .description("Updated description")
+            .dateTime(testEvent.getDateTime().plusDays(1))
+            .duration(90)
+            .locationId(testLocation.getId())
+            .build();
+
+        String body = objectMapper.writeValueAsString(dto);
+
+        MvcResult result = mockMvc.perform(put(EVENT_BASE_URI + "/" + testEvent.getId())
+                .header(securityProperties.getAuthHeader(),
+                    jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        UpdateEventDto updated = objectMapper.readValue(
+            result.getResponse().getContentAsString(), UpdateEventDto.class);
+
+        assertAll(
+            () -> assertEquals(dto.getName(), updated.getName()),
+            () -> assertEquals(dto.getDescription(), updated.getDescription()),
+            () -> assertEquals(dto.getDuration(), updated.getDuration()),
+            () -> assertEquals(dto.getDateTime(), updated.getDateTime()),
+            () -> assertEquals(dto.getLocationId(), updated.getLocationId())
+        );
+    }
+
+    @Test
+    public void updateEvent_withInvalidData_shouldReturn422() throws Exception {
+        UpdateEventDto dto = UpdateEventDto.UpdateEventDtoBuilder.anUpdateEventDto()
+            .name("   ")
+            .category(testEvent.getCategory().name())
+            .description("Desc")
+            .dateTime(testEvent.getDateTime())
+            .duration(60)
+            .locationId(testLocation.getId())
+            .build();
+
+        String body = objectMapper.writeValueAsString(dto);
+
+        MvcResult result = mockMvc.perform(put(EVENT_BASE_URI + "/" + testEvent.getId())
+                .header(securityProperties.getAuthHeader(),
+                    jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+            .andReturn();
+
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(),
+            result.getResponse().getStatus());
+
+        String json = result.getResponse().getContentAsString();
+        assertTrue(json.contains("Name must not be blank"));
+    }
+
+    @Test
+    public void updateEvent_asAdmin_shouldSucceed() throws Exception {
+        showRepository.deleteAll();
+
+        UpdateEventDto dto = UpdateEventDto.UpdateEventDtoBuilder.anUpdateEventDto()
+            .name("JazzNacht")
+            .category(testEvent.getCategory().name())
+            .description("Mit Groove")
+            .dateTime(testEvent.getDateTime().plusHours(2))
+            .duration(testEvent.getDuration() + 30)
+            .locationId(testLocation.getId())
+            .build();
+
+        String body = objectMapper.writeValueAsString(dto);
+
+        MvcResult result = mockMvc.perform(put(EVENT_BASE_URI + "/" + testEvent.getId())
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        UpdateEventDto updated = objectMapper.readValue(result.getResponse().getContentAsString(), UpdateEventDto.class);
+        assertAll(
+            () -> assertEquals(dto.getName(),        updated.getName()),
+            () -> assertEquals(dto.getDescription(), updated.getDescription()),
+            () -> assertEquals(dto.getDuration(),    updated.getDuration()),
+            () -> assertEquals(dto.getDateTime(),    updated.getDateTime()),
+            () -> assertEquals(dto.getLocationId(),  updated.getLocationId())
+        );
+    }
+
+    @Test
+    public void updateEvent_asUser_shouldFailWith403() throws Exception {
+        UpdateEventDto dto = UpdateEventDto.UpdateEventDtoBuilder.anUpdateEventDto()
+            .name("UserUpdate")
+            .category("POP")
+            .description("Normaler User darf nicht")
+            .dateTime(testEvent.getDateTime())
+            .duration(testEvent.getDuration())
+            .locationId(testLocation.getId())
+            .build();
+
+        String body = objectMapper.writeValueAsString(dto);
+
+        MvcResult result = mockMvc.perform(put(EVENT_BASE_URI + "/" + testEvent.getId())
+                .header(securityProperties.getAuthHeader(),
+                    jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+            .andReturn();
+
+        assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
+    }
+
+
 }

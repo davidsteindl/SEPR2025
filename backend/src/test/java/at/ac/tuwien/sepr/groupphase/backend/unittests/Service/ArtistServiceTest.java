@@ -75,6 +75,7 @@ public class ArtistServiceTest {
             .withName("Test Concert")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withLocation(testLocation)
+            .withDateTime(LocalDateTime.now().plusDays(1))
             .withDuration(800)
             .withDescription("A beautiful classical concert.")
             .build();

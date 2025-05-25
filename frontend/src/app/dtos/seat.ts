@@ -3,4 +3,5 @@ export interface Seat {
   rowNumber: number;
   columnNumber: number;
   deleted: boolean;
+  available?: boolean;
 }

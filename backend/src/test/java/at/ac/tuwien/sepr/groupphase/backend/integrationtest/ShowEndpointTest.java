@@ -100,6 +100,7 @@ public class ShowEndpointTest implements TestData {
         testEvent.setName("Rock Night");
         testEvent.setCategory(EventCategory.ROCK);
         testEvent.setDescription("A night of rock music");
+        testEvent.setDateTime(LocalDateTime.now().plusDays(5));
         testEvent.setDuration(180);
         testEvent.setLocation(location);
         eventRepository.save(testEvent);
@@ -116,7 +117,7 @@ public class ShowEndpointTest implements TestData {
         CreateShowDto dto = CreateShowDto.CreateShowDtoBuilder.aCreateShowDto()
             .name("Opening Act")
             .duration(60)
-            .date(LocalDateTime.now().plusDays(1))
+            .date(testEvent.getDateTime().plusHours(1))
             .eventId(testEvent.getId())
             .roomId(testRoom.getId())
             .artistIds(Set.of(testArtist.getId()))
@@ -157,7 +158,7 @@ public class ShowEndpointTest implements TestData {
         CreateShowDto dto = CreateShowDto.CreateShowDtoBuilder.aCreateShowDto()
             .name("Unauthorized Show")
             .duration(90)
-            .date(LocalDateTime.now().plusDays(2))
+            .date(testEvent.getDateTime().plusHours(1))
             .eventId(testEvent.getId())
             .roomId(testRoom.getId())
             .artistIds(Set.of(testArtist.getId()))
@@ -179,7 +180,7 @@ public class ShowEndpointTest implements TestData {
         CreateShowDto dto = CreateShowDto.CreateShowDtoBuilder.aCreateShowDto()
             .name("No Auth Show")
             .duration(90)
-            .date(LocalDateTime.now().plusDays(2))
+            .date(testEvent.getDateTime().plusHours(1))
             .eventId(testEvent.getId())
             .roomId(testRoom.getId())
             .artistIds(Set.of(testArtist.getId()))
@@ -214,7 +215,7 @@ public class ShowEndpointTest implements TestData {
         CreateShowDto dto = CreateShowDto.CreateShowDtoBuilder.aCreateShowDto()
             .name("Invalid Room Show")
             .duration(90)
-            .date(LocalDateTime.now().plusDays(1))
+            .date(testEvent.getDateTime().plusHours(1))
             .eventId(testEvent.getId())
             .roomId(999L)
             .artistIds(Set.of(testArtist.getId()))
@@ -236,7 +237,7 @@ public class ShowEndpointTest implements TestData {
         CreateShowDto createDto = CreateShowDto.CreateShowDtoBuilder.aCreateShowDto()
             .name("Rock Session")
             .duration(90)
-            .date(LocalDateTime.now().plusDays(1))
+            .date(testEvent.getDateTime().plusHours(1))
             .eventId(testEvent.getId())
             .roomId(testRoom.getId())
             .artistIds(Set.of(testArtist.getId()))

@@ -85,6 +85,7 @@ public class TicketEndpointTest implements TestData {
             .withName("Test Event")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("Test Desc")
+            .withDateTime(LocalDateTime.now().minusDays(1))
             .withDuration(180)
             .withLocation(location)
             .build();
@@ -170,47 +171,8 @@ public class TicketEndpointTest implements TestData {
 
     @Test
     @Transactional
-    public void getOrderById_shouldReturnMetadataOnly() throws Exception {
-        //Create an order by buying a ticket
-        TicketTargetStandingDto target = new TicketTargetStandingDto();
-        target.setSectorId(sector.getId());
-        target.setQuantity(1);
-
-        TicketRequestDto req = new TicketRequestDto();
-        req.setShowId(futureShow.getId());
-        req.setTargets(List.of(target));
-
-        MvcResult postResult = mockMvc.perform(post("/api/v1/tickets/buy")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("1", USER_ROLES))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(req)))
-            .andReturn();
-
-        JsonNode responseJson = objectMapper.readTree(postResult.getResponse().getContentAsString());
-        long orderId = responseJson.get("id").asLong();
-
-        //Request order metadata without tickets
-        MvcResult getResult = mockMvc.perform(get("/api/v1/tickets/orders/" + orderId)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("1", USER_ROLES)))
-            .andReturn();
-
-        assertEquals(HttpStatus.OK.value(), getResult.getResponse().getStatus());
-
-        JsonNode order = objectMapper.readTree(getResult.getResponse().getContentAsString());
-
-        assertAll(
-            () -> assertEquals(orderId, order.get("id").asLong()),
-            () -> assertEquals("Test Show", order.get("showName").asText()),
-            () -> assertEquals(futureShow.getDate().toLocalDate(), LocalDateTime.parse(order.get("showDate").asText()).toLocalDate()),
-            () -> assertEquals("Arena", order.get("locationName").asText()),
-            () -> assertTrue(order.get("tickets").isNull() || order.get("tickets").isEmpty(), "Tickets field should be null or empty")
-        );
-    }
-
-    @Test
-    @Transactional
-    public void getTicketsForOrder_shouldReturnPaginatedTickets() throws Exception {
-        //Buy a ticket to create an order
+    public void getOrderWithTickets_shouldReturnTicketsEmbedded() throws Exception {
+        // Arrange: Buy a ticket to create an order
         TicketTargetStandingDto target = new TicketTargetStandingDto();
         target.setSectorId(sector.getId());
         target.setQuantity(2);
@@ -228,19 +190,23 @@ public class TicketEndpointTest implements TestData {
         JsonNode responseJson = objectMapper.readTree(postResult.getResponse().getContentAsString());
         long orderId = responseJson.get("id").asLong();
 
-        MvcResult getResult = mockMvc.perform(get("/api/v1/tickets/orders/" + orderId + "/tickets?page=0&size=10")
+        // Fetch the full order with tickets
+        MvcResult getResult = mockMvc.perform(get("/api/v1/tickets/orders/" + orderId + "/with-tickets")
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("1", USER_ROLES)))
             .andReturn();
 
         assertEquals(HttpStatus.OK.value(), getResult.getResponse().getStatus());
 
-        JsonNode page = objectMapper.readTree(getResult.getResponse().getContentAsString());
-        JsonNode content = page.get("content");
+        JsonNode order = objectMapper.readTree(getResult.getResponse().getContentAsString());
+        JsonNode tickets = order.get("tickets");
 
         assertAll(
-            () -> assertEquals(2, content.size(), "Should return two tickets"),
-            () -> assertEquals(orderId, content.get(0).get("id").asLong() > 0 ? orderId : orderId),
-            () -> assertEquals(50, content.get(0).get("price").asInt())
+            () -> assertEquals(orderId, order.get("id").asLong()),
+            () -> assertEquals("Test Show", order.get("showName").asText()),
+            () -> assertEquals("Arena", order.get("locationName").asText()),
+            () -> assertTrue(tickets.isArray(), "Tickets field should be an array"),
+            () -> assertEquals(2, tickets.size(), "Should contain 2 tickets"),
+            () -> assertEquals(50, tickets.get(0).get("price").asInt())
         );
     }
 

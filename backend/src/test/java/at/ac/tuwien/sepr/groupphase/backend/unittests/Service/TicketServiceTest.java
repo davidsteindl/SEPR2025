@@ -104,6 +104,7 @@ public class TicketServiceTest {
             .withName("Test Event")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("Test description")
+            .withDateTime(LocalDateTime.now().plusDays(1))
             .withDuration(120)
             .withLocation(location)
             .build();
@@ -117,11 +118,12 @@ public class TicketServiceTest {
             .build();
         artistRepository.save(testArtist);
 
+        LocalDateTime eventStart = testEvent.getDateTime();
         // create and persist a show in the future
         Show show = Show.ShowBuilder.aShow()
             .withName("Test Show")
             .withDuration(60)
-            .withDate(LocalDateTime.now().plusDays(1))
+            .withDate(eventStart.plusMinutes(10))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
             .withRoom(testRoom)
@@ -137,15 +139,17 @@ public class TicketServiceTest {
             .withName("Past Event")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("Past event for testing")
+            .withDateTime(LocalDateTime.now().minusDays(2))
             .withDuration(60)
             .withLocation(location)
             .build();
         eventRepository.save(pastEvent);
 
+        LocalDateTime pastEventStart = pastEvent.getDateTime();
         pastShow = Show.ShowBuilder.aShow()
             .withName("Past Show")
             .withDuration(40)
-            .withDate(LocalDateTime.now().minusDays(1))
+            .withDate(pastEventStart.plusMinutes(10))
             .withEvent(pastEvent)
             .withArtists(testShow.getArtists())
             .withRoom(testRoom)
@@ -539,27 +543,30 @@ public class TicketServiceTest {
 
     @Test
     @Transactional
-    public void getOrderByIdWithoutTickets_validUser_returnsMetadataOnly() {
-        TicketRequestDto req = new TicketRequestDto();
-        req.setShowId(testShow.getId());
-        TicketTargetSeatedDto t = new TicketTargetSeatedDto();
-        t.setSectorId(seatedSector.getId());
-        t.setSeatId(seat.getId());
-        req.setTargets(List.of(t));
+    public void testGetOrderWithTicketsById_returnsFullOrder() {
+        // Create order
+        TicketRequestDto request = new TicketRequestDto();
+        request.setShowId(testShow.getId());
+        TicketTargetSeatedDto target = new TicketTargetSeatedDto();
+        target.setSectorId(seatedSector.getId());
+        target.setSeatId(seat.getId());
+        request.setTargets(List.of(target));
 
-        OrderDto order = ticketService.buyTickets(req);
-        Long orderId = order.getId();
+        OrderDto createdOrder = ticketService.buyTickets(request);
+        Long orderId = createdOrder.getId();
 
-        OrderDto result = ticketService.getOrderByIdWithoutTickets(orderId);
+        // Retrieve full order with tickets
+        OrderDto fetched = ticketService.getOrderWithTicketsById(orderId);
 
         assertAll(
-            () -> assertEquals(orderId, result.getId()),
-            () -> assertEquals(testShow.getName(), result.getShowName()),
-            () -> assertEquals(testShow.getDate(), result.getShowDate()),
-            () -> assertEquals(location.getName(), result.getLocationName()),
-            () -> assertNull(result.getTickets(), "Ticket list should be null or empty")
+            () -> assertNotNull(fetched),
+            () -> assertEquals(orderId, fetched.getId()),
+            () -> assertEquals(testShow.getName(), fetched.getShowName()),
+            () -> assertEquals(testShow.getDate(), fetched.getShowDate()),
+            () -> assertEquals(location.getName(), fetched.getLocationName()),
+            () -> assertNotNull(fetched.getTickets()),
+            () -> assertEquals(1, fetched.getTickets().size()),
+            () -> assertEquals(TicketStatus.BOUGHT, fetched.getTickets().getFirst().getStatus())
         );
     }
-
-
 }

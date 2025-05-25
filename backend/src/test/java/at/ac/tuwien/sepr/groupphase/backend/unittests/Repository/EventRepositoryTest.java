@@ -14,6 +14,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -47,6 +49,7 @@ public class EventRepositoryTest {
             .withName("Test Event")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("A wonderful classical evening.")
+            .withDateTime(LocalDateTime.now())
             .withDuration(120)
             .withLocation(eventLocation)
             .build();
@@ -133,6 +136,7 @@ public class EventRepositoryTest {
             .withName("Jazz Fest")
             .withCategory(Event.EventCategory.JAZZ)
             .withDescription("Smooth jazz all night long.")
+            .withDateTime(LocalDateTime.now())
             .withDuration(120)
             .withLocation(location)
             .build();

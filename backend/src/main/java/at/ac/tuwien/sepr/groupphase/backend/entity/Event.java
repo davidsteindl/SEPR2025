@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -32,6 +33,9 @@ public class Event {
     @NotBlank
     @Column(nullable = false, length = 500)
     private String description;
+
+    @Column(nullable = false)
+    private LocalDateTime dateTime;
 
     @Min(10)
     @Max(10000)
@@ -75,6 +79,14 @@ public class Event {
         this.description = description;
     }
 
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
     public int getDuration() {
         return duration;
     }
@@ -105,12 +117,13 @@ public class Event {
             && Objects.equals(name, event.name)
             && category == event.category
             && Objects.equals(description, event.description)
+            && Objects.equals(dateTime, event.dateTime)
             && Objects.equals(location, event.location);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, category, description, duration, location);
+        return Objects.hash(id, name, category, description, dateTime, duration, location);
     }
 
     @Override
@@ -120,6 +133,7 @@ public class Event {
             + ", name='" + name + '\''
             + ", category='" + (category != null ? category.getDisplayName() : "null") + '\''
             + ", description='" + description + '\''
+            + ", dateTime=" + dateTime
             + ", duration=" + duration
             + ", location ID='" + (location != null ? location.getId() : "null") + '\''
             + ", description='" + (description != null ? description : "null") + '\''
@@ -163,10 +177,12 @@ public class Event {
         private String name;
         private EventCategory category;
         private String description;
+        private LocalDateTime dateTime;
         private int duration;
         private EventLocation location;
 
-        private EventBuilder() {}
+        private EventBuilder() {
+        }
 
         public static EventBuilder anEvent() {
             return new EventBuilder();
@@ -187,6 +203,11 @@ public class Event {
             return this;
         }
 
+        public EventBuilder withDateTime(LocalDateTime dateTime) {
+            this.dateTime = dateTime;
+            return this;
+        }
+
         public EventBuilder withDuration(int duration) {
             this.duration = duration;
             return this;
@@ -202,6 +223,7 @@ public class Event {
             event.setName(name);
             event.setCategory(category);
             event.setDescription(description);
+            event.setDateTime(dateTime);
             event.setDuration(duration);
             event.setLocation(location);
             return event;
