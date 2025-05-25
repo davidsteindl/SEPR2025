@@ -35,7 +35,7 @@ export class UpdateEventsComponent implements OnInit {
         this.loading = false;
       },
       error: err => {
-        this.error = 'Konnte Events nicht laden';
+        this.error = 'Could not load events';
         console.error(err);
         this.loading = false;
       }
