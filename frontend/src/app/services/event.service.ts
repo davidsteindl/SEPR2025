@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {Observable, forkJoin} from 'rxjs';
 import {Globals} from '../global/globals';
 import {CreateEvent} from '../dtos/create-event';
+import {UpdateEvent} from '../dtos/update-event';
 import {Event, EventSearchDto, EventSearchResultDto, EventTopTenDto} from '../dtos/event';
 import {Page} from "../dtos/page";
 import {Show} from '../dtos/show';
@@ -34,6 +35,24 @@ export class EventService {
       duration: event.duration,
       locationId: event.locationId
     });
+  }
+
+  /**
+   * Updates an existing event
+   *
+   * @param event to update
+   */
+  update(id: number, event: UpdateEvent): Observable<Event> {
+    return this.httpClient.put<Event>(`${this.eventBaseUri}/${id}`,
+      {
+        name:       event.name,
+        category:   event.category,
+        description:event.description,
+        dateTime:   event.dateTime,
+        duration:   event.duration,
+        locationId: event.locationId
+      }
+    );
   }
 
   /**
