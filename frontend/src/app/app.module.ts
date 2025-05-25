@@ -14,7 +14,6 @@ import {MessageComponent} from './components/message/message.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {httpInterceptorProviders} from './interceptors';
 import {ToastrModule} from "ngx-toastr";
-import {UserOrdersComponent} from "./components/user/user-orders/user-orders.component";
 
 @NgModule({
     declarations: [
@@ -34,7 +33,6 @@ import {UserOrdersComponent} from "./components/user/user-orders/user-orders.com
         ToastrModule.forRoot(),
         FormsModule,
         HttpClientModule,
-        UserOrdersComponent,
     ],
     providers: [httpInterceptorProviders, provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {

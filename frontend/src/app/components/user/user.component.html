@@ -7,8 +7,8 @@
 
  <button
    class="btn orders"
-   [routerLink]="['/user-orders']"
-   aria-label="Edit user"
+   [routerLink]="['/orders']"
+   aria-label="User Orders"
    onmouseenter="this.style.backgroundColor='#4b2991'; this.style.color='white';"
    onmouseleave="this.style.backgroundColor='transparent'; this.style.color='#6f42c1';"
  >
@@ -126,4 +126,5 @@
     [deleteWhat]="userForDeletion?.lastName"
     (confirm)="deleteUser()">
   </app-confirm-delete-dialog>
+ </div>
  </div>
