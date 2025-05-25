@@ -81,7 +81,7 @@ export class EditEventComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/admin/events']);
+    this.router.navigate(['/update-events']);
   }
 
   validateDuration(): void {
