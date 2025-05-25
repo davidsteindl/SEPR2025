@@ -4,7 +4,7 @@ import {ToastrService} from "ngx-toastr";
 import {ErrorFormatterService} from "../../services/error-formatter.service";
 import {RoomService} from "../../services/room.service";
 import {Room} from "../../dtos/room";
-import {NgClass, NgForOf, NgIf, NgTemplateOutlet} from "@angular/common";
+import {NgClass, NgForOf, NgIf, NgStyle} from "@angular/common";
 import {StandingSector} from "../../dtos/standing-sector";
 import {SeatedSector} from "../../dtos/seated-sector";
 import {Seat} from "../../dtos/seat";
@@ -17,7 +17,8 @@ import {AuthService} from "../../services/auth.service";
     NgIf,
     NgClass,
     RouterLink,
-    NgForOf
+    NgForOf,
+    NgStyle
   ],
   templateUrl: './room.component.html',
   styleUrl: './room.component.scss'
@@ -30,6 +31,13 @@ export class RoomComponent implements OnInit {
   selectedSeat: Seat;
   globalRow: number;
 
+  uniquePrices: number[] = [];
+  priceColorMap: { [price: number]: string } = {};
+  distinctColors: string[] = [
+    '#1abc9c', '#3498db', '#9b59b6', '#e67e22', '#e74c3c',
+    '#2ecc71', '#f1c40f', '#34495e', '#7f8c8d', '#8e44ad',
+    '#16a085', '#c0392b', '#d35400', '#27ae60', '#2980b9'
+  ];
 
   constructor(private route: ActivatedRoute,
               private roomService: RoomService,
@@ -51,7 +59,7 @@ export class RoomComponent implements OnInit {
     this.roomService.getRoomById(roomId).subscribe({
       next: room => {
         this.room = room;
-
+        this.generatePriceColorMap();
       },
       error: err => {
         this.notification.error(this.errorFormatter.format(err), 'Loading room failed', {
@@ -60,6 +68,22 @@ export class RoomComponent implements OnInit {
         });
       }
     });
+  }
+
+  generatePriceColorMap(): void {
+    if (!this.room) return;
+
+    this.uniquePrices = Array.from(
+      new Set(this.room.sectors.map(sector => sector.price))
+    ).sort((a, b) => a - b);
+
+    this.uniquePrices.forEach((price, index) => {
+      this.priceColorMap[price] = this.distinctColors[index % this.distinctColors.length];
+    });
+  }
+
+  getSectorColorByPrice(sector: Sector): string {
+    return this.priceColorMap[sector.price] || '#ffffff';
   }
 
   get seatedSectors(): SeatedSector[] {
@@ -107,7 +131,6 @@ export class RoomComponent implements OnInit {
     return Array.from({length: maxCol}, (_, i) => i + 1);
   }
 
-
   getRowOffset(index: number): number {
     return this.room.sectors
       .slice(0, index)
@@ -119,9 +142,8 @@ export class RoomComponent implements OnInit {
   }
 
   toColumnLetter(col: number): string {
-    return String.fromCharCode(96 + col); // 1 -> 'a', 2 -> 'b', ...
+    return String.fromCharCode(96 + col);
   }
-
 
   onSeatClick(sector: SeatedSector, row: number, col: number) {
     const seat = sector.rows.find(s => s.rowNumber === row && s.columnNumber === col && !s.deleted);
@@ -138,9 +160,7 @@ export class RoomComponent implements OnInit {
     return ['blue-sector', 'yellow-sector', 'green-sector'][sectorIndex % 3];
   }
 
-
   onSectorClick(sector: Sector): void {
     console.log(`Clicked sector ${sector.id}`);
   }
-
 }
