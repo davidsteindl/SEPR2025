@@ -15,7 +15,6 @@ import {AuthService} from "../../services/auth.service";
   selector: 'app-room',
   imports: [
     NgIf,
-    NgClass,
     RouterLink,
     NgForOf,
     NgStyle

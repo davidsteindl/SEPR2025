@@ -45,7 +45,7 @@
       </table>
 
       <div class="actions d-flex justify-content-end gap-2 mt-3">
-        <button class="btn btn-primary" (click)="openConfirm('buy')" [disabled]="!hasSelection()">
+        <button class="btn btn-primary" (click)="buySelected()" [disabled]="!hasSelection()">
           Buy Selected
         </button>
         <button class="btn btn-danger" (click)="openConfirm('cancel')" [disabled]="!hasSelection()">
