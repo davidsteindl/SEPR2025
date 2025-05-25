@@ -30,6 +30,9 @@ export class RoomUsageComponent implements OnInit {
   selectedSeat: Seat;
   globalRow: number;
 
+  selectedSeats: Seat[] = [];
+
+
 
   constructor(private route: ActivatedRoute,
               private showService: ShowService,
@@ -127,16 +130,22 @@ export class RoomUsageComponent implements OnInit {
     return String.fromCharCode(96 + col); // 1 -> 'a', 2 -> 'b', ...
   }
 
+  toggleSeatSelection(seat: Seat): void {
+    const index = this.selectedSeats.findIndex(
+      s => s.rowNumber === seat.rowNumber &&
+        s.columnNumber === seat.columnNumber &&
+        s.id === seat.id
+    );
 
-  onSeatClick(sector: SeatedSector, row: number, col: number) {
-    const seat = sector.rows.find(s => s.rowNumber === row && s.columnNumber === col && !s.deleted);
-    if (seat) {
-      this.selectedSeat = seat;
-      const sectorIndex = this.seatedSectors.findIndex(s => s.id === sector.id);
-      this.globalRow = seat.rowNumber + this.getRowOffset(sectorIndex);
-      console.log(`Clicked seat ${this.globalRow}${this.toColumnLetter(seat.columnNumber)}`);
+    if (index !== -1) {
+      this.selectedSeats.splice(index, 1);
+    } else {
+      this.selectedSeats.push(seat);
     }
+
+    console.log('Selected seats:', this.selectedSeats);
   }
+
 
   getSectorColorClass(sector: Sector): string {
     const sectorIndex = this.room.sectors.indexOf(sector);

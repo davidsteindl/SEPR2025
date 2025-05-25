@@ -38,13 +38,17 @@ th, td {
   cursor: default;
 }
 
-.seat.unavailable {
+td .seat.unavailable {
   background-color: #ccc !important;
+  border: 1px solid #999;
   cursor: not-allowed;
-  pointer-events: none;
   opacity: 0.6;
 }
 
+.seat.selected {
+  background-color: #8e44ad !important;
+  border: 2px solid #5e3370;
+}
 
 .blue-sector {
   background-color: #3498db;

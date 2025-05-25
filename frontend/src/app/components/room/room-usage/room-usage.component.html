@@ -28,8 +28,12 @@
               class="seat"
               *ngIf="isSeat(seatedSector, row, col)"
               [disabled]="!getSeat(seatedSector, row, col)?.available"
-              [ngClass]="{'unavailable': !getSeat(seatedSector, row, col)?.available}"
-              (click)="onSeatClick(seatedSector, row, col); $event.stopPropagation()">
+              [ngClass]="{
+              'seat': true,
+              'unavailable': !getSeat(seatedSector, row, col)?.available,
+              'selected': selectedSeats.includes(getSeat(seatedSector, row, col))
+              }"
+              (click)="toggleSeatSelection(getSeat(seatedSector, row, col)); $event.stopPropagation()">
             </button>
           </td>
         </tr>
