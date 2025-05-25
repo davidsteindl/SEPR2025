@@ -1,4 +1,4 @@
-export interface CreateEvent {
+export interface UpdateEvent {
   name: string;
   description: string;
   dateTime: string;

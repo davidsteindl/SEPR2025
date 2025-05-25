@@ -26,6 +26,7 @@ export class CreateEventComponent implements OnInit {
   event: CreateEvent = {
     name: '',
     description: '',
+    dateTime: '',
     duration: 60,
     category: null,
     locationId: null
@@ -82,7 +83,7 @@ export class CreateEventComponent implements OnInit {
           this.notification.success(`Event ${response.name} created successfully!`, 'Success');
           this.router.navigate(['/admin']);
         }
-        this.event = {name: '', description: '', duration: 60, category: null, locationId: null};
+        this.event = {name: '', description: '', dateTime: new Date().toISOString().slice(0,16), duration: 60, category: null, locationId: null};
       },
       error: (err) => {
         console.error('Error while creating event:', err);
