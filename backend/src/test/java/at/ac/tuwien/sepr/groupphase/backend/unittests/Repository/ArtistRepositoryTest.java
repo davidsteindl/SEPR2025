@@ -170,6 +170,7 @@ public class ArtistRepositoryTest {
 
         Artist saved = artistRepository.save(artist);
 
+
         assertAll(
             () -> assertNotNull(saved.getId()),
             () -> assertEquals("Jane", saved.getFirstname()),
