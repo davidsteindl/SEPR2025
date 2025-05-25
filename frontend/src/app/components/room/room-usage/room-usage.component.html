@@ -41,12 +41,23 @@
       <ng-container *ngIf="asStandingSector(sector) as standingSector">
         <tr>
           <td></td>
-          <td [attr.colspan]="globalColumns.length">
-            <button
-              class="standingSector"
-              (click)="onSectorClick(standingSector)">
-              {{ standingSector.capacity }}
-            </button>
+          <td [attr.colspan]="globalColumns.length" class="text-center">
+            <div class="standingSector">
+              <button class="btn btn-sm btn-outline-secondary"
+                      (click)="decreaseStandingTickets(standingSector)">
+                -
+              </button>
+
+              <span style="margin: 0 12px; font-weight: bold;">
+                {{ selectedStandingTickets[standingSector.id] || 0 }} / {{ standingSector.capacity }}
+              </span>
+
+              <button class="btn btn-sm btn-outline-secondary"
+                      [disabled]="(selectedStandingTickets[standingSector.id] || 0) >= standingSector.capacity"
+                      (click)="increaseStandingTickets(standingSector)">
+                +
+              </button>
+            </div>
           </td>
         </tr>
       </ng-container>
@@ -55,11 +66,26 @@
   </table>
 
 
-
   <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 2rem;">
-    <button *ngIf="isAdmin" class="btn btn-success mt-4" type="submit" [routerLink]="['/rooms', room.id, 'edit']">Edit</button>
+    <button *ngIf="isAdmin" class="btn btn-success mt-4" type="submit" [routerLink]="['/rooms', room.id, 'edit']">Edit
+    </button>
     <button *ngIf="isAdmin" class="btn btn-success mt-4" type="submit" [routerLink]="['/admin']">Done</button>
   </div>
 
+  <div style="margin-top: 2rem; text-align: center;">
+    <button
+      class="btn btn-success mt-4"
+      [disabled]="!hasAnySelection()"
+      (click)="buyTickets()">
+      Buy
+    </button>
+
+    <button
+      class="btn btn-success mt-4"
+      [disabled]="!hasAnySelection()"
+      (click)="reserveSeats()">
+      Reserve
+    </button>
+  </div>
 
 </div>

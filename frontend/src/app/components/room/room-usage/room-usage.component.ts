@@ -27,10 +27,8 @@ export class RoomUsageComponent implements OnInit {
   room: Room | null = null;
   isAdmin: boolean;
 
-  selectedSeat: Seat;
-  globalRow: number;
-
   selectedSeats: Seat[] = [];
+  selectedStandingTickets: { [sectorId: number]: number } = {};
 
 
 
@@ -157,4 +155,33 @@ export class RoomUsageComponent implements OnInit {
     console.log(`Clicked sector ${sector.id}`);
   }
 
+  hasAnySelection(): boolean {
+    return this.selectedSeats.length > 0 || Object.values(this.selectedStandingTickets).some(v => v > 0);
+  }
+
+  increaseStandingTickets(sector: StandingSector): void {
+    const current = this.selectedStandingTickets[sector.id] || 0;
+    if (current < sector.capacity) {
+      this.selectedStandingTickets[sector.id] = current + 1;
+    }
+  }
+
+  decreaseStandingTickets(sector: StandingSector): void {
+    const current = this.selectedStandingTickets[sector.id] || 0;
+    if (current > 0) {
+      this.selectedStandingTickets[sector.id] = current - 1;
+    }
+  }
+
+  buyTickets(): void {
+    console.log('Buying seated seats:', this.selectedSeats);
+    console.log('Buying standing tickets:', this.selectedStandingTickets);
+    // TODO: Call service to submit both
+  }
+
+  reserveSeats(): void {
+    console.log('Reserving seated seats:', this.selectedSeats);
+    console.log('Reserving standing tickets:', this.selectedStandingTickets);
+    // TODO: Call service to submit both
+  }
 }

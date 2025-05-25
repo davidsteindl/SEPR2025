@@ -12,6 +12,9 @@
   background-color: orange;
   height: 50px;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 table {
@@ -60,4 +63,9 @@ td .seat.unavailable {
 
 .green-sector {
   background-color: #2ecc71;
+}
+
+button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
