@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -115,7 +116,7 @@ public class EventValidator {
         List<Show> shows = showRepository.findByEventOrderByDateAsc(existing);
 
         for (Show s : shows) {
-            LocalDateTime start = s.getDate();
+            LocalDateTime start = s.getDate().truncatedTo(ChronoUnit.MINUTES);
             LocalDateTime end = start.plusMinutes(s.getDuration());
             if (start.isBefore(newStart) || end.isAfter(newEnd)) {
                 errors.add("Show with ID " + s.getId() + " outside event timeframe");
