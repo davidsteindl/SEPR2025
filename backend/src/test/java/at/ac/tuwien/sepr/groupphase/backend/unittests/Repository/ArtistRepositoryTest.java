@@ -60,6 +60,7 @@ public class ArtistRepositoryTest {
             .build();
         eventLocationRepository.save(location);
 
+
         Room room = Room.RoomBuilder.aRoom()
             .name("Main Room")
             .eventLocation(location)
