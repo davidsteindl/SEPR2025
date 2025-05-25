@@ -1,1 +1,23 @@
-<p>edit-events works!</p>
+<div class="container mt-4">
+  <h2>Update Events</h2>
+  <hr>
+
+  <div *ngIf="loading" class="text-center my-3">Loading…</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <ul *ngIf="!loading && events.length" class="list-group">
+    <li *ngFor="let ev of events"
+        class="list-group-item d-flex justify-content-between align-items-center">
+      <span>{{ ev.name }}</span>
+      <button
+        class="btn btn-sm btn-primary btn-lg"
+        [routerLink]="['/admin/events', ev.id, 'edit']">
+        Update
+      </button>
+    </li>
+  </ul>
+
+  <div *ngIf="!loading && events.length === 0" class="text-center text-muted">
+    No events found.
+  </div>
+</div>
