@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDate;
-import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -142,13 +141,15 @@ public class UserValidator {
             validationErrors.add("Last Name contains symbols");
         }
 
+        var addresscounter = 0;
         if (user.getStreet() != null) {
             if (user.getStreet().isBlank()) {
                 validationErrors.add("Street is given but blank");
             }
             if (user.getStreet().length() > 200) {
-                validationErrors.add("Street is too long: longer than 400 characters");
+                validationErrors.add("Street is too long: longer than 200 characters");
             }
+            addresscounter++;
         }
 
         if (user.getCountry() != null) {
@@ -156,17 +157,19 @@ public class UserValidator {
                 validationErrors.add("Country is given but blank");
             }
             if (user.getCountry().length() > 100) {
-                validationErrors.add("Country is too long: longer than 400 characters");
+                validationErrors.add("Country is too long: longer than 100 characters");
             }
+            addresscounter++;
         }
 
         if (user.getCity() != null) {
             if (user.getCity().isBlank()) {
                 validationErrors.add("City is given but blank");
             }
-            if (user.getCountry().length() > 100) {
-                validationErrors.add("Country is too long: longer than 400 characters");
+            if (user.getCity().length() > 100) {
+                validationErrors.add("City is too long: longer than 100 characters");
             }
+            addresscounter++;
         }
 
         if (user.getPostalCode() != null) {
@@ -174,8 +177,9 @@ public class UserValidator {
                 validationErrors.add("Postal Code is given but blank");
             }
             if (user.getPostalCode().length() > 100) {
-                validationErrors.add("Postal Code is too long: longer than 400 characters");
+                validationErrors.add("Postal Code is too long: longer than 100 characters");
             }
+            addresscounter++;
         }
 
         if (user.getHousenumber() != null) {
@@ -183,8 +187,13 @@ public class UserValidator {
                 validationErrors.add("House Number is given but blank");
             }
             if (user.getHousenumber().length() > 100) {
-                validationErrors.add("House Number is too long: longer than 400 characters");
+                validationErrors.add("House Number is too long: longer than 100 characters");
             }
+            addresscounter++;
+        }
+
+        if (addresscounter != 0 && addresscounter < 5) {
+            validationErrors.add("Address is incomplete, fill out all required fields");
         }
 
         if (user.getSex() == null) {
