@@ -24,7 +24,7 @@ export class PaymentFormComponent implements OnInit {
   loading = false;
 
   constructor(
-    private fb: FormBuilder, 
+    private fb: FormBuilder,
     private cart: CartService,
     private ticketService: TicketService,
     private toastr: ToastrService,
