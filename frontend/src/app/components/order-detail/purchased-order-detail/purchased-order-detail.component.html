@@ -41,7 +41,7 @@
           <td>{{ ticket.status }}</td>
           <td>{{ ticket.price | currency }}</td>
           <td>
-            <button class="pdf-button">Download PDF</button>
+            <button class="pdf-button" (click)="exportTicket(ticket.id)">Download ticket</button>
           </td>
           <td>
             <input type="checkbox" [(ngModel)]="selected[ticket.id]"/>
