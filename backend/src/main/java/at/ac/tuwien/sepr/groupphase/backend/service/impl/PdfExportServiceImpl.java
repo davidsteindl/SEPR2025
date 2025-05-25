@@ -67,14 +67,25 @@ public class PdfExportServiceImpl implements PdfExportService {
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf);
 
-        document.add(new Paragraph("Ticket"));
+        var ticketLine = new Paragraph("""
+            TicketLine
+            Verkauf von Tickets für Kino, Theater, Opern, Konzerte und mehr
+            Karlsplatz 13, 1040 Wien
+            Tel.: 0043 1 523543210, Mail: shop@ticketline.at
+            www.tickeltine.at""");
+        ticketLine.setTextAlignment(TextAlignment.RIGHT);
+        document.add(ticketLine);
+
+        document.add(new Paragraph("Ticket").setTextAlignment(TextAlignment.CENTER).setBold());
         document.add(new Paragraph("Show: " + ticket.getShow().getName()));
         document.add(new Paragraph("Event: " + ticket.getShow().getEvent().getName()));
-        document.add(new Paragraph("Location: " + ticket.getShow().getEvent().getLocation().getName()));
-        document.add(new Paragraph("Location: " + ticket.getShow().getEvent().getLocation().getCity()));
-        document.add(new Paragraph("Location: " + ticket.getShow().getEvent().getLocation().getStreet()));
-        document.add(new Paragraph("Location: " + ticket.getShow().getEvent().getLocation().getPostalCode()));
-        document.add(new Paragraph("Date: " + ticket.getShow().getDate()));
+        document.add(new Paragraph("Address: " + ticket.getShow().getEvent().getLocation().getName()));
+        document.add(new Paragraph(ticket.getShow().getEvent().getLocation().getStreet()));
+        document.add(new Paragraph(ticket.getShow().getEvent().getLocation().getPostalCode() + " "
+            + ticket.getShow().getEvent().getLocation().getCity()));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        document.add(new Paragraph("Date: " + ticket.getShow().getDate().format(formatter)));
         document.add(new Paragraph("Room: " + ticket.getSector().getRoom().getName()));
         document.add(new Paragraph("Sector: " + ticket.getSector().getId()));
         if (ticket.getSeat() != null) {
@@ -82,7 +93,7 @@ public class PdfExportServiceImpl implements PdfExportService {
         }
 
         document.add(new Paragraph("Price: " + ticket.getSector().getPrice() + " EUR"));
-        document.add(new Paragraph("Ticket Id: " + ticket.getId()));
+        //document.add(new Paragraph("Ticket Id: " + ticket.getId()));
 
         // Generate QR Code
         String qrContent = "http://localhost:4200/ticket/" + ticket.getId();
