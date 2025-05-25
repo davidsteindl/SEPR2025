@@ -9,9 +9,12 @@
 }
 
 .standingSector {
-  background-color: orange;
   height: 50px;
-  width: 100px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 table {

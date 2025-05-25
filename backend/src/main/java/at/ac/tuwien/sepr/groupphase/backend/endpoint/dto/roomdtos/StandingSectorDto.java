@@ -2,14 +2,16 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 import java.util.Objects;
 
 @JsonTypeName("STANDING")
 public class StandingSectorDto extends SectorDto {
 
-    @Positive(message = "Capacity must be positive")
+    @Min(value = 1, message = "Capacity must be at least 1")
+    @Max(value = 9999, message = "Capacity must be less than 10000")
     private int capacity;
 
     public StandingSectorDto() {

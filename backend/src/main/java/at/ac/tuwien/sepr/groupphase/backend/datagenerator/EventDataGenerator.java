@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,30 +46,27 @@ public class EventDataGenerator {
 
     @PostConstruct
     public void generateEvents() {
-        // seed Event entities
         if (eventRepository.count() == 0) {
             List<Event> events = new ArrayList<>();
-            LOGGER.debug("Generating {} Events", NUMBER_OF_EVENTS);
             for (int i = 0; i < NUMBER_OF_EVENTS; i++) {
+                LocalDateTime eventStart = LocalDateTime.of(2025, 6, i + 1, 14, 0);
                 Event ev = Event.EventBuilder.anEvent()
                     .withName("Event " + i)
                     .withCategory(Event.EventCategory.CLASSICAL)
                     .withDescription("Description for Event " + i)
                     .withDateTime(LocalDateTime.now().plusDays(i))
                     .withDuration(180 + i * 10)
+                    .withDateTime(eventStart)
                     .withLocation(roomRepository.findAll().get((int) (i % roomRepository.count())).getEventLocation())
                     .withDateTime(LocalDateTime.now().plusDays(i))
                     .build();
                 events.add(ev);
             }
             eventRepository.saveAll(events);
-            LOGGER.debug("Saved {} Events", events.size());
         }
 
-        // seed Artist entities
         if (artistRepository.count() == 0) {
             List<Artist> artists = new ArrayList<>();
-            LOGGER.debug("Generating {} Artists", NUMBER_OF_ARTISTS);
             for (int i = 0; i < NUMBER_OF_ARTISTS; i++) {
                 Artist artist = Artist.ArtistBuilder.anArtist()
                     .withFirstname("Firstname " + i)
@@ -78,31 +76,34 @@ public class EventDataGenerator {
                 artists.add(artist);
             }
             artistRepository.saveAll(artists);
-            LOGGER.debug("Saved {} Artists", artists.size());
         }
 
-        // seed Show entities
         if (showRepository.count() == 0) {
             var events = eventRepository.findAll();
             var artists = artistRepository.findAll();
             var rooms = roomRepository.findAll();
 
             if (events.isEmpty() || artists.size() < 2 || rooms.isEmpty()) {
-                LOGGER.warn("Prerequisites missing for Shows");
                 return;
             }
 
             List<Show> shows = new ArrayList<>();
             int artistIndex = 0;
             for (int i = 0; i < events.size(); i++) {
+                Event event = events.get(i);
+                LocalDateTime eventStart = event.getDateTime();
+                int eventDuration = event.getDuration();
+                int showDuration = eventDuration / SHOWS_PER_ARTIST_PAIR;
+
                 for (int j = 0; j < SHOWS_PER_ARTIST_PAIR; j++) {
+                    LocalDateTime showStart = eventStart.plusMinutes(j * showDuration);
                     Artist a1 = artists.get(artistIndex % artists.size());
                     Artist a2 = artists.get((artistIndex + 1) % artists.size());
                     Show show = Show.ShowBuilder.aShow()
-                        .withName(events.get(i).getName() + " - Show " + j)
-                        .withDuration(120)
-                        .withDate(LocalDateTime.of(2025, 6, i + 1, 12 + j * 4, 0))
-                        .withEvent(events.get(i))
+                        .withName(event.getName() + " - Show " + j)
+                        .withDuration(showDuration)
+                        .withDate(showStart)
+                        .withEvent(event)
                         .withRoom(rooms.get(i % rooms.size()))
                         .withArtists(Set.of(a1, a2))
                         .build();
@@ -111,7 +112,6 @@ public class EventDataGenerator {
                 }
             }
             showRepository.saveAll(shows);
-            LOGGER.debug("Saved {} Shows", shows.size());
         }
     }
 }

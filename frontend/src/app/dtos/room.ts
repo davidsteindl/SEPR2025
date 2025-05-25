@@ -5,5 +5,4 @@ export interface Room {
   id: number;
   sectors: Sector[];
   name: string;
-  eventLocation: Location;
 }

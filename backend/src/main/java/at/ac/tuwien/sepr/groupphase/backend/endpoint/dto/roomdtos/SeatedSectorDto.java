@@ -2,7 +2,9 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +14,8 @@ import java.util.Objects;
 public class SeatedSectorDto extends SectorDto {
 
     @NotEmpty(message = "Rows must not be empty")
-    private List<SeatDto> rows;
+    @Size(max = 200, message = "Cannot have more than 200 rows")
+    private List<@Valid SeatDto> rows;
 
     public SeatedSectorDto() {
         super();

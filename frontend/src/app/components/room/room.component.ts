@@ -3,15 +3,13 @@ import {ActivatedRoute, RouterLink} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {ErrorFormatterService} from "../../services/error-formatter.service";
 import {RoomService} from "../../services/room.service";
-import {Location} from "../../dtos/location";
 import {Room} from "../../dtos/room";
-import {NgClass, NgForOf, NgIf, NgTemplateOutlet} from "@angular/common";
-import {LocationType} from "../create-content/create-location/create-location.component";
+import {NgClass, NgForOf, NgIf, NgStyle} from "@angular/common";
 import {StandingSector} from "../../dtos/standing-sector";
-import {SectorType} from "../../dtos/sector-type";
 import {SeatedSector} from "../../dtos/seated-sector";
 import {Seat} from "../../dtos/seat";
 import {Sector} from "../../dtos/sector";
+import {AuthService} from "../../services/auth.service";
 
 @Component({
   selector: 'app-room',
@@ -19,7 +17,8 @@ import {Sector} from "../../dtos/sector";
     NgIf,
     NgClass,
     RouterLink,
-    NgForOf
+    NgForOf,
+    NgStyle
   ],
   templateUrl: './room.component.html',
   styleUrl: './room.component.scss'
@@ -27,38 +26,64 @@ import {Sector} from "../../dtos/sector";
 export class RoomComponent implements OnInit {
 
   room: Room | null = null;
+  isAdmin: boolean;
 
   selectedSeat: Seat;
   globalRow: number;
 
+  uniquePrices: number[] = [];
+  priceColorMap: { [price: number]: string } = {};
+  distinctColors: string[] = [
+    '#1abc9c', '#3498db', '#9b59b6', '#e67e22', '#e74c3c',
+    '#2ecc71', '#f1c40f', '#34495e', '#7f8c8d', '#8e44ad',
+    '#16a085', '#c0392b', '#d35400', '#27ae60', '#2980b9'
+  ];
 
   constructor(private route: ActivatedRoute,
               private roomService: RoomService,
               private notification: ToastrService,
+              private authService: AuthService,
               private errorFormatter: ErrorFormatterService
   ) {
   }
 
   ngOnInit(): void {
     this.getRoomById();
+    this.isAdmin = this.authService.getUserRole() === 'ADMIN';
     console.log(this.room);
   }
 
   getRoomById(): void {
-    const eventId = Number(this.route.snapshot.paramMap.get('id'));
+    const roomId = Number(this.route.snapshot.paramMap.get('id'));
 
-    this.roomService.getEventById(eventId).subscribe({
+    this.roomService.getRoomById(roomId).subscribe({
       next: room => {
         this.room = room;
-
+        this.generatePriceColorMap();
       },
       error: err => {
-        this.notification.error(this.errorFormatter.format(err), 'Loading events failed', {
+        this.notification.error(this.errorFormatter.format(err), 'Loading room failed', {
           enableHtml: true,
           timeOut: 8000,
         });
       }
     });
+  }
+
+  generatePriceColorMap(): void {
+    if (!this.room) return;
+
+    this.uniquePrices = Array.from(
+      new Set(this.room.sectors.map(sector => sector.price))
+    ).sort((a, b) => a - b);
+
+    this.uniquePrices.forEach((price, index) => {
+      this.priceColorMap[price] = this.distinctColors[index % this.distinctColors.length];
+    });
+  }
+
+  getSectorColorByPrice(sector: Sector): string {
+    return this.priceColorMap[sector.price] || '#ffffff';
   }
 
   get seatedSectors(): SeatedSector[] {
@@ -88,12 +113,11 @@ export class RoomComponent implements OnInit {
     return Array.from({length: max}, (_, i) => i + 1);
   }
 
-  isSeat(sector: SeatedSector, row: number, col: number) : boolean {
+  isSeat(sector: SeatedSector, row: number, col: number): boolean {
     const seat = sector.rows.find(s => s.rowNumber === row && s.columnNumber === col && !s.deleted);
     if (seat) return true;
     else return false
   }
-
 
   get globalColumns(): number[] {
     let maxCol = 0;
@@ -107,17 +131,19 @@ export class RoomComponent implements OnInit {
     return Array.from({length: maxCol}, (_, i) => i + 1);
   }
 
-
   getRowOffset(index: number): number {
-    return this.seatedSectors
+    return this.room.sectors
       .slice(0, index)
-      .reduce((acc, s) => acc + this.getMaxRows(s).length, 0);
+      .filter(s => this.asSeatedSector(s))
+      .reduce((acc, s) => {
+        const seated = this.asSeatedSector(s);
+        return acc + (seated ? this.getMaxRows(seated).length : 0);
+      }, 0);
   }
 
   toColumnLetter(col: number): string {
-    return String.fromCharCode(96 + col); // 1 -> 'a', 2 -> 'b', ...
+    return String.fromCharCode(96 + col);
   }
-
 
   onSeatClick(sector: SeatedSector, row: number, col: number) {
     const seat = sector.rows.find(s => s.rowNumber === row && s.columnNumber === col && !s.deleted);
@@ -134,9 +160,7 @@ export class RoomComponent implements OnInit {
     return ['blue-sector', 'yellow-sector', 'green-sector'][sectorIndex % 3];
   }
 
-
   onSectorClick(sector: Sector): void {
     console.log(`Clicked sector ${sector.id}`);
   }
-
 }

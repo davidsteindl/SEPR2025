@@ -8,54 +8,177 @@
   <div class="stage">STAGE</div>
   <hr>
 
-
-  <table>
-    <thead>
-    <tr>
-      <th></th>
-      <th *ngFor="let col of globalColumns"> {{ toColumnLetter(col) }}</th>
-    </tr>
-    </thead>
-    <tbody>
-    <ng-container *ngFor="let sector of seatedSectors; let i = index">
-      <ng-container *ngIf="asSeatedSector(sector) as seatedSector">
-        <tr
-          *ngFor="let row of getMaxRows(seatedSector)">
-          <th>{{ row + getRowOffset(i) }}</th>
-          <td *ngFor="let col of globalColumns"
-              [ngClass]="getSectorColorClass(seatedSector)"
-              (click)="onSectorClick(seatedSector)">
-            <button
-              class="seat"
-              *ngIf="isSeat(seatedSector, row, col)"
-              (click)="onSeatClick(seatedSector, row, col); $event.stopPropagation()">
-            </button>
-          </td>
-        </tr>
-      </ng-container>
-    </ng-container>
-    </tbody>
-  </table>
-
-  <table>
-
-    <ng-container *ngFor="let sector of standingSectors; let i = index">
-      <ng-container *ngIf="asStandingSector(sector) as standingSector">
+  <div style="text-align:center; display: flex; align-items: flex-start">
+    <div class="seat-layout" (click)="resetSector()">
+      <table>
+        <thead>
         <tr>
-          <button
-            class="standingSector"
-            (click)="onSectorClick(standingSector)">
-            {{ standingSector.capacity }}
-          </button>
+          <th></th>
+          <th *ngFor="let col of globalColumns">
+            <div class="header-letter">{{ toColumnLetter(col) }}</div>
+          </th>
         </tr>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let sector of room?.sectors; let i = index">
+          <!-- Seated Sector -->
+          <ng-container *ngIf="asSeatedSector(sector) as seatedSector">
+            <tr *ngFor="let row of getMaxRows(seatedSector)">
+              <th>
+                <div style="margin-top:4px">{{ row + getRowOffset(i) }}</div>
+              </th>
+              <td *ngFor="let col of globalColumns"
+                  [ngClass]="getSectorColorClass(seatedSector)"
+                  (click)="onSectorClick(seatedSector); cancelAddingSector(); $event.stopPropagation()">
+                <button
+                  class="seat"
+                  *ngIf="isSeat(seatedSector, row, col)"
+                  [ngClass]="{ 'selected': isSelected(seatedSector, row, col) }"
+                  (click)="onSeatClick(seatedSector, row, col); cancelAddingSector(); $event.stopPropagation()">
+                </button>
+              </td>
+            </tr>
+          </ng-container>
+
+          <!-- Standing Sector -->
+          <ng-container *ngIf="asStandingSector(sector) as standingSector">
+            <tr>
+              <td></td>
+              <td [attr.colspan]="globalColumns.length + 1">
+                <button
+                  class="standingSector"
+                  (click)="onStandingSectorClick(standingSector); cancelAddingSector(); $event.stopPropagation()">
+                  {{ standingSector.capacity }}
+                </button>
+              </td>
+            </tr>
+          </ng-container>
+        </ng-container>
+        </tbody>
+      </table>
+    </div>
+
+
+    <div class="info-box" style="text-align: center; font-weight: bold">
+      <ng-container *ngIf="!selectedSeat && !selectedSector && !addingNewSector">
+        <br/><br/><br/><br/>
+        <button class="add-button" (click)="addingSector(); $event.stopPropagation()">
+          <span class="plus-icon">+</span>
+        </button>
+        <div class="info-label">Add Sector</div>
       </ng-container>
-    </ng-container>
-  </table>
+
+      <ng-container *ngIf="addingNewSector && !selectedSeat && !selectedSector">
+        <div style="margin-bottom: 10px;" class="form-inline">
+          <label for="NewSectorType">Sector Type:</label>
+          <select id="NewSectorType" [(ngModel)]="newSectorType" name="SectorType" class="form-control">
+            <option [ngValue]="sectorType.SEATED">SEATED</option>
+            <option [ngValue]="sectorType.STANDING">STANDING</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 10px;" *ngIf="newSectorType === sectorType.SEATED">
+          <label for="NewAmountRows">Amount Rows:</label>
+          <input type="number" id="NewAmountRows" class="custom-input" min="1" max="200"
+                 [(ngModel)]="newSectorRows"/>
+        </div>
+
+        <div style="margin-bottom: 10px;" *ngIf="newSectorType === sectorType.SEATED">
+          <label for="NewSeatsPerRow">Seats per Row:</label>
+          <input type="number" id="NewSeatsPerRow" class="custom-input" min="1" max="100"
+                 [(ngModel)]="newSectorSeatsForRow"/>
+        </div>
+
+        <div style="margin-bottom: 10px;" *ngIf="newSectorType === sectorType.STANDING">
+          <label for="NewCapacity">Capacity:</label>
+          <input type="number" id="NewCapacity" class="custom-input" min="1" max="9999"
+                 [(ngModel)]="newSectorCapacity"/>
+        </div>
+
+        <div>
+          <label for="NewSectorPrice">Sector Price:</label>
+          <input type="number" id="NewSectorPrice" class="custom-input" min="1" max="9999"
+                 [(ngModel)]="newSectorPrice"/>
+        </div>
+        <br>
+
+        <button class="btn btn-success mt-4" type="submit" (click)="cancelAddingSector(); $event.stopPropagation()">
+          Cancel
+        </button>
+
+        <button class="btn btn-success mt-4" type="submit" (click)="submitSector(); $event.stopPropagation()">
+          Add Sector
+        </button>
+      </ng-container>
 
 
-  <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 2rem;">
-    <button class="btn btn-success mt-4" type="submit" [routerLink]="['/admin']">Done</button>
+      <ng-container *ngIf="!selectedSeat && selectedSector">
+        <p class="sectorText">Sector {{ getSelectedSectorIndex() }}<br/><br/></p>
+
+        <div style="margin-bottom: 10px;" class="form-inline">
+          <label for="SectorType">Sector Type:</label>
+          <select id="SectorType" [(ngModel)]="editedSectorType" name="SectorType" class="form-control">
+            <option [ngValue]="sectorType.SEATED">SEATED</option>
+            <option [ngValue]="sectorType.STANDING">STANDING</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 10px;" *ngIf="editedSectorType === sectorType.SEATED">
+          <label for="AmountRows">Amount Rows:</label>
+          <input type="number" id="AmountRows" class="custom-input" min="1" max="200"
+                 [(ngModel)]="editedRows"/>
+        </div>
+
+        <div style="margin-bottom: 10px;" *ngIf="editedSectorType === sectorType.SEATED">
+          <label for="SeatsPerRow">Seats per Row:</label>
+          <input type="number" id="SeatsPerRow" class="custom-input" min="1" max="100"
+                 [(ngModel)]="editedSeatsPerRow"/>
+        </div>
+
+        <div style="margin-bottom: 10px;" *ngIf="editedSectorType === sectorType.STANDING">
+          <label for="Capacity">Capacity:</label>
+          <input type="number" id="Capacity" class="custom-input" min="1" max="9999"
+                 [(ngModel)]="editedCapacity"/>
+        </div>
+
+        <div>
+          <label for="SectorPrice">Sector Price:</label>
+          <input type="number" id="SectorPrice" class="custom-input" min="1" max="9999"
+                 [(ngModel)]="editedPrice"/>
+        </div>
+
+        <br>
+        <p>
+          <button class="btn btn-danger" (click)="deleteSector(); $event.stopPropagation()">
+            <i class="bi bi-trash"></i> Delete
+          </button>
+          <br>
+          <button class="btn btn-success mt-4" type="submit"
+                  (click)="editSector(); $event.stopPropagation()">Done
+          </button>
+        </p>
+
+
+      </ng-container>
+
+      <ng-container *ngIf="selectedSeat">
+        <br/><br/><br/><br/>
+        <p class="seatText">Seat: {{ this.globalRow }}{{ toColumnLetter(selectedSeat.columnNumber) }}<br/><br/>
+          <button class="btn btn-danger" (click)="deleteSeat(); $event.stopPropagation()">
+            <i class="bi bi-trash"></i> Delete
+          </button>
+          <br>
+          <button class="btn btn-success mt-4" type="submit" (click)="unClickSeat(); $event.stopPropagation()">Done
+          </button>
+        </p>
+      </ng-container>
+    </div>
+
+
   </div>
 
-
+  <div>
+    <button class="btn btn-success mt-4" type="submit" (click)="edit(); $event.stopPropagation()">Done</button>
+  </div>
 </div>
+

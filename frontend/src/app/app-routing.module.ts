@@ -1,29 +1,31 @@
-import { NgModule } from '@angular/core';
-import { mapToCanActivate, RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from './components/home/home.component';
-import { LoginComponent } from './components/login/login.component';
-import { AuthGuard } from './guards/auth.guard';
-import { MessageComponent } from './components/message/message.component';
-import { RegisterComponent } from './components/register/register.component';
-import { TermsandconditionsComponent } from './components/termsandconditions/termsandconditions.component';
-import { ManageAccountsComponent } from './components/manage-accounts/manage-accounts.component';
-import { AdminGuard } from './guards/admin.guard';
-import { UserComponent } from './components/user/user.component';
-import { UserEditComponent } from './components/user/user-edit/user-edit.component';
-import { UserOrdersComponent } from './components/user/user-orders/user-orders.component';
-import { SearchComponent } from './components/search/search.component';
-import { CreateEventComponent } from './components/create-content/create-event/create-event.component';
-import { CreateArtistComponent } from './components/create-content/create-artist/create-artist.component';
-import { CreateShowComponent } from './components/create-content/create-show/create-show.component';
-import { CreateLocationComponent } from './components/create-content/create-location/create-location.component';
-import { AdminComponent } from './components/admin/admin.component';
-import { ArtistEventsComponent } from './components/artist-events/artist-events.component';
+import {NgModule} from '@angular/core';
+import {mapToCanActivate, RouterModule, Routes} from '@angular/router';
+import {HomeComponent} from './components/home/home.component';
+import {LoginComponent} from './components/login/login.component';
+import {AuthGuard} from './guards/auth.guard';
+import {MessageComponent} from './components/message/message.component';
+import {RegisterComponent} from './components/register/register.component';
+import {TermsandconditionsComponent} from './components/termsandconditions/termsandconditions.component';
+import {ManageAccountsComponent} from './components/manage-accounts/manage-accounts.component';
+import {AdminGuard} from './guards/admin.guard';
+import {UserComponent} from './components/user/user.component';
+import {UserEditComponent} from './components/user/user-edit/user-edit.component';
+import {UserOrdersComponent} from './components/user/user-orders/user-orders.component';
+import {SearchComponent} from './components/search/search.component';
+import {CreateEventComponent} from './components/create-content/create-event/create-event.component';
+import {CreateArtistComponent} from './components/create-content/create-artist/create-artist.component';
+import {CreateShowComponent} from './components/create-content/create-show/create-show.component';
+import {CreateLocationComponent} from './components/create-content/create-location/create-location.component';
+import {AdminComponent} from './components/admin/admin.component';
+import {ArtistEventsComponent} from './components/artist-events/artist-events.component';
 import {EventOverviewComponent} from "./components/event-overview/event-overview.component";
-import { CreateRoomComponent } from './components/create-content/create-room/create-room.component';
+import {CreateRoomComponent} from './components/create-content/create-room/create-room.component';
 import {RoomComponent} from "./components/room/room.component";
+import {RoomEditComponent} from './components/room/room-edit/room-edit.component';
 import {LocationShowsComponent} from "./components/location-shows/location-shows.component";
-import { PaymentFormComponent } from './components/payment-form/payment-form.component';
+import {PaymentFormComponent} from './components/payment-form/payment-form.component';
 import {OrderOverviewComponent} from "./components/order-overview/order-overview.component";
+import {RoomUsageComponent} from "./components/room/room-usage/room-usage.component";
 import {
   PurchasedOrderDetailComponent
 } from "./components/order-detail/purchased-order-detail/purchased-order-detail.component";
@@ -56,9 +58,10 @@ const routes: Routes = [
   { path: 'artists/:id/events', component: ArtistEventsComponent, canActivate: [AuthGuard] },
   { path: 'events/:id/overview', component: EventOverviewComponent, canActivate: [AuthGuard] },
   { path: 'rooms/:id/overview', component: RoomComponent, canActivate: [AdminGuard] },
-  { path: 'rooms/:id/edit', component: RoomComponent, canActivate: [AdminGuard] },
+  { path: 'rooms/:id/edit', component: RoomEditComponent, canActivate: [AdminGuard] },
   { path: 'locations/:id/shows', component: LocationShowsComponent, canActivate: [AuthGuard] },
   { path: 'orders', component: OrderOverviewComponent, canActivate: [AuthGuard] },
+  { path: 'shows/:id/room-usage', component: RoomUsageComponent, canActivate: [AuthGuard] },
   { path: 'orders/purchased/:id', component: PurchasedOrderDetailComponent, canActivate: [AuthGuard] },
   { path: 'orders/reserved/:id', component: ReservedOrderDetailComponent, canActivate: [AuthGuard] },
   { path: 'orders/refunded/:id', component: RefundedOrderDetailComponent, canActivate: [AuthGuard] },
@@ -66,7 +69,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { useHash: true })],
+  imports: [RouterModule.forRoot(routes, {useHash: true})],
   exports: [RouterModule]
 })
 export class AppRoutingModule {
