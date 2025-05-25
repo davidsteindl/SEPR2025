@@ -161,6 +161,7 @@ public class TicketServiceTest {
         TicketDto dto = orderDto.getTickets().getFirst();
 
 
+
         assertAll(
             () -> assertNotNull(orderDto.getId()),
             () -> assertEquals(1, orderDto.getTickets().size()),
