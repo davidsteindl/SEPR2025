@@ -97,11 +97,6 @@ export class EditEventComponent implements OnInit {
   }
 
   private toDateTimeLocal(iso: string): string {
-    const dt = new Date(iso);
-    const tzOffsetMs = dt.getTimezoneOffset() * 60000;
-    const localISO = new Date(dt.getTime() - tzOffsetMs)
-      .toISOString()
-      .slice(0, 16);
-    return localISO;
+    return iso.slice(0, 16);
   }
 }
