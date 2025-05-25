@@ -4,7 +4,7 @@ import {Page} from "../../dtos/page";
 import { OrderDto } from 'src/app/dtos/order';
 import {OrderService} from "../../services/order.service";
 import {DatePipe} from "@angular/common";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 
 @Component({
   selector: 'app-order-overview',
@@ -12,7 +12,8 @@ import {ActivatedRoute, Router} from "@angular/router";
   standalone: true,
   imports: [
     CommonModule,
-    DatePipe
+    DatePipe,
+    RouterLink
   ],
   styleUrls: ['./order-overview.component.scss']
 })

@@ -64,7 +64,7 @@ public class ShowServiceTest {
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("An evening of Beethoven")
             .withDateTime(LocalDateTime.now().plusDays(1))
-            .withDuration(500)
+            .withDuration(5000)
             .withLocation(location)
             .build();
         eventRepository.save(testEvent);
@@ -265,7 +265,7 @@ public class ShowServiceTest {
         Show show = Show.ShowBuilder.aShow()
             .withName("Early Performance")
             .withDuration(90)
-            .withDate(LocalDateTime.now().plusDays(1).withHour(2))
+            .withDate(LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))
             .withRoom(testRoom)

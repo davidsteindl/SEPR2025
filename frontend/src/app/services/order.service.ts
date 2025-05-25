@@ -28,4 +28,9 @@ export class OrderService {
 
     return this.http.get<Page<OrderDto>>(`${this.orderBaseUri}/${type}`, { params });
   }
+
+  getOrderWithTickets(orderId: number): Observable<OrderDto> {
+    return this.http.get<OrderDto>(`${this.orderBaseUri}/${orderId}/with-tickets`);
+  }
+
 }

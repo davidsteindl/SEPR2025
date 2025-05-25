@@ -52,4 +52,26 @@ export class TicketService {
     const payload: TicketRequestDto = { showId, targets };
     return this.http.post<OrderDto>(`${this.base}/buy`, payload);
   }
+
+  refundTickets(ticketIds: number[]): Observable<TicketDto[]> {
+    return this.http.post<TicketDto[]>(
+      `${this.base}/refund`,
+      ticketIds
+    );
+  }
+
+  buyReservedTickets(orderId: number, ticketIds: number[]): Observable<OrderDto> {
+    return this.http.post<OrderDto>(
+      `${this.globals.backendUri}/tickets/reservations/${orderId}/buy`,
+      ticketIds
+    );
+  }
+
+  cancelReservations(ticketIds: number[]): Observable<TicketDto[]> {
+    return this.http.post<TicketDto[]>(
+      `${this.globals.backendUri}/tickets/cancel-reservations`,
+      ticketIds
+    );
+  }
+
 }

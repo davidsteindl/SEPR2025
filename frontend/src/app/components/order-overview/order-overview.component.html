@@ -35,7 +35,7 @@
           Location: {{ order.locationName }} <br>
 
           <div class="order-buttons">
-            <button class="view-button">View full order</button>
+            <button class="view-button" [routerLink]="['/orders/purchased', order.id]">View full order</button>
             <button class="pdf-button">Download invoice</button>
           </div>
         </div>
@@ -68,7 +68,7 @@
           Location: {{ order.locationName }} <br>
 
           <div class="order-buttons">
-            <button class="view-button">View full order</button>
+            <button class="view-button" [routerLink]="['/orders/reserved', order.id]">View full order</button>
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@
           Location: {{ order.locationName }} <br>
 
           <div class="order-buttons">
-            <button class="view-button">View full order</button>
+            <button class="view-button" [routerLink]="['/orders/past', order.id]">View full order</button>
             <button class="pdf-button">Download invoice</button>
           </div>
         </div>
@@ -133,7 +133,7 @@
           Location: {{ order.locationName }} <br>
 
           <div class="order-buttons">
-            <button class="view-button">View full order</button>
+            <button class="view-button" [routerLink]="['/orders/refunded', order.id]">View full order</button>
             <button class="pdf-button">Download cancellation invoice</button>
           </div>
         </div>
