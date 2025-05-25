@@ -109,4 +109,11 @@ export class OrderOverviewComponent implements OnInit {
     this.pdfService.exportInvoicePdf(orderId);
   }
 
+  exportCancelInvoicePdf(orderId: number): void {
+
+    this.pdfService.exportCancelInvoicePdf(orderId);
+  }
+
+
+
 }

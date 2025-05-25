@@ -1,25 +1,39 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
+import at.ac.tuwien.sepr.groupphase.backend.exception.AuthorizationException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.PdfExportService;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 
 @Service
 public class PdfExportServiceImpl implements PdfExportService {
@@ -44,19 +58,34 @@ public class PdfExportServiceImpl implements PdfExportService {
 
         System.out.println(id);
         var ticket = ticketRepository.findById(id).orElseThrow(NotFoundException::new);
+        var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        if (!ticket.getOrder().getUserId().equals(idloggedin)) {
+            throw new AuthorizationException("You are not authorized to export this ticket.");
+        }
 
         PdfWriter writer = new PdfWriter(responseBody);
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf);
 
-        document.add(new Paragraph("Ticket"));
+        var ticketLine = new Paragraph("""
+            TicketLine
+            Verkauf von Tickets für Kino, Theater, Opern, Konzerte und mehr
+            Karlsplatz 13, 1040 Wien
+            Tel.: 0043 1 523543210, Mail: shop@ticketline.at
+            www.tickeltine.at""");
+        ticketLine.setTextAlignment(TextAlignment.RIGHT);
+        document.add(ticketLine);
+
+        document.add(new Paragraph("Ticket").setTextAlignment(TextAlignment.CENTER).setBold());
         document.add(new Paragraph("Show: " + ticket.getShow().getName()));
         document.add(new Paragraph("Event: " + ticket.getShow().getEvent().getName()));
-        document.add(new Paragraph("Location: " + ticket.getShow().getEvent().getLocation().getName()));
-        document.add(new Paragraph("Location: " + ticket.getShow().getEvent().getLocation().getCity()));
-        document.add(new Paragraph("Location: " + ticket.getShow().getEvent().getLocation().getStreet()));
-        document.add(new Paragraph("Location: " + ticket.getShow().getEvent().getLocation().getPostalCode()));
-        document.add(new Paragraph("Datum: " + ticket.getShow().getDate()));
+        document.add(new Paragraph("Address: " + ticket.getShow().getEvent().getLocation().getName()));
+        document.add(new Paragraph(ticket.getShow().getEvent().getLocation().getStreet()));
+        document.add(new Paragraph(ticket.getShow().getEvent().getLocation().getPostalCode() + " "
+            + ticket.getShow().getEvent().getLocation().getCity()));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+        document.add(new Paragraph("Date: " + ticket.getShow().getDate().format(formatter)));
         document.add(new Paragraph("Room: " + ticket.getSector().getRoom().getName()));
         document.add(new Paragraph("Sector: " + ticket.getSector().getId()));
         if (ticket.getSeat() != null) {
@@ -64,10 +93,42 @@ public class PdfExportServiceImpl implements PdfExportService {
         }
 
         document.add(new Paragraph("Price: " + ticket.getSector().getPrice() + " EUR"));
-        document.add(new Paragraph("Ticket Id: " + ticket.getId()));
+        //document.add(new Paragraph("Ticket Id: " + ticket.getId()));
+
+        // Generate QR Code
+        String qrContent = "http://localhost:4200/ticket/" + ticket.getId();
+        BufferedImage qrImage = generateQrCodeImage(qrContent);
+
+        // Convert BufferedImage to iText Image
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(qrImage, "PNG", baos);
+        } catch (IOException e) {
+            throw new RuntimeException("Error while generating QR code", e);
+        }
+        ImageData imageData = ImageDataFactory.create(baos.toByteArray());
+        Image qrCode = new Image(imageData);
+
+        // Add QR Code to the PDF
+        document.add(qrCode);
+
+
+
 
         document.close();
     }
+
+    private BufferedImage generateQrCodeImage(String content) {
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        try {
+            BitMatrix bitMatrix = qrCodeWriter.encode(content, BarcodeFormat.QR_CODE, 200, 200);
+            return MatrixToImageWriter.toBufferedImage(bitMatrix);
+        } catch (WriterException e) {
+            throw new RuntimeException("Error while generating QR Code", e);
+        }
+    }
+
+
 
     @Override
     @Transactional
@@ -76,21 +137,22 @@ public class PdfExportServiceImpl implements PdfExportService {
         System.out.println(id);
         var order = orderRepository.findById(id).orElseThrow(NotFoundException::new);
         final var user = userRepository.findById(order.getUserId()).orElseThrow(NotFoundException::new);
+        var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        if (!order.getUserId().equals(idloggedin)) {
+            throw new AuthorizationException("You are not authorized to export this invoice.");
+        }
 
         PdfWriter writer = new PdfWriter(responseBody);
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf);
 
 
-        var ticketLine = new Paragraph("TicketLine\n"
-            +
-            "Verkauf von Tickets für Kino, Theater, Opern, Konzerte und mehr\n"
-            +
-            "Karlsplatz 13, 1040 Wien\n"
-            +
-            "Tel.: 0043 1 523543210, Mail: shop@ticketline.at\n"
-            +
-            "www.tickeltine.at");
+        var ticketLine = new Paragraph("""
+            TicketLine
+            Verkauf von Tickets für Kino, Theater, Opern, Konzerte und mehr
+            Karlsplatz 13, 1040 Wien
+            Tel.: 0043 1 523543210, Mail: shop@ticketline.at
+            www.tickeltine.at""");
         ticketLine.setTextAlignment(TextAlignment.RIGHT);
         document.add(ticketLine);
 
@@ -165,19 +227,14 @@ public class PdfExportServiceImpl implements PdfExportService {
         document.add(new Paragraph("Summe " + sum + " EUR"));
         document.add(new Paragraph("Betrag enthält wie folgt: " + String.format("%.02f", ust)));
         document.add(new Paragraph("USt 13% (ermäßigter Steuersatz für Konzerte und Opernkarten etc)"));
-        document.add(new Paragraph("Bitte um Bezahlung unter Angabe der Nummer der Honorarnote "
-            +
-            "auf das Konto der TicketLine Gmbh IBAN BIC binnen 7 Tagen.\n"
-            +
-            "\n"
-            +
-            "Wir wünschen Ihnen einen interessanten und angenehmen Veranstaltungsbesuch!\n"
-            +
-            "\n"
-            +
-            "Freundliche Grüße,\n"
-            +
-            "Das TicketLine Team"));
+        document.add(new Paragraph("""
+            Bitte um Bezahlung unter Angabe der Nummer der Honorarnote
+            auf das Konto der TicketLine Gmbh IBAN BIC binnen 7 Tagen.
+
+            Wir wünschen Ihnen einen interessanten und angenehmen Veranstaltungsbesuch!
+
+            Freundliche Grüße,
+            Das TicketLine Team"""));
         document.add(new Paragraph("UID: ATU1234567"));
 
 
@@ -190,6 +247,10 @@ public class PdfExportServiceImpl implements PdfExportService {
 
         System.out.println(id);
         var order = orderRepository.findById(id).orElseThrow(NotFoundException::new);
+        var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        if (!order.getUserId().equals(idloggedin)) {
+            throw new AuthorizationException("You are not authorized to export this cancellation invoice.");
+        }
 
         PdfWriter writer = new PdfWriter(responseBody);
         PdfDocument pdf = new PdfDocument(writer);

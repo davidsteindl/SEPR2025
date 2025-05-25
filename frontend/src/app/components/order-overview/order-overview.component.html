@@ -134,7 +134,7 @@
 
           <div class="order-buttons">
             <button class="view-button" [routerLink]="['/orders/refunded', order.id]">View full order</button>
-            <button class="pdf-button">Download cancellation invoice</button>
+            <button class="pdf-button" (click)="exportCancelInvoicePdf(order.id)">Download cancellation invoice</button>
           </div>
         </div>
       </div>

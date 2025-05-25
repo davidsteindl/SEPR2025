@@ -26,7 +26,7 @@ public class PdfExportEndpoint {
 
     @GetMapping("/tickets/{ticketId}")
     @Secured("ROLE_USER")
-    @Operation(summary = "Generate a PDF (Ticket, Invoice, Storno)", security = @SecurityRequirement(name = "apiKey"))
+    @Operation(summary = "Generate a Ticket PDF.", security = @SecurityRequirement(name = "apiKey"))
     public void exportTicketPdf(@PathVariable("ticketId") Long ticketId, HttpServletResponse response) throws IOException {
 
         pdfExportService.makeTicketPdf(ticketId, response.getOutputStream());
@@ -38,12 +38,24 @@ public class PdfExportEndpoint {
 
     @GetMapping("/invoice/{orderId}")
     @Secured("ROLE_USER")
-    @Operation(summary = "Generate a PDF (Ticket, Invoice, Storno)", security = @SecurityRequirement(name = "apiKey"))
+    @Operation(summary = "Generate an Invoice Pdf.", security = @SecurityRequirement(name = "apiKey"))
     public void exportInvoicePdf(@PathVariable("orderId") Long orderId, HttpServletResponse response) throws IOException {
 
         pdfExportService.makeInvoicePdf(orderId, response.getOutputStream());
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=Invoice" + ".pdf");
+
+
+    }
+
+    @GetMapping("/cancelinvoice/{orderId}")
+    @Secured("ROLE_USER")
+    @Operation(summary = "Generate a CancellationInvoice Pdf.", security = @SecurityRequirement(name = "apiKey"))
+    public void exportCancelInvoicePdf(@PathVariable("orderId") Long orderId, HttpServletResponse response) throws IOException {
+
+        pdfExportService.makeCancelInvoicePdf(orderId, response.getOutputStream());
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=CancellationInvoice" + ".pdf");
 
 
     }

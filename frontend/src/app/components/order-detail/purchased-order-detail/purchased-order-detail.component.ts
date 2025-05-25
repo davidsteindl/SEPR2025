@@ -5,6 +5,7 @@ import { OrderDto } from 'src/app/dtos/order';
 import {FormsModule} from "@angular/forms";
 import {CurrencyPipe, DatePipe, NgForOf, NgIf} from "@angular/common";
 import { TicketService } from 'src/app/services/ticket.service';
+import {PdfExportService} from "../../../services/pdf-export.service";
 
 
 @Component({
@@ -30,7 +31,8 @@ export class PurchasedOrderDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private orderService: OrderService,
-    private ticketService: TicketService
+    private ticketService: TicketService,
+    private pdfService: PdfExportService
   ) {}
 
   ngOnInit(): void {
@@ -96,7 +98,9 @@ export class PurchasedOrderDetailComponent implements OnInit {
     return Object.values(this.selected).some(v => v);
   }
 
-  downloadPdf(ticketId: number): void {
-    // Not implemented
+  exportTicket(ticketId: number): void {
+
+    this.pdfService.exportTicketPdf(ticketId);
   }
+
 }

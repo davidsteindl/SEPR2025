@@ -10,7 +10,6 @@ import {ManageAccountsComponent} from './components/manage-accounts/manage-accou
 import {AdminGuard} from './guards/admin.guard';
 import {UserComponent} from './components/user/user.component';
 import {UserEditComponent} from './components/user/user-edit/user-edit.component';
-import {UserOrdersComponent} from './components/user/user-orders/user-orders.component';
 import {SearchComponent} from './components/search/search.component';
 import {CreateEventComponent} from './components/create-content/create-event/create-event.component';
 import {UpdateEventsComponent} from './components/update-events/update-events.component';
@@ -49,7 +48,6 @@ const routes: Routes = [
   { path: 'checkout', component: PaymentFormComponent },
   { path: 'user', component: UserComponent, canActivate: [AuthGuard]},
   { path: 'user-edit', component: UserEditComponent, canActivate: [AuthGuard]},
-  { path: 'user-orders', component: UserOrdersComponent, canActivate: [AuthGuard]},
   { path: 'search', component: SearchComponent, canActivate: [AuthGuard]},
   { path: 'create-event', component: CreateEventComponent, canActivate: [AdminGuard] },
   {path: 'update-events', component: UpdateEventsComponent, canActivate: [AdminGuard] },
