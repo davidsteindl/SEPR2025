@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {NgForm, FormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {EventService} from '../../services/event.service';
@@ -12,7 +12,7 @@ import {ToastrService} from 'ngx-toastr';
 @Component({
   selector: 'app-edit-event',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './edit-event.component.html',
   styleUrls: ['./edit-event.component.scss']
 })
