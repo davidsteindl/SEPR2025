@@ -5,6 +5,10 @@ import {TicketService} from "../../../services/ticket.service";
 import {OrderService} from "../../../services/order.service";
 import {CurrencyPipe, DatePipe, NgForOf, NgIf} from "@angular/common";
 import {FormsModule} from "@angular/forms";
+import { CartService } from 'src/app/services/cart.service';
+import { Router } from '@angular/router';
+import { PaymentItem } from 'src/app/dtos/payment-item';
+
 
 @Component({
   selector: 'app-reserved-order-detail',
@@ -30,7 +34,9 @@ export class ReservedOrderDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private orderService: OrderService,
-    private ticketService: TicketService
+    private ticketService: TicketService,
+    private cartService: CartService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -52,10 +58,27 @@ export class ReservedOrderDetailComponent implements OnInit {
   }
 
   buySelected(): void {
-    const ticketIds = this.getSelectedIds();
-    this.ticketService.buyReservedTickets(this.order!.id, ticketIds).subscribe(() => {
-      this.loadOrder(this.order!.id);
-    });
+    const items = this.toPaymentItems();
+    this.cartService.setItems(items);
+    this.router.navigate(['/checkout']);
+  }
+
+  toPaymentItems(): PaymentItem[] {
+    if (!this.order) return [];
+
+    return this.order.tickets
+      .filter(t => this.selected[t.id])
+      .map(t => ({
+        eventName: this.order!.showName,
+        type: t.seatId ? 'SEATED' : 'STANDING',
+        price: t.price,
+        sectorId: t.sectorId,
+        seatId: t.seatId ?? undefined,
+        rowNumber: t.rowNumber ?? undefined,
+        columnNumber: t.seatLabel ? parseInt(t.seatLabel) || undefined : undefined,
+        quantity: t.seatId ? undefined : 1,
+        showId: undefined
+      }));
   }
 
   cancelSelected(): void {
