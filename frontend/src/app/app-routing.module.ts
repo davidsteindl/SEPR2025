@@ -37,6 +37,7 @@ import {
   RefundedOrderDetailComponent
 } from "./components/order-detail/refunded-order-detail/refunded-order-detail.component";
 import {PastOrderDetailComponent} from "./components/order-detail/past-order-detail/past-order-detail.component";
+import {EditEventComponent} from "./components/edit-event/edit-event.component";
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -52,6 +53,7 @@ const routes: Routes = [
   { path: 'search', component: SearchComponent, canActivate: [AuthGuard]},
   { path: 'create-event', component: CreateEventComponent, canActivate: [AdminGuard] },
   {path: 'update-events', component: UpdateEventsComponent, canActivate: [AdminGuard] },
+  { path: 'events/:id/edit',  component: EditEventComponent },
   { path: 'create-artist', component: CreateArtistComponent, canActivate: [AdminGuard] },
   { path: 'create-show', component: CreateShowComponent, canActivate: [AdminGuard] },
   { path: 'create-location', component: CreateLocationComponent, canActivate: [AdminGuard] },
