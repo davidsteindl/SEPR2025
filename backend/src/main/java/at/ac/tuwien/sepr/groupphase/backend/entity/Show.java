@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -35,6 +36,7 @@ public class Show {
 
     @NotNull
     @Column(nullable = false)
+    @FutureOrPresent(message = "Date must be in the present or future")
     private LocalDateTime date;
 
     @ManyToOne(optional = false)

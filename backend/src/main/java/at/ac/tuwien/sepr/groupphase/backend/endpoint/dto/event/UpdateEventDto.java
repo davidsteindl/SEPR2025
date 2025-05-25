@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event;
 
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -26,6 +27,7 @@ public class UpdateEventDto {
     private int duration;
 
     @NotNull(message = "Start date and time must not be null")
+    @FutureOrPresent(message = "Date must be in the present or future")
     private LocalDateTime dateTime;
 
     @NotNull(message = "Location ID must not be null")
