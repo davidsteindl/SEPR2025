@@ -36,7 +36,7 @@
 
           <div class="order-buttons">
             <button class="view-button" [routerLink]="['/orders/purchased', order.id]">View full order</button>
-            <button class="pdf-button">Download invoice</button>
+            <button class="pdf-button" (click)="exportInvoice(order.id)">Download invoice</button>
           </div>
         </div>
       </div>
@@ -101,7 +101,7 @@
 
           <div class="order-buttons">
             <button class="view-button" [routerLink]="['/orders/past', order.id]">View full order</button>
-            <button class="pdf-button">Download invoice</button>
+            <button class="pdf-button" (click)="exportInvoice(order.id)">Download invoice</button>
           </div>
         </div>
       </div>

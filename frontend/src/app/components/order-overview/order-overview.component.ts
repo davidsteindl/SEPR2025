@@ -5,6 +5,8 @@ import { OrderDto } from 'src/app/dtos/order';
 import {OrderService} from "../../services/order.service";
 import {DatePipe} from "@angular/common";
 import {ActivatedRoute, Router, RouterLink} from "@angular/router";
+import {PdfExportService} from "../../services/pdf-export.service";
+
 
 @Component({
   selector: 'app-order-overview',
@@ -35,7 +37,8 @@ export class OrderOverviewComponent implements OnInit {
 
   loading = false;
 
-  constructor(private orderService: OrderService, private router: Router,  private route: ActivatedRoute) {}
+  constructor(private orderService: OrderService, private router: Router,  private route: ActivatedRoute,
+              private pdfService: PdfExportService ) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -100,4 +103,10 @@ export class OrderOverviewComponent implements OnInit {
       }
     });
   }
+
+  exportInvoice(orderId: number): void {
+
+    this.pdfService.exportInvoicePdf(orderId);
+  }
+
 }
