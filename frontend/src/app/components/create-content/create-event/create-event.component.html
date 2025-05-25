@@ -20,6 +20,21 @@
         </div>
       </div>
 
+      <div class="form-group mt-3">
+        <label for="eventDescription">Description <span class="text-danger">*</span></label>
+        <textarea
+          id="eventDescription"
+          [(ngModel)]="event.description"
+          name="eventDescription"
+          required
+          rows="3"
+          class="form-control"
+          #eventDescription="ngModel"></textarea>
+        <div *ngIf="eventDescription.invalid && eventDescription.touched" class="text-danger">
+          Description is required.
+        </div>
+      </div>
+
       <div class="row mt-3">
         <div class="form-group col-md-6">
           <label for="eventDateTime">Start Date &amp; Time <span class="text-danger">*</span></label>
@@ -37,21 +52,6 @@
           <div *ngIf="eventDateTime.invalid && eventDateTime.touched" class="text-danger">
             Start date &amp; time is required.
           </div>
-        </div>
-      </div>
-
-      <div class="form-group mt-3">
-        <label for="eventDescription">Description <span class="text-danger">*</span></label>
-        <textarea
-          id="eventDescription"
-          [(ngModel)]="event.description"
-          name="eventDescription"
-          required
-          rows="3"
-          class="form-control"
-          #eventDescription="ngModel"></textarea>
-        <div *ngIf="eventDescription.invalid && eventDescription.touched" class="text-danger">
-          Description is required.
         </div>
       </div>
 
