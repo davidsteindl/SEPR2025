@@ -7,10 +7,16 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.PdfExportService;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
@@ -18,10 +24,16 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 
 @Service
 public class PdfExportServiceImpl implements PdfExportService {
@@ -47,7 +59,7 @@ public class PdfExportServiceImpl implements PdfExportService {
         System.out.println(id);
         var ticket = ticketRepository.findById(id).orElseThrow(NotFoundException::new);
         var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-        if (ticket.getOrder().getUserId().equals(idloggedin)) {
+        if (!ticket.getOrder().getUserId().equals(idloggedin)) {
             throw new AuthorizationException("You are not authorized to export this ticket.");
         }
 
@@ -72,8 +84,40 @@ public class PdfExportServiceImpl implements PdfExportService {
         document.add(new Paragraph("Price: " + ticket.getSector().getPrice() + " EUR"));
         document.add(new Paragraph("Ticket Id: " + ticket.getId()));
 
+        // Generate QR Code
+        String qrContent = "http://localhost:4200/ticket/" + ticket.getId();
+        BufferedImage qrImage = generateQrCodeImage(qrContent);
+
+        // Convert BufferedImage to iText Image
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(qrImage, "PNG", baos);
+        } catch (IOException e) {
+            throw new RuntimeException("Error while generating QR code", e);
+        }
+        ImageData imageData = ImageDataFactory.create(baos.toByteArray());
+        Image qrCode = new Image(imageData);
+
+        // Add QR Code to the PDF
+        document.add(qrCode);
+
+
+
+
         document.close();
     }
+
+    private BufferedImage generateQrCodeImage(String content) {
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        try {
+            BitMatrix bitMatrix = qrCodeWriter.encode(content, BarcodeFormat.QR_CODE, 200, 200);
+            return MatrixToImageWriter.toBufferedImage(bitMatrix);
+        } catch (WriterException e) {
+            throw new RuntimeException("Error while generating QR Code", e);
+        }
+    }
+
+
 
     @Override
     @Transactional
@@ -83,7 +127,7 @@ public class PdfExportServiceImpl implements PdfExportService {
         var order = orderRepository.findById(id).orElseThrow(NotFoundException::new);
         final var user = userRepository.findById(order.getUserId()).orElseThrow(NotFoundException::new);
         var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-        if (order.getUserId().equals(idloggedin)) {
+        if (!order.getUserId().equals(idloggedin)) {
             throw new AuthorizationException("You are not authorized to export this invoice.");
         }
 
@@ -193,7 +237,7 @@ public class PdfExportServiceImpl implements PdfExportService {
         System.out.println(id);
         var order = orderRepository.findById(id).orElseThrow(NotFoundException::new);
         var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-        if (order.getUserId().equals(idloggedin)) {
+        if (!order.getUserId().equals(idloggedin)) {
             throw new AuthorizationException("You are not authorized to export this cancellation invoice.");
         }
 
