@@ -317,7 +317,7 @@
               <ng-template #noPrice>–</ng-template>
             </td>
             <td class="text-center">
-              <button class="btn btn-primary btn-sm">
+              <button class="btn btn-primary btn-sm" [routerLink]="['/shows', s.id, 'room-usage']">
                 Buy/Reserve Ticket
               </button>
             </td>
