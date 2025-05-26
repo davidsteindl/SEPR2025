@@ -98,7 +98,7 @@ export class PaymentFormComponent implements OnInit {
             `Order #${order.id} placed on ${dt.toLocaleString()}`,
             'Payment Complete'
           );
-          this.router.navigate(['/my-orders']);
+          this.router.navigate(['/orders']);
         },
         error: (err) => {
           this.toastr.error(
