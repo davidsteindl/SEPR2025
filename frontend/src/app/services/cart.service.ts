@@ -11,6 +11,7 @@ export class CartService {
 
   setItems(items: PaymentItem[]) {
     this._items.next(items);
+    console.log('Cart items updated:', items);
   }
 
   getItems(): PaymentItem[] {

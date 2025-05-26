@@ -33,10 +33,11 @@ export class PaymentFormComponent implements OnInit {
 
   ngOnInit(): void {
     // use this in prod
-    //this.items = this.cart.getItems();
+    this.items = this.cart.getItems();
 
     // for testing purposes, use test data
-    this.items = TEST_PAYMENT_ITEMS;
+    //this.items = TEST_PAYMENT_ITEMS;
+
     this.paymentForm = this.fb.group({
       cardNumber: [
         '',
