@@ -165,11 +165,10 @@ public class ShowRepositoryTest {
     public void testSaveShow_withNullDate_throwsException() {
         Event event = eventRepository.findAll().getFirst();
 
-        LocalDateTime showDateNullEvent = LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.MINUTES);
         Show show = Show.ShowBuilder.aShow()
             .withName("No Date Show")
             .withDuration(100)
-            .withDate(showDateNullEvent)
+            .withDate(null)
             .withEvent(event)
             .withRoom(testRoom)
             .build();
