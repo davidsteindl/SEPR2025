@@ -204,57 +204,70 @@ export class RoomUsageComponent implements OnInit {
     }
   }
 
-  buyTickets(): void {
-        if (!this.room) {
+buyTickets(): void {
+  if (!this.room) {
+    return;
+  }
+
+  const showId = Number(this.route.snapshot.paramMap.get('id'));
+  const items: PaymentItem[] = [];
+
+  // 1) Seated seats
+  this.selectedSeats.forEach(seat => {
+    const sector = this.room!.sectors.find(s => {
+      const seated = this.asSeatedSector(s);
+      return seated?.rows.some(r => r.id === seat.id);
+    }) as SeatedSector | undefined;
+
+    if (!sector) { 
+      console.warn(`Couldn't find sector for seat ${seat.id}`); 
+      return; 
+    }
+
+    items.push({
+      eventName: this.room!.name || 'Unknown Event',
+      type: 'SEATED',
+      price: sector.price,
+      sectorId: sector.id,
+      seatId: seat.id,
+      rowNumber: seat.rowNumber,
+      columnNumber: seat.columnNumber,
+      showId
+    });
+  });
+
+  // 2) Standing tickets
+  Object.entries(this.selectedStandingTickets).forEach(([sectorIdStr, qty]) => {
+    const sectorId = Number(sectorIdStr);
+    if (qty <= 0) { return; }
+
+    const sector = this.room!.sectors.find(s => {
+      const standing = this.asStandingSector(s);
+      return standing?.id === sectorId;
+    }) as StandingSector | undefined;
+
+    if (!sector) {
+      console.warn(`Couldn't find standing sector ${sectorId}`);
       return;
     }
 
-    const showId = Number(this.route.snapshot.paramMap.get('id'));
-    const items: PaymentItem[] = [];
-
-    // 1) Seated seats
-    this.selectedSeats.forEach(seat => {
-      // find the sector this seat belongs to
-      const sector = this.room!.sectors.find(s => 
-        s instanceof SeatedSector &&
-        (s as SeatedSector).rows.some(r => r.id === seat.id)
-      ) as SeatedSector;
-      if (!sector) { return; }
-
-      items.push({
-        eventName: this.room!.name || "Unknown Event",         // or whatever field holds the show title
-        type: 'SEATED',
-        price: sector.price,
-        sectorId: sector.id,
-        seatId: seat.id,
-        rowNumber: seat.rowNumber,
-        columnNumber: seat.columnNumber,
-        showId
-      });
+    items.push({
+      eventName: this.room!.name || 'Unknown Event',
+      type: 'STANDING',
+      price: sector.price,
+      sectorId: sector.id,
+      quantity: qty,
+      showId
     });
+  });
 
-    // 2) Standing tickets
-    Object.entries(this.selectedStandingTickets).forEach(([sectorIdStr, qty]) => {
-      const sectorId = Number(sectorIdStr);
-      if (qty <= 0) { return; }
+  console.log('Items to buy:', items);
 
-      const sector = this.room!.sectors.find(s => s.id === sectorId) as StandingSector;
-      if (!sector) { return; }
+  // 3) Push into cart and navigate
+  this.cartService.setItems(items);
+  this.router.navigate(['/checkout']);
+}
 
-      items.push({
-        eventName: this.room!.name || "Unknown Event", // or whatever field holds the show title
-        type: 'STANDING',
-        price: sector.price,
-        sectorId: sector.id,
-        quantity: qty,
-        showId
-      });
-    });
-    console.log('Items to buy:', items);
-    // 3) Push into cart and navigate
-    this.cartService.setItems(items);
-    this.router.navigate(['/checkout']);
-  }
 
   reserveSeats(): void {
     console.log('Reserving seated seats:', this.selectedSeats);
