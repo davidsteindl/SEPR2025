@@ -23,11 +23,18 @@
             "polyfills": ["src/polyfills.ts"],
             "tsConfig": "src/tsconfig.app.json",
             "assets": [
+              {
+                "glob": "*",
+                "input": "node_modules/bootstrap-icons",
+                "output": "assets/"
+              },
               "src/favicon.ico",
               "src/assets"
             ],
             "styles": [
               "src/styles.scss",
+              "node_modules/ngx-toastr/toastr.css",
+              "node_modules/bootstrap-icons/font/bootstrap-icons.css",
               "node_modules/bootstrap/dist/css/bootstrap.css"
             ],
             "scripts": [
@@ -111,5 +118,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "2d125bdf-9882-489c-99cf-0fb2092c70df"
   }
 }

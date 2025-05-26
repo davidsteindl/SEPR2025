@@ -109,6 +109,31 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- iText 7 für PDF-Export -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>kernel</artifactId>
+            <version>8.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>layout</artifactId>
+            <version>8.0.0</version>
+        </dependency>
+        <!-- QR Code -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.5.1</version>
+        </dependency>
+
+
+
     </dependencies>
 
     <build>
@@ -155,6 +180,7 @@
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
                 <version>${jib-maven-plugin.version}</version>
+                <!--
                 <dependencies>
                     <dependency>
                         <groupId>com.github.luben</groupId>
@@ -162,6 +188,7 @@
                         <version>${zstd-jni.version}</version>
                     </dependency>
                 </dependencies>
+                -->
 
                 <configuration>
                     <from>

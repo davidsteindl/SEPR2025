@@ -1,0 +1,206 @@
+<div class="mt-4 container">
+  <div class="row">
+    <h2 class="modal-title">Edit Profile</h2>
+    <hr>
+  </div>
+
+<form #form="ngForm" (ngSubmit)="onSubmit(form)">
+
+ <div class="row">
+    <div class="mb-2 col-lg-6">
+      <div class="row">
+        <label for="userFirstName" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+          First Name
+        </label>
+        <div class="col-md-10 col-lg-8">
+          <input
+            type="text"
+            id="userFirstName"
+            name="userFirstName"
+            placeholder="First Name"
+            class="form-control"
+            [class]="dynamicCssClassesForInput(userNameModel)"
+            [(ngModel)]="user.firstName"
+            #userNameModel="ngModel"
+            required>
+          <div class="invalid-feedback">
+            Name is required
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-2 col-lg-6">
+      <div class="row">
+        <label for="userLastName" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+          Last Name
+        </label>
+        <div class="col-md-10 col-lg-8">
+          <input
+            type="text"
+            id="userLastName"
+            name="userLastName"
+            placeholder="Last Name"
+            class="form-control"
+            [class]="dynamicCssClassesForInput(userNameModel)"
+            [(ngModel)]="user.lastName"
+            #userNameModel="ngModel"
+            required>
+          <div class="invalid-feedback">
+            Name is required
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="mb-2 col-lg-6">
+      <div class="row">
+        <label for="userDateOfBirth" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+          Date of Birth
+        </label>
+        <div class="col-md-10 col-lg-8">
+          <input
+            type="date"
+            id="userDateOfBirth"
+            name="userDateOfBirth"
+            class="form-control"
+            [class]="dynamicCssClassesForInput(DateOfBirthModel)"
+            [(ngModel)]="userBirthDateText"
+            #DateOfBirthModel="ngModel"
+            required>
+          <div class="invalid-feedback">
+            Date of birth is required
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+  <div class="mb-2 col-lg-6">
+     <div class="row">
+       <label for="userSex" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+         Sex
+       </label>
+       <div class="col-md-10 col-lg-8">
+         <select
+           class="form-select"
+           id="userSex"
+           name="userSex"
+           [(ngModel)]="user.sex"
+           required>
+           <option value="FEMALE">Female</option>
+           <option value="MALE">Male</option>
+           <option value="OTHER">Other</option>
+         </select>
+       </div>
+     </div>
+  </div>
+
+  <div class="mb-2 col-lg-6">
+     <div class="row">
+       <label for="userEmail" class="col-form-label text-md-end text-muted col-md-2 col-lg-4">
+         E-Mail
+       </label>
+       <div class="col-md-10 col-lg-8">
+         <input
+           type="text"
+           id="userEmail"
+           name="userEmail"
+           placeholder="E-Mail"
+           class="form-control"
+           [class]="dynamicCssClassesForInput(userNameModel)"
+           [(ngModel)]="user.email"
+           #userNameModel="ngModel"
+           required>
+         <div class="invalid-feedback">
+           E-Mail is required
+         </div>
+       </div>
+     </div>
+  </div>
+ </div>
+
+  <div class="row mb-2">
+     <label for="street" class="col-form-label text-md-end text-muted col-md-2">
+       Street
+     </label>
+     <div class="col-md-10">
+       <textarea
+         class="form-control"
+         id="street"
+         name="street"
+         [(ngModel)]="user.street">
+       </textarea>
+     </div>
+  </div>
+
+  <div class="row mb-2">
+    <label for="housenumber" class="col-form-label text-md-end text-muted col-md-2">
+      House Number
+    </label>
+    <div class="col-md-10">
+       <textarea
+         class="form-control"
+         id="housenumber"
+         name="housenumber"
+         [(ngModel)]="user.housenumber">
+       </textarea>
+    </div>
+  </div>
+
+  <div class="row mb-2">
+    <label for="postalCode" class="col-form-label text-md-end text-muted col-md-2">
+      Postal Code
+    </label>
+    <div class="col-md-10">
+        <textarea
+          class="form-control"
+          id="postalCode"
+          name="postalCode"
+          [(ngModel)]="user.postalCode">
+        </textarea>
+    </div>
+  </div>
+
+  <div class="row mb-2">
+    <label for="city" class="col-form-label text-md-end text-muted col-md-2">
+      City
+    </label>
+    <div class="col-md-10">
+       <textarea
+         class="form-control"
+         id="city"
+         name="city"
+         [(ngModel)]="user.city">
+       </textarea>
+    </div>
+  </div>
+
+  <div class="row mb-2">
+    <label for="country" class="col-form-label text-md-end text-muted col-md-2">
+      Country
+    </label>
+    <div class="col-md-10">
+       <textarea
+         class="form-control"
+         id="country"
+         name="country"
+         [(ngModel)]="user.country">
+       </textarea>
+    </div>
+  </div>
+
+
+ <div class="mt-4 d-flex flex-row">
+   <button
+     class="btn btn-primary"
+     [disabled]="!form.valid"
+     type="submit">
+     {{ submitButtonText }}
+   </button>
+ </div>
+
+</form>
+</div>

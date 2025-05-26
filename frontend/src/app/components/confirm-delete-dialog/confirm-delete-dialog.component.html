@@ -1,0 +1,22 @@
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title" id="confirm-delete-dialog-title">Delete Profile</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        Do you really want to delete your account?
+        If you agree your entire account including your personal data,
+        tickets you have bought before and other configurations of your TicketLine will be irretrievable deleted!
+        <!--Do you really want to delete “{{ deleteWhat }}”?-->
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger" (click)="confirm.emit()" data-bs-dismiss="modal">
+            Yes, I really want to delete my account!
+        </button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+          Exit, keep my account.
+      </button>
+    </div>
+  </div>
+</div>

@@ -33,6 +33,8 @@ test-frontend:
     expire_in: 1 hour
 
 e2e-test:
+  variables:
+    SPRING_PROFILES_ACTIVE: generateData
   stage: test
   image: registry.reset.inso-w.at/pub/docker/cypress:latest
   script:

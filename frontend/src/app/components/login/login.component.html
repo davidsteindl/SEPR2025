@@ -1,8 +1,18 @@
-<div *ngIf="error" class="alert alert-warning alert-dismissible fade show" role="alert">
-  <strong>Authentication problems!</strong> {{ errorMessage }}
-  <button type="button" (click)="vanishError()" class="close" data-dismiss="alert" aria-label="Close">
-    <span aria-hidden="true">&times;</span>
-  </button>
+<div class="pt-2">
+  <div *ngIf="validationErrors.length" class="alert alert-warning alert-dismissible fade show" role="alert">
+    <ul class="mb-0">
+      <li *ngFor="let msg of validationErrors">{{ msg }}</li>
+    </ul>
+    <button type="button" class="btn-close" aria-label="Close" (click)="vanishError()"></button>
+  </div>
+</div>
+
+<div *ngIf="!validationErrors.length && error" class="alert alert-warning alert-dismissible fade show" role="alert">
+  {{ errorMessage.detail }}
+  <p *ngIf="errorMessage.status === 401">
+    You have <strong>{{ remainingAttempts }}</strong> attempts remaining.
+  </p>
+  <button type="button" class="btn-close" aria-label="Close" (click)="vanishError()"></button>
 </div>
 
 <div class="pt-5">
@@ -15,15 +25,17 @@
           <h3 class="mb-0">Login</h3>
         </div>
 
+
         <div class="card-body">
           <form class="form" [formGroup]="loginForm" (ngSubmit)="loginUser()">
 
             <div class="form-group">
               <label for="inputUsername">Username</label>
               <input type="text" name="username" formControlName="username" class="form-control" id="inputUsername"
-                     aria-describedby="usernameHelp" placeholder="Enter username">
+                aria-describedby="usernameHelp" placeholder="Enter username">
               <div *ngIf="submitted && loginForm.controls.username.errors" class="error">
-                <small class="form-text text-warning" *ngIf="loginForm.controls.username.errors.required">Your username is
+                <small class="form-text text-warning" *ngIf="loginForm.controls.username.errors.required">Your username
+                  is
                   required!
                 </small>
               </div>
@@ -32,7 +44,7 @@
             <div class="form-group">
               <label for="password">Password</label>
               <input type="password" name="password" formControlName="password" class="form-control" id="password"
-                     placeholder="Password">
+                placeholder="Password">
               <div *ngIf="submitted && loginForm.controls.password.errors" class="error">
                 <small class="form-text text-warning" *ngIf="loginForm.controls.password.errors.required">Your password
                   is
@@ -44,7 +56,15 @@
               </div>
             </div>
 
-            <button type="button" (click)="loginUser()" class="btn btn-success float-right">Login</button>
+            <div style="display: flex;" class="mt-2">
+              <button type="button" (click)="loginUser()" class="btn btn-success float-right ">Login</button>
+              <p style="margin: 10px;"> Forgot password? </p>
+            </div>
+
+            <p> If you don't have an account:
+              <button type="button" routerLink="/register" class="btn btn-success float-right">Register </button>
+            </p>
+
 
           </form>
         </div>

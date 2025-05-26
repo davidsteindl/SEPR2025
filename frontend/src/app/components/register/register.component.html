@@ -1,0 +1,139 @@
+<div class="pt-5">
+  <div class="row">
+    <div class="col-md-6 mx-auto">
+      <span class="anchor" id="formRegister"></span>
+
+      <div class="card rounded-0">
+        <div class="card-header">
+          <h3 class="mb-0">Register</h3>
+        </div>
+
+        <div class="card-body">
+          <form class="form" [formGroup]="registerForm" (ngSubmit)="registerUser()">
+
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" name="firstName" formControlName="firstName" class="form-control" id="firstName"
+                       aria-describedby="firstNameHelp" placeholder="Enter firstName">
+                <div *ngIf="submitted && registerForm.controls.firstName.errors" class="error">
+                  <small class="form-text text-warning" *ngIf="registerForm.controls.firstName.errors.required">Your
+                    Firstname
+                    is
+                    required!
+                  </small>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" name="lastName" formControlName="lastName" class="form-control" id="lastName"
+                       aria-describedby="lastNameHelp" placeholder="Enter lastName">
+                <div *ngIf="submitted && registerForm.controls.lastName.errors" class="error">
+                  <small class="form-text text-warning" *ngIf="registerForm.controls.lastName.errors.required">Your
+                    Lastname
+                    is
+                    required!
+                  </small>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="form-group row">
+              <div class="col-md-6">
+                <label for="dateOfBirth">Birth Date</label>
+                <input type="date"
+                       id="dateOfBirth"
+                       name="dateOfBirth"
+                       formControlName="dateOfBirth"
+                       class="form-control"
+                       aria-describedby="BirthDateHelp">
+                <div *ngIf="submitted && registerForm.controls.dateOfBirth.errors" class="error">
+                  <small class="form-text text-warning" *ngIf="registerForm.controls.dateOfBirth.errors.required">
+                    Your birthdate is required!
+                  </small>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="sex">Sex</label>
+                <select class="form-select" formControlName="sex" id="sex" name="sex" required>
+                  <option value="" disabled selected>Select sex</option>
+                  <option value="FEMALE">Female</option>
+                  <option value="MALE">Male</option>
+                  <option value="OTHER">Other</option>
+                </select>
+                <div *ngIf="submitted && registerForm.controls.sex.errors" class="error">
+                  <small class="form-text text-warning" *ngIf="registerForm.controls.sex.errors.required">
+                    Your sex is required!
+                  </small>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="text" name="email" formControlName="email" class="form-control" id="email"
+                     aria-describedby="emailHelp">
+              <div *ngIf="submitted && registerForm.controls.email.errors" class="error">
+                <small class="form-text text-warning" *ngIf="registerForm.controls.email.errors.required">Your email
+                  is
+                  required!
+                </small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" name="password" formControlName="password" class="form-control" id="password"
+                     placeholder="Password">
+              <div *ngIf="submitted && registerForm.controls.password.errors" class="error">
+                <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.required">Your
+                  password
+                  is
+                  required!
+                </small>
+                <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.minlength">Your
+                  password
+                  must be at least 8 characters long!
+                </small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Repeat Password</label>
+              <input type="password" name="confirmPassword" formControlName="confirmPassword" class="form-control"
+                     id="confirmPassword">
+              <div *ngIf="submitted && registerForm.controls.confirmPassword.errors" class="error">
+                <small class="form-text text-warning" *ngIf="registerForm.controls.confirmPassword.errors.required">Your
+                  password
+                  is
+                  required!
+                </small>
+                <small class="form-text text-warning" *ngIf="registerForm.controls.confirmPassword.errors.minlength">Your
+                  password
+                  must be at least 8 characters long!
+                </small>
+              </div>
+            </div>
+
+            <label for="termsAccepted">I accept <u><a routerLink="/termsandconditions"> Terms and Conditions </a></u></label>
+            <input type="checkbox" name="termsAccepted" formControlName="termsAccepted"
+                   id="termsAccepted" style="margin: 10px">
+            <div *ngIf="submitted && registerForm.controls.termsAccepted.errors" class="error">
+              <small class="form-text text-warning" *ngIf="registerForm.controls.termsAccepted.errors.required">
+                The Checkbox must be checked!
+              </small>
+            </div>
+
+            <br>
+            <button type="submit" [disabled]="buttonDisabled" class="btn btn-success float-right">Register</button>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

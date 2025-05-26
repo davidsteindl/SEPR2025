@@ -1,32 +1,40 @@
 package at.ac.tuwien.sepr.groupphase.backend.repository;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import java.util.List;
 
-//TODO: replace this class with a correct ApplicationUser JPARepository implementation
 @Repository
-public class UserRepository {
+public interface UserRepository extends JpaRepository<ApplicationUser, Long> {
 
-    private final ApplicationUser user;
-    private final ApplicationUser admin;
+    /**
+     * Finds an application user in the persistent datastore based on their email.
+     *
+     * @param email the email of the user
+     * @return the user associated with the provided email
+     */
+    ApplicationUser findByEmail(String email);
 
-    @Autowired
-    public UserRepository(PasswordEncoder passwordEncoder) {
-        user = new ApplicationUser("user@email.com", passwordEncoder.encode("password"), false);
-        admin = new ApplicationUser("admin@email.com", passwordEncoder.encode("password"), true);
-    }
+    /**
+     * Return all locked user accounts in the persistent datastore.
+     *
+     * @return all blocked users
+     */
+    List<ApplicationUser> findAllByLockedTrue();
 
-    public ApplicationUser findUserByEmail(String email) {
-        if (email.equals(user.getEmail())) {
-            return user;
-        }
-        if (email.equals(admin.getEmail())) {
-            return admin;
-        }
-        return null; // In this case null is returned to fake Repository behavior
-    }
+    /**
+     * Delete user by Email.
+     *
+     * @param email of user to delete
+     */
+    void deleteByEmail(String email);
 
+    /**
+     * Email of existing user.
+     *
+     * @param email of user
+     */
+    boolean existsByEmail(String email);
 
 }

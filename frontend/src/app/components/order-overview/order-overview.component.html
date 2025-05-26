@@ -1,0 +1,158 @@
+<div class="mt-4 container">
+  <div class="row">
+    <h2 class="modal-title">My Orders</h2>
+    <hr>
+  </div>
+
+  <ul class="nav nav-tabs custom-tabs mb-0">
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'upcoming'" (click)="setTab('upcoming')">Purchased</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'reservations'" (click)="setTab('reservations')">Reserved</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'past'" (click)="setTab('past')">Past</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'refunded'" (click)="setTab('refunded')">Refunded</a>
+    </li>
+  </ul>
+
+  <!-- Loading spinner -->
+  <div *ngIf="loading" class="text-center my-4">
+    Loading…
+  </div>
+
+  <!-- Purchased Orders -->
+  <div *ngIf="activeTab === 'upcoming'" class="tab-box pt-3">
+    <div *ngIf="upcomingOrders?.content?.length > 0; else noUpcoming">
+      <div class="list-group">
+        <div *ngFor="let order of upcomingOrders.content" class="order-card">
+          <strong>Order #{{ order.id }}  </strong><br>
+          Show: {{ order.showName }} <br>
+          Date: {{ order.showDate | date: 'short' }} <br>
+          Location: {{ order.locationName }} <br>
+
+          <div class="order-buttons">
+            <button class="view-button" [routerLink]="['/orders/purchased', order.id]">View full order</button>
+            <button class="pdf-button" (click)="exportInvoice(order.id)">Download invoice</button>
+          </div>
+        </div>
+      </div>
+      <ul class="pagination justify-content-center mt-3">
+        <li class="page-item" [class.disabled]="upcomingPage === 0">
+          <a class="page-link" (click)="loadOrders('upcoming', upcomingPage - 1)">Previous</a>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link">Page {{ upcomingPage + 1 }} of {{ upcomingOrders?.totalPages }}</span>
+        </li>
+        <li class="page-item" [class.disabled]="upcomingPage >= (upcomingOrders?.totalPages || 1) - 1">
+          <a class="page-link" (click)="loadOrders('upcoming', upcomingPage + 1)">Next</a>
+        </li>
+      </ul>
+    </div>
+    <ng-template #noUpcoming>
+      <div class="text-center text-muted">No purchased orders found.</div>
+    </ng-template>
+  </div>
+
+  <!-- Reserved Orders -->
+  <div *ngIf="activeTab === 'reservations'" class="tab-box pt-3">
+    <div *ngIf="reservations?.content?.length > 0; else noReservations">
+      <div class="list-group">
+        <div *ngFor="let order of reservations.content" class="order-card">
+          <strong>Order #{{ order.id }}  </strong><br>
+          Show: {{ order.showName }} <br>
+          Date: {{ order.showDate | date: 'short' }} <br>
+          Location: {{ order.locationName }} <br>
+
+          <div class="order-buttons">
+            <button class="view-button" [routerLink]="['/orders/reserved', order.id]">View full order</button>
+          </div>
+        </div>
+      </div>
+      <ul class="pagination justify-content-center mt-3">
+        <li class="page-item" [class.disabled]="reservationsPage === 0">
+          <a class="page-link" (click)="loadOrders('reservations', reservationsPage - 1)">Previous</a>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link">Page {{ reservationsPage + 1 }} of {{ reservations?.totalPages }}</span>
+        </li>
+        <li class="page-item" [class.disabled]="reservationsPage >= (reservations?.totalPages || 1) - 1">
+          <a class="page-link" (click)="loadOrders('reservations', reservationsPage + 1)">Next</a>
+        </li>
+      </ul>
+    </div>
+    <ng-template #noReservations>
+      <div class="text-center text-muted">No reservations found.</div>
+    </ng-template>
+  </div>
+
+  <!-- Past Orders -->
+  <div *ngIf="activeTab === 'past'" class="tab-box pt-3">
+    <div *ngIf="pastOrders?.content?.length > 0; else noPast">
+      <div class="list-group">
+        <div *ngFor="let order of pastOrders.content" class="order-card">
+          <strong>Past Order #{{ order.id }}  </strong><br>
+          Show: {{ order.showName }} <br>
+          Date: {{ order.showDate | date: 'short' }} <br>
+          Location: {{ order.locationName }} <br>
+
+          <div class="order-buttons">
+            <button class="view-button" [routerLink]="['/orders/past', order.id]">View full order</button>
+            <button class="pdf-button" (click)="exportInvoice(order.id)">Download invoice</button>
+          </div>
+        </div>
+      </div>
+      <ul class="pagination justify-content-center mt-3">
+        <li class="page-item" [class.disabled]="pastPage === 0">
+          <a class="page-link" (click)="loadOrders('past', pastPage - 1)">Previous</a>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link">Page {{ pastPage + 1 }} of {{ pastOrders?.totalPages }}</span>
+        </li>
+        <li class="page-item" [class.disabled]="pastPage >= (pastOrders?.totalPages || 1) - 1">
+          <a class="page-link" (click)="loadOrders('past', pastPage + 1)">Next</a>
+        </li>
+      </ul>
+    </div>
+    <ng-template #noPast>
+      <div class="text-center text-muted">No past orders found.</div>
+    </ng-template>
+  </div>
+
+  <!-- Refund Orders -->
+  <div *ngIf="activeTab === 'refunded'" class="tab-box pt-3">
+    <div *ngIf="refundedOrders?.content?.length > 0; else noRefunded">
+      <div class="list-group">
+        <div *ngFor="let order of refundedOrders.content" class="order-card">
+          <strong>Order #{{ order.id }}</strong><br>
+          Show: {{ order.showName }} <br>
+          Date: {{ order.showDate | date: 'short' }} <br>
+          Location: {{ order.locationName }} <br>
+
+          <div class="order-buttons">
+            <button class="view-button" [routerLink]="['/orders/refunded', order.id]">View full order</button>
+            <button class="pdf-button" (click)="exportCancelInvoicePdf(order.id)">Download cancellation invoice</button>
+          </div>
+        </div>
+      </div>
+      <ul class="pagination justify-content-center mt-3">
+        <li class="page-item" [class.disabled]="refundedPage === 0">
+          <a class="page-link" (click)="loadOrders('refunded', refundedPage - 1)">Previous</a>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link">Page {{ refundedPage + 1 }} of {{ refundedOrders?.totalPages }}</span>
+        </li>
+        <li class="page-item" [class.disabled]="refundedPage >= (refundedOrders?.totalPages || 1) - 1">
+          <a class="page-link" (click)="loadOrders('refunded', refundedPage + 1)">Next</a>
+        </li>
+      </ul>
+    </div>
+    <ng-template #noRefunded>
+      <div class="text-center text-muted">No refunded orders found.</div>
+    </ng-template>
+  </div>
+
+</div>

@@ -1,0 +1,102 @@
+<div class="mt-4 container">
+  <div class="row">
+
+    <h2 class="modal-title">Create Room</h2>
+    <hr>
+
+    <form #roomForm="ngForm" class="tab-box" (ngSubmit)="createRoom()" novalidate>
+
+      <div class="form-group">
+        <label for="roomName">Name <span class="text-danger">*</span></label>
+        <input
+          id="roomName"
+          [(ngModel)]="room.name"
+          name="roomName"
+          required
+          class="form-control"
+          #roomName="ngModel"/>
+        <div *ngIf="roomName.invalid && roomName.touched" class="text-danger">
+          Show name is required.
+        </div>
+      </div>
+
+      <div class="form-group mt-3">
+        <label for="amountSectors"> Number of sectors: <span class="text-danger">*</span></label>
+        <input
+          id="amountSectors"
+          type="number"
+          [(ngModel)]="room.numberOfSectors"
+          name="amountSectors"
+          required
+          min="1"
+          max="10"
+          class="form-control"
+          #amountSectors="ngModel" />
+        <div *ngIf="amountSectors.invalid && amountSectors.touched" class="text-danger">
+          Amount of sectors is required and must be a positive number.
+        </div>
+      </div>
+
+      <div class="form-group mt-3">
+        <label for="rowsPerSector">Rows per sector: <span class="text-danger">*</span></label>
+        <input
+          id="rowsPerSector"
+          type="number"
+          [(ngModel)]="room.rowsPerSector"
+          name="rowsPerSector"
+          required
+          min="1"
+          max="10"
+          class="form-control"
+          #rowsPerSector="ngModel" />
+        <div *ngIf="rowsPerSector.invalid && rowsPerSector.touched" class="text-danger">
+          Amount of Rows per Sector is required and must be a positive number.
+        </div>
+      </div>
+
+      <div class="form-group mt-3">
+        <label for="seatsPerRow">Seats per row <span class="text-danger">*</span></label>
+        <input
+          id="seatsPerRow"
+          type="number"
+          [(ngModel)]="room.seatsPerRow"
+          name="seatsPerRow"
+          required
+          min="1"
+          max="100"
+          class="form-control"
+          #seatsPerRow="ngModel" />
+        <div *ngIf="seatsPerRow.invalid && seatsPerRow.touched" class="text-danger">
+          Seats per Row are required and must be a positive number.
+        </div>
+      </div>
+
+      <div class="form-group mt-3">
+        <label for="eventLocation">Location <span class="text-danger">*</span></label>
+        <select
+          id="eventLocation"
+          [(ngModel)]="room.eventLocationId"
+          name="eventLocation"
+          required
+          class="form-control"
+          #eventLocation="ngModel">
+          <option [ngValue]="null" disabled>Select Location</option>
+          <option *ngFor="let location of locations" [ngValue]="location.id">{{ location?.name }}</option>
+        </select>
+        <div *ngIf="eventLocation.invalid && eventLocation.touched" class="text-danger">
+          Location is required.
+        </div>
+      </div>
+
+      <br>
+
+
+      <div class="text-center">
+        <button class="btn btn-success mt-4" type="submit" [disabled]="roomForm.invalid">Create Room</button>
+      </div>
+
+    </form>
+
+
+  </div>
+</div>

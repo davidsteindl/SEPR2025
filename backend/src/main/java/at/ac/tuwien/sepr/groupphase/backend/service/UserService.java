@@ -1,10 +1,17 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserLoginDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.List;
 
 public interface UserService extends UserDetailsService {
 
@@ -16,7 +23,8 @@ public interface UserService extends UserDetailsService {
      *
      * @param email the email address
      * @return a Spring Security user
-     * @throws UsernameNotFoundException is thrown if the specified user does not exists
+     * @throws UsernameNotFoundException is thrown if the specified user does not
+     *                                   exists
      */
     @Override
     UserDetails loadUserByUsername(String email) throws UsernameNotFoundException;
@@ -34,7 +42,56 @@ public interface UserService extends UserDetailsService {
      *
      * @param userLoginDto login credentials
      * @return the JWT, if successful
-     * @throws org.springframework.security.authentication.BadCredentialsException if credentials are bad
+     * @throws BadCredentialsException if credentials are bad
      */
     String login(UserLoginDto userLoginDto);
+
+
+    /**
+     * Find an application user based on the id.
+     *
+     * @param id the id of the user
+     * @return an application user
+     */
+    ApplicationUser findUserById(Long id);
+
+    /**
+     * Register a new user.
+     *
+     * @param userRegisterDto registration information
+     */
+    void register(UserRegisterDto userRegisterDto) throws ValidationException;
+
+    /**
+     * Returns all locked users, only administrators
+     * should be able to access this method.
+     *
+     * @return all blocked users
+     */
+    List<LockedUserDto> getLockedUsers();
+
+    /**
+     * Unlocks the user account with the given ID by setting its 'locked' status to false.
+     *
+     * @param id the ID of the user to unlock
+     */
+    void unlockUser(Long id);
+
+    /**
+     * Delete user.
+     *
+     * @param id of user to delete
+     */
+    void delete(Long id);
+
+    /**
+     * Update user.
+     *
+     * @param id of user
+     * @param userToUpdate updated user details
+     */
+    void update(Long id, UserUpdateDto userToUpdate) throws ValidationException;
+
+
+
 }
