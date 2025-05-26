@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, RouterLink} from "@angular/router";
+import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {ToastrService} from "ngx-toastr";
 import {ErrorFormatterService} from "../../../services/error-formatter.service";
 import {ShowService} from "../../../services/show.service";
@@ -10,6 +10,8 @@ import {SeatedSector} from "../../../dtos/seated-sector";
 import {Seat} from "../../../dtos/seat";
 import {Sector} from "../../../dtos/sector";
 import {AuthService} from "../../../services/auth.service";
+import { PaymentItem } from 'src/app/dtos/payment-item';
+import { CartService } from 'src/app/services/cart.service';
 
 @Component({
   selector: 'app-room-usage',
@@ -39,11 +41,14 @@ export class RoomUsageComponent implements OnInit {
     '#16a085', '#c0392b', '#d35400', '#27ae60', '#2980b9'
   ];
 
+
   constructor(private route: ActivatedRoute,
               private showService: ShowService,
               private notification: ToastrService,
               private authService: AuthService,
-              private errorFormatter: ErrorFormatterService
+              private errorFormatter: ErrorFormatterService,
+              private router: Router,
+              private cartService: CartService
   ) {
   }
 
@@ -200,9 +205,55 @@ export class RoomUsageComponent implements OnInit {
   }
 
   buyTickets(): void {
-    console.log('Buying seated seats:', this.selectedSeats);
-    console.log('Buying standing tickets:', this.selectedStandingTickets);
-    // TODO: Call service to submit both
+        if (!this.room) {
+      return;
+    }
+
+    const showId = Number(this.route.snapshot.paramMap.get('id'));
+    const items: PaymentItem[] = [];
+
+    // 1) Seated seats
+    this.selectedSeats.forEach(seat => {
+      // find the sector this seat belongs to
+      const sector = this.room!.sectors.find(s => 
+        s instanceof SeatedSector &&
+        (s as SeatedSector).rows.some(r => r.id === seat.id)
+      ) as SeatedSector;
+      if (!sector) { return; }
+
+      items.push({
+        eventName: this.room!.name || "Unknown Event",         // or whatever field holds the show title
+        type: 'SEATED',
+        price: sector.price,
+        sectorId: sector.id,
+        seatId: seat.id,
+        rowNumber: seat.rowNumber,
+        columnNumber: seat.columnNumber,
+        showId
+      });
+    });
+
+    // 2) Standing tickets
+    Object.entries(this.selectedStandingTickets).forEach(([sectorIdStr, qty]) => {
+      const sectorId = Number(sectorIdStr);
+      if (qty <= 0) { return; }
+
+      const sector = this.room!.sectors.find(s => s.id === sectorId) as StandingSector;
+      if (!sector) { return; }
+
+      items.push({
+        eventName: this.room!.name || "Unknown Event", // or whatever field holds the show title
+        type: 'STANDING',
+        price: sector.price,
+        sectorId: sector.id,
+        quantity: qty,
+        showId
+      });
+    });
+    console.log('Items to buy:', items);
+    // 3) Push into cart and navigate
+    this.cartService.setItems(items);
+    this.router.navigate(['/checkout']);
   }
 
   reserveSeats(): void {
