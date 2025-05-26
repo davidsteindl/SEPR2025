@@ -247,7 +247,7 @@ public class RoomServiceImpl implements RoomService {
 
         for (int i = 0; i < dto.getNumberOfSectors(); i++) {
             SeatedSector sector = new SeatedSector();
-            sector.setPrice(0);
+            sector.setPrice(10);
             buildSeats(dto, sector);
             room.addSector(sector);
         }
