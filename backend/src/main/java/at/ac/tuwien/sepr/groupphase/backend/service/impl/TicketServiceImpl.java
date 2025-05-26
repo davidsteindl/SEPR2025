@@ -83,6 +83,7 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    @Transactional
     public OrderDto getOrderById(Long id) {
         return orderRepository.findById(id)
             .map(order -> buildOrderDto(order, order.getTickets()))
@@ -90,6 +91,7 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    @Transactional
     public TicketDto getTicketById(Long id) {
         return ticketRepository.findById(id)
             .map(ticketMapper::toDto)
@@ -428,6 +430,7 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    @Transactional
     public Page<OrderDto> getOrdersForUser(Long userId, OrderType orderType, boolean past, Pageable pageable) {
         LocalDateTime now = LocalDateTime.now();
         Page<Long> orderIdsPage = orderRepository.findOrderIdsByTypeAndPast(userId, orderType, past, now, pageable);
@@ -438,6 +441,7 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    @Transactional
     public OrderDto getOrderWithTicketsById(Long orderId) {
         return orderRepository.findByIdWithDetails(orderId)
             .map(orderMapper::toDto)
