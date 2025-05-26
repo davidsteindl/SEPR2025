@@ -239,7 +239,9 @@ buyTickets(): void {
   // 2) Standing tickets
   Object.entries(this.selectedStandingTickets).forEach(([sectorIdStr, qty]) => {
     const sectorId = Number(sectorIdStr);
-    if (qty <= 0) { return; }
+    if (qty <= 0) { 
+      return; 
+    }
 
     const sector = this.room!.sectors.find(s => {
       const standing = this.asStandingSector(s);
