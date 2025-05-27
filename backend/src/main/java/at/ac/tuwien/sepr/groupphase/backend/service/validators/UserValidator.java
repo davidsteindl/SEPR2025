@@ -21,7 +21,7 @@ public class UserValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
-        "[^@ ]+@[^@ ]+"
+        "^[^ ]+@[^ ]+.[^ ]+$"
     );
 
     public UserValidator() {
