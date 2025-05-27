@@ -8,6 +8,7 @@ import {LocationService} from '../../services/location.service';
 import {Location} from '../../dtos/location';
 import {eventCategoryOptions} from '../create-content/create-event/create-event.component';
 import {ToastrService} from 'ngx-toastr';
+import {ErrorFormatterService} from '../../services/error-formatter.service';
 
 @Component({
   selector: 'app-edit-event',
@@ -16,6 +17,7 @@ import {ToastrService} from 'ngx-toastr';
   templateUrl: './edit-event.component.html',
   styleUrls: ['./edit-event.component.scss']
 })
+
 export class EditEventComponent implements OnInit {
   eventId!: number;
   event: CreateEvent = {
@@ -36,7 +38,8 @@ export class EditEventComponent implements OnInit {
     private router: Router,
     private eventService: EventService,
     private locationService: LocationService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private errorFormatter: ErrorFormatterService
   ) {
   }
 
@@ -74,8 +77,15 @@ export class EditEventComponent implements OnInit {
         this.toastr.success('Event updated successfully');
         this.router.navigate(['/admin/events']);
       },
-      error: () => {
-        this.toastr.error('Error saving event');
+      error: (err) => {
+        this.toastr.error(
+          this.errorFormatter.format(err),
+          'Saving event changes failed',
+          {
+            enableHtml: true,
+            timeOut: 8000,
+          }
+        );
       }
     });
   }
