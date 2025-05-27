@@ -27,6 +27,7 @@ export class RegisterComponent {
   error = false;
   errorMessage = '';
   firstName = '';
+  lastName = '';
   buttonDisabled = false;
 
   constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, private router: Router, private notification: ToastrService) {
@@ -62,6 +63,7 @@ export class RegisterComponent {
         sex: this.registerForm.controls.sex.value
       };
       this.firstName = this.registerForm.controls.firstName.value;
+      this.lastName = this.registerForm.controls.lastName.value;
       this.regUser(registerUser);
     } else {
       console.log('Invalid input');
@@ -78,7 +80,7 @@ export class RegisterComponent {
     console.log("register")
     this.authService.registerUser(registerUser).subscribe({
       next: () => {
-        this.notification.success(`User ${this.firstName}
+        this.notification.success(`User ${this.firstName} ${this.lastName}
            successfully created.`);
         this.router.navigate(['/login']);
       },
