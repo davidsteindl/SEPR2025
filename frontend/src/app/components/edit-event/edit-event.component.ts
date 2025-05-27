@@ -75,7 +75,7 @@ export class EditEventComponent implements OnInit {
     this.eventService.update(this.eventId, this.event).subscribe({
       next: () => {
         this.toastr.success('Event updated successfully');
-        this.router.navigate(['/admin/events']);
+        this.router.navigate([`admin`]);
       },
       error: (err) => {
         this.toastr.error(
