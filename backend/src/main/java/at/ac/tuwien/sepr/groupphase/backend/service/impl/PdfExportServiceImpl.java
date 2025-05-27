@@ -172,12 +172,6 @@ public class PdfExportServiceImpl implements PdfExportService {
             document.add(new Paragraph(user.getCountry()));
         }
 
-        // Heutiges Datum vom PDF Export
-        // SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-        // var invoiceDate = new Paragraph(dateFormat.format(new Date()));
-        // invoiceDate.setTextAlignment(TextAlignment.RIGHT);
-        // document.add(invoiceDate);
-
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         var invoiceDateOfOrder = new Paragraph(order.getCreatedAt().format(format));
         invoiceDateOfOrder.setTextAlignment(TextAlignment.RIGHT);
