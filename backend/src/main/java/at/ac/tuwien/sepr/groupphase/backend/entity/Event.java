@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -38,6 +39,7 @@ public class Event {
     private String description;
 
     @Column(nullable = false)
+    @FutureOrPresent(message = "Date must be in the present or future")
     private LocalDateTime dateTime;
 
     @Min(10)

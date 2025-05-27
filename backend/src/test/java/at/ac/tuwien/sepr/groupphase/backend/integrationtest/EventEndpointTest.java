@@ -36,6 +36,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -101,7 +102,7 @@ public class EventEndpointTest implements TestData {
         testEvent.setCategory(EventCategory.JAZZ);
         testEvent.setDescription("Jazz für alle");
         testEvent.setDuration(120);
-        testEvent.setDateTime(LocalDateTime.of(2025, Month.JANUARY, 1, 10, 0));
+        testEvent.setDateTime(LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.MINUTES));
         testEvent.setLocation(testLocation);
         eventRepository.save(testEvent);
 
@@ -120,7 +121,7 @@ public class EventEndpointTest implements TestData {
         testShow = Show.ShowBuilder.aShow()
             .withName("Funky Evening")
             .withDuration(75)
-            .withDate(java.time.LocalDateTime.now().plusDays(2))
+            .withDate(java.time.LocalDateTime.now().plusDays(1))
             .withEvent(testEvent)
             .withRoom(testRoom)
             .build();
@@ -161,7 +162,7 @@ public class EventEndpointTest implements TestData {
             .name("Rocknacht")
             .category("ROCK")
             .description("Laut und wild")
-            .dateTime(LocalDateTime.of(2025, Month.FEBRUARY, 1, 20, 0))
+            .dateTime(LocalDateTime.now().plusDays(3).truncatedTo(ChronoUnit.MINUTES))
             .duration(180)
             .locationId(testLocation.getId())
             .build();
@@ -189,7 +190,7 @@ public class EventEndpointTest implements TestData {
             .name("UserEvent")
             .category("POP")
             .description("Normaler User darf nicht")
-            .dateTime(LocalDateTime.of(2025, Month.MARCH, 1, 18, 0))
+            .dateTime(LocalDateTime.now().plusDays(4).truncatedTo(ChronoUnit.MINUTES))
             .duration(90)
             .locationId(testLocation.getId())
             .build();
@@ -211,7 +212,7 @@ public class EventEndpointTest implements TestData {
             .name("Anonymous")
             .category("CLASSICAL")
             .description("Kein Token vorhanden")
-            .dateTime(LocalDateTime.of(2025, Month.APRIL, 1, 19, 0))
+            .dateTime(LocalDateTime.now().plusDays(5).truncatedTo(ChronoUnit.MINUTES))
             .duration(60)
             .locationId(testLocation.getId())
             .build();
