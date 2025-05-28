@@ -29,9 +29,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
@@ -174,10 +172,10 @@ public class PdfExportServiceImpl implements PdfExportService {
             document.add(new Paragraph(user.getCountry()));
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-        var invoiceDate = new Paragraph(dateFormat.format(new Date()));
-        invoiceDate.setTextAlignment(TextAlignment.RIGHT);
-        document.add(invoiceDate);
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        var invoiceDateOfOrder = new Paragraph(order.getCreatedAt().format(format));
+        invoiceDateOfOrder.setTextAlignment(TextAlignment.RIGHT);
+        document.add(invoiceDateOfOrder);
 
         var invoiceNumber = new Paragraph("Invoice Number / Rechnung Nr." + order.getId());
         invoiceNumber.setTextAlignment(TextAlignment.CENTER);
@@ -185,14 +183,16 @@ public class PdfExportServiceImpl implements PdfExportService {
         document.add(invoiceNumber);
 
         // Creating a table
-        Table table = new Table(6);
+        Table table = new Table(8);
 
         // Adding cells to the table
         table.addCell(new Cell().add(new Paragraph("Datum")));
         table.addCell(new Cell().add(new Paragraph("Bezeichnung")));
         table.addCell(new Cell().add(new Paragraph("Menge")));
         table.addCell(new Cell().add(new Paragraph("Platzwahl")));
-        table.addCell(new Cell().add(new Paragraph("Ust.")));
+        table.addCell(new Cell().add(new Paragraph("Steuersatz")));
+        table.addCell(new Cell().add(new Paragraph("Netto ")));
+        table.addCell(new Cell().add(new Paragraph("Ust. ")));
         table.addCell(new Cell().add(new Paragraph("Gesamt")));
 
         var sum = 0;
@@ -213,7 +213,10 @@ public class PdfExportServiceImpl implements PdfExportService {
             var bruttoPrice = ticket.getSector().getPrice();
             sum = sum + bruttoPrice;
             var ust = bruttoPrice - (bruttoPrice / (1 + 0.13));
+            var netto = bruttoPrice - ust;
 
+            table.addCell(new Cell().add(new Paragraph("13 %")));
+            table.addCell(new Cell().add(new Paragraph(String.format("%.02f", netto))));
             table.addCell(new Cell().add(new Paragraph(String.format("%.02f", ust))));
             table.addCell(new Cell().add(new Paragraph(ticket.getSector().getPrice() + " EUR")));
         }
@@ -223,18 +226,24 @@ public class PdfExportServiceImpl implements PdfExportService {
 
 
         var ust = sum - (sum / (1 + 0.13));
+        var netto = sum - ust;
 
-        document.add(new Paragraph("Summe " + sum + " EUR"));
-        document.add(new Paragraph("Betrag enthält wie folgt: " + String.format("%.02f", ust)));
-        document.add(new Paragraph("USt 13% (ermäßigter Steuersatz für Konzerte und Opernkarten etc)"));
+        document.add(new Paragraph("Summe Brutto:           " + sum + " EUR").setTextAlignment(TextAlignment.RIGHT).setBold());
+        document.add(new Paragraph("Summe Netto:      "
+            + String.format("%.02f", netto) + " EUR").setTextAlignment(TextAlignment.RIGHT));
+        document.add(new Paragraph("Betrag enthält wie folgt 13% USt:        "
+            + String.format("%.02f", ust) + " EUR").setTextAlignment(TextAlignment.RIGHT));
+        document.add(new Paragraph("USt 13% (ermäßigter Steuersatz für Konzerte und Opernkarten etc)").setTextAlignment(TextAlignment.RIGHT));
         document.add(new Paragraph("""
-            Bitte um Bezahlung unter Angabe der Nummer der Honorarnote
-            auf das Konto der TicketLine Gmbh IBAN BIC binnen 7 Tagen.
+
+            Wir haben Ihre Bezahlung unter Angabe der Rechnungsnummer auf das Konto der TicketLine GmbH dankend erhalten.
 
             Wir wünschen Ihnen einen interessanten und angenehmen Veranstaltungsbesuch!
 
             Freundliche Grüße,
-            Das TicketLine Team"""));
+            Das TicketLine Team
+
+            """));
         document.add(new Paragraph("UID: ATU1234567"));
 
 
