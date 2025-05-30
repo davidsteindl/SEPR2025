@@ -1,0 +1,29 @@
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.Objects;
+
+@Getter
+@Setter
+public class OttDto {
+
+    @NotNull
+    String ottPassword;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        OttDto ottDto = (OttDto) o;
+        return Objects.equals(ottPassword, ottDto.ottPassword);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(ottPassword);
+    }
+}

@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.OttDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordChangeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
@@ -54,6 +55,19 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
+    public Long validateOtt(OttDto ottDto) throws IllegalArgumentException {
+
+        Long userId = ottPasswordRepository.findUserIdByOttPassword(ottDto.getOttPassword());
+
+        if (userId == null) {
+            throw new IllegalArgumentException("One-Time-Token is wrong");
+        } else {
+            return userId;
+        }
+
+    }
+
+    @Override
     public void changePassword(PasswordChangeDto passwordChangeDto) throws UsernameNotFoundException, IllegalArgumentException {
 
         if (passwordChangeDto.getConfirmPassword() == null
@@ -64,16 +78,13 @@ public class PasswordServiceImpl implements PasswordService {
             throw new IllegalArgumentException("confirm password and password are not match");
         }
 
-        Long userId = ottPasswordRepository.findPasswordOttByOttPassword(passwordChangeDto.getPassword());
-
-        ApplicationUser user = userService.findUserById(userId);
+        ApplicationUser user = userService.findUserById(passwordChangeDto.getId());
 
         updateUser(user, passwordChangeDto);
 
     }
 
     private void updateUser(ApplicationUser user, PasswordChangeDto passwordChangeDto) {
-
         user.setPassword(passwordChangeDto.getPassword());
 
         userRepository.save(user);
