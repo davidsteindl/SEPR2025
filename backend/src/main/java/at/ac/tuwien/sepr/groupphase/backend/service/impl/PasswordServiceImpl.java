@@ -1,9 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordChangeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PasswordOtt;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.OttPasswordRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
 import at.ac.tuwien.sepr.groupphase.backend.service.PasswordService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
@@ -20,6 +23,7 @@ import java.time.LocalDateTime;
 @Service
 public class PasswordServiceImpl implements PasswordService {
 
+    private final UserRepository userRepository;
     MailService mailService;
     OneTimeTokenService oneTimeTokenService;
     UserService userService;
@@ -27,11 +31,12 @@ public class PasswordServiceImpl implements PasswordService {
     private Clock clock;
 
     public PasswordServiceImpl(MailService mailService, OneTimeTokenService oneTimeTokenService, UserService userService,
-                               OttPasswordRepository ottPasswordRepository) {
+                               OttPasswordRepository ottPasswordRepository, UserRepository userRepository) {
         this.mailService = mailService;
         this.oneTimeTokenService = oneTimeTokenService;
         this.userService = userService;
         this.ottPasswordRepository = ottPasswordRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -46,6 +51,33 @@ public class PasswordServiceImpl implements PasswordService {
             throw new UsernameNotFoundException(email);
         }
         mailService.sendPasswordResetEmail(email, createOttLink(email, "/account/reset-password"));
+    }
+
+    @Override
+    public void changePassword(PasswordChangeDto passwordChangeDto) throws UsernameNotFoundException, IllegalArgumentException {
+
+        if (passwordChangeDto.getConfirmPassword() == null
+            || passwordChangeDto.getPassword() == null
+            || passwordChangeDto.getConfirmPassword().length() < 8
+            || passwordChangeDto.getPassword().length() < 8
+            || !passwordChangeDto.getPassword().equals(passwordChangeDto.getConfirmPassword())) {
+            throw new IllegalArgumentException("confirm password and password are not match");
+        }
+
+        Long userId = ottPasswordRepository.findPasswordOttByOttPassword(passwordChangeDto.getPassword());
+
+        ApplicationUser user = userService.findUserById(userId);
+
+        updateUser(user, passwordChangeDto);
+
+    }
+
+    private void updateUser(ApplicationUser user, PasswordChangeDto passwordChangeDto) {
+
+        user.setPassword(passwordChangeDto.getPassword());
+
+        userRepository.save(user);
+
     }
 
     private String createOttLink(String email, String relativePath) {
