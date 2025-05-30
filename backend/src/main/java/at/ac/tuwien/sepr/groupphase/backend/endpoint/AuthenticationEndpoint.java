@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.OttDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordChangeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserLoginDto;
@@ -65,8 +66,16 @@ public class AuthenticationEndpoint {
     @PermitAll
     @PostMapping("/changePassword")
     public void passwordChange(@Valid @RequestBody PasswordChangeDto passwordChangeDto) {
-        passwordService.requestResetPassword(passwordChangeDto);
+        passwordService.changePassword(passwordChangeDto);
     }
+
+    @PermitAll
+    @PostMapping("/validateOtt")
+    public void validateOtt(@Valid @RequestBody OttDto ottDto) {
+        passwordService.validateOtt(ottDto);
+    }
+
+
 
 
 }

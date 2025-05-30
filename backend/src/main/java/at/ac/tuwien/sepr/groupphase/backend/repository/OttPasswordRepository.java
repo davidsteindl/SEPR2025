@@ -15,5 +15,5 @@ import java.util.Optional;
 public interface OttPasswordRepository extends JpaRepository<PasswordOtt, Long> {
 
     @Query("SELECT s.userId FROM PasswordOtt s WHERE s.ottPassword = :ottPassword")
-    Long findPasswordOttByOttPassword(@Param("ottPassword") String ottPassword);
+    Long findUserIdByOttPassword(@Param("ottPassword") String ottPassword);
 }
