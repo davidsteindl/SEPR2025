@@ -131,7 +131,11 @@
             <artifactId>javase</artifactId>
             <version>3.5.1</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
 
     </dependencies>
