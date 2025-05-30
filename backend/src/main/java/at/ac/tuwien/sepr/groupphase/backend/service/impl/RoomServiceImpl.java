@@ -5,23 +5,17 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatUsageDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatedSectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StandingSectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StandingSectorUsageDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetSeatedDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetStandingDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Hold;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
-import at.ac.tuwien.sepr.groupphase.backend.entity.SeatedSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
-import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.HoldRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
@@ -58,7 +52,8 @@ public class RoomServiceImpl implements RoomService {
     private final HoldRepository holdRepository;
 
     public RoomServiceImpl(EventLocationRepository eventLocationRepository,
-                           RoomRepository roomRepository, SectorRepository sectorRepository, SeatRepository seatRepository, ShowService showService, TicketRepository ticketRepository, HoldRepository holdRepository) {
+                           RoomRepository roomRepository, SectorRepository sectorRepository, SeatRepository seatRepository, ShowService showService,
+                           TicketRepository ticketRepository, HoldRepository holdRepository) {
         this.eventLocationRepository = eventLocationRepository;
         this.roomRepository = roomRepository;
         this.sectorRepository = sectorRepository;
@@ -76,9 +71,26 @@ public class RoomServiceImpl implements RoomService {
             .orElseThrow(() -> new EntityNotFoundException(
                 "EventLocation not found with id " + dto.getEventLocationId()));
 
-        Room room = buildNewRoom(dto, location);
-        Room saved = roomRepository.save(room);
-        return mapToDto(saved);
+        Room room = Room.RoomBuilder.aRoom()
+            .withName(dto.getName())
+            .withEventLocation(location)
+            .build();
+        Room savedRoom = roomRepository.save(room);
+
+        for (int i = 0; i < dto.getRows(); i++) {
+            for (int j = 0; j < dto.getColumns(); j++) {
+                Seat seat = Seat.SeatBuilder.aSeat()
+                    .withRowNumber(i + 1)
+                    .withColumnNumber(j + 1)
+                    .withDeleted(false)
+                    .withSector(null)
+                    .withRoom(savedRoom)
+                    .build();
+                Seat savedSeat = this.seatRepository.save(seat);
+                savedRoom.getSeats().add(savedSeat);
+            }
+        }
+        return mapToDto(savedRoom);
     }
 
     @Override
@@ -130,80 +142,80 @@ public class RoomServiceImpl implements RoomService {
         List<Ticket> tickets = ticketRepository.findByShowId(showId);
 
         tickets = tickets.stream()
-                .filter(t -> (t.getStatus() == TicketStatus.BOUGHT) || (t.getStatus() == TicketStatus.RESERVED))
-                .toList();
+            .filter(t -> (t.getStatus() == TicketStatus.BOUGHT) || (t.getStatus() == TicketStatus.RESERVED))
+            .toList();
 
         Set<Long> occupiedSeatIds = tickets.stream()
-                .map(Ticket::getSeat)
-                .filter(Objects::nonNull)
+            .map(Ticket::getSeat)
+            .filter(Objects::nonNull)
 
-                .map(Seat::getId)
-                .collect(Collectors.toSet());
+            .map(Seat::getId)
+            .collect(Collectors.toSet());
         Map<Long, Long> soldStandingCounts = tickets.stream()
-                .filter(t -> t.getSeat() == null)
-                .collect(Collectors.groupingBy(
-                        t -> t.getSector().getId(),
-                        Collectors.counting()
-                ));
+            .filter(t -> t.getSeat() == null)
+            .collect(Collectors.groupingBy(
+                t -> t.getSector().getId(),
+                Collectors.counting()
+            ));
 
         // holds that are still valid
         List<Hold> validHolds = holdRepository.findByShowId(showId).stream()
-                .filter(h -> h.getValidUntil().isAfter(LocalDateTime.now()))
-                .toList();
+            .filter(h -> h.getValidUntil().isAfter(LocalDateTime.now()))
+            .toList();
 
         // separate out held seats vs. held standing spots
         Set<Long> heldSeatIds = validHolds.stream()
-                .map(Hold::getSeatId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+            .map(Hold::getSeatId)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
 
         Map<Long, Long> standingHoldCounts = validHolds.stream()
-                .filter(h -> h.getSeatId() == null)
-                .collect(Collectors.groupingBy(
-                        Hold::getSectorId,
-                        Collectors.counting()
-                ));
+            .filter(h -> h.getSeatId() == null)
+            .collect(Collectors.groupingBy(
+                Hold::getSectorId,
+                Collectors.counting()
+            ));
 
         List<SectorDto> usageSectors = new ArrayList<>();
 
         for (Sector sec : room.getSectors()) {
             if (sec instanceof SeatedSector seated) {
                 List<SeatUsageDto> seatDtos = seated.getSeats().stream()
-                        .map(seat -> {
-                            SeatUsageDto dto = new SeatUsageDto();
-                            dto.setId(seat.getId());
-                            dto.setRowNumber(seat.getRowNumber());
-                            dto.setColumnNumber(seat.getColumnNumber());
-                            dto.setDeleted(seat.isDeleted());
-                            // unavailable if sold OR held
+                    .map(seat -> {
+                        SeatUsageDto dto = new SeatUsageDto();
+                        dto.setId(seat.getId());
+                        dto.setRowNumber(seat.getRowNumber());
+                        dto.setColumnNumber(seat.getColumnNumber());
+                        dto.setDeleted(seat.isDeleted());
+                        // unavailable if sold OR held
 
-                            boolean isNotOccupiedByTicket = !occupiedSeatIds.contains(seat.getId());
-                            boolean isNotOccupiedByHold = !heldSeatIds.contains(seat.getId());
+                        boolean isNotOccupiedByTicket = !occupiedSeatIds.contains(seat.getId());
+                        boolean isNotOccupiedByHold = !heldSeatIds.contains(seat.getId());
 
-                            boolean isAvailable = isNotOccupiedByTicket && isNotOccupiedByHold;
+                        boolean isAvailable = isNotOccupiedByTicket && isNotOccupiedByHold;
 
-                            dto.setAvailable(isAvailable);
-                            return dto;
-                        })
-                        .toList();
+                        dto.setAvailable(isAvailable);
+                        return dto;
+                    })
+                    .toList();
 
                 SeatedSectorDto sdto = SeatedSectorDto.SeatedSectorDtoBuilder
-                        .aSeatedSectorDto()
-                        .id(seated.getId())
-                        .price(seated.getPrice())
-                        .rows(seatDtos)
-                        .build();
+                    .aSeatedSectorDto()
+                    .id(seated.getId())
+                    .price(seated.getPrice())
+                    .rows(seatDtos)
+                    .build();
 
                 usageSectors.add(sdto);
 
             } else if (sec instanceof StandingSector standing) {
-                long sold    = soldStandingCounts.getOrDefault(standing.getId(), 0L);
-                long held    = standingHoldCounts.getOrDefault(standing.getId(), 0L);
+                long sold = soldStandingCounts.getOrDefault(standing.getId(), 0L);
+                long held = standingHoldCounts.getOrDefault(standing.getId(), 0L);
                 int capacity = standing.getCapacity();
 
                 int availableCapacity = capacity
-                        - Math.toIntExact(sold)
-                        - Math.toIntExact(held);
+                    - Math.toIntExact(sold)
+                    - Math.toIntExact(held);
 
                 StandingSectorUsageDto udto = new StandingSectorUsageDto();
                 udto.setId(standing.getId());
@@ -216,10 +228,10 @@ public class RoomServiceImpl implements RoomService {
         }
 
         return RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
-                .id(room.getId())
-                .name(room.getName())
-                .sectors(usageSectors)
-                .build();
+            .id(room.getId())
+            .name(room.getName())
+            .sectors(usageSectors)
+            .build();
     }
 
     @Override
@@ -231,11 +243,10 @@ public class RoomServiceImpl implements RoomService {
     }
 
 
-
     /**
      * Constructs a new Room entity from the provided DTO and EventLocation.
      *
-     * @param dto the CreateRoomDto containing room setup parameters
+     * @param dto      the CreateRoomDto containing room setup parameters
      * @param location the EventLocation to associate with the new Room
      * @return a fully initialized Room entity (not yet persisted)
      */
@@ -245,19 +256,14 @@ public class RoomServiceImpl implements RoomService {
         room.setName(dto.getName());
         room.setEventLocation(location);
 
-        for (int i = 0; i < dto.getNumberOfSectors(); i++) {
-            SeatedSector sector = new SeatedSector();
-            sector.setPrice(10);
-            buildSeats(dto, sector);
-            room.addSector(sector);
-        }
+
         return room;
     }
 
     /**
      * Populates the given SeatedSector with Seat entities based on DTO dimensions.
      *
-     * @param dto the CreateRoomDto containing rowsPerSector and seatsPerRow
+     * @param dto    the CreateRoomDto containing rowsPerSector and seatsPerRow
      * @param sector the SeatedSector to populate
      */
     private void buildSeats(CreateRoomDto dto, SeatedSector sector) {
@@ -277,7 +283,7 @@ public class RoomServiceImpl implements RoomService {
      * Synchronizes the Room's sectors with the given list of SectorDto: updates existing,
      * adds new ones, and removes those not present in the DTO.
      *
-     * @param room the managed Room entity
+     * @param room       the managed Room entity
      * @param sectorDtos list of SectorDto representing desired final state
      */
     private void syncSectors(Room room, List<SectorDto> sectorDtos) {
@@ -302,8 +308,8 @@ public class RoomServiceImpl implements RoomService {
      * Synchronizes or creates a StandingSector based on the DTO.
      *
      * @param existing map of existing sectors by ID
-     * @param room the Room to attach new sectors to
-     * @param dto the StandingSectorDto containing updated data
+     * @param room     the Room to attach new sectors to
+     * @param dto      the StandingSectorDto containing updated data
      * @return the managed StandingSector instance
      */
     private StandingSector syncStanding(Map<Long, Sector> existing, Room room, StandingSectorDto dto) {
@@ -325,8 +331,8 @@ public class RoomServiceImpl implements RoomService {
      * Synchronizes or creates a SeatedSector and its Seat children based on the DTO.
      *
      * @param existing map of existing sectors by ID
-     * @param room the Room to attach new sectors to
-     * @param dto the SeatedSectorDto containing updated data
+     * @param room     the Room to attach new sectors to
+     * @param dto      the SeatedSectorDto containing updated data
      * @return the managed SeatedSector instance
      */
     private SeatedSector syncSeated(Map<Long, Sector> existing, Room room, SeatedSectorDto dto) {
@@ -370,10 +376,16 @@ public class RoomServiceImpl implements RoomService {
             .map(this::mapSector)
             .collect(Collectors.toList());
 
+        List<SeatDto> seats = room.getSeats().stream()
+            .map(this::mapSeat)
+            .toList();
+
         return RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
             .id(room.getId())
             .name(room.getName())
             .sectors(sectors)
+            .seats(seats)
+            .eventLocationId(room.getEventLocation().getId())
             .build();
     }
 
