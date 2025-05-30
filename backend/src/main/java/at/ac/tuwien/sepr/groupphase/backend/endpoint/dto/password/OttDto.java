@@ -11,7 +11,7 @@ import java.util.Objects;
 public class OttDto {
 
     @NotNull
-    String ottPassword;
+    String otToken;
 
     @Override
     public boolean equals(Object o) {
@@ -19,11 +19,11 @@ public class OttDto {
             return false;
         }
         OttDto ottDto = (OttDto) o;
-        return Objects.equals(ottPassword, ottDto.ottPassword);
+        return Objects.equals(otToken, ottDto.otToken);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(ottPassword);
+        return Objects.hashCode(otToken);
     }
 }

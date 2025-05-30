@@ -6,7 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetD
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PasswordOtt;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
-import at.ac.tuwien.sepr.groupphase.backend.repository.OttPasswordRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.OtTokenRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
 import at.ac.tuwien.sepr.groupphase.backend.service.PasswordService;
@@ -14,7 +14,6 @@ import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest;
 import org.springframework.security.authentication.ott.OneTimeToken;
 import org.springframework.security.authentication.ott.OneTimeTokenService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -28,20 +27,20 @@ public class PasswordServiceImpl implements PasswordService {
     MailService mailService;
     OneTimeTokenService oneTimeTokenService;
     UserService userService;
-    OttPasswordRepository ottPasswordRepository;
+    OtTokenRepository otTokenRepository;
     private Clock clock;
 
     public PasswordServiceImpl(MailService mailService, OneTimeTokenService oneTimeTokenService, UserService userService,
-                               OttPasswordRepository ottPasswordRepository, UserRepository userRepository) {
+                               OtTokenRepository otTokenRepository, UserRepository userRepository) {
         this.mailService = mailService;
         this.oneTimeTokenService = oneTimeTokenService;
         this.userService = userService;
-        this.ottPasswordRepository = ottPasswordRepository;
+        this.otTokenRepository = otTokenRepository;
         this.userRepository = userRepository;
     }
 
     @Override
-    public void requestResetPassword(PasswordResetDto passwordResetDto) throws UsernameNotFoundException, IllegalArgumentException {
+    public void requestResetPassword(PasswordResetDto passwordResetDto) throws NotFoundException, IllegalArgumentException {
         String email;
         if (passwordResetDto.getEmail() == null) {
             throw new IllegalArgumentException("no email provided");
@@ -49,7 +48,7 @@ public class PasswordServiceImpl implements PasswordService {
             email = passwordResetDto.getEmail();
         }
         if (userService.findApplicationUserByEmail(email) == null) {
-            throw new UsernameNotFoundException(email);
+            throw new NotFoundException(email);
         }
         mailService.sendPasswordResetEmail(email, createOttLink(email, "/account/reset-password"));
     }
@@ -57,7 +56,7 @@ public class PasswordServiceImpl implements PasswordService {
     @Override
     public Long validateOtt(OttDto ottDto) throws IllegalArgumentException {
 
-        Long userId = ottPasswordRepository.findUserIdByOttPassword(ottDto.getOttPassword());
+        Long userId = otTokenRepository.findUserIdByOtToken(ottDto.getOtToken());
 
         if (userId == null) {
             throw new IllegalArgumentException("One-Time-Token is wrong");
@@ -68,20 +67,22 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public void changePassword(PasswordChangeDto passwordChangeDto) throws UsernameNotFoundException, IllegalArgumentException {
+    public void changePassword(PasswordChangeDto passwordChangeDto) throws NotFoundException, IllegalArgumentException {
 
         if (passwordChangeDto.getConfirmPassword() == null
             || passwordChangeDto.getPassword() == null
             || passwordChangeDto.getConfirmPassword().length() < 8
             || passwordChangeDto.getPassword().length() < 8
             || !passwordChangeDto.getPassword().equals(passwordChangeDto.getConfirmPassword())) {
-            throw new IllegalArgumentException("confirm password and password are not match");
+            throw new IllegalArgumentException("confirm password and password do not match");
         }
 
-        ApplicationUser user = userService.findUserById(passwordChangeDto.getId());
-
-        updateUser(user, passwordChangeDto);
-
+        try {
+            ApplicationUser user = userService.findUserById(passwordChangeDto.getId());
+            updateUser(user, passwordChangeDto);
+        } catch (Exception e) {
+            throw new NotFoundException(e);
+        }
     }
 
     private void updateUser(ApplicationUser user, PasswordChangeDto passwordChangeDto) {
@@ -99,12 +100,12 @@ public class PasswordServiceImpl implements PasswordService {
 
         PasswordOtt passwordOtt = new PasswordOtt();
 
-        passwordOtt.setOttPassword(oneTimeToken.toString());
+        passwordOtt.setOtToken(oneTimeToken.toString());
         passwordOtt.setConsumed(false);
         passwordOtt.setValidUntil(LocalDateTime.from(this.clock.instant().plusSeconds(300L)));
         passwordOtt.setUserId(userService.findApplicationUserByEmail(email).getId());
 
-        ottPasswordRepository.save(passwordOtt);
+        otTokenRepository.save(passwordOtt);
 
         return ServletUriComponentsBuilder
             .fromCurrentContextPath()

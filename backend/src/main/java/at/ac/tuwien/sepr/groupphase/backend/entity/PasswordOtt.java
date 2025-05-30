@@ -27,7 +27,7 @@ public class PasswordOtt {
     private Long userId;
 
     @NotNull
-    private String ottPassword;
+    private String otToken;
 
     @NotNull
     private LocalDateTime validUntil;
