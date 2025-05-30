@@ -54,7 +54,6 @@ public class PdfExportServiceImpl implements PdfExportService {
     @Transactional
     public void makeTicketPdf(Long id, OutputStream responseBody) {
 
-        System.out.println(id);
         var ticket = ticketRepository.findById(id).orElseThrow(NotFoundException::new);
         var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
         if (!ticket.getOrder().getUserId().equals(idloggedin)) {
