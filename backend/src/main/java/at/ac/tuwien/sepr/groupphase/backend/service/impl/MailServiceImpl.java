@@ -22,7 +22,13 @@ public class MailServiceImpl implements MailService {
         this.javaMailSender = mailSender;
     }
 
-
+    /**
+     * Function to send an email.
+     *
+     * @param to the receiver email
+     * @param subject what the email is about (header)
+     * @param text what is the content of the email (body)
+     */
     @Async
     public void sendMail(String to, String subject, String text) {
         LOGGER.info("Sending mail...");
