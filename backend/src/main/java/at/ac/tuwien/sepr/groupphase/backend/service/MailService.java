@@ -22,5 +22,5 @@ public interface MailService {
      * @param context the header of the email
      * @param text the main part of the email (Body)
      */
-    void sendMail(String to, String context, String text) throws MessagingException;
+    void sendMail(String to, String context, String text);
 }
