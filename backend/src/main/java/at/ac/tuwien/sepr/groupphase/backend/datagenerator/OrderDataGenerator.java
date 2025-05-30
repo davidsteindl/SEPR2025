@@ -22,8 +22,16 @@ import org.springframework.stereotype.Component;
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
+
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType.CANCELLATION;
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType.ORDER;
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType.REFUND;
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType.RESERVATION;
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus.BOUGHT;
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus.CANCELLED;
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus.REFUNDED;
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus.RESERVED;
 
 @Profile("generateData")
 @DependsOn("userDataGenerator")
@@ -54,81 +62,79 @@ public class OrderDataGenerator {
     public void generateOrders() {
         LOGGER.debug("Generating test orders...");
 
-        Optional<ApplicationUser> optionalUser = Optional.ofNullable(userRepository.findByEmail("user@email.com"));
-        Optional<ApplicationUser> optionalAdmin = Optional.ofNullable(userRepository.findByEmail("admin@email.com"));
-
+        List<ApplicationUser> users = userRepository.findAll();
         List<Show> shows = showRepository.findAll();
         List<Sector> sectors = sectorRepository.findAll();
         Random random = new Random();
 
-        if (shows.isEmpty() || sectors.isEmpty()) {
-            LOGGER.warn("No shows or sectors available, cannot generate tickets");
+        if (users.isEmpty() || shows.isEmpty() || sectors.isEmpty()) {
+            LOGGER.warn("No shows, users or sectors available, cannot generate tickets");
             return;
         }
 
-        if (optionalUser.isPresent()) {
-            generateOrdersForUser(optionalUser.get(), shows, sectors, random, "user");
-        } else {
-            LOGGER.warn("No user with email 'user@email.com' found");
-        }
+        generateOrdersOfType(ORDER, BOUGHT, 1000, users, shows, sectors, random);
+        generateOrdersOfType(RESERVATION, RESERVED, 250, users, shows, sectors, random);
+        generateOrdersOfType(REFUND, REFUNDED, 250, users, shows, sectors, random);
+        generateOrdersOfType(CANCELLATION, CANCELLED, 75, users, shows, sectors, random);
 
-        if (optionalAdmin.isPresent()) {
-            generateOrdersForUser(optionalAdmin.get(), shows, sectors, random, "admin");
-        } else {
-            LOGGER.warn("No admin with email 'admin@email.com' found");
-        }
+        LOGGER.debug("Created {} sales, {} reservations, {} refunded tickets, {} cancelled tickets across {} users",
+            1000, 250, 250, 75, users.size());
     }
 
-    private OrderType randomOrderType(Random random) {
-        return switch (random.nextInt(3)) {
-            case 0 -> OrderType.ORDER;
-            case 1 -> OrderType.RESERVATION;
-            case 2 -> OrderType.REFUND;
-            default -> OrderType.ORDER;
-        };
-    }
+    private void generateOrdersOfType(OrderType orderType,
+                                      TicketStatus ticketStatus,
+                                      int count,
+                                      List<ApplicationUser> users,
+                                      List<Show> shows,
+                                      List<Sector> sectors,
+                                      Random random) {
+        for (int i = 0; i < count; i++) {
+            ApplicationUser user = users.get(random.nextInt(users.size()));
 
-    private void generateOrdersForUser(ApplicationUser user, List<Show> shows, List<Sector> sectors, Random random, String label) {
-        for (int i = 0; i < 20; i++) {
+            LocalDateTime createdAt = randomPastDateTime(random);
+
             Order order = new Order();
             order.setUserId(user.getId());
-            OrderType orderType = randomOrderType(random);
             order.setOrderType(orderType);
-            order.setCreatedAt(LocalDateTime.now().minusDays(i));
+            order.setCreatedAt(createdAt);
             order = orderRepository.save(order);
 
             int ticketCount = 2 + random.nextInt(3);
 
-            Show show = shows.get(random.nextInt(shows.size()));
-            if (i % 3 == 0) {
-                show.setDate(LocalDateTime.now().minusDays(5 + i));
-            } else {
-                show.setDate(LocalDateTime.now().plusDays(5 + i));
-            }
-            show = showRepository.save(show);
+            LocalDateTime showDate = randomFutureDateTime(random);
 
+            Show show = shows.get(random.nextInt(shows.size()));
+            show.setDate(showDate);
+            showRepository.save(show);
 
             for (int j = 0; j < ticketCount; j++) {
                 Ticket ticket = new Ticket();
                 ticket.setOrder(order);
                 ticket.setShow(show);
                 ticket.setSector(sectors.get(random.nextInt(sectors.size())));
-
-                ticket.setCreatedAt(LocalDateTime.now().minusDays(i));
-
-                TicketStatus status = switch (orderType) {
-                    case ORDER -> TicketStatus.BOUGHT;
-                    case RESERVATION -> TicketStatus.RESERVED;
-                    case REFUND -> TicketStatus.REFUNDED;
-                    default -> TicketStatus.BOUGHT;
-                };
-                ticket.setStatus(status);
+                ticket.setCreatedAt(createdAt);
+                ticket.setStatus(ticketStatus);
                 ticketRepository.save(ticket);
             }
         }
-
-        LOGGER.debug("Created 20 test orders for {}", label);
     }
 
+    private LocalDateTime randomPastDateTime(Random random) {
+        LocalDateTime now = LocalDateTime.now();
+        return now
+            .minusDays(random.nextInt(180))
+            .minusHours(random.nextInt(24))
+            .minusMinutes(random.nextInt(60))
+            .minusSeconds(random.nextInt(60));
+    }
+
+    private LocalDateTime randomFutureDateTime(Random random) {
+        LocalDateTime now = LocalDateTime.now();
+        return now
+            .plusDays(random.nextInt(180))
+            .plusHours(random.nextInt(24))
+            .plusMinutes(random.nextInt(60))
+            .plusSeconds(random.nextInt(60));
+    }
 
 }

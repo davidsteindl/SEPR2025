@@ -47,18 +47,19 @@ public class EventDataGenerator {
     @PostConstruct
     public void generateEvents() {
         if (eventRepository.count() == 0) {
+            var rooms = roomRepository.findAll();
             List<Event> events = new ArrayList<>();
             for (int i = 0; i < NUMBER_OF_EVENTS; i++) {
                 LocalDateTime eventStart = LocalDateTime.of(2025, 6, i + 1, 14, 0);
+                int duration = 180 + i * 10;
+
                 Event ev = Event.EventBuilder.anEvent()
                     .withName("Event " + i)
                     .withCategory(Event.EventCategory.CLASSICAL)
                     .withDescription("Description for Event " + i)
-                    .withDateTime(LocalDateTime.now().plusDays(i))
-                    .withDuration(180 + i * 10)
                     .withDateTime(eventStart)
-                    .withLocation(roomRepository.findAll().get((int) (i % roomRepository.count())).getEventLocation())
-                    .withDateTime(LocalDateTime.now().plusDays(i))
+                    .withDuration(duration)
+                    .withLocation(rooms.get(i % rooms.size()).getEventLocation())
                     .build();
                 events.add(ev);
             }
@@ -94,11 +95,11 @@ public class EventDataGenerator {
                 LocalDateTime eventStart = event.getDateTime();
                 int eventDuration = event.getDuration();
                 int showDuration = eventDuration / SHOWS_PER_ARTIST_PAIR;
-
+                
                 for (int j = 0; j < SHOWS_PER_ARTIST_PAIR; j++) {
                     LocalDateTime showStart = eventStart.plusMinutes(j * showDuration);
-                    Artist a1 = artists.get(artistIndex % artists.size());
-                    Artist a2 = artists.get((artistIndex + 1) % artists.size());
+                    var a1 = artists.get(artistIndex % artists.size());
+                    var a2 = artists.get((artistIndex + 1) % artists.size());
                     Show show = Show.ShowBuilder.aShow()
                         .withName(event.getName() + " - Show " + j)
                         .withDuration(showDuration)
