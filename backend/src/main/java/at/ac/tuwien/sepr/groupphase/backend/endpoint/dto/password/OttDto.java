@@ -1,17 +1,18 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+
 
 import java.util.Objects;
 
-@Getter
-@Setter
 public class OttDto {
 
     @NotNull
     String otToken;
+
+    public String getOtToken() {
+        return otToken;
+    }
 
     @Override
     public boolean equals(Object o) {
