@@ -13,14 +13,11 @@ public class CreateRoomDto {
     @Size(max = 50, message = "Name must not exceed 50 characters")
     private String name;
 
-    @Positive(message = "Initial number of sectors must be positive")
-    private int numberOfSectors;
+    @Positive(message = "Number of rows must be positive")
+    private int rows;
 
-    @Positive(message = "Initial number of rows per sector must be positive")
-    private int rowsPerSector;
-
-    @Positive(message = "Initial number of seats per row must be positive")
-    private int seatsPerRow;
+    @Positive(message = "Number of columns must be positive")
+    private int columns;
 
     @NotNull(message = "Event location ID must not be null")
     private Long eventLocationId;
@@ -33,28 +30,20 @@ public class CreateRoomDto {
         this.name = name;
     }
 
-    public int getNumberOfSectors() {
-        return numberOfSectors;
+    public int getRows() {
+        return rows;
     }
 
-    public void setNumberOfSectors(int numberOfSectors) {
-        this.numberOfSectors = numberOfSectors;
+    public void setRows(int rows) {
+        this.rows = rows;
     }
 
-    public int getRowsPerSector() {
-        return rowsPerSector;
+    public int getColumns() {
+        return columns;
     }
 
-    public void setRowsPerSector(int rowsPerSector) {
-        this.rowsPerSector = rowsPerSector;
-    }
-
-    public int getSeatsPerRow() {
-        return seatsPerRow;
-    }
-
-    public void setSeatsPerRow(int seatsPerRow) {
-        this.seatsPerRow = seatsPerRow;
+    public void setColumns(int columns) {
+        this.columns = columns;
     }
 
     public Long getEventLocationId() {
@@ -65,10 +54,9 @@ public class CreateRoomDto {
         this.eventLocationId = eventLocationId;
     }
 
-
     @Override
     public int hashCode() {
-        return Objects.hash(name, numberOfSectors, rowsPerSector, seatsPerRow, eventLocationId);
+        return Objects.hash(name, rows, columns, eventLocationId);
     }
 
     @Override
@@ -80,29 +68,26 @@ public class CreateRoomDto {
             return false;
         }
         CreateRoomDto that = (CreateRoomDto) o;
-        return numberOfSectors == that.numberOfSectors
-                && rowsPerSector == that.rowsPerSector
-                && seatsPerRow == that.seatsPerRow
-                && Objects.equals(name, that.name)
-                && Objects.equals(eventLocationId, that.eventLocationId);
+        return rows == that.rows
+            && columns == that.columns
+            && Objects.equals(name, that.name)
+            && Objects.equals(eventLocationId, that.eventLocationId);
     }
 
     @Override
     public String toString() {
         return "CreateRoomDto{"
-                + "name='" + name + '\''
-                + ", numberOfSectors=" + numberOfSectors
-                + ", rowsPerSector=" + rowsPerSector
-                + ", seatsPerRow=" + seatsPerRow
-                + ", eventLocationId=" + eventLocationId
-                + '}';
+            + "name='" + name + '\''
+            + ", rows=" + rows
+            + ", columns=" + columns
+            + ", eventLocationId=" + eventLocationId
+            + '}';
     }
 
     public static final class CreateRoomDtoBuilder {
         private String name;
-        private int numberOfSectors;
-        private int rowsPerSector;
-        private int seatsPerRow;
+        private int rows;
+        private int columns;
         private Long eventLocationId;
 
         private CreateRoomDtoBuilder() {
@@ -117,18 +102,13 @@ public class CreateRoomDto {
             return this;
         }
 
-        public CreateRoomDtoBuilder numberOfSectors(int numberOfSectors) {
-            this.numberOfSectors = numberOfSectors;
+        public CreateRoomDtoBuilder rows(int rows) {
+            this.rows = rows;
             return this;
         }
 
-        public CreateRoomDtoBuilder rowsPerSector(int rowsPerSector) {
-            this.rowsPerSector = rowsPerSector;
-            return this;
-        }
-
-        public CreateRoomDtoBuilder seatsPerRow(int seatsPerRow) {
-            this.seatsPerRow = seatsPerRow;
+        public CreateRoomDtoBuilder columns(int columns) {
+            this.columns = columns;
             return this;
         }
 
@@ -137,13 +117,11 @@ public class CreateRoomDto {
             return this;
         }
 
-
         public CreateRoomDto build() {
             CreateRoomDto dto = new CreateRoomDto();
             dto.setName(name);
-            dto.setNumberOfSectors(numberOfSectors);
-            dto.setRowsPerSector(rowsPerSector);
-            dto.setSeatsPerRow(seatsPerRow);
+            dto.setRows(rows);
+            dto.setColumns(columns);
             dto.setEventLocationId(eventLocationId);
             return dto;
         }

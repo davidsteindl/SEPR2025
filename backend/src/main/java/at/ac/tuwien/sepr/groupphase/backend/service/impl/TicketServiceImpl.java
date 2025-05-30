@@ -16,7 +16,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.OrderMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.TicketMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Hold;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
-import at.ac.tuwien.sepr.groupphase.backend.entity.SeatedSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
