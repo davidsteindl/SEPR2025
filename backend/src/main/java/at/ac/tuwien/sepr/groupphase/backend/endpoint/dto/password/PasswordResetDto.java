@@ -5,11 +5,18 @@ import lombok.Setter;
 
 import java.util.Objects;
 
-@Getter
-@Setter
+
 public class PasswordResetDto {
 
     private String email;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     @Override
     public boolean equals(Object o) {

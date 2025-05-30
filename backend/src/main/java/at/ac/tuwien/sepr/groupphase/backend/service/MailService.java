@@ -15,5 +15,12 @@ public interface MailService {
      */
     void sendPasswordResetEmail(String email, String passwordResetLink);
 
-    void sendMail(String to, String text) throws MessagingException;
+    /**
+     * Function to send an email.
+     *
+     * @param to the receiver address
+     * @param context the header of the email
+     * @param text the main part of the email (Body)
+     */
+    void sendMail(String to, String context, String text) throws MessagingException;
 }

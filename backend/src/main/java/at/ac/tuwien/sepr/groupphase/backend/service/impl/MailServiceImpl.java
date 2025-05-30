@@ -24,16 +24,16 @@ public class MailServiceImpl implements MailService {
     @Async
     @Override
     public void sendPasswordResetEmail(String email, String passwordResetLink) {
-        sendMail(email, passwordResetLink);
+        sendMail(email, "reset password for account", passwordResetLink);
     }
 
-    public void sendMail(String to, String text) {
+    public void sendMail(String to, String context, String text) {
         LOGGER.info("Sending mail...");
         SimpleMailMessage message = new SimpleMailMessage();
 
         message.setTo(to);
         message.setFrom("noreply@gmail.com");
-        message.setSubject("reset password for account");
+        message.setSubject(context);
         message.setText(text);
 
         javaMailSender.send(message);

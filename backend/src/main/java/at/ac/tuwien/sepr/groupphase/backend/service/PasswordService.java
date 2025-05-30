@@ -19,8 +19,18 @@ public interface PasswordService {
      */
     void requestResetPassword(PasswordResetDto passwordResetDto) throws NotFoundException, IllegalArgumentException;
 
+    /**
+     * Method to validate the One-Time-Token.
+     *
+     * @param ottDto the receiving one-time-token
+     */
     Long validateOtt(OttDto ottDto) throws IllegalArgumentException;
 
+    /**
+     * Method to change a User-Password.
+     *
+     * @param passwordChangeDto the User with his/her new password
+     */
     void changePassword(PasswordChangeDto passwordChangeDto) throws NotFoundException, IllegalArgumentException;
 
 }
