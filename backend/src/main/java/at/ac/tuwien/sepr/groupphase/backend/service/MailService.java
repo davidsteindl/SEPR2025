@@ -14,4 +14,6 @@ public interface MailService {
      * @param passwordResetLink the link for the user to reset his/her password
      */
     void sendPasswordResetEmail(String email, String passwordResetLink);
+
+    void sendMail(String to, String text) throws MessagingException;
 }

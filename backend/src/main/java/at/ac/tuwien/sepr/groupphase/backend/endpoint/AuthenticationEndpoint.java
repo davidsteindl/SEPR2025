@@ -71,8 +71,8 @@ public class AuthenticationEndpoint {
 
     @PermitAll
     @PostMapping("/validateOtt")
-    public void validateOtt(@Valid @RequestBody OttDto ottDto) {
-        passwordService.validateOtt(ottDto);
+    public Long validateOtt(@Valid @RequestBody OttDto ottDto) {
+        return passwordService.validateOtt(ottDto);
     }
 
 

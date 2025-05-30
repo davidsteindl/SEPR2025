@@ -2,7 +2,6 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 
 import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
-import jakarta.mail.MessagingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
@@ -25,15 +24,10 @@ public class MailServiceImpl implements MailService {
     @Async
     @Override
     public void sendPasswordResetEmail(String email, String passwordResetLink) {
-
-        try {
-            sendMail(email, passwordResetLink);
-        } catch (MessagingException e) {
-            LOGGER.error("Error while sending reset password email => {}", e.getLocalizedMessage());
-        }
+        sendMail(email, passwordResetLink);
     }
 
-    private void sendMail(String to, String text) throws MessagingException {
+    public void sendMail(String to, String text) {
         LOGGER.info("Sending mail...");
         SimpleMailMessage message = new SimpleMailMessage();
 
