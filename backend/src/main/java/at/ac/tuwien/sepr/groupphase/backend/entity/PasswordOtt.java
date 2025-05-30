@@ -80,8 +80,8 @@ public class PasswordOtt {
             return false;
         }
         PasswordOtt that = (PasswordOtt) o;
-        return consumed == that.consumed && Objects.equals(id, that.id) && Objects.equals(userId, that.userId) &&
-            Objects.equals(otToken, that.otToken) && Objects.equals(validUntil, that.validUntil);
+        return consumed == that.consumed && Objects.equals(id, that.id) && Objects.equals(userId, that.userId)
+            && Objects.equals(otToken, that.otToken) && Objects.equals(validUntil, that.validUntil);
     }
 
     @Override
