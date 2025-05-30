@@ -29,4 +29,7 @@ public class PasswordOtt {
     @NotNull
     private LocalDateTime validUntil;
 
+    @NotNull
+    private boolean consumed;
+
 }
