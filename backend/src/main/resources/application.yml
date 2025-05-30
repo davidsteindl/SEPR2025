@@ -27,10 +27,16 @@ spring:
     # follow this link: https://bit.ly/2LaX9ku
     open-in-view: false
   mail:
-    host: smtp.example.com
+    host: localhost
     port: 1025
-    username: null
-    password: null
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
 
 security:
   auth:
