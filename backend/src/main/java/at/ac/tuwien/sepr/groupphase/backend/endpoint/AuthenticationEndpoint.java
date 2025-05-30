@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -54,8 +55,13 @@ public class AuthenticationEndpoint {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    public String passwordReset(@Valid @RequestBody ){
-
-
+    @PermitAll
+    @PostMapping("/resetPassword")
+    public void passwordReset(@Valid @RequestBody PasswordResetDto passwordResetDto) {
+        passwordService.requestResetPassword(passwordResetDto);
     }
+
+
+
+
 }
