@@ -1,38 +1,39 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
-import java.util.Objects;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.validation.constraints.Positive;
+
+import java.util.Objects;
 
 @Entity
-@Table(name = "seats")
 public class Seat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "row_number", nullable = false)
+    @Positive(message = "Row number must be positive")
     private int rowNumber;
 
-    @Column(name = "column_number", nullable = false)
+    @Positive(message = "Column number must be positive")
     private int columnNumber;
 
     @Column(nullable = false)
     private boolean deleted;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sector_id", nullable = false)
-    private SeatedSector sector;
+    @ManyToOne
+    @JoinColumn(name = "sector_id")
+    private Sector sector;
 
+    @ManyToOne
+    @JoinColumn(name = "room_id", nullable = false)
+    private Room room;
 
     public Long getId() {
         return id;
@@ -66,17 +67,20 @@ public class Seat {
         this.deleted = deleted;
     }
 
-    public SeatedSector getSector() {
+    public Sector getSector() {
         return sector;
     }
 
-    public void setSector(SeatedSector sector) {
+    public void setSector(Sector sector) {
         this.sector = sector;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, rowNumber, columnNumber, deleted, sector != null ? sector.getId() : null);
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
     }
 
     @Override
@@ -84,28 +88,81 @@ public class Seat {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Seat)) {
+        if (!(o instanceof Seat seat)) {
             return false;
         }
-        Seat that = (Seat) o;
-        return rowNumber == that.rowNumber
-            && columnNumber == that.columnNumber
-            && deleted == that.deleted
-            && Objects.equals(id, that.id)
-            && Objects.equals(
-            sector != null ? sector.getId() : null,
-            that.sector != null ? that.sector.getId() : null
-        );
+        return rowNumber == seat.rowNumber
+            && columnNumber == seat.columnNumber
+            && deleted == seat.deleted
+            && Objects.equals(id, seat.id)
+            && Objects.equals(sector, seat.sector)
+            && Objects.equals(room, seat.room);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, rowNumber, columnNumber, deleted, sector, room);
     }
 
     @Override
     public String toString() {
         return "Seat{"
             + "id=" + id
-            + ", rowNumber=" + rowNumber
-            + ", columnNumber=" + columnNumber
+            + ", row=" + rowNumber
+            + ", column=" + columnNumber
             + ", deleted=" + deleted
-            + ", sectorId=" + (sector != null ? sector.getId() : null)
+            + ", sector ID=" + (sector != null ? sector.getId() : "null")
+            + ", room ID=" + (room != null ? room.getId() : "null")
             + '}';
+    }
+
+    public static final class SeatBuilder {
+        private int rowNumber;
+        private int columnNumber;
+        private boolean deleted;
+        private Sector sector;
+        private Room room;
+
+        private SeatBuilder() {
+        }
+
+        public static SeatBuilder aSeat() {
+            return new SeatBuilder();
+        }
+
+        public SeatBuilder withRowNumber(int rowNumber) {
+            this.rowNumber = rowNumber;
+            return this;
+        }
+
+        public SeatBuilder withColumnNumber(int columnNumber) {
+            this.columnNumber = columnNumber;
+            return this;
+        }
+
+        public SeatBuilder withDeleted(boolean deleted) {
+            this.deleted = deleted;
+            return this;
+        }
+
+        public SeatBuilder withSector(Sector sector) {
+            this.sector = sector;
+            return this;
+        }
+
+        public SeatBuilder withRoom(Room room) {
+            this.room = room;
+            return this;
+        }
+
+        public Seat build() {
+            Seat seat = new Seat();
+            seat.setRowNumber(rowNumber);
+            seat.setColumnNumber(columnNumber);
+            seat.setDeleted(deleted);
+            seat.setSector(sector);
+            seat.setRoom(room);
+            return seat;
+        }
     }
 }

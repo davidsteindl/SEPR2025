@@ -1,5 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -7,9 +9,6 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
-import java.util.Objects;
-
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
 
 public class RoomDetailDto {
 
@@ -23,6 +22,12 @@ public class RoomDetailDto {
 
     @NotNull(message = "Sectors must not be null")
     private List<@Valid SectorDto> sectors;
+
+    @NotNull(message = "Seats must not be null")
+    private List<@Valid SeatDto> seats;
+
+    @NotNull(message = "Event location ID must not be null")
+    private Long eventLocationId;
 
     public Long getId() {
         return id;
@@ -48,10 +53,28 @@ public class RoomDetailDto {
         this.sectors = sectors;
     }
 
+    public List<SeatDto> getSeats() {
+        return seats;
+    }
+
+    public void setSeats(List<SeatDto> seats) {
+        this.seats = seats;
+    }
+
+    public Long getEventLocationId() {
+        return eventLocationId;
+    }
+
+    public void setEventLocationId(Long eventLocationId) {
+        this.eventLocationId = eventLocationId;
+    }
+
     public static final class RoomDetailDtoBuilder {
         private Long id;
         private String name;
         private List<SectorDto> sectors;
+        private List<SeatDto> seats;
+        private Long eventLocationId;
 
         private RoomDetailDtoBuilder() {
         }
@@ -75,11 +98,23 @@ public class RoomDetailDto {
             return this;
         }
 
+        public RoomDetailDtoBuilder seats(List<SeatDto> seats) {
+            this.seats = seats;
+            return this;
+        }
+
+        public RoomDetailDtoBuilder eventLocationId(Long eventLocationId) {
+            this.eventLocationId = eventLocationId;
+            return this;
+        }
+
         public RoomDetailDto build() {
             RoomDetailDto dto = new RoomDetailDto();
             dto.setId(id);
             dto.setName(name);
             dto.setSectors(sectors);
+            dto.setSeats(seats);
+            dto.setEventLocationId(eventLocationId);
             return dto;
         }
     }
