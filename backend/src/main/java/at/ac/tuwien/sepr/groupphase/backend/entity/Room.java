@@ -11,10 +11,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 public class Room {
@@ -27,7 +25,7 @@ public class Room {
     private String name;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Sector> sectors = new HashSet<>();
+    private List<Sector> sectors = new ArrayList<>();
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Seat> seats = new ArrayList<>();
@@ -52,34 +50,13 @@ public class Room {
         this.name = name;
     }
 
-    public Set<Sector> getSectors() {
+    public List<Sector> getSectors() {
         return sectors;
     }
 
-    public void setSectors(Set<Sector> sectors) {
+    public void setSectors(List<Sector> sectors) {
         this.sectors = sectors;
     }
-
-    public void addSector(Sector sector) {
-        sector.setRoom(this);
-        this.sectors.add(sector);
-    }
-
-    public void removeSector(Sector sector) {
-        sector.setRoom(null);
-        this.sectors.remove(sector);
-    }
-
-    public void addSeat(Seat seat) {
-        seat.setRoom(this);
-        this.seats.add(seat);
-    }
-
-    public void removeSeat(Seat seat) {
-        seat.setRoom(null);
-        this.seats.remove(seat);
-    }
-
 
     public List<Seat> getSeats() {
         return seats;
@@ -128,7 +105,7 @@ public class Room {
 
     public static final class RoomBuilder {
         private String name;
-        private Set<Sector> sectors = new HashSet<>();
+        private List<Sector> sectors = new ArrayList<>();
         private List<Seat> seats = new ArrayList<>();
         private EventLocation eventLocation;
 
@@ -144,7 +121,7 @@ public class Room {
             return this;
         }
 
-        public RoomBuilder withSectors(Set<Sector> sectors) {
+        public RoomBuilder withSectors(List<Sector> sectors) {
             this.sectors = sectors;
             return this;
         }
@@ -156,18 +133,6 @@ public class Room {
 
         public RoomBuilder withEventLocation(EventLocation eventLocation) {
             this.eventLocation = eventLocation;
-            return this;
-        }
-
-        public RoomBuilder withRowCol(int rows, int columns) {
-            for (int i = 0; i < rows; i++) {
-                for (int j = 0; j < columns; j++) {
-                    Seat seat = new Seat();
-                    seat.setRowNumber(i + 1);
-                    seat.setColumnNumber(j + 1);
-                    this.seats.add(seat);
-                }
-            }
             return this;
         }
 
