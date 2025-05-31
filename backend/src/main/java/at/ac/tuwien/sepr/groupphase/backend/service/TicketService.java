@@ -143,6 +143,14 @@ public interface TicketService {
      */
     ReservationDto reserveTicketsGrouped(TicketRequestDto request);
 
+    /**
+     * Refunds one or more already bought tickets by splitting the original order.
+
+     * @param ticketIds the list of ticket IDs to refund
+     * @return the list of refunded ticket DTOs
+     */
+    List<TicketDto> refundTicketsGroup(List<Long> ticketIds);
+
 
     /**
      * Retrieves a paginated list of orders (purchases or reservations) for the given user.
