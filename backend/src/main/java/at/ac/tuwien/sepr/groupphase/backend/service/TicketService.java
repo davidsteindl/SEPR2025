@@ -31,7 +31,7 @@ public interface TicketService {
      * @param id the unique identifier of the order to retrieve
      * @return the {@link OrderDto} representing that order, or null if no order with the given ID exists
      */
-    public OrderDto getOrderById(Long id);
+    OrderDto getOrderById(Long id);
 
     /**
      * Fetches the ticket identified by the given ID.
@@ -39,7 +39,7 @@ public interface TicketService {
      * @param id the unique identifier of the ticket to retrieve
      * @return the {@link TicketDto} representing that ticket, or null if no ticket with the given ID exists
      */
-    public TicketDto getTicketById(Long id);
+    TicketDto getTicketById(Long id);
 
 
     /**
@@ -134,6 +134,14 @@ public interface TicketService {
      * @throws ValidationException If any of the payment or address data is invalid
      */
     OrderGroupDto checkoutTickets(CheckoutRequestDto dto) throws ValidationException;
+
+    /**
+     * Creates a reservation for one or more tickets and returns reservation metadata.
+     *
+     * @param request A {@link TicketRequestDto} containing the show ID and desired ticket targets
+     * @return A {@link ReservationDto} containing reserved tickets and reservation expiration info
+     */
+    ReservationDto reserveTicketsGrouped(TicketRequestDto request);
 
 
     /**
