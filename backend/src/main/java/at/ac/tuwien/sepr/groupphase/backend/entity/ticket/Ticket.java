@@ -10,13 +10,16 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Table(indexes = {@Index(columnList = "randomTicketCode")})
 public class Ticket {
     @Id
     @GeneratedValue
@@ -29,7 +32,6 @@ public class Ticket {
     @ManyToOne(optional = false)
     @JoinColumn(name = "show_id", nullable = false)
     private Show show;
-
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "sector_id", nullable = false)
@@ -47,6 +49,8 @@ public class Ticket {
     @Column(name = "created_at", nullable = false, updatable = false)
     LocalDateTime createdAt;
 
+    @Column(nullable = true)
+    private String randomTicketCode;
 
     public Order getOrder() {
         return order;
@@ -102,5 +106,13 @@ public class Ticket {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getRandomTicketCode() {
+        return randomTicketCode;
+    }
+
+    public void setRandomTicketCode(String randomTicketCode) {
+        this.randomTicketCode = randomTicketCode;
     }
 }

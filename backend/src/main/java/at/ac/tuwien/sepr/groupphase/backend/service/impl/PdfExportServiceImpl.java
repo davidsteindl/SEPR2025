@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
 import at.ac.tuwien.sepr.groupphase.backend.exception.AuthorizationException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
@@ -21,6 +22,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import jakarta.transaction.Transactional;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
+
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
@@ -52,13 +57,23 @@ public class PdfExportServiceImpl implements PdfExportService {
 
     @Override
     @Transactional
-    public void makeTicketPdf(Long id, OutputStream responseBody) {
+    public void makeTicketPdf(Long id, OutputStream responseBody, Optional<String> verficationCode) throws ValidationException {
 
-        System.out.println(id);
         var ticket = ticketRepository.findById(id).orElseThrow(NotFoundException::new);
-        var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-        if (!ticket.getOrder().getUserId().equals(idloggedin)) {
-            throw new AuthorizationException("You are not authorized to export this ticket.");
+        if (verficationCode.isEmpty()) {
+            var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+            if (!ticket.getOrder().getUserId().equals(idloggedin)) {
+                throw new AuthorizationException("You are not authorized to export this ticket.");
+            }
+            if (ticket.getRandomTicketCode() == null) {
+                ticket.setRandomTicketCode(RandomStringUtils.randomAlphanumeric(32));
+                ticketRepository.save(ticket);
+            }
+
+        } else {
+            if (!verficationCode.get().equals(ticket.getRandomTicketCode())) {
+                throw new ValidationException("Ticket could not be verified.", List.of());
+            }
         }
 
         PdfWriter writer = new PdfWriter(responseBody);
@@ -91,13 +106,10 @@ public class PdfExportServiceImpl implements PdfExportService {
         }
 
         document.add(new Paragraph("Price: " + ticket.getSector().getPrice() + " EUR"));
-        //document.add(new Paragraph("Ticket Id: " + ticket.getId()));
 
-        // Generate QR Code
-        String qrContent = "http://localhost:4200/ticket/" + ticket.getId();
+        String qrContent = "http://localhost:4200/#/ticket/" + ticket.getId() + "/" + ticket.getRandomTicketCode();
         BufferedImage qrImage = generateQrCodeImage(qrContent);
 
-        // Convert BufferedImage to iText Image
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             ImageIO.write(qrImage, "PNG", baos);
@@ -107,11 +119,7 @@ public class PdfExportServiceImpl implements PdfExportService {
         ImageData imageData = ImageDataFactory.create(baos.toByteArray());
         Image qrCode = new Image(imageData);
 
-        // Add QR Code to the PDF
         document.add(qrCode);
-
-
-
 
         document.close();
     }
@@ -125,7 +133,6 @@ public class PdfExportServiceImpl implements PdfExportService {
             throw new RuntimeException("Error while generating QR Code", e);
         }
     }
-
 
 
     @Override
@@ -269,6 +276,8 @@ public class PdfExportServiceImpl implements PdfExportService {
 
         document.close();
     }
+
+
 
 
 }
