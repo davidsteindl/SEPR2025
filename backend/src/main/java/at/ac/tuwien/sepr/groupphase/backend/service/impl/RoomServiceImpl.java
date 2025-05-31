@@ -328,43 +328,6 @@ public class RoomServiceImpl implements RoomService {
     }
 
     /**
-     * Synchronizes or creates a SeatedSector and its Seat children based on the DTO.
-     *
-     * @param existing map of existing sectors by ID
-     * @param room     the Room to attach new sectors to
-     * @param dto      the SeatedSectorDto containing updated data
-     * @return the managed SeatedSector instance
-     */
-    private SeatedSector syncSeated(Map<Long, Sector> existing, Room room, SeatedSectorDto dto) {
-        LOGGER.debug("Syncing the seated sector with details: {}", dto);
-        if (dto.getId() != null && !existing.containsKey(dto.getId())) {
-            throw new EntityNotFoundException("SeatedSector not found with id " + dto.getId());
-        }
-        SeatedSector sec = (SeatedSector) existing.getOrDefault(dto.getId(), new SeatedSector());
-        sec.setPrice(dto.getPrice());
-        sec.setRoom(room);
-
-        Map<Long, Seat> old = sec.getSeats().stream()
-            .collect(Collectors.toMap(Seat::getId, Function.identity()));
-        List<Seat> updated = new ArrayList<>();
-        for (SeatDto sd : dto.getRows()) {
-            Seat seat = old.getOrDefault(sd.getId(), new Seat());
-            seat.setRowNumber(sd.getRowNumber());
-            seat.setColumnNumber(sd.getColumnNumber());
-            seat.setDeleted(sd.isDeleted());
-            seat.setSector(sec);
-            updated.add(seat);
-        }
-        sec.getSeats().clear();
-        sec.getSeats().addAll(updated);
-
-        if (dto.getId() == null) {
-            room.addSector(sec);
-        }
-        return sec;
-    }
-
-    /**
      * Maps a Room entity (and its sectors) to a RoomDetailDto.
      *
      * @param room the Room to map
