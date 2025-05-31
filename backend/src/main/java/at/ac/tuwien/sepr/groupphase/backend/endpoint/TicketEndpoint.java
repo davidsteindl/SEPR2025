@@ -1,11 +1,14 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CheckoutRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CreateHoldDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderGroupDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.security.AuthenticationFacade;
 import at.ac.tuwien.sepr.groupphase.backend.service.TicketService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -100,6 +103,34 @@ public class TicketEndpoint {
     public void createTicketHold(@RequestBody @Valid CreateHoldDto createHoldDto) {
         LOGGER.info("POST /api/v1/tickets/holds with request {}", createHoldDto);
         ticketService.createTicketHold(createHoldDto);
+    }
+
+    @PostMapping("/checkout")
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Checkout: kauft reservierte und/oder neue Tickets mit Adresse und Bezahlung", security = @SecurityRequirement(name = "apiKey"))
+    public OrderGroupDto checkoutTickets(@RequestBody @Valid CheckoutRequestDto dto) throws ValidationException {
+        LOGGER.info("POST /api/v1/tickets/checkout with request {}", dto);
+        return ticketService.checkoutTickets(dto);
+    }
+
+    @PostMapping("/reserve-grouped")
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Reserviert Tickets in einer neuen OrderGroup", security = @SecurityRequirement(name = "apiKey"))
+    public ReservationDto reserveTicketsGrouped(@RequestBody @Valid TicketRequestDto ticketRequestDto) {
+        LOGGER.info("POST /api/v1/tickets/reserve-grouped with request {}", ticketRequestDto);
+        return ticketService.reserveTicketsGrouped(ticketRequestDto);
+    }
+
+
+    @PostMapping("/refund-grouped")
+    @Secured("ROLE_USER")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Refund selected tickets and split remaining into a new order in the same OrderGroup", security = @SecurityRequirement(name = "apiKey"))
+    public List<TicketDto> refundTicketsGrouped(@RequestBody List<Long> ticketIds) {
+        LOGGER.info("POST /api/v1/tickets/refund-grouped with tickets {}", ticketIds);
+        return ticketService.refundTicketsGroup(ticketIds);
     }
 
 
