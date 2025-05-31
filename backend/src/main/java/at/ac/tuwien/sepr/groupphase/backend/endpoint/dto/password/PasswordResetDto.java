@@ -1,7 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password;
 
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Objects;
 
