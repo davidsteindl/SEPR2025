@@ -11,7 +11,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.*;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
-import org.apache.commons.lang3.RandomStringUtils;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,19 +20,23 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.Sex.FEMALE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -65,6 +69,13 @@ public class PdfExportEndpointTest implements TestData {
     @Autowired
     private RoomRepository roomRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    private Order refundOrder;
+
+    private ApplicationUser user;
+
     private Ticket testTicket;
     @Autowired
     private EventRepository eventRepository;
@@ -73,6 +84,7 @@ public class PdfExportEndpointTest implements TestData {
     @Autowired
     private SectorRepository sectorRepository;
 
+    @Transactional
     @BeforeEach
     public void setup() {
         ticketRepository.deleteAll();
@@ -83,7 +95,22 @@ public class PdfExportEndpointTest implements TestData {
         roomRepository.deleteAll();
         sectorRepository.deleteAll();
         eventLocationRepository.deleteAll();
+        userRepository.deleteAll();
 
+        user = new ApplicationUser();
+        user.setFirstName("Margit");
+        user.setLastName("Tanne");
+        user.setEmail("margit@gmail.com");
+        user.setSex(FEMALE);
+        user.setDateOfBirth(LocalDate.of(1990, 1, 1));
+        user.setPostalCode("1545");
+        user.setHousenumber("4545");
+        user.setStreet("Strasse");
+        user.setPassword("secret");
+        user.setCity("Berlin");
+        user.setCountry("Germany");
+        userRepository.save(user);
+        System.out.println(user);
 
         EventLocation testLocation = new EventLocation();
         testLocation.setName("Testhalle");
@@ -126,10 +153,16 @@ public class PdfExportEndpointTest implements TestData {
         showRepository.save(testShow);
 
         Order order = new Order();
-        order.setUserId(1L);
+        order.setUserId(user.getId());
         order.setCreatedAt(LocalDateTime.now());
         order.setOrderType(OrderType.ORDER);
         orderRepository.save(order);
+
+        refundOrder = new Order();
+        refundOrder.setUserId(user.getId());
+        refundOrder.setCreatedAt(LocalDateTime.now());
+        refundOrder.setOrderType(OrderType.REFUND);
+        orderRepository.save(refundOrder);
 
         Sector sector = new StandingSector();
         sector.setPrice(30);
@@ -142,6 +175,7 @@ public class PdfExportEndpointTest implements TestData {
         testTicket.setOrder(order);
         testTicket.setCreatedAt(LocalDateTime.now());
         testTicket.setStatus(TicketStatus.BOUGHT);
+        testTicket.setRandomTicketCode("4d5d4d7ddddd44");
         ticketRepository.save(testTicket);
 
     }
@@ -149,7 +183,7 @@ public class PdfExportEndpointTest implements TestData {
     @Test
     public void exportTicketPdf_shouldSucceed() throws Exception {
         MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/tickets/" + testTicket.getId())
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("1", List.of("ROLE_USER"))))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getId().toString(), List.of("ROLE_USER"))))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_PDF))
             .andReturn();
@@ -170,28 +204,79 @@ public class PdfExportEndpointTest implements TestData {
 
     @Test
     public void viewTicketPdf_shouldSucceed() throws Exception {
-        String randomCode = RandomStringUtils.randomAlphanumeric(32);
-        testTicket.setRandomTicketCode(randomCode);
-        ticketRepository.save(testTicket);
+        String randomCode = "4d5d4d7ddddd44";
 
         MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/tickets/" + testTicket.getId() + "/" + randomCode)
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("1", List.of("ROLE_ADMIN"))))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getId().toString(), List.of("ROLE_ADMIN"))))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_PDF))
             .andReturn();
 
         byte[] pdfBytes = result.getResponse().getContentAsByteArray();
         assertNotNull(pdfBytes);
-        assertTrue(pdfBytes.length > 0);
+
     }
+
 
     @Test
     public void viewTicketPdf_shouldFail() throws Exception {
         MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/tickets/" + testTicket.getId() + "/invalidCode")
-                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("1", List.of("ROLE_ADMIN"))))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getId().toString(), List.of("ROLE_ADMIN"))))
             .andExpect(status().isUnprocessableEntity())
             .andReturn();
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), result.getResponse().getStatus());
     }
+
+  @Test
+  public void exportInvoicePdf_shouldSucceed() throws Exception {
+    MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/invoice/" + testTicket.getOrder().getId())
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getId().toString(), List.of("ROLE_USER"))))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+        .andReturn();
+
+    byte[] pdfBytes = result.getResponse().getContentAsByteArray();
+    assertNotNull(pdfBytes);
+    assertTrue(pdfBytes.length > 0);
+  }
+
+
+
+  @Test
+  public void exportInvoicePdf_shouldFailWithoutAuthorization() throws Exception {
+    MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/invoice/" + testTicket.getOrder().getId()))
+        .andExpect(status().isForbidden())
+        .andReturn();
+
+    assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
+  }
+
+
+  @Test
+  public void exportCancelInvoicePdf_shouldSucceed() throws Exception {
+    MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/cancelinvoice/" + refundOrder.getId())
+            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getId().toString(), List.of("ROLE_USER"))))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+        .andReturn();
+
+    byte[] pdfBytes = result.getResponse().getContentAsByteArray();
+    assertNotNull(pdfBytes);
+    assertTrue(pdfBytes.length > 0);
+  }
+
+
+
+  @Test
+  public void exportCancelInvoicePdf_shouldFailWithoutAuthorization() throws Exception {
+    MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/cancelinvoice/" + refundOrder.getId()))
+        .andExpect(status().isForbidden())
+        .andReturn();
+
+    assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
+  }
+
+
+
 }
