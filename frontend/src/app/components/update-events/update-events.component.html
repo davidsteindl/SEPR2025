@@ -2,7 +2,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Update Events</h2>
-    <button class="btn btn-outline-secondary" [routerLink]="['/admin']">
+    <button class="btn btn-secondary" [routerLink]="['/admin']">
       ← Back to Admin
     </button>
   </div>
@@ -30,7 +30,7 @@
       <td>{{ ev.description }}</td>
       <td class="text-center">
         <button
-          class="btn btn-sm btn-primary"
+          class="btn btn-sm btn-success"
           [routerLink]="['/events', ev.id, 'edit']">
           Update
         </button>
