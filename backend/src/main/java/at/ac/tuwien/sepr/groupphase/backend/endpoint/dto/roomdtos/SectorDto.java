@@ -1,26 +1,24 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 @JsonTypeInfo(
-    use     = JsonTypeInfo.Id.NAME,
+    use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
     property = "type",
     visible = true
 )
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = SeatedSectorDto.class,   name = "SEATED"),
-    @JsonSubTypes.Type(value = StandingSectorDto.class, name = "STANDING")
+    @JsonSubTypes.Type(value = StandingSectorDto.class, name = "STANDING"),
+    @JsonSubTypes.Type(value = StageSectorDto.class, name = "STAGE")
 })
-public abstract class SectorDto {
-
+public class SectorDto {
 
     @Positive(message = "Sector ID must be positive")
     private Long id;
@@ -55,5 +53,4 @@ public abstract class SectorDto {
     public void setPrice(int price) {
         this.price = price;
     }
-
 }
