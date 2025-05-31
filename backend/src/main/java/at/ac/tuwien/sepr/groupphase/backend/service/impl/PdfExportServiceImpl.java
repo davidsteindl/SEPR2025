@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
 import at.ac.tuwien.sepr.groupphase.backend.exception.AuthorizationException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
@@ -23,6 +24,8 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.invoke.MethodHandles;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +44,7 @@ import com.google.zxing.qrcode.QRCodeWriter;
 
 @Service
 public class PdfExportServiceImpl implements PdfExportService {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final TicketRepository ticketRepository;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
@@ -58,6 +62,7 @@ public class PdfExportServiceImpl implements PdfExportService {
     @Override
     @Transactional
     public void makeTicketPdf(Long id, OutputStream responseBody, Optional<String> verficationCode) throws ValidationException {
+        LOGGER.info("Constructs the Ticket Pdf document={}", id, verficationCode);
 
         var ticket = ticketRepository.findById(id).orElseThrow(NotFoundException::new);
         if (verficationCode.isEmpty()) {
@@ -138,8 +143,8 @@ public class PdfExportServiceImpl implements PdfExportService {
     @Override
     @Transactional
     public void makeInvoicePdf(Long id, OutputStream responseBody) {
+        LOGGER.info("Constructs the Invoice Pdf document={}", id);
 
-        System.out.println(id);
         var order = orderRepository.findById(id).orElseThrow(NotFoundException::new);
         final var user = userRepository.findById(order.getUserId()).orElseThrow(NotFoundException::new);
         var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
@@ -189,10 +194,8 @@ public class PdfExportServiceImpl implements PdfExportService {
         invoiceNumber.setBold();
         document.add(invoiceNumber);
 
-        // Creating a table
         Table table = new Table(8);
 
-        // Adding cells to the table
         table.addCell(new Cell().add(new Paragraph("Datum")));
         table.addCell(new Cell().add(new Paragraph("Bezeichnung")));
         table.addCell(new Cell().add(new Paragraph("Menge")));
@@ -228,9 +231,7 @@ public class PdfExportServiceImpl implements PdfExportService {
             table.addCell(new Cell().add(new Paragraph(ticket.getSector().getPrice() + " EUR")));
         }
 
-        // Adding Table to document
         document.add(table);
-
 
         var ust = sum - (sum / (1 + 0.13));
         var netto = sum - ust;
@@ -253,31 +254,132 @@ public class PdfExportServiceImpl implements PdfExportService {
             """));
         document.add(new Paragraph("UID: ATU1234567"));
 
-
         document.close();
     }
 
     @Override
     @Transactional
-    public void makeCancelInvoicePdf(Long id, OutputStream responseBody) {
+    public void makeCancelInvoicePdf(Long id, OutputStream responseBody) throws ValidationException {
+        LOGGER.info("Constructs the Cancellation Invoice Pdf document={}", id);
 
-        System.out.println(id);
         var order = orderRepository.findById(id).orElseThrow(NotFoundException::new);
+        final var user = userRepository.findById(order.getUserId()).orElseThrow(NotFoundException::new);
         var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
         if (!order.getUserId().equals(idloggedin)) {
             throw new AuthorizationException("You are not authorized to export this cancellation invoice.");
+        }
+
+        if (order.getOrderType() != OrderType.REFUND) {
+            throw new ValidationException("You cannot print a refund invoice for different ordertypes.", List.of());
         }
 
         PdfWriter writer = new PdfWriter(responseBody);
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf);
 
-        document.add(new Paragraph("Cancellation of Invoice"));
+        var ticketLine = new Paragraph("""
+            TicketLine
+            Verkauf von Tickets für Kino, Theater, Opern, Konzerte und mehr
+            Karlsplatz 13, 1040 Wien
+            Tel.: 0043 1 523543210, Mail: shop@ticketline.at
+            www.tickeltine.at""");
+        ticketLine.setTextAlignment(TextAlignment.RIGHT);
+        document.add(ticketLine);
+
+        var adresspronom = switch(user.getSex()) {
+            case Sex.FEMALE -> "Mrs./Frau";
+            case Sex.MALE -> "Mr./Herr";
+            default -> "";
+        };
+
+        document.add(new Paragraph(adresspronom));
+
+        document.add(new Paragraph(user.getFirstName() + " " + user.getLastName()));
+
+        if (user.getStreet() != null && user.getHousenumber() != null && user.getPostalCode() != null
+            && user.getCity() != null && user.getCountry() != null) {
+            document.add(new Paragraph(user.getStreet() + " " + user.getHousenumber()));
+            document.add(new Paragraph(user.getPostalCode() + " " + user.getCity()));
+            document.add(new Paragraph(user.getCountry()));
+        }
+
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        var invoiceDateOfOrder = new Paragraph(order.getCreatedAt().format(format));
+        invoiceDateOfOrder.setTextAlignment(TextAlignment.RIGHT);
+        document.add(invoiceDateOfOrder);
+
+        var invoiceNumber = new Paragraph("Cancellation Invoice Number / Stornierung Rechnung Nr." + order.getId());
+        invoiceNumber.setTextAlignment(TextAlignment.CENTER);
+        invoiceNumber.setBold();
+        document.add(invoiceNumber);
+
+        Table table = new Table(8);
+
+        table.addCell(new Cell().add(new Paragraph("Datum")));
+        table.addCell(new Cell().add(new Paragraph("Bezeichnung")));
+        table.addCell(new Cell().add(new Paragraph("Menge")));
+        table.addCell(new Cell().add(new Paragraph("Platzwahl")));
+        table.addCell(new Cell().add(new Paragraph("Steuersatz")));
+        table.addCell(new Cell().add(new Paragraph("Netto ")));
+        table.addCell(new Cell().add(new Paragraph("Ust. ")));
+        table.addCell(new Cell().add(new Paragraph("Gesamt")));
+
+        var sum = 0;
+        for (var ticket : order.getTickets()) {
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+            table.addCell(new Cell().add(new Paragraph(ticket.getShow().getDate().format(formatter))));
+            table.addCell(new Cell().add(new Paragraph(ticket.getShow().getEvent().getName())));
+            table.addCell(new Cell().add(new Paragraph("1")));
+            var seatchoice = ticket.getSector().getRoom().getName() + ","
+                + ticket.getSector().getId();
+            if (ticket.getSeat() != null) {
+                seatchoice = seatchoice + "," + ticket.getSeat().getRowNumber() + ","
+                    + ticket.getSeat().getColumnNumber();
+            }
+            table.addCell(new Cell().add(new Paragraph(seatchoice)));
+
+            var bruttoPrice = ticket.getSector().getPrice();
+            sum = sum + bruttoPrice;
+            var ust = bruttoPrice - (bruttoPrice / (1 + 0.13));
+            var netto = bruttoPrice - ust;
+
+            table.addCell(new Cell().add(new Paragraph("13 %")));
+            table.addCell(new Cell().add(new Paragraph(String.format("%.02f", netto))));
+            table.addCell(new Cell().add(new Paragraph(String.format("%.02f", ust))));
+            table.addCell(new Cell().add(new Paragraph(ticket.getSector().getPrice() + " EUR")));
+        }
+
+        document.add(table);
+
+
+        var ust = sum - (sum / (1 + 0.13));
+        var netto = sum - ust;
+
+        document.add(new Paragraph("Summe Brutto:           " + sum + " EUR").setTextAlignment(TextAlignment.RIGHT).setBold());
+        document.add(new Paragraph("Summe Netto:      "
+            + String.format("%.02f", netto) + " EUR").setTextAlignment(TextAlignment.RIGHT));
+        document.add(new Paragraph("Betrag enthält wie folgt 13% USt:        "
+            + String.format("%.02f", ust) + " EUR").setTextAlignment(TextAlignment.RIGHT));
+        document.add(new Paragraph("USt 13% (ermäßigter Steuersatz für Konzerte und Opernkarten etc)").setTextAlignment(TextAlignment.RIGHT));
+        document.add(new Paragraph("""
+
+            Wir haben Ihre Stornierung erhalten und wie gewünscht rückabgewickelt.
+
+            Der Rechnungsbetrag wurde auf Ihr angegebenes Konto für die Gutschrift rückerstattet.
+
+            Wir bedauern Ihre Stornierung, vielleicht finden Sie jedoch Interesse an anderen unserer Veranstaltungen!
+
+
+            Freundliche Grüße,
+            Das TicketLine Team
+
+            """));
+        document.add(new Paragraph("UID: ATU1234567"));
+
 
         document.close();
     }
-
-
 
 
 }
