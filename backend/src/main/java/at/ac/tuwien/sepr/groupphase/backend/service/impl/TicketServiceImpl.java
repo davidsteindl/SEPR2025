@@ -406,6 +406,13 @@ public class TicketServiceImpl implements TicketService {
     ) {
         Order newOrder = initOrder(authFacade.getCurrentUserId(), newType);
 
+        Long userId = authFacade.getCurrentUserId();
+
+        OrderGroup group = new OrderGroup();
+        group.setUserId(userId);
+        orderGroupRepository.save(group);
+        newOrder.setOrderGroup(group);
+
         // detach and reattach
         tickets.forEach(t -> {
             oldOrder.getTickets().remove(t);
@@ -570,6 +577,60 @@ public class TicketServiceImpl implements TicketService {
         finalizeOrder(order, result.tickets);
 
         return buildReservationDto(order, result.tickets, show.getDate().minusMinutes(30));
+    }
+
+    @Override
+    @Transactional
+    public List<TicketDto> refundTicketsGroup(List<Long> ticketIds) {
+        LOGGER.debug("Refund tickets request: {}", ticketIds);
+        List<Ticket> toRefund = ticketRepository.findAllById(ticketIds);
+        ticketValidator.validateForRefundTickets(ticketIds, toRefund);
+
+        if (toRefund.isEmpty()) {
+            return List.of();
+        }
+
+        Order originalOrder = toRefund.getFirst().getOrder();
+        List<Ticket> allTickets = originalOrder.getTickets();
+
+        List<Ticket> keepTickets = new ArrayList<>(allTickets);
+        keepTickets.removeAll(toRefund);
+
+        Long userId = authFacade.getCurrentUserId();
+
+        OrderGroup group = originalOrder.getOrderGroup();
+        if (group == null) {
+            group = new OrderGroup();
+            group.setUserId(userId);
+            orderGroupRepository.save(group);
+        }
+
+        Order refundOrder = initOrder(userId, OrderType.REFUND);
+        refundOrder.setOrderGroup(group);
+        orderRepository.save(refundOrder);
+
+        for (Ticket t : toRefund) {
+            t.setOrder(refundOrder);
+            t.setStatus(TicketStatus.REFUNDED);
+        }
+        ticketRepository.saveAll(toRefund);
+        finalizeOrder(refundOrder, toRefund);
+
+        if (!keepTickets.isEmpty()) {
+            Order remainingOrder = initOrder(userId, OrderType.ORDER);
+            remainingOrder.setOrderGroup(group);
+            orderRepository.save(remainingOrder);
+
+            for (Ticket t : keepTickets) {
+                t.setOrder(remainingOrder);
+            }
+            ticketRepository.saveAll(keepTickets);
+            finalizeOrder(remainingOrder, keepTickets);
+        }
+
+        return toRefund.stream()
+            .map(ticketMapper::toDto)
+            .collect(Collectors.toList());
     }
 
 
