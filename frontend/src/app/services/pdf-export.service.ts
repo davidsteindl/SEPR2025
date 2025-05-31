@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Globals } from '../global/globals';
+import {Observable} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -44,5 +45,10 @@ export class PdfExportService {
       window.URL.revokeObjectURL(url);
     });
   }
+
+  getTicketPdfBlob(ticketId: number, randomTicketCode: string): Observable<Blob> {
+    return this.http.get(this.pdfBaseUri + `/tickets/${ticketId}/${randomTicketCode}`, { responseType: 'blob' });
+  }
+
 
 }
