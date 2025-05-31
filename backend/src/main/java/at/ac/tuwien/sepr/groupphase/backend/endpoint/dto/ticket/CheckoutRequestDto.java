@@ -4,10 +4,14 @@ import java.util.List;
 
 public class CheckoutRequestDto {
 
-    private List<Long> ticketIds;
+    private Long showId;
+
+    private List<TicketTargetDto> targets;
+
+    private List<Long> reservedTicketIds;
 
     private String cardNumber;
-    private String expirationDate;
+    private String expirationDate; // MM/YY
     private String securityCode;
 
     private String firstName;
@@ -18,12 +22,29 @@ public class CheckoutRequestDto {
     private String street;
     private String postalCode;
 
-    public List<Long> getTicketIds() {
-        return ticketIds;
+
+    public Long getShowId() {
+        return showId;
     }
 
-    public void setTicketIds(List<Long> ticketIds) {
-        this.ticketIds = ticketIds;
+    public void setShowId(Long showId) {
+        this.showId = showId;
+    }
+
+    public List<TicketTargetDto> getTargets() {
+        return targets;
+    }
+
+    public void setTargets(List<TicketTargetDto> targets) {
+        this.targets = targets;
+    }
+
+    public List<Long> getReservedTicketIds() {
+        return reservedTicketIds;
+    }
+
+    public void setReservedTicketIds(List<Long> reservedTicketIds) {
+        this.reservedTicketIds = reservedTicketIds;
     }
 
     public String getCardNumber() {

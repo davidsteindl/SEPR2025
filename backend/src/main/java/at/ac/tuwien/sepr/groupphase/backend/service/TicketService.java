@@ -1,14 +1,17 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CheckoutRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CreateHoldDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderGroupDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ReservationExpiredException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ReservationNotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.SeatUnavailableException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -122,6 +125,15 @@ public interface TicketService {
      * @param createHoldDto DTO containing event ID, sector info, seat‐selection, ...
      */
     void createTicketHold(CreateHoldDto createHoldDto);
+
+    /**
+     * Finalizes the ticket purchase process (including both newly selected and previously reserved tickets).
+     *
+     * @param dto The checkout request containing seat selection, reserved ticket IDs, address, and payment information
+     * @return An {@link OrderGroupDto} representing the completed order group, including tickets, order, and show info
+     * @throws ValidationException If any of the payment or address data is invalid
+     */
+    OrderGroupDto checkoutTickets(CheckoutRequestDto dto) throws ValidationException;
 
 
     /**

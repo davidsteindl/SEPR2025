@@ -2,8 +2,10 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CheckoutRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CreateHoldDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderGroupDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
@@ -19,9 +21,12 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Order;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.OrderGroup;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.HoldRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderGroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.AuthenticationFacade;
@@ -51,6 +56,7 @@ public class TicketServiceImpl implements TicketService {
     private final TicketRepository ticketRepository;
     private final RoomService roomService;
     private final OrderRepository orderRepository;
+    private final OrderGroupRepository orderGroupRepository;
     private final TicketMapper ticketMapper;
     private final HoldRepository holdRepository;
     private final AuthenticationFacade authFacade;
@@ -66,6 +72,7 @@ public class TicketServiceImpl implements TicketService {
         TicketRepository ticketRepository,
         RoomService roomService,
         OrderRepository orderRepository,
+        OrderGroupRepository orderGroupRepository,
         TicketMapper ticketMapper,
         HoldRepository holdRepository,
         AuthenticationFacade authFacade,
@@ -76,6 +83,7 @@ public class TicketServiceImpl implements TicketService {
         this.ticketRepository = ticketRepository;
         this.roomService = roomService;
         this.orderRepository = orderRepository;
+        this.orderGroupRepository = orderGroupRepository;
         this.ticketMapper = ticketMapper;
         this.holdRepository = holdRepository;
         this.authFacade = authFacade;
@@ -428,6 +436,116 @@ public class TicketServiceImpl implements TicketService {
 
 
     }
+
+    /**
+     * Executes the full checkout operation, including payment validation, upgrading reserved tickets to purchased status,
+     * and creating new tickets if needed.
+     *
+     * @param dto The {@link CheckoutRequestDto} containing all data required to complete the ticket purchase
+     * @return A fully populated {@link OrderGroupDto} including show details, address, total price, and ticket info
+     * @throws ValidationException If credit card or address data fails validation
+     */
+    @Override
+    @Transactional
+    public OrderGroupDto checkoutTickets(CheckoutRequestDto dto) throws ValidationException {
+        LOGGER.debug("Checkout ticket purchase: {}", dto);
+        ticketValidator.validateCheckoutPaymentData(dto);
+
+        Long userId = authFacade.getCurrentUserId();
+
+        OrderGroup group = new OrderGroup();
+        group.setUserId(userId);
+        orderGroupRepository.save(group);
+
+        Order order = initOrderWithAddress(userId, OrderType.ORDER, dto);
+        order.setOrderGroup(group);
+        orderRepository.save(order);
+
+        Show show = loadShow(dto.getShowId());
+
+        List<Ticket> finalTickets = new ArrayList<>();
+        int totalPrice = 0;
+
+        if (dto.getReservedTicketIds() != null && !dto.getReservedTicketIds().isEmpty()) {
+            List<Ticket> reservedTickets = ticketRepository.findAllById(dto.getReservedTicketIds());
+            for (Ticket t : reservedTickets) {
+                if (t.getStatus() != TicketStatus.RESERVED) {
+                    throw new IllegalStateException("Ticket " + t.getId() + " is not reserved");
+                }
+                t.setStatus(TicketStatus.BOUGHT);
+                t.setOrder(order);
+                finalTickets.add(t);
+                totalPrice += t.getSector().getPrice();
+            }
+        }
+
+        if (dto.getTargets() != null && !dto.getTargets().isEmpty()) {
+            var result = createTickets(order, show, dto.getTargets(), TicketStatus.BOUGHT);
+            finalTickets.addAll(result.tickets);
+            totalPrice += result.totalPrice;
+        }
+
+        ticketRepository.saveAll(finalTickets);
+        finalizeOrder(order, finalTickets);
+
+        OrderDto orderDto = buildOrderDto(order, finalTickets);
+        orderDto.setTotalPrice(totalPrice);
+        setAddressOnOrderDto(orderDto, dto);
+
+        OrderGroupDto groupDto = new OrderGroupDto();
+        groupDto.setId(group.getId());
+        groupDto.setOrders(List.of(orderDto));
+        groupDto.setShowName(show.getName());
+        groupDto.setShowDate(show.getDate());
+        groupDto.setLocationName(show.getEvent().getLocation().getName());
+        groupDto.setTotalPrice(totalPrice);
+
+        return groupDto;
+    }
+
+
+    /**
+     * Copies address information from the {@link CheckoutRequestDto} into the resulting {@link OrderDto}.
+     *
+     * @param dto The target order DTO to populate with address fields
+     * @param request The source request containing address input from the user
+     */
+    private void setAddressOnOrderDto(OrderDto dto, CheckoutRequestDto request) {
+        dto.setFirstName(request.getFirstName());
+        dto.setLastName(request.getLastName());
+        dto.setStreet(request.getStreet());
+        dto.setHousenumber(request.getHousenumber());
+        dto.setCity(request.getCity());
+        dto.setCountry(request.getCountry());
+        dto.setPostalCode(request.getPostalCode());
+    }
+
+    /**
+     * Initializes a new {@link Order} with basic metadata (user, type, timestamp) and full billing address data.
+     *
+     * @param userId The ID of the currently authenticated user
+     * @param type The type of the order (typically {@code ORDER})
+     * @param dto The checkout data containing address information
+     * @return A newly constructed {@link Order} (not yet persisted)
+     */
+    private Order initOrderWithAddress(Long userId, OrderType type, CheckoutRequestDto dto) {
+        Order order = new Order();
+        order.setCreatedAt(LocalDateTime.now());
+        order.setTickets(List.of());
+        order.setUserId(userId);
+        order.setOrderType(type);
+
+        order.setFirstName(dto.getFirstName());
+        order.setLastName(dto.getLastName());
+        order.setStreet(dto.getStreet());
+        order.setHousenumber(dto.getHousenumber());
+        order.setCity(dto.getCity());
+        order.setCountry(dto.getCountry());
+        order.setPostalCode(dto.getPostalCode());
+
+        return order;
+    }
+
 
     @Override
     @Transactional
