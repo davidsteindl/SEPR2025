@@ -2,7 +2,6 @@ package at.ac.tuwien.sepr.groupphase.backend.config;
 
 
 import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -14,7 +13,6 @@ import org.springframework.security.web.util.UrlUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
 
 @Component
 @Value
@@ -24,7 +22,7 @@ public class MagicLinkOneTimeTokenGeneration implements OneTimeTokenGenerationSu
 
     @SneakyThrows
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, OneTimeToken oneTimeToken) throws IOException, ServletException {
+    public void handle(HttpServletRequest request, HttpServletResponse response, OneTimeToken oneTimeToken) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
             .replacePath(request.getContextPath())
             .replaceQuery(null)
