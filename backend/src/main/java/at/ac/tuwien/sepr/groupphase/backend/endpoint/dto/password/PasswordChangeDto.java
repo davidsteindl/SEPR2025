@@ -2,8 +2,6 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password;
 
 
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Objects;
 
