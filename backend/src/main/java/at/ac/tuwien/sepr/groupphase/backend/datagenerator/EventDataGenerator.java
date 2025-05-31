@@ -97,9 +97,16 @@ public class EventDataGenerator {
                 int showDuration = eventDuration / SHOWS_PER_ARTIST_PAIR;
 
                 for (int j = 0; j < SHOWS_PER_ARTIST_PAIR; j++) {
-                    LocalDateTime showStart = eventStart.plusMinutes(j * showDuration);
+                    LocalDateTime showStart = eventStart.plusMinutes((long) j * showDuration);
+                    LocalDateTime showEnd = showStart.plusMinutes(showDuration);
+                    LocalDateTime eventEnd = eventStart.plusMinutes(eventDuration);
+                    if (showEnd.isAfter(eventEnd)) {
+                        showStart = eventEnd.minusMinutes(showDuration);
+                    }
+
                     var a1 = artists.get(artistIndex % artists.size());
                     var a2 = artists.get((artistIndex + 1) % artists.size());
+
                     Show show = Show.ShowBuilder.aShow()
                         .withName(event.getName() + " - Show " + j)
                         .withDuration(showDuration)
