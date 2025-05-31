@@ -385,7 +385,9 @@ public class TicketValidator {
             int n = Integer.parseInt(number.substring(i, i + 1));
             if (alternate) {
                 n *= 2;
-                if (n > 9) n -= 9;
+                if (n > 9) {
+                    n -= 9;
+                }
             }
             sum += n;
             alternate = !alternate;

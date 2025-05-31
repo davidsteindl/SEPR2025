@@ -450,6 +450,7 @@ public class TicketServiceImpl implements TicketService {
     public OrderGroupDto checkoutTickets(CheckoutRequestDto dto) throws ValidationException {
         LOGGER.debug("Checkout ticket purchase: {}", dto);
         ticketValidator.validateCheckoutPaymentData(dto);
+        ticketValidator.validateCheckoutAddress(dto);
 
         Long userId = authFacade.getCurrentUserId();
 
@@ -545,6 +546,32 @@ public class TicketServiceImpl implements TicketService {
 
         return order;
     }
+
+    @Override
+    @Transactional
+    public ReservationDto reserveTicketsGrouped(TicketRequestDto request) {
+        LOGGER.debug("Grouped reservation request: {}", request);
+        ticketValidator.validateForReserveTickets(request);
+
+        Long userId = authFacade.getCurrentUserId();
+
+        OrderGroup group = new OrderGroup();
+        group.setUserId(userId);
+        orderGroupRepository.save(group);
+
+        Order order = initOrder(userId, OrderType.RESERVATION);
+        order.setOrderGroup(group);
+        orderRepository.save(order);
+
+        Show show = loadShow(request.getShowId());
+
+        var result = createTickets(order, show, request.getTargets(), TicketStatus.RESERVED);
+        ticketRepository.saveAll(result.tickets);
+        finalizeOrder(order, result.tickets);
+
+        return buildReservationDto(order, result.tickets, show.getDate().minusMinutes(30));
+    }
+
 
 
     @Override
