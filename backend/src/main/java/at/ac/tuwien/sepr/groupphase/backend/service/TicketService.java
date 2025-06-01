@@ -182,5 +182,11 @@ public interface TicketService {
      */
     Page<OrderGroupDto> getOrderGroupsForUser(OrderGroupType category, Pageable pageable);
 
+    /**
+     * Retrieves full detail information for a specific OrderGroup by its ID.
+     *
+     * @param orderGroupId The ID of the OrderGroup to retrieve
+     * @return A fully populated {@link OrderGroupDto} with all associated orders and tickets
+     */
     OrderGroupDto getOrderGroupDetails(Long orderGroupId);
 }
