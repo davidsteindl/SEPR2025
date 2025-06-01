@@ -55,6 +55,13 @@ public class TicketEndpointTest implements TestData {
     @Autowired private EventLocationRepository eventLocationRepository;
     @Autowired private TicketRepository ticketRepository;
     @Autowired private OrderRepository orderRepository;
+    private String firstName;
+    private String lastName;
+    private String houseNumber;
+    private String street;
+    private String city;
+    private String country;
+    private String postalCode;
 
     private Show futureShow;
     private StandingSector sector;
@@ -102,6 +109,14 @@ public class TicketEndpointTest implements TestData {
             .withArtists(Set.of())
             .build();
         futureShow = showRepository.save(futureShow);
+
+        firstName = "Max";
+        lastName = "Mustermann";
+        street = "Main Street";
+        houseNumber = "10";
+        city = "Vienna";
+        country = "Austria";
+        postalCode = "1010";
     }
 
     @Test
@@ -277,13 +292,13 @@ public class TicketEndpointTest implements TestData {
     public void checkout_shouldSucceedWithValidData() throws Exception {
         CheckoutRequestDto checkout = new CheckoutRequestDto();
         checkout.setShowId(futureShow.getId());
-        checkout.setFirstName("Max");
-        checkout.setLastName("Mustermann");
-        checkout.setStreet("Musterstrasse");
-        checkout.setHousenumber("1");
-        checkout.setCity("Wien");
-        checkout.setCountry("AT");
-        checkout.setPostalCode("1010");
+        checkout.setFirstName(firstName);
+        checkout.setLastName(lastName);
+        checkout.setStreet(street);
+        checkout.setHousenumber(houseNumber);
+        checkout.setCity(city);
+        checkout.setCountry(country);
+        checkout.setPostalCode(postalCode);
         checkout.setCardNumber("4111111111111111");
         checkout.setExpirationDate("12/30");
         checkout.setSecurityCode("123");
@@ -306,4 +321,93 @@ public class TicketEndpointTest implements TestData {
         assertEquals(1, response.get("orders").size());
     }
 
+    @Test
+    @Transactional
+    public void getGroupedOrders_shouldReturnGroupedPurchase() throws Exception {
+        CheckoutRequestDto checkout = new CheckoutRequestDto();
+        checkout.setShowId(futureShow.getId());
+        checkout.setFirstName(firstName);
+        checkout.setLastName(lastName);
+        checkout.setStreet(street);
+        checkout.setHousenumber(houseNumber);
+        checkout.setCity(city);
+        checkout.setCountry(country);
+        checkout.setPostalCode(postalCode);
+        checkout.setCardNumber("4111111111111111");
+        checkout.setExpirationDate("12/30");
+        checkout.setSecurityCode("123");
+
+        TicketTargetStandingDto target = new TicketTargetStandingDto();
+        target.setSectorId(sector.getId());
+        target.setQuantity(1);
+        checkout.setTargets(List.of(target));
+
+        MvcResult checkoutResult = mockMvc.perform(post("/api/v1/tickets/checkout")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("1", USER_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(checkout)))
+            .andReturn();
+
+        assertEquals(HttpStatus.CREATED.value(), checkoutResult.getResponse().getStatus());
+
+        MvcResult result = mockMvc.perform(get("/api/v1/tickets/ordergroups?category=PURCHASED")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("1", USER_ROLES)))
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        JsonNode root = objectMapper.readTree(result.getResponse().getContentAsString());
+        JsonNode content = root.get("content");
+
+        assertAll(
+            () -> assertEquals(1, content.size(), "Should return one grouped order"),
+            () -> assertEquals("Test Show", content.get(0).get("showName").asText()),
+            () -> assertEquals("Arena", content.get(0).get("locationName").asText())
+        );
+    }
+
+    @Test
+    @Transactional
+    public void getOrderGroupDetails_shouldReturnDetailsIncludingOrdersAndTickets() throws Exception {
+        CheckoutRequestDto checkout = new CheckoutRequestDto();
+        checkout.setShowId(futureShow.getId());
+        checkout.setFirstName(firstName);
+        checkout.setLastName(lastName);
+        checkout.setStreet(street);
+        checkout.setHousenumber(houseNumber);
+        checkout.setCity(city);
+        checkout.setCountry(country);
+        checkout.setPostalCode(postalCode);
+        checkout.setCardNumber("4111111111111111");
+        checkout.setExpirationDate("12/30");
+        checkout.setSecurityCode("123");
+
+        TicketTargetStandingDto target = new TicketTargetStandingDto();
+        target.setSectorId(sector.getId());
+        target.setQuantity(1);
+        checkout.setTargets(List.of(target));
+
+        MvcResult checkoutResult = mockMvc.perform(post("/api/v1/tickets/checkout")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("1", USER_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(checkout)))
+            .andReturn();
+
+        JsonNode group = objectMapper.readTree(checkoutResult.getResponse().getContentAsString());
+        long groupId = group.get("id").asLong();
+
+        MvcResult result = mockMvc.perform(get("/api/v1/tickets/ordergroups/" + groupId)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("1", USER_ROLES)))
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        JsonNode detail = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertAll(
+            () -> assertEquals(groupId, detail.get("id").asLong()),
+            () -> assertEquals("Test Show", detail.get("showName").asText()),
+            () -> assertEquals("Arena", detail.get("locationName").asText()),
+            () -> assertEquals(1, detail.get("orders").size(), "Should have one order")
+        );
+    }
 }
