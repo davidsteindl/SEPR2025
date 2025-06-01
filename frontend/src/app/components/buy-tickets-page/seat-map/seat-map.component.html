@@ -1,0 +1,133 @@
+<div
+  class="seat-map-grid"
+  [style.gridTemplateColumns]="gridTemplateColumns"
+  [style.gridTemplateRows]="gridTemplateRows"
+>
+  <!-- Render each cell that belongs to a seated sector -->
+  <ng-container *ngFor="let sec of seatedSectors">
+    <ng-container *ngFor="let seat of sec.seats">
+      <!-- Each seat has rowNumber, columnNumber -->
+      <div
+        class="grid-cell"
+        [ngClass]="{
+          'deleted-cell': seat.deleted,
+          'gray-seat': !seat.deleted && seat.available === false
+        }"
+        [style.gridRowStart]="seat.rowNumber"
+        [style.gridColumnStart]="seat.columnNumber"
+      >
+        <!-- If deleted render an empty, invisible placeholder -->
+        <ng-container *ngIf="!seat.deleted">
+          <!-- If not available → gray circle -->
+          <ng-container *ngIf="seat.available === false; else availSeatTpl">
+            <div class="seat-circle unavailable"></div>
+          </ng-container>
+
+          <!-- Available seat: colored circle with popover -->
+          <ng-template #availSeatTpl>
+            <div
+              class="seat-circle"
+              [style.backgroundColor]="sectorColorMap[sec.id]"
+              #seatPop="ngbPopover"
+              ngbPopover
+              [popoverClass]="'seat-popover'"
+              [popoverTitle]="'Seat Details'"
+              [ngbPopover]="seatPopoverTpl"
+              [popoverContext]="{ seat: seat, sector: sec }"
+              triggers="manual"
+              container="body"
+              (click)="openSeatPopover(seat, sec, seatPop)"
+            >
+              <!-- If seat is already selected -> checkmark icon on top -->
+              <i
+                class="bi bi-check-circle-fill selected-icon"
+                *ngIf="isSeatSelected(seat)"
+              ></i>
+            </div>
+          </ng-template>
+        </ng-container>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <!-- Render each standing sector as one big rectangle -->
+  <ng-container *ngFor="let rect of standingRects">
+    <div
+      class="grid-cell standing-rect"
+      [style.gridRowStart]="rect.minRow"
+      [style.gridRowEnd]="rect.maxRow + 1"
+      [style.gridColumnStart]="rect.minCol"
+      [style.gridColumnEnd]="rect.maxCol + 1"
+      [style.backgroundColor]="sectorColorMap[rect.sector.id]"
+      #standingPop="ngbPopover"
+      ngbPopover
+      [popoverClass]="'standing-popover'"
+      [ngbPopover]="standingPopoverTpl"
+      [popoverContext]="{ sector: rect.sector }"
+      triggers="manual"
+      container="body"
+      (click)="openStandingPopover(rect.sector, standingPop)"
+    >
+      <!-- If this standing sector is already selected -> show check icon -->
+      <i
+        class="bi bi-check-circle-fill selected-icon"
+        *ngIf="isStandingSelected(rect.sector)"
+      ></i>
+    </div>
+  </ng-container>
+
+  <!-- Invisible placeholder for deleted cells that do NOT belong to any sector we explicitly rendered -->
+  <ng-container *ngFor="let seat of room.seats">
+    <div
+      *ngIf="seat.deleted"
+      class="grid-cell deleted-cell"
+      [style.gridRowStart]="seat.rowNumber"
+      [style.gridColumnStart]="seat.columnNumber"
+    ></div>
+  </ng-container>
+</div>
+
+<!-- ================= POPUP TEMPLATES ================= -->
+<ng-template
+  #seatPopoverTpl
+  let-seat="seat"
+  let-sector="sector"
+  let-pop="popover"
+>
+  <div class="p-2">
+    <p class="mb-1"><strong>Sector:</strong> {{ sector.id }}</p>
+    <p class="mb-1"><strong>Row:</strong> {{ seat.rowNumber }}</p>
+    <p class="mb-1"><strong>Seat:</strong> {{ seat.columnNumber }}</p>
+    <p class="mb-2"><strong>Price:</strong> € {{ sector.price }}</p>
+    <button
+      class="btn btn-sm btn-primary w-100"
+      (click)="addSeatedToCart(seat, sector, pop)"
+    >
+      + Add
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #standingPopoverTpl let-sector="sector" let-pop="popover">
+  <div class="p-2">
+    <p class="mb-1"><strong>Sector:</strong> {{ sector.id }}</p>
+    <p class="mb-1"><strong>Price:</strong> € {{ sector.price }}</p>
+    <div class="mb-2 d-flex align-items-center">
+      <label class="me-2 mb-0"><strong>Quantity:</strong></label>
+      <input
+        type="number"
+        class="form-control form-control-sm"
+        style="width: 60px"
+        min="1"
+        [max]="sector.capacity || 1"
+        [(ngModel)]="standingQuantity[sector.id]"
+      />
+    </div>
+    <button
+      class="btn btn-sm btn-primary w-100"
+      (click)="addStandingToCart(sector, pop)"
+    >
+      + Add
+    </button>
+  </div>
+</ng-template>

@@ -1,0 +1,35 @@
+/* Make the page fill the viewport and keep sidebar fixed width */
+.buy-tickets-page {
+  height: 100vh;
+
+  .seat-map-container {
+    flex: 1 1 auto;
+    padding: 1rem;
+    overflow: hidden; /* seat-map itself will scroll */
+  }
+
+  .ticket-sidebar {
+    flex: 0 0 320px; /* fixed width sidebar */
+    background: #1e1e1e;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+
+    .sidebar-header {
+      background: #2a2a2a;
+      h5 {
+        margin: 0;
+        color: #f1f1f1;
+      }
+    }
+    .sidebar-body {
+      /* scrollable area for ticket list */
+    }
+    .sidebar-footer {
+      background: #2a2a2a;
+      button {
+        font-weight: 500;
+      }
+    }
+  }
+}
