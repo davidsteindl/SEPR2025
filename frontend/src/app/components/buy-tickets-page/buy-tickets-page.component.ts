@@ -49,7 +49,7 @@ throw new Error('Method not implemented.');
         this.loadingShow = true;
         console.log("FETCHING SHOWS")
         this.showService.getShowById(this.showId).subscribe({
-          
+
           next: (s: Show) => {
             this.show = s;
             this.loadingShow = false;
@@ -105,7 +105,7 @@ throw new Error('Method not implemented.');
       if (idx === -1) {
         // not in cart yet -> add
         items.push(item);
-      } 
+      }
     } else {
       // standing
       const idx = items.findIndex(
@@ -125,7 +125,7 @@ throw new Error('Method not implemented.');
     this.cartService.setItems(items);
   }
 
-  
+
   // Called by TicketListComponent when user removes an item
   onRemoveItem(item: PaymentItem) {
     let items = [...this.currentItems];
