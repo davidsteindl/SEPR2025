@@ -641,6 +641,32 @@ public class TicketServiceImpl implements TicketService {
         ticketRepository.saveAll(refundTickets);
         finalizeOrder(refundOrder, refundTickets);
 
+        List<Ticket> remainingOriginals = originalOrder.getTickets().stream()
+            .filter(t -> ticketIds.stream().noneMatch(id -> id.equals(t.getId())))
+            .toList();
+
+        if (!remainingOriginals.isEmpty()) {
+            Order newRemainingOrder = initOrder(userId, OrderType.ORDER);
+            newRemainingOrder.setOrderGroup(group);
+            orderRepository.save(newRemainingOrder);
+
+            List<Ticket> duplicatedRemaining = new ArrayList<>();
+            for (Ticket original : remainingOriginals) {
+                Ticket copy = new Ticket();
+                copy.setOriginalTicket(original);
+                copy.setOrder(newRemainingOrder);
+                copy.setShow(original.getShow());
+                copy.setSector(original.getSector());
+                copy.setSeat(original.getSeat());
+                copy.setCreatedAt(LocalDateTime.now());
+                copy.setStatus(TicketStatus.BOUGHT);
+                duplicatedRemaining.add(copy);
+            }
+
+            ticketRepository.saveAll(duplicatedRemaining);
+            finalizeOrder(newRemainingOrder, duplicatedRemaining);
+        }
+
         return refundTickets.stream()
             .map(ticketMapper::toDto)
             .collect(Collectors.toList());
@@ -702,8 +728,10 @@ public class TicketServiceImpl implements TicketService {
         Show show = allTickets.get(0).getShow();
 
         int totalPrice = allTickets.stream()
+            .filter(t -> t.getStatus() == TicketStatus.BOUGHT)
             .mapToInt(t -> t.getSector().getPrice())
             .sum();
+
 
         return new OrderGroupDto(
             group.getId(),
