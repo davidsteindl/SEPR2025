@@ -747,7 +747,7 @@ public class TicketServiceImpl implements TicketService {
     @Override
     @Transactional
     public OrderGroupDto getOrderGroupDetails(Long orderGroupId) {
-        OrderGroup group = orderGroupRepository.findByIdWithOrdersAndTickets(orderGroupId)
+        OrderGroup group = orderGroupRepository.findByIdWithOrders(orderGroupId)
             .orElseThrow(() -> new NotFoundException("OrderGroup with ID " + orderGroupId + " not found"));
 
         List<Order> orders = group.getOrders();
@@ -755,8 +755,11 @@ public class TicketServiceImpl implements TicketService {
             throw new IllegalStateException("OrderGroup with ID " + orderGroupId + " has no orders");
         }
 
-        Ticket sampleTicket = orders.getFirst().getTickets().getFirst();
-        Show show = sampleTicket.getShow();
+        Show show = orders.stream()
+            .flatMap(order -> order.getTickets().stream())
+            .findFirst()
+            .map(Ticket::getShow)
+            .orElseThrow(() -> new IllegalStateException("No tickets found in OrderGroup"));
 
         int totalPrice = orders.stream()
             .flatMap(o -> o.getTickets().stream())
@@ -782,5 +785,6 @@ public class TicketServiceImpl implements TicketService {
             orderDtos
         );
     }
+
 
 }
