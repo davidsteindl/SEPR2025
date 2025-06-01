@@ -108,7 +108,7 @@ public class TicketEndpoint {
     @PostMapping("/checkout")
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Checkout: kauft reservierte und/oder neue Tickets mit Adresse und Bezahlung", security = @SecurityRequirement(name = "apiKey"))
+    @Operation(summary = "Checkout: buy reserved/new tickets with adresse and payment", security = @SecurityRequirement(name = "apiKey"))
     public OrderGroupDto checkoutTickets(@RequestBody @Valid CheckoutRequestDto dto) throws ValidationException {
         LOGGER.info("POST /api/v1/tickets/checkout with request {}", dto);
         return ticketService.checkoutTickets(dto);
@@ -117,7 +117,7 @@ public class TicketEndpoint {
     @PostMapping("/reserve-grouped")
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Reserviert Tickets in einer neuen OrderGroup", security = @SecurityRequirement(name = "apiKey"))
+    @Operation(summary = "Reserves tickets in a new OrderGroup", security = @SecurityRequirement(name = "apiKey"))
     public ReservationDto reserveTicketsGrouped(@RequestBody @Valid TicketRequestDto ticketRequestDto) {
         LOGGER.info("POST /api/v1/tickets/reserve-grouped with request {}", ticketRequestDto);
         return ticketService.reserveTicketsGrouped(ticketRequestDto);
