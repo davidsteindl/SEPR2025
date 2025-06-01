@@ -52,6 +52,10 @@ public class Ticket {
     @Column(nullable = true)
     private String randomTicketCode;
 
+    @ManyToOne
+    @JoinColumn(name = "original_ticket_id")
+    private Ticket originalTicket;
+
     public Order getOrder() {
         return order;
     }
@@ -114,5 +118,13 @@ public class Ticket {
 
     public void setRandomTicketCode(String randomTicketCode) {
         this.randomTicketCode = randomTicketCode;
+    }
+
+    public Ticket getOriginalTicket() {
+        return originalTicket;
+    }
+
+    public void setOriginalTicket(Ticket originalTicket) {
+        this.originalTicket = originalTicket;
     }
 }
