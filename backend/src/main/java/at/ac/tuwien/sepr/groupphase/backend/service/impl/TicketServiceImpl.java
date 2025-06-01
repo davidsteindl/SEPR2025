@@ -554,6 +554,16 @@ public class TicketServiceImpl implements TicketService {
         return order;
     }
 
+    /**
+     * Reserves tickets for a given show in a newly created {@link OrderGroup}.
+     * This method creates a new {@link OrderGroup} for the currently authenticated user and
+     * associates a new {@link Order} of type {@link OrderType#RESERVATION} with it. The requested
+     * tickets are reserved with status {@link TicketStatus#RESERVED}. Reservations expire 30 minutes
+     * before the start of the show.
+     *
+     * @param request the ticket reservation request containing the show ID and selected sectors/seats
+     * @return a {@link ReservationDto} containing reservation details and expiration time
+     */
     @Override
     @Transactional
     public ReservationDto reserveTicketsGrouped(TicketRequestDto request) {
@@ -579,6 +589,16 @@ public class TicketServiceImpl implements TicketService {
         return buildReservationDto(order, result.tickets, show.getDate().minusMinutes(30));
     }
 
+    /**
+     * Refunds the given purchased tickets by creating a new {@link Order} of type {@link OrderType#REFUND}.
+     * For the remaining tickets in the original order (if any), a new {@link Order} of type {@link OrderType#ORDER}
+     * is created to preserve the original invoice structure. The original order remains unchanged.
+     * Each refunded ticket is duplicated as a new ticket with status {@link TicketStatus#REFUNDED}, and
+     * links back to the original ticket via the {@code originalTicket} field.
+     *
+     * @param ticketIds the IDs of tickets to be refunded
+     * @return a list of {@link TicketDto} representing the newly created refunded tickets
+     */
     @Override
     @Transactional
     public List<TicketDto> refundTicketsGroup(List<Long> ticketIds) {
