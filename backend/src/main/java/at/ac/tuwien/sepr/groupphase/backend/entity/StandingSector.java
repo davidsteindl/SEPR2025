@@ -20,6 +20,11 @@ public class StandingSector extends Sector {
     }
 
     @Override
+    public boolean isBookable() {
+        return false;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
