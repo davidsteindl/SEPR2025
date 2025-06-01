@@ -726,16 +726,12 @@ public class TicketServiceImpl implements TicketService {
             throw new IllegalStateException("OrderGroup with id " + group.getId() + " has no orders");
         }
 
-        if (orders.isEmpty()) {
-            throw new IllegalStateException("OrderGroup with id " + group.getId() + " has no orders");
-        }
-
-        Order referenceOrder = orders.get(0);
+        Order referenceOrder = orders.getFirst();
         List<Ticket> allTickets = orders.stream()
             .flatMap(o -> o.getTickets().stream())
             .toList();
 
-        Show show = allTickets.get(0).getShow();
+        Show show = allTickets.getFirst().getShow();
 
         int totalPrice = allTickets.stream()
             .filter(t -> t.getStatus() == TicketStatus.BOUGHT)
