@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderGroupType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.*;
@@ -12,6 +13,8 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.AuthenticationFacade;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
 import at.ac.tuwien.sepr.groupphase.backend.service.TicketService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,6 +55,8 @@ public class TicketServiceTest {
     private EventRepository eventRepository;
     @Autowired
     private ArtistRepository artistRepository;
+    @PersistenceContext
+    EntityManager entityManager;
 
     @MockitoBean
     private AuthenticationFacade authenticationFacade;
@@ -632,8 +637,8 @@ public class TicketServiceTest {
             () -> assertEquals(TicketStatus.REFUNDED, refunded.getFirst().getStatus(), "Refunded ticket should have status REFUNDED"),
             () -> assertNotNull(refunded.getFirst().getOriginalTicketId(), "Refunded ticket should reference original ticket"),
             () -> assertEquals(toRefundId, refunded.getFirst().getOriginalTicketId(), "Refunded ticket should refer to the correct original ticket"),
-            () -> assertEquals(3, ticketRepository.findAll().size(), "Total ticket count should be 3: 2 original + 1 refund"),
-            () -> assertEquals(2, orderRepository.findAll().size(), "Two orders: 1 original + 1 refund")
+            () -> assertEquals(4, ticketRepository.findAll().size(), "Total ticket count should be 4: 2 original + 1 refund + 1 new"),
+            () -> assertEquals(3, orderRepository.findAll().size(), "Three orders: 1 original + 1 refund + 1 new")
         );
     }
 
@@ -751,4 +756,93 @@ public class TicketServiceTest {
     }
 
 
+    @Test
+    @Transactional
+    public void testGetOrderGroupsForUser_withReservedGroup_returnsCorrectOrderGroupDto() {
+        // Prepare reservation
+        TicketRequestDto reserveReq = new TicketRequestDto();
+        reserveReq.setShowId(testShow.getId());
+
+        TicketTargetSeatedDto reserveTarget = new TicketTargetSeatedDto();
+        reserveTarget.setSectorId(seatedSector.getId());
+        reserveTarget.setSeatId(seat.getId());
+        reserveReq.setTargets(List.of(reserveTarget));
+
+        // Call method that creates group + reservation
+        ReservationDto reservation = ticketService.reserveTicketsGrouped(reserveReq);
+
+        entityManager.flush();
+        entityManager.clear();
+        // Clear persistence context to force reload
+
+        // Call the method under test
+        var page = ticketService.getOrderGroupsForUser(OrderGroupType.RESERVED, Pageable.ofSize(10));
+
+        assertAll(
+            () -> assertEquals(1, page.getTotalElements(), "Should return one reserved order group"),
+            () -> assertEquals(testShow.getName(), page.getContent().getFirst().getShowName()),
+            () -> assertEquals(location.getName(), page.getContent().getFirst().getLocationName()),
+            () -> assertEquals(testShow.getDate(), page.getContent().getFirst().getShowDate()),
+            () -> assertEquals(1, page.getContent().getFirst().getOrders().size()),
+            () -> assertEquals(OrderType.RESERVATION, page.getContent().getFirst().getOrders().getFirst().getOrderType())
+        );
+    }
+
+
+    @Test
+    @Transactional
+    public void testGetOrderGroupsForUser_afterPartialRefund() throws ValidationException {
+        // Buy two tickets
+        TicketTargetStandingDto target = new TicketTargetStandingDto();
+        target.setSectorId(standingSector.getId());
+        target.setQuantity(2);
+
+        CheckoutRequestDto checkout = new CheckoutRequestDto();
+        checkout.setShowId(testShow.getId());
+        checkout.setTargets(List.of(target));
+        checkout.setCardNumber("4111111111111111");
+        checkout.setSecurityCode("123");
+        checkout.setExpirationDate("12/30");
+        checkout.setFirstName(firstName);
+        checkout.setLastName(lastName);
+        checkout.setStreet(street);
+        checkout.setHousenumber(houseNumber);
+        checkout.setCity(city);
+        checkout.setPostalCode(postalCode);
+        checkout.setCountry(country);
+
+        OrderGroupDto checkoutGroup = ticketService.checkoutTickets(checkout);
+        Long groupId = checkoutGroup.getId();
+
+        // Refund one ticket
+        List<TicketDto> allTickets = checkoutGroup.getOrders().getFirst().getTickets();
+        assertEquals(2, allTickets.size(), "Es sollten zwei Tickets gekauft worden sein");
+
+        Long ticketIdToRefund = allTickets.getFirst().getId();
+        List<TicketDto> refunded = ticketService.refundTicketsGroup(List.of(ticketIdToRefund));
+        assertEquals(1, refunded.size(), "Es sollte ein Ticket refundiert worden sein");
+
+        entityManager.flush();
+        entityManager.clear();
+
+        var result = ticketService.getOrderGroupsForUser(OrderGroupType.PURCHASED, Pageable.ofSize(10));
+
+        assertAll(
+            () -> assertEquals(1, result.getTotalElements(), "There should be exactly one OrderGroup"),
+            () -> assertEquals(groupId, result.getContent().getFirst().getId(), "The group ID should match the original checkout group"),
+            () -> assertEquals(3, result.getContent().getFirst().getOrders().size(), "The group should contain the old, the new and the refunded Order"),
+            () -> assertTrue(
+                result.getContent().getFirst().getOrders().stream().anyMatch(o -> o.getOrderType() == OrderType.ORDER),
+                "An ORDER should be present in the group"
+            ),
+            () -> assertTrue(
+                result.getContent().getFirst().getOrders().stream().anyMatch(o -> o.getOrderType() == OrderType.REFUND),
+                "A REFUND should be present in the group"
+            )
+        );
+    }
+
 }
+
+
+
