@@ -58,6 +58,27 @@ public class Room {
         this.sectors = sectors;
     }
 
+    public void addSector(Sector sector) {
+        sector.setRoom(this);
+        this.sectors.add(sector);
+    }
+
+    public void removeSector(Sector sector) {
+        sector.setRoom(null);
+        this.sectors.remove(sector);
+    }
+
+    public void addSeat(Seat seat) {
+        seat.setRoom(this);
+        this.seats.add(seat);
+    }
+
+    public void removeSeat(Seat seat) {
+        seat.setRoom(null);
+        this.seats.remove(seat);
+    }
+
+
     public List<Seat> getSeats() {
         return seats;
     }

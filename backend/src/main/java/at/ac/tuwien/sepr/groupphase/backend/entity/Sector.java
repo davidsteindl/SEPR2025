@@ -51,6 +51,10 @@ public class Sector {
         this.room = room;
     }
 
+    public boolean isBookable() {
+        return true;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
