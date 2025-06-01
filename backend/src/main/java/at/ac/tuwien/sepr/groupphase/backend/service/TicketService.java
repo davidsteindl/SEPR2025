@@ -182,4 +182,5 @@ public interface TicketService {
      */
     Page<OrderGroupDto> getOrderGroupsForUser(OrderGroupType category, Pageable pageable);
 
+    OrderGroupDto getOrderGroupDetails(Long orderGroupId);
 }
