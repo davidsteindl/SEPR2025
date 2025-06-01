@@ -18,6 +18,9 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./buy-tickets-page.component.scss']
 })
 export class BuyTicketsPageComponent implements OnInit, OnDestroy {
+onReserveTickets() {
+throw new Error('Method not implemented.');
+}
   showId!: number;
   show!: Show;
   room!: Room;
