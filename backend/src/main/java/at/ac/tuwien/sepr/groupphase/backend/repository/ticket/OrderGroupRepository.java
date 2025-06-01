@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface OrderGroupRepository extends JpaRepository<OrderGroup, Long> {
 
@@ -38,4 +40,12 @@ public interface OrderGroupRepository extends JpaRepository<OrderGroup, Long> {
         Pageable pageable
     );
 
+    @Query("""
+            SELECT DISTINCT og FROM OrderGroup og
+            LEFT JOIN FETCH og.orders o
+            LEFT JOIN FETCH o.tickets t
+            LEFT JOIN FETCH t.show s
+            WHERE og.id = :id
+        """)
+    Optional<OrderGroup> findByIdWithOrdersAndTickets(@Param("id") Long id);
 }

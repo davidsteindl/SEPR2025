@@ -46,6 +46,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -740,6 +741,45 @@ public class TicketServiceImpl implements TicketService {
             show.getRoom().getEventLocation().getName(),
             totalPrice,
             orders.stream().map(orderMapper::toDto).toList()
+        );
+    }
+
+    @Override
+    @Transactional
+    public OrderGroupDto getOrderGroupDetails(Long orderGroupId) {
+        OrderGroup group = orderGroupRepository.findByIdWithOrdersAndTickets(orderGroupId)
+            .orElseThrow(() -> new NotFoundException("OrderGroup with ID " + orderGroupId + " not found"));
+
+        List<Order> orders = group.getOrders();
+        if (orders.isEmpty()) {
+            throw new IllegalStateException("OrderGroup with ID " + orderGroupId + " has no orders");
+        }
+
+        Ticket sampleTicket = orders.getFirst().getTickets().getFirst();
+        Show show = sampleTicket.getShow();
+
+        int totalPrice = orders.stream()
+            .flatMap(o -> o.getTickets().stream())
+            .filter(t -> t.getStatus() == TicketStatus.BOUGHT)
+            .mapToInt(t -> t.getSector().getPrice())
+            .sum();
+
+        List<OrderDto> orderDtos = orders.stream()
+            .sorted(Comparator.comparing(Order::getCreatedAt))
+            .map(order -> {
+                OrderDto dto = orderMapper.toDto(order);
+                dto.setTickets(order.getTickets().stream().map(ticketMapper::toDto).toList());
+                return dto;
+            })
+            .toList();
+
+        return new OrderGroupDto(
+            group.getId(),
+            show.getName(),
+            show.getDate(),
+            show.getEvent().getLocation().getName(),
+            totalPrice,
+            orderDtos
         );
     }
 
