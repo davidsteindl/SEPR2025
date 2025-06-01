@@ -842,6 +842,49 @@ public class TicketServiceTest {
         );
     }
 
+    @Test
+    @Transactional
+    public void testGetOrderGroupDetails_returnsCorrectData() throws ValidationException {
+        TicketTargetStandingDto target = new TicketTargetStandingDto();
+        target.setSectorId(standingSector.getId());
+        target.setQuantity(1);
+
+        CheckoutRequestDto checkout = new CheckoutRequestDto();
+        checkout.setShowId(testShow.getId());
+        checkout.setTargets(List.of(target));
+        checkout.setCardNumber("4111111111111111");
+        checkout.setSecurityCode("123");
+        checkout.setExpirationDate("12/30");
+        checkout.setFirstName(firstName);
+        checkout.setLastName(lastName);
+        checkout.setStreet(street);
+        checkout.setHousenumber(houseNumber);
+        checkout.setCity(city);
+        checkout.setPostalCode(postalCode);
+        checkout.setCountry(country);
+
+        OrderGroupDto checkoutGroup = ticketService.checkoutTickets(checkout);
+        Long groupId = checkoutGroup.getId();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        OrderGroupDto detail = ticketService.getOrderGroupDetails(groupId);
+
+        assertAll(
+            () -> assertNotNull(detail),
+            () -> assertEquals(groupId, detail.getId(), "OrderGroup ID should match"),
+            () -> assertEquals(testShow.getName(), detail.getShowName(), "Show name should match"),
+            () -> assertEquals(testShow.getDate(), detail.getShowDate(), "Show date should match"),
+            () -> assertEquals(location.getName(), detail.getLocationName(), "Location should match"),
+            () -> assertEquals(1, detail.getOrders().size(), "One order should exist in group"),
+            () -> assertEquals(OrderType.ORDER, detail.getOrders().getFirst().getOrderType(), "Order type should be ORDER"),
+            () -> assertEquals(1, detail.getOrders().getFirst().getTickets().size(), "One ticket should be in the order"),
+            () -> assertEquals(TicketStatus.BOUGHT, detail.getOrders().getFirst().getTickets().getFirst().getStatus(), "Ticket should be BOUGHT")
+        );
+    }
+
+
 }
 
 
