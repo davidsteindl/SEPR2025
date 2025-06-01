@@ -14,6 +14,9 @@ import {MessageComponent} from './components/message/message.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {httpInterceptorProviders} from './interceptors';
 import {ToastrModule} from "ngx-toastr";
+import { BuyTicketsPageComponent } from './components/buy-tickets-page/buy-tickets-page.component';
+import { SeatMapComponent } from './components/buy-tickets-page/seat-map/seat-map.component';
+import { TicketListComponent } from './components/buy-tickets-page/ticket-list-item/ticket-list.component';
 
 @NgModule({
     declarations: [
@@ -22,7 +25,7 @@ import {ToastrModule} from "ngx-toastr";
         FooterComponent,
         HomeComponent,
         LoginComponent,
-        MessageComponent,
+        MessageComponent
     ],
     bootstrap: [AppComponent],
     imports: [BrowserModule,
@@ -33,6 +36,9 @@ import {ToastrModule} from "ngx-toastr";
         ToastrModule.forRoot(),
         FormsModule,
         HttpClientModule,
+        BuyTicketsPageComponent,
+        SeatMapComponent,
+        TicketListComponent
     ],
     providers: [httpInterceptorProviders, provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {
