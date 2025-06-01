@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderGroupType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CheckoutRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CreateHoldDto;
@@ -170,4 +171,15 @@ public interface TicketService {
      * @return {@link OrderDto} with all ticket details
      */
     OrderDto getOrderWithTicketsById(Long orderId);
+
+    /**
+     * Retrieves a paginated list of {@link OrderGroupDto}s for the current user based on the selected category.
+     * The category determines whether upcoming purchases, reservations, or past orders are returned.
+     *
+     * @param category The desired category: {@link OrderGroupType#PURCHASED}, {@link OrderGroupType#RESERVED}, or {@link OrderGroupType#PAST}
+     * @param pageable the pagination and sorting information
+     * @return a page of {@link OrderGroupDto}s matching the selected category
+     */
+    Page<OrderGroupDto> getOrderGroupsForUser(OrderGroupType category, Pageable pageable);
+
 }
