@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderGroupType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CheckoutRequestDto;
@@ -663,6 +664,55 @@ public class TicketServiceImpl implements TicketService {
         return orderRepository.findByIdWithDetails(orderId)
             .map(orderMapper::toDto)
             .orElseThrow(() -> new NotFoundException("Order with ID " + orderId + " not found"));
+    }
+
+    @Override
+    @Transactional
+    public Page<OrderGroupDto> getOrderGroupsForUser(OrderGroupType category, Pageable pageable) {
+        Long userId = authFacade.getCurrentUserId();
+
+        boolean isReservation = category == OrderGroupType.RESERVED;
+        boolean isPast = category == OrderGroupType.PAST;
+
+        Page<OrderGroup> groups = orderGroupRepository.findByCategory(userId, isReservation, isPast, pageable);
+
+        return groups.map(this::mapOrderGroupToDto);
+    }
+
+    /**
+     * Converts an {@link OrderGroup} entity to a {@link OrderGroupDto}.
+     * Assumes that all {@link Order}s in the group are associated with the same {@link Show}.
+     * Uses the first order as a reference and sums all ticket prices in the group.
+     *
+     * @param group the OrderGroup to convert
+     * @return the corresponding OrderGroupDto with basic show and location info
+     * @throws IllegalStateException if the group contains no orders
+     */
+    private OrderGroupDto mapOrderGroupToDto(OrderGroup group) {
+        List<Order> orders = group.getOrders();
+        if (orders.isEmpty()) {
+            throw new IllegalStateException("OrderGroup with id " + group.getId() + " has no orders");
+        }
+
+        Order referenceOrder = orders.get(0);
+        List<Ticket> allTickets = orders.stream()
+            .flatMap(o -> o.getTickets().stream())
+            .toList();
+
+        Show show = allTickets.get(0).getShow();
+
+        int totalPrice = allTickets.stream()
+            .mapToInt(t -> t.getSector().getPrice())
+            .sum();
+
+        return new OrderGroupDto(
+            group.getId(),
+            show.getName(),
+            show.getDate(),
+            show.getRoom().getEventLocation().getName(),
+            totalPrice,
+            orders.stream().map(orderMapper::toDto).toList()
+        );
     }
 
 }
