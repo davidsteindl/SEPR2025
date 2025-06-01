@@ -26,6 +26,10 @@ public interface TicketMapper {
             dto.setRowNumber(seat.getRowNumber());
             dto.setSeatLabel(convertColumnNumberToLetter(seat.getColumnNumber()));
         }
+
+        if (ticket.getOriginalTicket() != null) {
+            dto.setOriginalTicketId(ticket.getOriginalTicket().getId());
+        }
     }
 
     default String convertColumnNumberToLetter(int columnNumber) {

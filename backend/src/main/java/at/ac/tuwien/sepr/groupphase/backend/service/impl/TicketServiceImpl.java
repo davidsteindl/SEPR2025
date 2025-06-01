@@ -590,14 +590,9 @@ public class TicketServiceImpl implements TicketService {
             return List.of();
         }
 
-        Order originalOrder = toRefund.getFirst().getOrder();
-        List<Ticket> allTickets = originalOrder.getTickets();
-
-        List<Ticket> keepTickets = new ArrayList<>(allTickets);
-        keepTickets.removeAll(toRefund);
-
         Long userId = authFacade.getCurrentUserId();
 
+        Order originalOrder = toRefund.getFirst().getOrder();
         OrderGroup group = originalOrder.getOrderGroup();
         if (group == null) {
             group = new OrderGroup();
@@ -609,30 +604,26 @@ public class TicketServiceImpl implements TicketService {
         refundOrder.setOrderGroup(group);
         orderRepository.save(refundOrder);
 
-        for (Ticket t : toRefund) {
-            t.setOrder(refundOrder);
-            t.setStatus(TicketStatus.REFUNDED);
-        }
-        ticketRepository.saveAll(toRefund);
-        finalizeOrder(refundOrder, toRefund);
-
-        if (!keepTickets.isEmpty()) {
-            Order remainingOrder = initOrder(userId, OrderType.ORDER);
-            remainingOrder.setOrderGroup(group);
-            orderRepository.save(remainingOrder);
-
-            for (Ticket t : keepTickets) {
-                t.setOrder(remainingOrder);
-            }
-            ticketRepository.saveAll(keepTickets);
-            finalizeOrder(remainingOrder, keepTickets);
+        List<Ticket> refundTickets = new ArrayList<>();
+        for (Ticket original : toRefund) {
+            Ticket refund = new Ticket();
+            refund.setOriginalTicket(original);
+            refund.setOrder(refundOrder);
+            refund.setShow(original.getShow());
+            refund.setSector(original.getSector());
+            refund.setSeat(original.getSeat());
+            refund.setCreatedAt(LocalDateTime.now());
+            refund.setStatus(TicketStatus.REFUNDED);
+            refundTickets.add(refund);
         }
 
-        return toRefund.stream()
+        ticketRepository.saveAll(refundTickets);
+        finalizeOrder(refundOrder, refundTickets);
+
+        return refundTickets.stream()
             .map(ticketMapper::toDto)
             .collect(Collectors.toList());
     }
-
 
 
     @Override
