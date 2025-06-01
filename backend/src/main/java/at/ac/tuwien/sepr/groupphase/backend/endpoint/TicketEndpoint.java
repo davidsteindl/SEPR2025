@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderGroupType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CheckoutRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CreateHoldDto;
@@ -177,4 +178,21 @@ public class TicketEndpoint {
         LOGGER.info("GET /api/v1/tickets/orders/{}/with-tickets by user {}", orderId, authenticationFacade.getCurrentUserId());
         return ticketService.getOrderWithTicketsById(orderId);
     }
+
+    @GetMapping("/ordergroups")
+    @Secured("ROLE_USER")
+    @Operation(
+        summary = "Get grouped orders (reservations, purchases, or past orders)",
+        description = "Returns a paginated list of order groups categorized by status and show date",
+        security = @SecurityRequirement(name = "apiKey")
+    )
+    public Page<OrderGroupDto> getGroupedOrders(
+        @org.springframework.web.bind.annotation.RequestParam("category") OrderGroupType category,
+        Pageable pageable
+    ) {
+        Long userId = authenticationFacade.getCurrentUserId();
+        LOGGER.info("GET /api/v1/tickets/ordergroups?category={} by user {}", category, userId);
+        return ticketService.getOrderGroupsForUser(category, pageable);
+    }
+
 }
