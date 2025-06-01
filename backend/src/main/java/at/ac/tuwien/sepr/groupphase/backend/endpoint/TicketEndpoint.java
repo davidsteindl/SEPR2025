@@ -195,4 +195,16 @@ public class TicketEndpoint {
         return ticketService.getOrderGroupsForUser(category, pageable);
     }
 
+    @GetMapping("/ordergroups/{id}")
+    @Secured("ROLE_USER")
+    @Operation(
+        summary = "Get detailed view of an OrderGroup including all orders and tickets",
+        security = @SecurityRequirement(name = "apiKey")
+    )
+    public OrderGroupDto getOrderGroupDetails(@PathVariable Long id) {
+        LOGGER.info("GET /api/v1/tickets/ordergroups/{} by user {}", id, authenticationFacade.getCurrentUserId());
+        return ticketService.getOrderGroupDetails(id);
+    }
+
+
 }
