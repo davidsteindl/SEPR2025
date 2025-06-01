@@ -3,7 +3,9 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CheckoutRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetStandingDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.*;
@@ -209,6 +211,99 @@ public class TicketEndpointTest implements TestData {
             () -> assertEquals(2, tickets.size(), "Should contain 2 tickets"),
             () -> assertEquals(50, tickets.get(0).get("price").asInt())
         );
+    }
+
+    @Test
+    public void refundGrouped_shouldCreateRefundAndNewOrder() throws Exception {
+        TicketRequestDto req = new TicketRequestDto();
+        req.setShowId(futureShow.getId());
+
+        TicketTargetStandingDto target = new TicketTargetStandingDto();
+        target.setSectorId(sector.getId());
+        target.setQuantity(2);
+        req.setTargets(List.of(target));
+
+        MvcResult buyResult = mockMvc.perform(post("/api/v1/tickets/buy")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("1", USER_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+            .andReturn();
+
+        JsonNode tickets = objectMapper.readTree(buyResult.getResponse().getContentAsString()).get("tickets");
+        long ticketIdToRefund = tickets.get(0).get("id").asLong();
+
+        MvcResult refundResult = mockMvc.perform(post("/api/v1/tickets/refund-grouped")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("1", USER_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(List.of(ticketIdToRefund))))
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), refundResult.getResponse().getStatus());
+
+        List<TicketDto> refunded = objectMapper.readerForListOf(TicketDto.class)
+            .readValue(refundResult.getResponse().getContentAsString());
+
+        assertAll(
+            () -> assertEquals(1, refunded.size(), "One ticket should be refunded"),
+            () -> assertEquals("REFUNDED", refunded.getFirst().getStatus().toString()),
+            () -> assertNotNull(refunded.getFirst().getOriginalTicketId(), "Refunded ticket should reference original")
+        );
+    }
+
+    @Test
+    public void reserveGrouped_shouldCreateNewOrderGroup() throws Exception {
+        TicketRequestDto req = new TicketRequestDto();
+        req.setShowId(futureShow.getId());
+
+        TicketTargetStandingDto target = new TicketTargetStandingDto();
+        target.setSectorId(sector.getId());
+        target.setQuantity(1);
+        req.setTargets(List.of(target));
+
+        MvcResult result = mockMvc.perform(post("/api/v1/tickets/reserve-grouped")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("1", USER_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+            .andReturn();
+
+        assertEquals(HttpStatus.CREATED.value(), result.getResponse().getStatus());
+
+        JsonNode reservation = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertTrue(reservation.has("tickets"));
+        assertEquals(1, reservation.get("tickets").size());
+    }
+
+    @Test
+    public void checkout_shouldSucceedWithValidData() throws Exception {
+        CheckoutRequestDto checkout = new CheckoutRequestDto();
+        checkout.setShowId(futureShow.getId());
+        checkout.setFirstName("Max");
+        checkout.setLastName("Mustermann");
+        checkout.setStreet("Musterstrasse");
+        checkout.setHousenumber("1");
+        checkout.setCity("Wien");
+        checkout.setCountry("AT");
+        checkout.setPostalCode("1010");
+        checkout.setCardNumber("4111111111111111");
+        checkout.setExpirationDate("12/30");
+        checkout.setSecurityCode("123");
+
+        TicketTargetStandingDto target = new TicketTargetStandingDto();
+        target.setSectorId(sector.getId());
+        target.setQuantity(1);
+        checkout.setTargets(List.of(target));
+
+        MvcResult result = mockMvc.perform(post("/api/v1/tickets/checkout")
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken("1", USER_ROLES))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(checkout)))
+            .andReturn();
+
+        assertEquals(HttpStatus.CREATED.value(), result.getResponse().getStatus());
+
+        JsonNode response = objectMapper.readTree(result.getResponse().getContentAsString());
+        assertTrue(response.has("id"));
+        assertEquals(1, response.get("orders").size());
     }
 
 }
