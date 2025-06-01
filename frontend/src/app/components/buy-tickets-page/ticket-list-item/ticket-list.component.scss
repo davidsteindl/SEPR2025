@@ -1,0 +1,13 @@
+.ticket-list {
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.ticket-item {
+  background: #fff;
+  color: #000;
+}
+.ticket-item p {
+  font-size: 0.9rem;
+  margin: 0;
+}

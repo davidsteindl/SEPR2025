@@ -1,0 +1,54 @@
+<div
+  class="buy-tickets-page d-flex"
+  *ngIf="!loadingShow && !loadingRoom; else loadingTpl"
+>
+  <!-- Seat Map -->
+  <div class="flex-grow-1 seat-map-container">
+    <h3 class="mb-3">
+      {{ show.name }}
+      <small class="text-muted">– {{ show.date | date : "medium" }}</small>
+    </h3>
+
+    <app-seat-map
+      [room]="room"
+      [showId]="showId"
+      [eventName]="show.name"
+      [cartItems]="currentItems"
+      (seatSelected)="onSeatOrStandingSelected($event)"
+    ></app-seat-map>
+  </div>
+
+  <!-- Ticket Selection Sidebar -->
+  <div class="ticket-sidebar d-flex flex-column">
+    <div class="sidebar-header p-3 border-bottom">
+      <h5>Your Ticket Selection</h5>
+    </div>
+
+    <div class="sidebar-body flex-grow-1 overflow-auto">
+      <app-ticket-list
+        [items]="currentItems"
+        (remove)="onRemoveItem($event)"
+      ></app-ticket-list>
+    </div>
+
+    <div class="sidebar-footer p-3 border-top">
+      <button class="btn btn-outline-secondary w-100 mb-2" (click)="void 0">
+        Reserve Tickets
+      </button>
+      <button class="btn btn-success w-100" (click)="onBuyTickets()">
+        Buy Tickets
+      </button>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingTpl>
+  <div
+    class="d-flex justify-content-center align-items-center"
+    style="height: 100vh"
+  >
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading…</span>
+    </div>
+  </div>
+</ng-template>
