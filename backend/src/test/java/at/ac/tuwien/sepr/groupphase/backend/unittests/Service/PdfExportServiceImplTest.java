@@ -1,5 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
+import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
@@ -20,9 +23,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -157,4 +160,120 @@ class PdfExportServiceImplTest {
 
         assertTrue(outputStream.size() > 0);
     }
+
+
+    @Test
+    void makeInvoicePdf_SuccessfulGeneratedPdf_ByAuthorizedUser() {
+        Order order = mock(Order.class);
+        ApplicationUser user = mock(ApplicationUser.class);
+        when(order.getId()).thenReturn(1L);
+        when(order.getUserId()).thenReturn(1L);
+
+        Ticket ticketMock = createMockTicket(1L, "correctCode");
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticketMock));
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(order.getOrderType()).thenReturn(OrderType.REFUND);
+        when(order.getId()).thenReturn(1L);
+        when(order.getUserId()).thenReturn(1L);
+        when(order.getCreatedAt()).thenReturn(LocalDateTime.of(2025, 5, 31, 10, 0));
+        when(order.getTickets()).thenReturn(List.of(ticketMock));
+        when(user.getSex()).thenReturn(Sex.OTHER);
+        when(user.getFirstName()).thenReturn("Max");
+        when(user.getLastName()).thenReturn("Mustermann");
+        when(user.getStreet()).thenReturn("Musterstraße");
+        when(user.getHousenumber()).thenReturn("12A");
+        when(user.getPostalCode()).thenReturn("12345");
+        when(user.getCity()).thenReturn("Musterstadt");
+        when(user.getCountry()).thenReturn("Österreich");
+
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn("1"); // Authorized user
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        assertDoesNotThrow(() -> {
+            pdfExportService.makeInvoicePdf(1L, outputStream);
+        });
+
+        assertTrue(outputStream.size() > 0);
+    }
+
+    @Test
+    void makeInvoicePdf_ThrowsAuthorizationException_WhenUserNotAuthorized() {
+        Order order = mock(Order.class);
+        ApplicationUser user = mock(ApplicationUser.class);
+        when(order.getId()).thenReturn(1L);
+        when(order.getUserId()).thenReturn(1L);
+
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn("999");
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        assertThrows(AuthorizationException.class, () -> {
+            pdfExportService.makeInvoicePdf(1L, outputStream);
+        });
+    }
+
+    @Test
+    void makeInvoicePdf_Successfully_WithCorrectOrderType() {
+        Order order = mock(Order.class);
+        ApplicationUser user = mock(ApplicationUser.class);
+        Ticket ticketMock = createMockTicket(1L, "correctCode");
+
+        when(order.getOrderType()).thenReturn(OrderType.REFUND);
+        when(order.getId()).thenReturn(1L);
+        when(order.getUserId()).thenReturn(1L);
+        when(order.getCreatedAt()).thenReturn(LocalDateTime.of(2025, 5, 31, 10, 0));
+        when(order.getTickets()).thenReturn(List.of(ticketMock));
+        when(user.getSex()).thenReturn(Sex.OTHER);
+        when(user.getFirstName()).thenReturn("Max");
+        when(user.getLastName()).thenReturn("Mustermann");
+        when(user.getStreet()).thenReturn("Musterstraße");
+        when(user.getHousenumber()).thenReturn("12A");
+        when(user.getPostalCode()).thenReturn("12345");
+        when(user.getCity()).thenReturn("Musterstadt");
+        when(user.getCountry()).thenReturn("Österreich");
+
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticketMock));
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn("1");
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        assertDoesNotThrow(() -> {
+            pdfExportService.makeInvoicePdf(1L, outputStream);
+        });
+
+        assertTrue(outputStream.size() > 0, "PDF generation failed; output stream is empty");
+    }
+
+    @Test
+    void makeCancelInvoicePdf_ThrowsAuthorizationException_WhenUserNotAuthorized() {
+
+        Order order = mock(Order.class);
+        ApplicationUser user = mock(ApplicationUser.class);
+        when(order.getId()).thenReturn(1L);
+        when(order.getUserId()).thenReturn(1L);
+        when(order.getOrderType()).thenReturn(OrderType.CANCELLATION);
+        when(user.getId()).thenReturn(1L);
+
+        Ticket ticketMock = createMockTicket(1L, "correctCode");
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticketMock));
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn("999");
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        assertThrows(AuthorizationException.class, () -> {
+            pdfExportService.makeCancelInvoicePdf(1L, outputStream);
+        });
+
+    }
+
 }
