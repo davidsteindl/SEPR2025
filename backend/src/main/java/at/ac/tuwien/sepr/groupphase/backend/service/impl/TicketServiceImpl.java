@@ -465,11 +465,13 @@ public class TicketServiceImpl implements TicketService {
 
         OrderGroup group = new OrderGroup();
         group.setUserId(userId);
-        orderGroupRepository.save(group);
 
         Order order = initOrderWithAddress(userId, OrderType.ORDER, dto);
         order.setOrderGroup(group);
-        orderRepository.save(order);
+        group.getOrders().add(order);
+
+        orderGroupRepository.save(group);
+
 
         Show show = loadShow(dto.getShowId());
 
@@ -580,6 +582,7 @@ public class TicketServiceImpl implements TicketService {
 
         Order order = initOrder(userId, OrderType.RESERVATION);
         order.setOrderGroup(group);
+        group.getOrders().add(order);
         orderRepository.save(order);
 
         Show show = loadShow(request.getShowId());
@@ -624,6 +627,7 @@ public class TicketServiceImpl implements TicketService {
 
         Order refundOrder = initOrder(userId, OrderType.REFUND);
         refundOrder.setOrderGroup(group);
+        group.getOrders().add(refundOrder);
         orderRepository.save(refundOrder);
 
         List<Ticket> refundTickets = new ArrayList<>();
@@ -649,6 +653,7 @@ public class TicketServiceImpl implements TicketService {
         if (!remainingOriginals.isEmpty()) {
             Order newRemainingOrder = initOrder(userId, OrderType.ORDER);
             newRemainingOrder.setOrderGroup(group);
+            group.getOrders().add(newRemainingOrder);
             orderRepository.save(newRemainingOrder);
 
             List<Ticket> duplicatedRemaining = new ArrayList<>();
@@ -717,6 +722,10 @@ public class TicketServiceImpl implements TicketService {
      */
     private OrderGroupDto mapOrderGroupToDto(OrderGroup group) {
         List<Order> orders = group.getOrders();
+        if (orders == null || orders.isEmpty()) {
+            throw new IllegalStateException("OrderGroup with id " + group.getId() + " has no orders");
+        }
+
         if (orders.isEmpty()) {
             throw new IllegalStateException("OrderGroup with id " + group.getId() + " has no orders");
         }
@@ -751,7 +760,7 @@ public class TicketServiceImpl implements TicketService {
             .orElseThrow(() -> new NotFoundException("OrderGroup with ID " + orderGroupId + " not found"));
 
         List<Order> orders = group.getOrders();
-        if (orders.isEmpty()) {
+        if (orders == null || orders.isEmpty()) {
             throw new IllegalStateException("OrderGroup with ID " + orderGroupId + " has no orders");
         }
 

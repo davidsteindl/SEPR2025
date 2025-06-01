@@ -13,8 +13,6 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.AuthenticationFacade;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
 import at.ac.tuwien.sepr.groupphase.backend.service.TicketService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,8 +53,6 @@ public class TicketServiceTest {
     private EventRepository eventRepository;
     @Autowired
     private ArtistRepository artistRepository;
-    @PersistenceContext
-    EntityManager entityManager;
 
     @MockitoBean
     private AuthenticationFacade authenticationFacade;
@@ -768,14 +764,8 @@ public class TicketServiceTest {
         reserveTarget.setSeatId(seat.getId());
         reserveReq.setTargets(List.of(reserveTarget));
 
-        // Call method that creates group + reservation
         ReservationDto reservation = ticketService.reserveTicketsGrouped(reserveReq);
 
-        entityManager.flush();
-        entityManager.clear();
-        // Clear persistence context to force reload
-
-        // Call the method under test
         var page = ticketService.getOrderGroupsForUser(OrderGroupType.RESERVED, Pageable.ofSize(10));
 
         assertAll(
@@ -816,14 +806,11 @@ public class TicketServiceTest {
 
         // Refund one ticket
         List<TicketDto> allTickets = checkoutGroup.getOrders().getFirst().getTickets();
-        assertEquals(2, allTickets.size(), "Es sollten zwei Tickets gekauft worden sein");
+        assertEquals(2, allTickets.size(), "Two tickets should be bought");
 
         Long ticketIdToRefund = allTickets.getFirst().getId();
         List<TicketDto> refunded = ticketService.refundTicketsGroup(List.of(ticketIdToRefund));
-        assertEquals(1, refunded.size(), "Es sollte ein Ticket refundiert worden sein");
-
-        entityManager.flush();
-        entityManager.clear();
+        assertEquals(1, refunded.size(), "One ticket should be refunded");
 
         var result = ticketService.getOrderGroupsForUser(OrderGroupType.PURCHASED, Pageable.ofSize(10));
 
@@ -865,9 +852,6 @@ public class TicketServiceTest {
 
         OrderGroupDto checkoutGroup = ticketService.checkoutTickets(checkout);
         Long groupId = checkoutGroup.getId();
-
-        entityManager.flush();
-        entityManager.clear();
 
         OrderGroupDto detail = ticketService.getOrderGroupDetails(groupId);
 
