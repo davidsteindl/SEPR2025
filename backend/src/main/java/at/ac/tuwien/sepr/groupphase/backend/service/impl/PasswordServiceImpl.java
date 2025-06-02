@@ -54,14 +54,15 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public Long validateOtt(OttDto ottDto) throws IllegalArgumentException {
+    public void validateOtt(OttDto ottDto) throws IllegalArgumentException {
 
         Long userId = otTokenRepository.findUserIdByOtToken(ottDto.getOtToken());
 
         if (userId == null) {
             throw new IllegalArgumentException("One-Time-Token is wrong");
         } else {
-            return userId;
+            otTokenRepository.setConsumedTrue();
+            ottDto.setUserId(userId);
         }
 
     }
@@ -69,6 +70,7 @@ public class PasswordServiceImpl implements PasswordService {
     @Override
     public void changePassword(PasswordChangeDto passwordChangeDto) throws NotFoundException, IllegalArgumentException {
 
+        //TODO: Auf nen Validator ändern
         if (passwordChangeDto.getConfirmPassword() == null
             || passwordChangeDto.getPassword() == null
             || passwordChangeDto.getConfirmPassword().length() < 8
@@ -77,19 +79,17 @@ public class PasswordServiceImpl implements PasswordService {
             throw new IllegalArgumentException("confirm password and password do not match");
         }
 
-        try {
-            ApplicationUser user = userService.findUserById(passwordChangeDto.getId());
-            updateUser(user, passwordChangeDto);
-        } catch (Exception e) {
-            throw new NotFoundException(e);
+        ApplicationUser user = userService.findUserById(passwordChangeDto.getId());
+        if (user == null) {
+            throw new NotFoundException("No User found");
         }
+        updateUser(user, passwordChangeDto);
     }
 
     private void updateUser(ApplicationUser user, PasswordChangeDto passwordChangeDto) {
         user.setPassword(passwordChangeDto.getPassword());
 
         userRepository.save(user);
-
     }
 
     private String createOttLink(String email, String relativePath) {

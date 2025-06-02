@@ -24,7 +24,7 @@ public interface PasswordService {
      *
      * @param ottDto the receiving one-time-token
      */
-    Long validateOtt(OttDto ottDto) throws IllegalArgumentException;
+    void validateOtt(OttDto ottDto) throws IllegalArgumentException;
 
     /**
      * Method to change a User-Password.

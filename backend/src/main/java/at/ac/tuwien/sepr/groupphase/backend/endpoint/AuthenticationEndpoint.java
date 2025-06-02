@@ -65,14 +65,9 @@ public class AuthenticationEndpoint {
 
     @PermitAll
     @PostMapping("/changePassword")
-    public void passwordChange(@Valid @RequestBody PasswordChangeDto passwordChangeDto) {
+    public void passwordChange(@Valid @RequestBody PasswordChangeDto passwordChangeDto, @Valid @RequestBody OttDto ottDto) {
+        passwordService.validateOtt(ottDto);
         passwordService.changePassword(passwordChangeDto);
-    }
-
-    @PermitAll
-    @PostMapping("/validateOtt")
-    public Long validateOtt(@Valid @RequestBody OttDto ottDto) {
-        return passwordService.validateOtt(ottDto);
     }
 
 

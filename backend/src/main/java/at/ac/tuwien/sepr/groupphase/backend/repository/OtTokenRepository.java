@@ -11,4 +11,6 @@ public interface OtTokenRepository extends JpaRepository<PasswordOtt, Long> {
 
     @Query("SELECT s.userId FROM PasswordOtt s WHERE s.otToken = :otToken")
     Long findUserIdByOtToken(@Param("otToken") String otToken);
+
+    void setConsumedTrue();
 }
