@@ -208,6 +208,16 @@ public class SearchValidator {
         if (criteria.getSize() == null || criteria.getSize() <= 0) {
             validationErrors.add("Page size must be greater than zero");
         }
+        boolean hasEventName = criteria.getEventName() != null && !criteria.getEventName().isBlank();
+        boolean hasRoomName = criteria.getRoomName() != null && !criteria.getRoomName().isBlank();
+        boolean hasstartDate = criteria.getStartDate() != null;
+        boolean hasEndDate = criteria.getEndDate() != null;
+        boolean hasMinPrice = criteria.getMinPrice() != null;
+        boolean hasMaxPrice = criteria.getMaxPrice() != null;
+
+        if(!hasEventName && !hasRoomName && !hasstartDate && !hasEndDate && !hasMinPrice && !hasMaxPrice) {
+            validationErrors.add("At least one of the following fields must be filled: event name, room name, start date, end date, minimum price, maximum price.");
+        }
 
         LocalDateTime start = criteria.getStartDate();
         LocalDateTime end = criteria.getEndDate();
