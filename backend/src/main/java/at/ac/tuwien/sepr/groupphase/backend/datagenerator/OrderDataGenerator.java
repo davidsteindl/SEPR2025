@@ -6,11 +6,9 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Order;
-import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.OrderGroup;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
 import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderGroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
@@ -23,17 +21,13 @@ import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType.CANCELLATION;
 import static at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType.ORDER;
 import static at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType.REFUND;
 import static at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType.RESERVATION;
-
 import static at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus.BOUGHT;
 import static at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus.CANCELLED;
 import static at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus.REFUNDED;
@@ -47,21 +41,17 @@ public class OrderDataGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final OrderRepository orderRepository;
-    private final OrderGroupRepository orderGroupRepository;
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
     private final ShowRepository showRepository;
     private final SectorRepository sectorRepository;
 
-
     public OrderDataGenerator(OrderRepository orderRepository,
-                              OrderGroupRepository orderGroupRepository,
                               TicketRepository ticketRepository,
                               UserRepository userRepository,
                               ShowRepository showRepository,
                               SectorRepository sectorRepository) {
         this.orderRepository = orderRepository;
-        this.orderGroupRepository = orderGroupRepository;
         this.ticketRepository = ticketRepository;
         this.userRepository = userRepository;
         this.showRepository = showRepository;
@@ -73,173 +63,90 @@ public class OrderDataGenerator {
         LOGGER.debug("Generating test orders...");
 
         List<ApplicationUser> users = userRepository.findAll();
-        List<Show> allShows = showRepository.findAll();
+        List<Show> shows = showRepository.findAll();
         List<Sector> sectors = sectorRepository.findAll();
+        Random random = new Random();
 
-
-        if (users.isEmpty() || allShows.isEmpty() || sectors.isEmpty()) {
+        if (users.isEmpty() || shows.isEmpty() || sectors.isEmpty()) {
             LOGGER.warn("No shows, users or sectors available, cannot generate tickets");
             return;
         }
 
+        LOGGER.debug("Generating {} orders of type {}", 1000, ORDER);
+        generateOrdersOfType(ORDER, BOUGHT, 1000, users, shows, sectors, random);
 
-        LocalDateTime now = LocalDateTime.now();
+        LOGGER.debug("Generating {} orders of type {}", 250, RESERVATION);
+        generateOrdersOfType(RESERVATION, RESERVED, 250, users, shows, sectors, random);
 
-        List<Show> pastShows = allShows.stream()
-            .filter(sh -> sh.getDate().isBefore(now))
-            .toList();
-        List<Show> futureShows = allShows.stream()
-            .filter(sh -> sh.getDate().isAfter(now))
-            .toList();
+        LOGGER.debug("Generating {} orders of type {}", 250, REFUND);
+        generateOrdersOfType(REFUND, REFUNDED, 250, users, shows, sectors, random);
 
-        if (pastShows.isEmpty()) {
-            LOGGER.warn("No Past-Shows available: historical orders cannot be generated.");
-            return;
-        }
-        if (futureShows.isEmpty()) {
-            LOGGER.warn("No Future-Shows available: reservation & purchase orders cannot be generated.");
-            return;
-        }
+        LOGGER.debug("Generating {} orders of type {}", 75, CANCELLATION);
+        generateOrdersOfType(CANCELLATION, CANCELLED, 75, users, shows, sectors, random);
 
-        Random random = new Random();
-
-        LOGGER.debug("Generating 60 BOUGHT Orders on Past-Shows");
-        generateOrderGroups(60, ORDER, BOUGHT, pastShows, users, sectors, random);
-
-        LOGGER.debug("Generating 20 CANCELLED Orders on Past-Shows");
-        generateOrderGroups(20, CANCELLATION, CANCELLED, pastShows, users, sectors, random);
-
-        LOGGER.debug("Generating 20 REFUNDED Orders on Past-Shows");
-        generateOrderGroups(20, REFUND, REFUNDED, pastShows, users, sectors, random);
-
-
-        LOGGER.debug("Generating 1000 BOUGHT Orders on Future-Shows");
-        generateOrderGroups(1000, ORDER, BOUGHT, futureShows, users, sectors, random);
-        LOGGER.debug("Generating 250 RESERVATION Orders on Future-Shows");
-        generateOrderGroups(250, RESERVATION, RESERVED, futureShows, users, sectors, random);
-
-
-        long alreadyRefunded = ticketRepository.countByStatus(REFUNDED);
-        long toRefund = 250L - alreadyRefunded;
-        if (toRefund > 0) {
-            LOGGER.debug("Creating additional {} REFUND Orders, until 250 REFUNDED Tickets are reached", toRefund);
-            generateSingleTicketOrderGroups(toRefund, pastShows, users, sectors, random, REFUND, REFUNDED);
-        } else {
-            LOGGER.debug(" {} REFUNDED Tickets already exist, no more needed", alreadyRefunded);
-        }
-
-        long alreadyCancelled = ticketRepository.countByStatus(CANCELLED);
-        long toCancel = 75L - alreadyCancelled;
-        if (toCancel > 0) {
-            LOGGER.debug("Creating additional {} CANCELLATION Orders, until 75 CANCELLED Tickets are reached", toCancel);
-            generateSingleTicketOrderGroups(toCancel, pastShows, users, sectors, random, CANCELLATION, CANCELLED);
-        } else {
-            LOGGER.debug(" {} CANCELLED Tickets already exist, no more needed", alreadyCancelled);
-        }
-
-        LOGGER.debug("Finished generating all test orders.");
+        LOGGER.debug("Created {} sales, {} reservations, {} refunded tickets, {} cancelled tickets across {} users",
+            1000, 250, 250, 75, users.size());
     }
 
-    private void generateOrderGroups(int count,
-                                    OrderType orderType,
-                                    TicketStatus ticketStatus,
-                                    List<Show> targetShows,
-                                    List<ApplicationUser> users,
-                                    List<Sector> sectors,
-                                    Random random) {
+    private void generateOrdersOfType(OrderType orderType,
+                                      TicketStatus ticketStatus,
+                                      int count,
+                                      List<ApplicationUser> users,
+                                      List<Show> shows,
+                                      List<Sector> sectors,
+                                      Random random) {
         for (int i = 0; i < count; i++) {
             ApplicationUser user = users.get(random.nextInt(users.size()));
-            Show show = targetShows.get(random.nextInt(targetShows.size()));
+            LOGGER.trace("Selected user {} for new order", user.getId());
 
-            LocalDateTime showDateTime = show.getDate();
-            LocalDateTime createdAt = randomPastDateTimeBefore(random, showDateTime, 180);
+            LocalDateTime createdAt = randomPastDateTime(random);
 
-            OrderGroup group = new OrderGroup();
-            group.setUserId(user.getId());
-            group = orderGroupRepository.save(group);
+            Order order = new Order();
+            order.setUserId(user.getId());
+            order.setOrderType(orderType);
+            order.setCreatedAt(createdAt);
+            order = orderRepository.save(order);
+            LOGGER.debug("Saved Order id={} type={} for user={} at {}", order.getId(), orderType, user.getId(), createdAt);
 
-            int ticketCount = 1 + random.nextInt(10);
+            int ticketCount = 2 + random.nextInt(3);
+
+            Show show = shows.get(random.nextInt(shows.size()));
+            LOGGER.debug("Assigning Show id={} to Order id={} (will create {} tickets)", show.getId(), order.getId(), ticketCount);
+
             for (int j = 0; j < ticketCount; j++) {
-                Order order = new Order();
-                order.setOrderType(orderType);
-                order.setCreatedAt(createdAt);
-                order.setOrderGroup(group);
-                order.setUserId(user.getId());
-                order.setTickets(new ArrayList<>());
-                order = orderRepository.save(order);
-
                 Ticket ticket = new Ticket();
+                ticket.setOrder(order);
                 ticket.setShow(show);
                 ticket.setSector(sectors.get(random.nextInt(sectors.size())));
                 ticket.setCreatedAt(createdAt);
                 ticket.setStatus(ticketStatus);
-                ticket.setOrders(List.of(order));
                 ticketRepository.save(ticket);
-
-                order.getTickets().add(ticket);
-                orderRepository.save(order);
+                LOGGER.trace("Saved Ticket id={} for Order id={} on Show id={} with status={}", ticket.getId(), order.getId(), show.getId(), ticketStatus);
             }
-
-            LOGGER.trace("Created OrderGroup id={} (user={}), orderType={} with {} tickets at {}",
-                group.getId(), user.getId(), orderType, ticketCount, createdAt);
         }
-        LOGGER.debug("generateOrderGroups(): Created {} groups of type {}", count, orderType);
+        LOGGER.debug("Exiting generateOrdersOfType(): orderType={} (created {} orders)", orderType, count);
     }
 
-
-    private void generateSingleTicketOrderGroups(long remainingTicketCount,
-                                                 List<Show> targetShows,
-                                                 List<ApplicationUser> users,
-                                                 List<Sector> sectors,
-                                                 Random random,
-                                                 OrderType orderType,
-                                                 TicketStatus ticketStatus) {
-        AtomicInteger createdSum = new AtomicInteger(0);
-
-        while (createdSum.get() < remainingTicketCount) {
-            ApplicationUser user = users.get(random.nextInt(users.size()));
-            Show show = targetShows.get(random.nextInt(targetShows.size()));
-
-            OrderGroup group = new OrderGroup();
-            group.setUserId(user.getId());
-            group = orderGroupRepository.save(group);
-
-            LocalDateTime createdAt = randomPastDateTimeBefore(random, show.getDate(), 180);
-
-            Order order = new Order();
-            order.setOrderType(orderType);
-            order.setCreatedAt(createdAt);
-            order.setOrderGroup(group);
-            order = orderRepository.save(order);
-
-            Ticket ticket = new Ticket();
-            ticket.setShow(show);
-            ticket.setSector(sectors.get(random.nextInt(sectors.size())));
-            ticket.setCreatedAt(createdAt);
-            ticket.setStatus(ticketStatus);
-            ticket.setOrders(List.of(order));
-            ticketRepository.save(ticket);
-
-            createdSum.incrementAndGet();
-        }
-        LOGGER.debug("generateSingleTicketOrderGroups(): Created {} single‐ticket orders with status {}",
-            createdSum.get(), ticketStatus);
-    }
-
-    private LocalDateTime randomPastDateTimeBefore(Random random, LocalDateTime latestAllowed, int maxBackDays) {
-        long daysBack = 1 + random.nextInt(maxBackDays);
-        LocalDateTime earliest = latestAllowed.minusDays(daysBack);
-
-        earliest = earliest.minusHours(random.nextInt(24))
+    private LocalDateTime randomPastDateTime(Random random) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime past = now
+            .minusDays(random.nextInt(180))
+            .minusHours(random.nextInt(24))
             .minusMinutes(random.nextInt(60))
-            .truncatedTo(ChronoUnit.MINUTES);
-
-        long totalMinutes = ChronoUnit.MINUTES.between(earliest, latestAllowed);
-        if (totalMinutes <= 1) {
-            return latestAllowed.minusMinutes(1);
-        }
-
-        long randomOffset = random.nextInt((int) totalMinutes);
-        return earliest.plusMinutes(randomOffset).truncatedTo(ChronoUnit.MINUTES);
+            .minusSeconds(random.nextInt(60));
+        LOGGER.trace("Generated randomPastDateTime: {}", past);
+        return past;
     }
+
+    private LocalDateTime randomFutureDateTime(Random random) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime future = now
+            .plusDays(random.nextInt(180))
+            .plusHours(random.nextInt(24))
+            .plusMinutes(random.nextInt(60))
+            .plusSeconds(random.nextInt(60));
+        LOGGER.trace("Generated randomFutureDateTime: {}", future);
+        return future;
+    }
+
 }
