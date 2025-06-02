@@ -25,7 +25,6 @@ public class ShowDetailDto {
     private int duration;
 
     @NotNull(message = "Date must not be null")
-    @FutureOrPresent(message = "Date must be in the present or future")
     private LocalDateTime date;
 
     @NotNull(message = "Event ID must not be null")
