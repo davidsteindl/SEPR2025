@@ -65,7 +65,7 @@ public class PasswordServiceImpl implements PasswordService {
         if (userId == null) {
             throw new IllegalArgumentException("One-Time-Token is wrong");
         } else {
-            otTokenRepository.setConsumedTrue();
+            otTokenRepository.markConsumed(userId);
             ottDto.setUserId(userId);
         }
 

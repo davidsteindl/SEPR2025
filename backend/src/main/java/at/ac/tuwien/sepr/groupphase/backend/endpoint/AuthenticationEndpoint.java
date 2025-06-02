@@ -65,7 +65,7 @@ public class AuthenticationEndpoint {
 
     @PermitAll
     @PostMapping("/changePassword")
-    public void passwordChange(@Valid @RequestBody PasswordChangeDto passwordChangeDto, @Valid @RequestBody OttDto ottDto) {
+    public void passwordChange(@Valid @RequestBody PasswordChangeDto passwordChangeDto, @Valid @RequestBody OttDto ottDto) throws ValidationException {
         passwordService.validateOtt(ottDto);
         passwordService.changePassword(passwordChangeDto);
     }
