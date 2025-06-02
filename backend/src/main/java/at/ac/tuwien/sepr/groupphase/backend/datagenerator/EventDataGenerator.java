@@ -166,7 +166,7 @@ public class EventDataGenerator {
 
             String firstName = "ArtistFirst" + k;
             String lastName = "ArtistLast" + k;
-            String stageName = "Stage" + k;
+            String stageName = "Stagename" + k;
 
             int showsCount = MIN_SHOWS_PER_ARTIST + random.nextInt(MAX_SHOWS_PER_ARTIST - MIN_SHOWS_PER_ARTIST + 1);
 
