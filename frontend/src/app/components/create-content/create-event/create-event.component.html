@@ -48,7 +48,6 @@
             pattern="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}"
             [(ngModel)]="event.dateTime"
             #eventDateTime="ngModel" />
-          <small class="form-text text-muted">Format: mm-dd-yyyy  hh-mm-AM/PM</small>
           <div *ngIf="eventDateTime.invalid && eventDateTime.touched" class="text-danger">
             Start date &amp; time is required.
           </div>
