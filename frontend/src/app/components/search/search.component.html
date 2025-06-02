@@ -37,7 +37,9 @@
     </div>
 
     <div class="text-center">
-      <button type="button" class="btn btn-primary mt-3" (click)="search()">Search</button>
+      <button type="button" class="btn btn-primary mt-3" (click)="search()"
+              [disabled]="!firstname.trim() && !lastname.trim() && !stagename.trim()">Search
+      </button>
     </div>
 
     <div *ngIf="artistLoading" class="text-center my-3">
@@ -100,11 +102,17 @@
     </div>
     <div class="row">
       <div class="form-group col-md-6">
-        <label for="eventLocatioPostalCode">City´s Postal Code</label>
+        <label for="eventLocationPostalCode">City´s Postal Code</label>
         <input id="eventLocationPostalCode" [(ngModel)]="eventLocationPostalCode" class="form-control"/>
       </div>
       <div class="text-center">
-        <button type="button" class="btn btn-primary mt-3" (click)="search()">Search</button>
+        <button type="button" class="btn btn-primary mt-3" (click)="search()" [disabled]="
+                !eventLocationName.trim() &&
+                !eventLocationStreet.trim() &&
+                !eventLocationCity.trim() &&
+                !eventLocationCountry.trim() &&
+                !eventLocationPostalCode.trim()">Search
+        </button>
       </div>
 
       <div *ngIf="eventLocationLoading" class="text-center my-3">
@@ -196,7 +204,12 @@
     </div>
 
     <div class="text-center">
-      <button type="button" class="btn btn-primary mt-3" (click)="search()">Search</button>
+      <button type="button" class="btn btn-primary mt-3" (click)="search()" [disabled]="
+        !eventName.trim() &&
+        !eventCategory &&
+        !eventDuration &&
+        !eventDescription.trim()">Search
+      </button>
     </div>
 
     <div *ngIf="eventLoading" class="text-center my-3">
@@ -290,7 +303,15 @@
     </div>
 
     <div class="text-center">
-      <button type="button" class="btn btn-primary mt-3" (click)="search()">Search</button>
+      <button type="button" class="btn btn-primary mt-3" (click)="search()" [disabled]="
+        !showName.trim() &&
+        !showEventName.trim() &&
+        !showRoomName.trim() &&
+        !showStartDate &&
+        !showEndDate &&
+        (showMinPrice === null) &&
+        (showMaxPrice === null)">Search
+      </button>
     </div>
 
     <div *ngIf="showLoading" class="text-center my-3">
