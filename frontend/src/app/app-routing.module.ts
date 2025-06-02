@@ -38,6 +38,7 @@ import {
 import {PastOrderDetailComponent} from "./components/order-detail/past-order-detail/past-order-detail.component";
 import {EditEventComponent} from "./components/edit-event/edit-event.component";
 import {TicketComponent} from "./components/ticket/ticket.component";
+import { PasswordComponent } from './components/password/password.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -46,13 +47,13 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent},
   { path: 'termsandconditions', component: TermsandconditionsComponent},
   { path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent },
-  { path: 'checkout', component: PaymentFormComponent },
+  { path: 'checkout', component: PaymentFormComponent, canActivate: [AuthGuard] },
   { path: 'user', component: UserComponent, canActivate: [AuthGuard]},
   { path: 'user-edit', component: UserEditComponent, canActivate: [AuthGuard]},
   { path: 'search', component: SearchComponent, canActivate: [AuthGuard]},
   { path: 'create-event', component: CreateEventComponent, canActivate: [AdminGuard] },
-  {path: 'update-events', component: UpdateEventsComponent, canActivate: [AdminGuard] },
-  { path: 'events/:id/edit',  component: EditEventComponent },
+  { path: 'update-events', component: UpdateEventsComponent, canActivate: [AdminGuard] },
+  { path: 'events/:id/edit',  component: EditEventComponent, canActivate: [AdminGuard] },
   { path: 'create-artist', component: CreateArtistComponent, canActivate: [AdminGuard] },
   { path: 'create-show', component: CreateShowComponent, canActivate: [AdminGuard] },
   { path: 'create-location', component: CreateLocationComponent, canActivate: [AdminGuard] },
@@ -70,6 +71,7 @@ const routes: Routes = [
   { path: 'orders/refunded/:id', component: RefundedOrderDetailComponent, canActivate: [AuthGuard] },
   { path: 'orders/past/:id', component: PastOrderDetailComponent, canActivate: [AuthGuard] },
   { path: 'ticket/:id/:randomTicketCode', component: TicketComponent, canActivate: [AdminGuard] },
+  { path: 'reset-password', component: PasswordComponent},
 ];
 
 @NgModule({
