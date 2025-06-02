@@ -27,7 +27,6 @@ public class UpdateEventDto {
     private int duration;
 
     @NotNull(message = "Start date and time must not be null")
-    @FutureOrPresent(message = "Date must be in the present or future")
     private LocalDateTime dateTime;
 
     @NotNull(message = "Location ID must not be null")
