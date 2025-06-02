@@ -39,7 +39,6 @@ public class Event {
     private String description;
 
     @Column(nullable = false)
-    @FutureOrPresent(message = "Date must be in the present or future")
     private LocalDateTime dateTime;
 
     @Min(10)
