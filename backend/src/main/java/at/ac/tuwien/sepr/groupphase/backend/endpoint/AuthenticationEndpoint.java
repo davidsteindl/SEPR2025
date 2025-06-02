@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 
 
 @RestController
@@ -59,8 +62,9 @@ public class AuthenticationEndpoint {
 
     @PermitAll
     @PostMapping("/resetPassword")
-    public void passwordReset(@Valid @RequestBody PasswordResetDto passwordResetDto) {
+    public ResponseEntity<Void> passwordReset(@Valid @RequestBody PasswordResetDto passwordResetDto) {
         passwordService.requestResetPassword(passwordResetDto);
+        return ResponseEntity.ok().build();
     }
 
     @PermitAll

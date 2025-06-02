@@ -1,22 +1,30 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
-import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.repository.OtTokenRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
-import at.ac.tuwien.sepr.groupphase.backend.service.impl.EventLocationServiceImpl;
+import at.ac.tuwien.sepr.groupphase.backend.service.PasswordService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDate;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@AutoConfigureMockMvc
 @ActiveProfiles("test")
 public class MailServiceTest {
 
@@ -30,11 +38,48 @@ public class MailServiceTest {
     private JavaMailSender javaMailSender;
 
 
+    @Autowired
+    private PasswordService passwordService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private MockMvc mockMvc;
+
+
+
+    @BeforeEach
+    void setUp() {
+
+        ApplicationUser testUser = ApplicationUser.ApplicationUserBuilder.aUser()
+            .withEmail("markus@email.com")
+            .withPassword("encodedPassword")
+            .withFirstName("Test")
+            .withLastName("User")
+            .withSex(Sex.MALE)
+            .withDateOfBirth(LocalDate.of(1980, 1, 1))
+            .isLocked(false)
+            .isAdmin(false)
+            .withLoginTries(0)
+            .build();
+
+        userRepository.save(testUser);
+    }
 
 
     @Test
     public void testMail() {
-        mailService.sendPasswordResetEmail("test@example.com", "https://example.com/reset-password/token123");
+        PasswordResetDto passwordResetDto = new PasswordResetDto();
+        passwordResetDto.setEmail("markus@email.com");
 
+        passwordService.requestResetPassword(passwordResetDto);
     }
+
+    /*@Test
+    public void testMail() {
+        mailService.sendPasswordResetEmail("test@example.com", "http://localhost:4200");
+    }*/
+
+
 }

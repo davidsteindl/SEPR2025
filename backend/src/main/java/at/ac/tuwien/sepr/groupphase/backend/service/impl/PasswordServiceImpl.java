@@ -19,7 +19,6 @@ import org.springframework.security.authentication.ott.OneTimeTokenService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
 
 @Service
@@ -30,7 +29,6 @@ public class PasswordServiceImpl implements PasswordService {
     OneTimeTokenService oneTimeTokenService;
     UserService userService;
     OtTokenRepository otTokenRepository;
-    private Clock clock;
     private final UserValidator userValidator;
 
     public PasswordServiceImpl(MailService mailService, OneTimeTokenService oneTimeTokenService, UserService userService,
@@ -45,6 +43,7 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     public void requestResetPassword(PasswordResetDto passwordResetDto) throws NotFoundException, IllegalArgumentException {
+
         String email;
         if (passwordResetDto.getEmail() == null) {
             throw new IllegalArgumentException("no email provided");
@@ -89,6 +88,7 @@ public class PasswordServiceImpl implements PasswordService {
         userRepository.save(user);
     }
 
+
     private String createOttLink(String email, String relativePath) {
         if (userService.findApplicationUserByEmail(email).getId() == null) {
             throw new NotFoundException("email not found");
@@ -99,13 +99,14 @@ public class PasswordServiceImpl implements PasswordService {
 
         passwordOtt.setOtToken(oneTimeToken.toString());
         passwordOtt.setConsumed(false);
-        passwordOtt.setValidUntil(LocalDateTime.from(this.clock.instant().plusSeconds(300L)));
+        passwordOtt.setValidUntil(LocalDateTime.now().plusSeconds(300L));
         passwordOtt.setUserId(userService.findApplicationUserByEmail(email).getId());
 
         otTokenRepository.save(passwordOtt);
 
         return ServletUriComponentsBuilder
             .fromCurrentContextPath()
+            .port(4200)
             .path(relativePath)
             .queryParam("token", oneTimeToken.getTokenValue())
             .build()
