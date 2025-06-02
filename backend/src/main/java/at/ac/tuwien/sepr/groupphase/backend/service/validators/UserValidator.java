@@ -107,16 +107,12 @@ public class UserValidator {
         LOGGER.info("Validating user update ...");
         List<String> validationErrors = new ArrayList<>();
 
-        if (user.getEmail() != null && !user.getEmail().contains("@")) {
-            validationErrors.add("The email must contain a @");
+        if (user.getEmail() == null || !isValidEmail(user.getEmail())) {
+            validationErrors.add("Email is not valid");
         }
 
         if (user.getDateOfBirth() != null && user.getDateOfBirth().isAfter(LocalDate.now())) {
             validationErrors.add("The Birthdate must be in the past");
-        }
-
-        if (user.getEmail() == null) {
-            validationErrors.add("No Email found");
         }
 
         if (user.getFirstName() == null || user.getFirstName().isEmpty()) {
@@ -131,11 +127,9 @@ public class UserValidator {
             validationErrors.add("Last name is too long");
         }
 
-
         if (user.getFirstName() != null && !user.getFirstName().matches("^[a-zA-ZäöüÄÖÜ -]+$")) {
             validationErrors.add("First Name contains symbols");
         }
-
 
         if (user.getLastName() != null && !user.getLastName().matches("^[a-zA-ZäöüÄÖÜ -]+$")) {
             validationErrors.add("Last Name contains symbols");
@@ -200,7 +194,6 @@ public class UserValidator {
             validationErrors.add("Sex must not be empty");
         }
 
-
         if (user.getDateOfBirth() == null) {
             validationErrors.add("No birthdate given");
         } else if (user.getDateOfBirth().isAfter(LocalDate.now())) {
@@ -209,11 +202,9 @@ public class UserValidator {
             validationErrors.add("You must be at least 18 years old to use the Service");
         }
 
-
         if (!validationErrors.isEmpty()) {
             throw new ValidationException("Validation of user for update failed", validationErrors);
         }
-
 
     }
 
