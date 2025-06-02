@@ -111,34 +111,35 @@
         Searching…
       </div>
       <div class="mt-4" *ngIf="!eventLocationLoading && eventLocationTriggered">
-        <h5 class="text-primary">Results:</h5>
-        <table class="table table-bordered">
-          <thead>
-          <tr>
-            <th>Location name</th>
-            <th>Street</th>
-            <th>City</th>
-            <th>Country</th>
-            <th>Postal Code</th>
-            <th>Shows</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let location of eventLocationPage?.content">
-            <td><strong>{{ location.name }}</strong></td>
-            <td>{{ location.street }}</td>
-            <td>{{ location.city }}</td>
-            <td>{{ location.country }}</td>
-            <td>{{ location.postalCode }}</td>
-            <td class="text-right">
-              <button class="view-button"
-                      [routerLink]="['/locations', location.id, 'shows']">
-                View Shows for location
-              </button>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+        <ng-container *ngIf="eventLocationPage?.content?.length > 0; else noEventLocations">
+          <h5 class="text-primary">Results:</h5>
+          <table class="table table-bordered">
+            <thead>
+            <tr>
+              <th>Location name</th>
+              <th>Street</th>
+              <th>City</th>
+              <th>Country</th>
+              <th>Postal Code</th>
+              <th>Shows</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let location of eventLocationPage?.content">
+              <td><strong>{{ location.name }}</strong></td>
+              <td>{{ location.street }}</td>
+              <td>{{ location.city }}</td>
+              <td>{{ location.country }}</td>
+              <td>{{ location.postalCode }}</td>
+              <td class="text-right">
+                <button class="view-button"
+                        [routerLink]="['/locations', location.id, 'shows']">
+                  View Shows for location
+                </button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
           <ul class="pagination justify-content-center">
             <li class="page-item" [class.disabled]="eventLocationCurrentPage === 0">
               <a class="page-link" style="cursor: pointer;" (click)="searchLocations(eventLocationCurrentPage - 1)">Previous</a>
@@ -153,11 +154,14 @@
                  (click)="searchLocations(eventLocationCurrentPage + 1)">Next</a>
             </li>
           </ul>
-          <div *ngIf="eventLocationPage?.content.length === 0" class="text-center text-muted">
-            No locations found.
-          </div>
-      </div>
+        </ng-container>
 
+        <ng-template #noEventLocations>
+          <div class="text-center text-muted" style="font-weight: bold">
+            No event locations found.
+          </div>
+        </ng-template>
+      </div>
     </div>
   </div>
 
@@ -199,49 +203,54 @@
       Searching…
     </div>
     <div class="mt-4" *ngIf="!eventLoading && eventTriggered">
-      <h5 class="text-primary">Results:</h5>
-      <table class="table table-bordered">
-        <thead>
-        <tr>
-          <th>Event name</th>
-          <th>Category</th>
-          <th>Duration</th>
-          <th>Description</th>
-          <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let ev of eventPage?.content">
-          <td><strong>{{ ev.name }}</strong></td>
-          <td>{{ ev.category }}</td>
-          <td>{{ ev.duration }}</td>
-          <td>{{ ev.description }}</td>
-          <td class="text-right">
-            <button class="view-button" [routerLink]="['/events', ev.id, 'overview']"
-                    [queryParams]="{ from: 'event', tab: 'event'  }">
-              View Event
-            </button>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-      <ul class="pagination justify-content-center">
-        <li class="page-item" [class.disabled]="eventCurrentPage === 0">
-          <a class="page-link" style="cursor: pointer;" (click)="searchEvents(eventCurrentPage - 1)">Previous</a>
-        </li>
-        <li class="page-item disabled">
+      <ng-container *ngIf="eventPage?.content?.length > 0; else noEvents">
+        <h5 class="text-primary">Results:</h5>
+        <table class="table table-bordered">
+          <thead>
+          <tr>
+            <th>Event name</th>
+            <th>Category</th>
+            <th>Duration</th>
+            <th>Description</th>
+            <th></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let ev of eventPage?.content">
+            <td><strong>{{ ev.name }}</strong></td>
+            <td>{{ ev.category }}</td>
+            <td>{{ ev.duration }}</td>
+            <td>{{ ev.description }}</td>
+            <td class="text-right">
+              <button class="view-button" [routerLink]="['/events', ev.id, 'overview']"
+                      [queryParams]="{ from: 'event', tab: 'event'  }">
+                View Event
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="eventCurrentPage === 0">
+            <a class="page-link" style="cursor: pointer;" (click)="searchEvents(eventCurrentPage - 1)">Previous</a>
+          </li>
+          <li class="page-item disabled">
               <span class="page-link">Page {{ eventCurrentPage + 1 }}
                 of {{ eventPage?.totalPages }}</span>
-        </li>
-        <li class="page-item"
-            [class.disabled]="eventCurrentPage >= (eventPage?.totalPages || 1) - 1">
-          <a class="page-link" style="cursor: pointer;"
-             (click)="searchEvents(eventCurrentPage + 1)">Next</a>
-        </li>
-      </ul>
-      <div *ngIf="eventPage?.content.length === 0" class="text-center text-muted">
-        No events found.
-      </div>
+          </li>
+          <li class="page-item"
+              [class.disabled]="eventCurrentPage >= (eventPage?.totalPages || 1) - 1">
+            <a class="page-link" style="cursor: pointer;"
+               (click)="searchEvents(eventCurrentPage + 1)">Next</a>
+          </li>
+        </ul>
+      </ng-container>
+
+      <ng-template #noEvents>
+        <div class="text-center text-muted" style="font-weight: bold">
+          No events found.
+        </div>
+      </ng-template>
     </div>
   </div>
 
