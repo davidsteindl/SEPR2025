@@ -8,6 +8,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -15,6 +17,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -36,7 +39,6 @@ public class Show {
 
     @NotNull
     @Column(nullable = false)
-    @FutureOrPresent(message = "Date must be in the present or future")
     private LocalDateTime date;
 
     @ManyToOne(optional = false)
@@ -49,6 +51,14 @@ public class Show {
     @ManyToOne(optional = false)
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
+
+    @PrePersist
+    @PreUpdate
+    private void truncateDateToMinutes() {
+        if (this.date != null) {
+            this.date = this.date.truncatedTo(ChronoUnit.MINUTES);
+        }
+    }
 
     public Long getId() {
         return id;
