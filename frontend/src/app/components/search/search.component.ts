@@ -83,8 +83,8 @@ export class SearchComponent implements OnInit {
   showRoomName: string = '';
   showStartDate?: string;
   showEndDate?: string;
-  showMinPrice?: number;
-  showMaxPrice?: number;
+  showMinPrice: number | null = null;
+  showMaxPrice: number | null = null;
 
   showPage?: Page<ShowSearchResult>;
   showLoading = false;
