@@ -2,8 +2,11 @@ package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
+import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
@@ -15,111 +18,175 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
+/**
+ * Generates 200 Events, 500 Shows, and 100 Artists for testing.
+ * Each Show is assigned to a random Event and scheduled such that its start + duration
+ * lies within the Event's dateTime + duration window. Each Artist is assigned to
+ * a few random Shows.
+ * This class is only active when the "generateData" profile is active.
+ */
 @Component("eventDataGenerator")
-@DependsOn("roomDataGenerator")
 @Profile("generateData")
+@DependsOn("roomDataGenerator")
 public class EventDataGenerator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EventDataGenerator.class);
 
-    private static final int NUMBER_OF_EVENTS = 5;
-    private static final int NUMBER_OF_ARTISTS = 20;
-    private static final int SHOWS_PER_ARTIST_PAIR = 2;
+    private static final Logger LOGGER = LoggerFactory.getLogger(EventDataGenerator.class);
+    private static final int NUMBER_OF_EVENTS = 200;
+    private static final int NUMBER_OF_SHOWS = 500;
+    private static final int NUMBER_OF_ARTISTS = 100;
+    private static final int MIN_SHOWS_PER_ARTIST = 1;
+    private static final int MAX_SHOWS_PER_ARTIST = 20;
 
     private final EventRepository eventRepository;
-    private final ArtistRepository artistRepository;
     private final ShowRepository showRepository;
+    private final ArtistRepository artistRepository;
+    private final EventLocationRepository locationRepository;
     private final RoomRepository roomRepository;
+    private final Random random = new Random();
 
     public EventDataGenerator(EventRepository eventRepository,
-                              ArtistRepository artistRepository,
                               ShowRepository showRepository,
+                              ArtistRepository artistRepository,
+                              EventLocationRepository locationRepository,
                               RoomRepository roomRepository) {
         this.eventRepository = eventRepository;
-        this.artistRepository = artistRepository;
         this.showRepository = showRepository;
+        this.artistRepository = artistRepository;
+        this.locationRepository = locationRepository;
         this.roomRepository = roomRepository;
     }
 
     @PostConstruct
-    public void generateEvents() {
-        if (eventRepository.count() == 0) {
-            var rooms = roomRepository.findAll();
-            List<Event> events = new ArrayList<>();
-            for (int i = 0; i < NUMBER_OF_EVENTS; i++) {
-                LocalDateTime eventStart = LocalDateTime.of(2025, 6, i + 1, 14, 0);
-                int duration = 180 + i * 10;
-
-                Event ev = Event.EventBuilder.anEvent()
-                    .withName("Event " + i)
-                    .withCategory(Event.EventCategory.CLASSICAL)
-                    .withDescription("Description for Event " + i)
-                    .withDateTime(eventStart)
-                    .withDuration(duration)
-                    .withLocation(rooms.get(i % rooms.size()).getEventLocation())
-                    .build();
-                events.add(ev);
-            }
-            eventRepository.saveAll(events);
+    public void generateEventsShowsAndArtists() {
+        if (eventRepository.count() > 0) {
+            LOGGER.debug("Events already generated, skipping EventDataGenerator");
+            return;
         }
 
-        if (artistRepository.count() == 0) {
-            List<Artist> artists = new ArrayList<>();
-            for (int i = 0; i < NUMBER_OF_ARTISTS; i++) {
-                Artist artist = Artist.ArtistBuilder.anArtist()
-                    .withFirstname("Firstname " + i)
-                    .withLastname("Lastname " + i)
-                    .withStagename("Stagename " + i)
-                    .build();
-                artists.add(artist);
-            }
-            artistRepository.saveAll(artists);
+        List<EventLocation> locations = locationRepository.findAll();
+        if (locations.isEmpty()) {
+            LOGGER.warn("No EventLocations found: generate EventLocations first");
+            return;
+        }
+        List<Room> rooms = roomRepository.findAll();
+        if (rooms.isEmpty()) {
+            LOGGER.warn("No Rooms found: generate Rooms first");
+            return;
         }
 
-        if (showRepository.count() == 0) {
-            var events = eventRepository.findAll();
-            var artists = artistRepository.findAll();
-            var rooms = roomRepository.findAll();
+        List<Event> events = new ArrayList<>(NUMBER_OF_EVENTS);
+        Event.EventCategory[] categories = Event.EventCategory.values();
 
-            if (events.isEmpty() || artists.size() < 2 || rooms.isEmpty()) {
-                return;
-            }
+        LOGGER.debug("Generating {} Events", NUMBER_OF_EVENTS);
+        for (int i = 0; i < NUMBER_OF_EVENTS; i++) {
 
-            List<Show> shows = new ArrayList<>();
-            int artistIndex = 0;
-            for (int i = 0; i < events.size(); i++) {
-                Event event = events.get(i);
-                LocalDateTime eventStart = event.getDateTime();
-                int eventDuration = event.getDuration();
-                int showDuration = eventDuration / SHOWS_PER_ARTIST_PAIR;
+            EventLocation loc = locations.get(random.nextInt(locations.size()));
 
-                for (int j = 0; j < SHOWS_PER_ARTIST_PAIR; j++) {
-                    LocalDateTime showStart = eventStart.plusMinutes((long) j * showDuration);
-                    LocalDateTime showEnd = showStart.plusMinutes(showDuration);
-                    LocalDateTime eventEnd = eventStart.plusMinutes(eventDuration);
-                    if (showEnd.isAfter(eventEnd)) {
-                        showStart = eventEnd.minusMinutes(showDuration);
-                    }
+            LocalDateTime eventStart = LocalDateTime.now()
+                .plusDays(random.nextInt(90))
+                .plusHours(random.nextInt(24))
+                .plusMinutes(random.nextInt(60))
+                .truncatedTo(ChronoUnit.MINUTES);
 
-                    var a1 = artists.get(artistIndex % artists.size());
-                    var a2 = artists.get((artistIndex + 1) % artists.size());
+            int eventDuration = 180 + random.nextInt(1261);
 
-                    Show show = Show.ShowBuilder.aShow()
-                        .withName(event.getName() + " - Show " + j)
-                        .withDuration(showDuration)
-                        .withDate(showStart)
-                        .withEvent(event)
-                        .withRoom(rooms.get(i % rooms.size()))
-                        .withArtists(Set.of(a1, a2))
-                        .build();
-                    shows.add(show);
-                    artistIndex += 2;
-                }
-            }
-            showRepository.saveAll(shows);
+
+            Event.EventCategory category = categories[random.nextInt(categories.length)];
+
+            Event event = Event.EventBuilder.anEvent()
+                .withName("Event " + i)
+                .withCategory(category)
+                .withDescription("Description of Event " + i)
+                .withDateTime(eventStart)
+                .withDuration(eventDuration)
+                .withLocation(loc)
+                .build();
+
+            events.add(event);
         }
+
+        eventRepository.saveAll(events);
+        LOGGER.debug("Saved {} Events", events.size());
+
+
+        List<Show> shows = new ArrayList<>(NUMBER_OF_SHOWS);
+        LOGGER.debug("Generating {} Shows", NUMBER_OF_SHOWS);
+        for (int j = 0; j < NUMBER_OF_SHOWS; j++) {
+            Event assignedEvent = events.get(random.nextInt(events.size()));
+            LocalDateTime eventStart = assignedEvent.getDateTime();
+            LocalDateTime eventEnd = eventStart.plusMinutes(assignedEvent.getDuration());
+
+
+            int maxShowDur = Math.min(assignedEvent.getDuration(), 180);
+            int showDuration = 10 + random.nextInt(maxShowDur - 9);
+
+
+            long eventTotalMinutes = assignedEvent.getDuration();
+            long latestOffset = eventTotalMinutes - showDuration;
+
+            long offsetMinutes = (latestOffset > 0)
+                ? random.nextInt((int) latestOffset + 1)
+                : 0;
+            LocalDateTime showStart = eventStart.plusMinutes(offsetMinutes)
+                .truncatedTo(ChronoUnit.MINUTES);
+
+
+            Room assignedRoom = rooms.get(random.nextInt(rooms.size()));
+
+            Show show = Show.ShowBuilder.aShow()
+                .withName("Show " + j)
+                .withDuration(showDuration)
+                .withDate(showStart)
+                .withEvent(assignedEvent)
+                .withRoom(assignedRoom)
+                .build();
+
+            shows.add(show);
+        }
+
+        showRepository.saveAll(shows);
+        LOGGER.debug("Saved {} Shows", shows.size());
+
+        List<Show> persistedShows = showRepository.findAll();
+        if (persistedShows.isEmpty()) {
+            LOGGER.warn("No Shows found after saving: cannot assign Artists");
+            return;
+        }
+
+        List<Artist> artists = new ArrayList<>(NUMBER_OF_ARTISTS);
+        LOGGER.debug("Generating {} Artists", NUMBER_OF_ARTISTS);
+        for (int k = 0; k < NUMBER_OF_ARTISTS; k++) {
+
+            String firstName = "ArtistFirst" + k;
+            String lastName = "ArtistLast" + k;
+            String stageName = "Stage" + k;
+
+            int showsCount = MIN_SHOWS_PER_ARTIST + random.nextInt(MAX_SHOWS_PER_ARTIST - MIN_SHOWS_PER_ARTIST + 1);
+
+            Set<Show> assignedShows = new HashSet<>();
+            for (int s = 0; s < showsCount; s++) {
+                Show randomShow = persistedShows.get(random.nextInt(persistedShows.size()));
+                assignedShows.add(randomShow);
+            }
+
+            Artist artist = Artist.ArtistBuilder.anArtist()
+                .withFirstname(firstName)
+                .withLastname(lastName)
+                .withStagename(stageName)
+                .withShows(assignedShows)
+                .build();
+
+            artists.add(artist);
+        }
+
+        artistRepository.saveAll(artists);
+        LOGGER.debug("Saved {} Artists", artists.size());
     }
 }
