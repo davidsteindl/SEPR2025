@@ -121,7 +121,6 @@ public class EventDataGenerator {
         for (int j = 0; j < NUMBER_OF_SHOWS; j++) {
             Event assignedEvent = events.get(random.nextInt(events.size()));
             LocalDateTime eventStart = assignedEvent.getDateTime();
-            LocalDateTime eventEnd = eventStart.plusMinutes(assignedEvent.getDuration());
 
 
             int maxShowDur = Math.min(assignedEvent.getDuration(), 180);
