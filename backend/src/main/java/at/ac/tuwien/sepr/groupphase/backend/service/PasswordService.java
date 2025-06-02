@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.OttDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordChangeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 
 /**
  * Service for a Password-Reset.
@@ -31,6 +32,6 @@ public interface PasswordService {
      *
      * @param passwordChangeDto the User with his/her new password
      */
-    void changePassword(PasswordChangeDto passwordChangeDto) throws NotFoundException, IllegalArgumentException;
+    void changePassword(PasswordChangeDto passwordChangeDto) throws NotFoundException, ValidationException;
 
 }

@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordChangeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
@@ -100,6 +101,29 @@ public class UserValidator {
         }
         Matcher matcher = EMAIL_PATTERN.matcher(email);
         return matcher.matches();
+    }
+
+    public void validateForPasswordChange(PasswordChangeDto passwordChangeDto) throws ValidationException {
+        LOGGER.info("Validating for Password-Change ...");
+        List<String> validationErrors = new ArrayList<>();
+
+        if (passwordChangeDto.getPassword() == null || passwordChangeDto.getPassword().length() < 8) {
+            validationErrors.add("Password must be at least 8 characters");
+        }
+
+        if (passwordChangeDto.getConfirmPassword() == null || passwordChangeDto.getConfirmPassword().length() < 8) {
+            validationErrors.add("ConfirmPassword must be at least 8 characters");
+        }
+
+        if (!passwordChangeDto.getPassword().equals(passwordChangeDto.getConfirmPassword())) {
+            validationErrors.add("Passwords do not match");
+        }
+
+        if (!validationErrors.isEmpty()) {
+            throw new ValidationException("Validation of user for registration failed", validationErrors);
+        }
+
+
     }
 
 

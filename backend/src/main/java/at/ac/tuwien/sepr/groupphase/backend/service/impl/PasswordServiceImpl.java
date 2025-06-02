@@ -6,11 +6,13 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetD
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.PasswordOtt;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.OtTokenRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
 import at.ac.tuwien.sepr.groupphase.backend.service.PasswordService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
+import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
 import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest;
 import org.springframework.security.authentication.ott.OneTimeToken;
 import org.springframework.security.authentication.ott.OneTimeTokenService;
@@ -29,14 +31,16 @@ public class PasswordServiceImpl implements PasswordService {
     UserService userService;
     OtTokenRepository otTokenRepository;
     private Clock clock;
+    private final UserValidator userValidator;
 
     public PasswordServiceImpl(MailService mailService, OneTimeTokenService oneTimeTokenService, UserService userService,
-                               OtTokenRepository otTokenRepository, UserRepository userRepository) {
+                               OtTokenRepository otTokenRepository, UserRepository userRepository, UserValidator userValidator) {
         this.mailService = mailService;
         this.oneTimeTokenService = oneTimeTokenService;
         this.userService = userService;
         this.otTokenRepository = otTokenRepository;
         this.userRepository = userRepository;
+        this.userValidator = userValidator;
     }
 
     @Override
@@ -68,16 +72,9 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public void changePassword(PasswordChangeDto passwordChangeDto) throws NotFoundException, IllegalArgumentException {
+    public void changePassword(PasswordChangeDto passwordChangeDto) throws NotFoundException, ValidationException {
 
-        //TODO: Auf nen Validator ändern
-        if (passwordChangeDto.getConfirmPassword() == null
-            || passwordChangeDto.getPassword() == null
-            || passwordChangeDto.getConfirmPassword().length() < 8
-            || passwordChangeDto.getPassword().length() < 8
-            || !passwordChangeDto.getPassword().equals(passwordChangeDto.getConfirmPassword())) {
-            throw new IllegalArgumentException("confirm password and password do not match");
-        }
+        userValidator.validateForPasswordChange(passwordChangeDto);
 
         ApplicationUser user = userService.findUserById(passwordChangeDto.getId());
         if (user == null) {
