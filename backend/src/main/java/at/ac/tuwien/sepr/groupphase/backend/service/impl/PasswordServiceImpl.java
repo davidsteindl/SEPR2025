@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class PasswordServiceImpl implements PasswordService {
@@ -56,14 +57,19 @@ public class PasswordServiceImpl implements PasswordService {
         mailService.sendPasswordResetEmail(email, createOttLink(email, "/account/reset-password"));
     }
 
-    @Override
-    public void validateOtt(OttDto ottDto) throws IllegalArgumentException {
+
+    private void validateOtt(OttDto ottDto) throws IllegalArgumentException {
 
         Long userId = otTokenRepository.findUserIdByOtToken(ottDto.getOtToken());
 
         if (userId == null) {
             throw new IllegalArgumentException("One-Time-Token is wrong");
         } else {
+
+            Optional<PasswordOtt> maybeToken = otTokenRepository.findByTokenAndConsumedFalseAndValidUntilAfter(ottDto.getOtToken(), LocalDateTime.now());
+            if (maybeToken.isEmpty()) {
+                throw new IllegalArgumentException("Token is invalid or already used");
+            }
             otTokenRepository.markConsumed(userId);
             ottDto.setUserId(userId);
         }
@@ -71,11 +77,13 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public void changePassword(PasswordChangeDto passwordChangeDto) throws NotFoundException, ValidationException {
+    public void changePassword(PasswordChangeDto passwordChangeDto, OttDto ottDto) throws NotFoundException, ValidationException, IllegalArgumentException {
+
+        validateOtt(ottDto);
 
         userValidator.validateForPasswordChange(passwordChangeDto);
 
-        ApplicationUser user = userService.findUserById(passwordChangeDto.getId());
+        ApplicationUser user = userService.findUserById(ottDto.getUserId());
         if (user == null) {
             throw new NotFoundException("No User found");
         }

@@ -6,6 +6,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import java.util.Optional;
+
+import java.time.LocalDateTime;
 
 @Repository
 public interface OtTokenRepository extends JpaRepository<PasswordOtt, Long> {
@@ -17,4 +20,7 @@ public interface OtTokenRepository extends JpaRepository<PasswordOtt, Long> {
     @Modifying
     @Query("UPDATE PasswordOtt p SET p.consumed = true WHERE p.id = :id")
     void markConsumed(@Param("id") Long id);
+
+    Optional<PasswordOtt> findByTokenAndConsumedFalseAndValidUntilAfter(String token, LocalDateTime now);
+
 }

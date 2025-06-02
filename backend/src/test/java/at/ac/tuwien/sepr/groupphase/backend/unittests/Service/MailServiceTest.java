@@ -76,10 +76,5 @@ public class MailServiceTest {
         passwordService.requestResetPassword(passwordResetDto);
     }
 
-    /*@Test
-    public void testMail() {
-        mailService.sendPasswordResetEmail("test@example.com", "http://localhost:4200");
-    }*/
-
 
 }
