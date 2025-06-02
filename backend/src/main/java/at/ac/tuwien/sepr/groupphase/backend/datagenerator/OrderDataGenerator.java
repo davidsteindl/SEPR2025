@@ -72,9 +72,16 @@ public class OrderDataGenerator {
             return;
         }
 
+        LOGGER.debug("Generating {} orders of type {}", 1000, ORDER);
         generateOrdersOfType(ORDER, BOUGHT, 1000, users, shows, sectors, random);
+
+        LOGGER.debug("Generating {} orders of type {}", 250, RESERVATION);
         generateOrdersOfType(RESERVATION, RESERVED, 250, users, shows, sectors, random);
+
+        LOGGER.debug("Generating {} orders of type {}", 250, REFUND);
         generateOrdersOfType(REFUND, REFUNDED, 250, users, shows, sectors, random);
+
+        LOGGER.debug("Generating {} orders of type {}", 75, CANCELLATION);
         generateOrdersOfType(CANCELLATION, CANCELLED, 75, users, shows, sectors, random);
 
         LOGGER.debug("Created {} sales, {} reservations, {} refunded tickets, {} cancelled tickets across {} users",
@@ -90,6 +97,7 @@ public class OrderDataGenerator {
                                       Random random) {
         for (int i = 0; i < count; i++) {
             ApplicationUser user = users.get(random.nextInt(users.size()));
+            LOGGER.trace("Selected user {} for new order", user.getId());
 
             LocalDateTime createdAt = randomPastDateTime(random);
 
@@ -98,14 +106,12 @@ public class OrderDataGenerator {
             order.setOrderType(orderType);
             order.setCreatedAt(createdAt);
             order = orderRepository.save(order);
+            LOGGER.debug("Saved Order id={} type={} for user={} at {}", order.getId(), orderType, user.getId(), createdAt);
 
             int ticketCount = 2 + random.nextInt(3);
 
-            LocalDateTime showDate = randomFutureDateTime(random);
-
             Show show = shows.get(random.nextInt(shows.size()));
-            show.setDate(showDate);
-            showRepository.save(show);
+            LOGGER.debug("Assigning Show id={} to Order id={} (will create {} tickets)", show.getId(), order.getId(), ticketCount);
 
             for (int j = 0; j < ticketCount; j++) {
                 Ticket ticket = new Ticket();
@@ -115,26 +121,32 @@ public class OrderDataGenerator {
                 ticket.setCreatedAt(createdAt);
                 ticket.setStatus(ticketStatus);
                 ticketRepository.save(ticket);
+                LOGGER.trace("Saved Ticket id={} for Order id={} on Show id={} with status={}", ticket.getId(), order.getId(), show.getId(), ticketStatus);
             }
         }
+        LOGGER.debug("Exiting generateOrdersOfType(): orderType={} (created {} orders)", orderType, count);
     }
 
     private LocalDateTime randomPastDateTime(Random random) {
         LocalDateTime now = LocalDateTime.now();
-        return now
+        LocalDateTime past = now
             .minusDays(random.nextInt(180))
             .minusHours(random.nextInt(24))
             .minusMinutes(random.nextInt(60))
             .minusSeconds(random.nextInt(60));
+        LOGGER.trace("Generated randomPastDateTime: {}", past);
+        return past;
     }
 
     private LocalDateTime randomFutureDateTime(Random random) {
         LocalDateTime now = LocalDateTime.now();
-        return now
+        LocalDateTime future = now
             .plusDays(random.nextInt(180))
             .plusHours(random.nextInt(24))
             .plusMinutes(random.nextInt(60))
             .plusSeconds(random.nextInt(60));
+        LOGGER.trace("Generated randomFutureDateTime: {}", future);
+        return future;
     }
 
 }
