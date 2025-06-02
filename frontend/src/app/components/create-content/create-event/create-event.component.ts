@@ -94,6 +94,17 @@ export class CreateEventComponent implements OnInit {
       }
     });
   }
+  validateDuration(): void {
+    if (this.event.duration == null) {
+      return;
+    }
+
+    if (this.event.duration < 10) {
+      this.event.duration = 10;
+    } else if (this.event.duration > 10000) {
+      this.event.duration = 10000;
+    }
+  }
 }
 
 export enum EventCategory {
