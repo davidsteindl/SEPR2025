@@ -138,15 +138,4 @@ public class OrderDataGenerator {
         return past;
     }
 
-    private LocalDateTime randomFutureDateTime(Random random) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime future = now
-            .plusDays(random.nextInt(180))
-            .plusHours(random.nextInt(24))
-            .plusMinutes(random.nextInt(60))
-            .plusSeconds(random.nextInt(60));
-        LOGGER.trace("Generated randomFutureDateTime: {}", future);
-        return future;
-    }
-
 }
