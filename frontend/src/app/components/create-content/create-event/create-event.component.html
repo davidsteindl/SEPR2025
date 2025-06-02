@@ -47,7 +47,7 @@
             placeholder="2025-06-01T20:00"
             pattern="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}"
             [(ngModel)]="event.dateTime"
-            #eventDateTime="ngModel" />
+            #eventDateTime="ngModel"/>
           <div *ngIf="eventDateTime.invalid && eventDateTime.touched" class="text-danger">
             Start date &amp; time is required.
           </div>
@@ -56,18 +56,17 @@
 
       <div class="form-group mt-3">
         <label for="eventDuration">Duration (minutes) <span class="text-danger">*</span></label>
-        <input
-          id="eventDuration"
-          type="number"
-          [(ngModel)]="event.duration"
-          name="eventDuration"
-          required
-          min="1"
-          class="form-control"
-          #eventDuration="ngModel"/>
-        <div *ngIf="eventDuration.invalid && eventDuration.touched" class="text-danger">
-          Duration is required and must be a positive number.
-        </div>
+        <input id="eventDuration"
+               name="duration"
+               type="number"
+               class="form-control"
+               [(ngModel)]="event.duration"
+               required
+               min="10"
+               max="10000"
+               placeholder="10min–10000min"
+               title="Duration in minutes"
+               (blur)="validateDuration()"/>
       </div>
 
       <div class="form-group mt-3">
