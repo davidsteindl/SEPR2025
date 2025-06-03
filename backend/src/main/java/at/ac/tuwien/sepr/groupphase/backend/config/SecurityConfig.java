@@ -37,16 +37,6 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
-
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/api/v1/authentication/register",
-                    "/api/v1/authentication/resetPassword",
-                    "/api/v1/authentication/changePassword",
-                    "/h2-console/**"
-                ).permitAll()
-                .anyRequest().authenticated()
-            )
             .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
     }
