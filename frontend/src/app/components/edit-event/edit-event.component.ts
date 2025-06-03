@@ -109,4 +109,10 @@ export class EditEventComponent implements OnInit {
   private toDateTimeLocal(iso: string): string {
     return iso.slice(0, 16);
   }
+  preventNonNumericInput(event: KeyboardEvent): void {
+    const invalidChars = ['e', 'E', '+', '-', '.'];
+    if (invalidChars.includes(event.key)) {
+      event.preventDefault();
+    }
+  }
 }
