@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,21 +41,21 @@ public class ShowValidator {
         } else if (!eventRepository.existsById(show.getEvent().getId())) {
             errors.add("Event with ID " + show.getEvent().getId() + " not found");
         } else {
-            Event event = eventRepository.findById(show.getEvent().getId()).get();
-            List<Show> existingShows = showRepository.findByEventOrderByDateAsc(event);
+            if (show.getDate() == null) {
+                errors.add("Show date must not be null");
+            } else {
+                LocalDateTime nowTrunc = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+                LocalDateTime showStartTrunc = show.getDate().truncatedTo(ChronoUnit.MINUTES);
+                if (showStartTrunc.isBefore(nowTrunc)) {
+                    errors.add("Show date must not be in the past");
+                } else {
+                    Event event = eventRepository.findById(show.getEvent().getId()).get();
+                    List<Show> existingShows = showRepository.findByEventOrderByDateAsc(event);
 
-            if (!existingShows.isEmpty()) {
-                if (!validateDuration(show.getEvent().getId(), show.getDate(), show.getDuration())) {
-                    errors.add("Show exceeds total event duration");
-                }
-                LocalDateTime newStart = show.getDate();
-                LocalDateTime newEnd = newStart.plusMinutes(show.getDuration());
-                for (Show existing : existingShows) {
-                    LocalDateTime existStart = existing.getDate();
-                    LocalDateTime existEnd = existStart.plusMinutes(existing.getDuration());
-                    if (newStart.isBefore(existEnd) && existStart.isBefore(newEnd)) {
-                        errors.add("Show overlaps with existing show (ID=" + existing.getId() + ")");
-                        break;
+                    if (!existingShows.isEmpty()) {
+                        if (!validateDuration(show.getEvent().getId(), show.getDate(), show.getDuration())) {
+                            errors.add("Show exceeds total event duration");
+                        }
                     }
                 }
             }

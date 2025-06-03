@@ -56,6 +56,12 @@ public class EventValidator {
         LocalDateTime start = event.getDateTime();
         if (start == null) {
             errors.add("Start date/time must not be null");
+        } else {
+            LocalDateTime nowTrunc = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+            LocalDateTime startTrunc = start.truncatedTo(ChronoUnit.MINUTES);
+            if (startTrunc.isBefore(nowTrunc)) {
+                errors.add("Start date/time must not be in the past");
+            }
         }
 
         int duration = event.getDuration();
@@ -100,6 +106,12 @@ public class EventValidator {
 
         if (event.getDateTime() == null) {
             errors.add("Start date/time must not be null");
+        } else {
+            LocalDateTime nowTrunc = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+            LocalDateTime newStartTrunc = event.getDateTime().truncatedTo(ChronoUnit.MINUTES);
+            if (newStartTrunc.isBefore(nowTrunc)) {
+                errors.add("Start date/time must not be in the past");
+            }
         }
 
         int duration = event.getDuration();
