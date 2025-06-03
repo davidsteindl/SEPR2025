@@ -10,7 +10,7 @@ import {EventService} from "../../../services/event.service";
 import {LocationService} from "../../../services/location.service";
 import {ToastrService} from "ngx-toastr";
 import {ErrorFormatterService} from "../../../services/error-formatter.service";
-import {Router} from "@angular/router";
+import {Router, RouterLink} from "@angular/router";
 import {RoomService} from "../../../services/room.service";
 import {Room} from "../../../dtos/room";
 
@@ -20,7 +20,8 @@ import {Room} from "../../../dtos/room";
     FormsModule,
     ReactiveFormsModule,
     NgIf,
-    NgForOf
+    NgForOf,
+    RouterLink
   ],
   templateUrl: './create-room.component.html',
   styleUrl: './create-room.component.scss'
@@ -88,5 +89,9 @@ export class CreateRoomComponent implements OnInit {
         });
       }
     });
+  }
+
+  cancel(): void {
+    this.router.navigate(['/admin']);
   }
 }
