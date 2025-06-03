@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CheckoutRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetSeatedDto;
@@ -18,7 +17,6 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.HoldRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.AuthenticationFacade;
-import at.ac.tuwien.sepr.groupphase.backend.security.AuthenticationFacadeImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.RoomServiceImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ShowServiceImpl;
 import org.slf4j.Logger;
