@@ -17,24 +17,28 @@
         name="showName"
         required
         class="form-control"
-        #showName="ngModel" />
+        #showName="ngModel"/>
       <div *ngIf="showName.invalid && showName.touched" class="text-danger">
         Show name is required.
       </div>
     </div>
 
     <div class="form-group mt-3">
-      <label for="showDuration">Duration (minutes) <span class="text-danger">*</span></label>
+      <label for="showDuration">Duration <span class="text-danger">*</span></label>
       <input
         id="showDuration"
         type="number"
+        class="form-control"
         [(ngModel)]="show.duration"
         name="showDuration"
         required
-        min="1"
-        class="form-control"
+        min="10"
+        max="600"
+        placeholder="10min–600min"
+        title="Duration in minutes"
+        (blur)="validateDuration()"
         (keydown)="preventNonNumericInput($event)"
-        #showDuration="ngModel" />
+        #showDuration="ngModel"/>
       <div *ngIf="showDuration.touched">
         <div *ngIf="showDuration.errors?.required" class="text-danger">
           Duration is required.
@@ -54,7 +58,7 @@
         name="showDate"
         required
         class="form-control"
-        #showDate="ngModel" />
+        #showDate="ngModel"/>
       <div *ngIf="showDate.invalid && showDate.touched" class="text-danger">
         Date and time are required.
       </div>
