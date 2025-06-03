@@ -33,9 +33,15 @@
         required
         min="1"
         class="form-control"
+        (keydown)="preventNonNumericInput($event)"
         #showDuration="ngModel" />
-      <div *ngIf="showDuration.invalid && showDuration.touched" class="text-danger">
-        Duration is required and must be a positive number.
+      <div *ngIf="showDuration.touched">
+        <div *ngIf="showDuration.errors?.required" class="text-danger">
+          Duration is required.
+        </div>
+        <div *ngIf="showDuration.errors?.min" class="text-danger">
+          Duration must be a positive number.
+        </div>
       </div>
     </div>
 
