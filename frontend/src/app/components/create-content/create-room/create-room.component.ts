@@ -1,12 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {NgForOf, NgIf} from "@angular/common";
-import {CreateShow} from "../../../dtos/create-show";
 import {CreateRoom} from "../../../dtos/create-room";
-import {Event} from "../../../dtos/event";
 import {Location} from "../../../dtos/location";
-import {EventCategory} from "../create-event/create-event.component";
-import {EventService} from "../../../services/event.service";
 import {LocationService} from "../../../services/location.service";
 import {ToastrService} from "ngx-toastr";
 import {ErrorFormatterService} from "../../../services/error-formatter.service";
