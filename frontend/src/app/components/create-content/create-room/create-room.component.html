@@ -35,8 +35,13 @@
         max="10"
         class="form-control"
         #amountSectors="ngModel"/>
-      <div *ngIf="amountSectors.invalid && amountSectors.touched" class="text-danger">
-        Amount of sectors is required and must be a positive number.
+      <div *ngIf="amountSectors.touched">
+        <div *ngIf="amountSectors.errors?.required" class="text-danger">
+          Amount of sectors is required.
+        </div>
+        <div *ngIf="seatsPerRow.errors?.min" class="text-danger">
+          Amount of sectors must be a positive number.
+        </div>
       </div>
     </div>
 
@@ -52,8 +57,13 @@
         max="10"
         class="form-control"
         #rowsPerSector="ngModel"/>
-      <div *ngIf="rowsPerSector.invalid && rowsPerSector.touched" class="text-danger">
-        Amount of Rows per Sector is required and must be a positive number.
+      <div *ngIf="rowsPerSector.touched">
+        <div *ngIf="rowsPerSector.errors?.required" class="text-danger">
+          Amount of rows per sector is required.
+        </div>
+        <div *ngIf="seatsPerRow.errors?.min" class="text-danger">
+          Amount of rows per sector must be a positive number.
+        </div>
       </div>
     </div>
 
@@ -69,8 +79,13 @@
         max="100"
         class="form-control"
         #seatsPerRow="ngModel"/>
-      <div *ngIf="seatsPerRow.invalid && seatsPerRow.touched" class="text-danger">
-        Seats per Row are required and must be a positive number.
+      <div *ngIf="seatsPerRow.touched">
+        <div *ngIf="seatsPerRow.errors?.required" class="text-danger">
+          Amount of seats per row is required.
+        </div>
+        <div *ngIf="seatsPerRow.errors?.min" class="text-danger">
+          Amount of seats per row must be a positive number.
+        </div>
       </div>
     </div>
 

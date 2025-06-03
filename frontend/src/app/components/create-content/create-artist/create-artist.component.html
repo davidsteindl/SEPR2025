@@ -1,70 +1,82 @@
-<div class="mt-4 container">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Create Artist</h2>
-    <button class="btn btn-outline-secondary" [routerLink]="['/admin']">
-      ← Back to Admin Page
+<form #artistForm="ngForm" class="tab-box" (ngSubmit)="createArtist()" novalidate>
+  <!-- 1) First Name: benötigt, sobald stageName leer ist -->
+  <div class="form-group">
+    <label for="firstName">First Name</label>
+    <input
+      id="firstName"
+      type="text"
+      name="firstName"
+      class="form-control"
+      [(ngModel)]="artist.firstname"
+      #firstName="ngModel"
+      [required]="!artist.stagename"
+    />
+
+    <div *ngIf="!artist.stagename && firstName.invalid && firstName.touched" class="text-danger">
+      First Name is required when there is no Stage Name.
+    </div>
+  </div>
+
+  <div class="form-group mt-3">
+    <label for="lastName">Last Name</label>
+    <input
+      id="lastName"
+      type="text"
+      name="lastName"
+      class="form-control"
+      [(ngModel)]="artist.lastname"
+      #lastName="ngModel"
+      [required]="!artist.stagename"
+    />
+    <div *ngIf="!artist.stagename && lastName.invalid && lastName.touched" class="text-danger">
+      Last Name is required when there is no Stage Name.
+    </div>
+  </div>
+
+  <div class="form-group mt-3">
+    <label for="stageName">Stage Name</label>
+    <input
+      id="stageName"
+      type="text"
+      name="stageName"
+      class="form-control"
+      [(ngModel)]="artist.stagename"
+      #stageName="ngModel"
+      [required]="!artist.firstname || !artist.lastname"
+    />
+    <div *ngIf="(!artist.firstname || !artist.lastname) && stageName.invalid && stageName.touched" class="text-danger">
+      Stage Name is required when First and/ or Last Name is missing.
+    </div>
+  </div>
+
+  <div class="form-group mt-3">
+    <label>Shows</label>
+    <div class="d-flex flex-wrap gap-2">
+      <button
+        type="button"
+        *ngFor="let show of shows"
+        class="btn"
+        [ngClass]="{
+          'btn-outline-primary': !isShowSelected(show.id),
+          'btn-primary': isShowSelected(show.id)
+        }"
+        (click)="toggleShowSelection(show.id)">
+        {{ show.name || 'Unnamed' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="text-danger text-center mt-2" *ngIf="artistForm.submitted && !isNameValid()">
+    Please provide either a Stage Name, or both First and Last Name.
+  </div>
+
+  <div class="mt-4 text-center">
+    <button
+      type="submit"
+      class="btn btn-success me-2"
+      [disabled]="artistForm.invalid || !isNameValid()">
+      Create Artist
     </button>
+    <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
   </div>
-  <hr>
-
-    <form #artistForm="ngForm" class="tab-box" (ngSubmit)="createArtist()" novalidate>
-
-      <div class="form-group">
-        <label for="firstname">First Name</label>
-        <input
-          id="firstname"
-          [(ngModel)]="artist.firstname"
-          name="firstname"
-          class="form-control"
-          #firstname="ngModel"/>
-      </div>
-
-      <div class="form-group mt-3">
-        <label for="lastname">Last Name</label>
-        <input
-          id="lastname"
-          [(ngModel)]="artist.lastname"
-          name="lastname"
-          class="form-control"
-          #lastname="ngModel"/>
-      </div>
-
-      <div class="form-group mt-3">
-        <label for="stagename">Stage Name</label>
-        <input
-          id="stagename"
-          [(ngModel)]="artist.stagename"
-          name="stagename"
-          class="form-control"
-          #stagename="ngModel"/>
-      </div>
-
-      <div class="form-group mt-3">
-        <label>Shows</label>
-        <div class="d-flex flex-wrap gap-2">
-          <button
-            type="button"
-            *ngFor="let show of shows"
-            class="btn"
-            [ngClass]="{
-        'btn-outline-primary': !isShowSelected(show.id),
-        'btn-primary': isShowSelected(show.id)
-      }"
-            (click)="toggleShowSelection(show.id)">
-            {{ show.name || 'Unnamed' }}
-          </button>
-        </div>
-      </div>
-
-
-      <div class="text-danger text-center mt-2" *ngIf="!isNameValid() && artistForm.submitted">
-        Please provide either a stage name or both first and last names.
-      </div>
-
-      <div class="mt-4 text-center">
-        <button type="submit" class=" btn btn-success me-2" [disabled]="artistForm.invalid">Create Artist</button>
-        <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
-      </div>
-
-    </form>
-  </div>
+</form>
