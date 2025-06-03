@@ -55,12 +55,6 @@ management:
   server:
     port: 8081
   endpoint:
-    shutdown:
-      enabled: true
-    metrics:
-      enabled: true
-    prometheus:
-      enabled: true
     health:
       probes:
         enabled: true

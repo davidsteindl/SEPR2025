@@ -1,11 +1,14 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password;
 
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Objects;
 
 
 public class PasswordResetDto {
 
+    @NotNull(message = "Email must not be null")
     private String email;
 
     public String getEmail() {

@@ -27,6 +27,7 @@ public class MailServiceImpl implements MailService {
     @Async
     @Override
     public void sendPasswordResetEmail(String email, String link) {
+        LOGGER.info("sending email for Password-Reset ...");
         String htmlContent = """
                 <html>
                     <body>

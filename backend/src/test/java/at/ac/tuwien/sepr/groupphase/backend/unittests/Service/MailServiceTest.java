@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.OtTokenRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
@@ -69,7 +70,7 @@ public class MailServiceTest {
 
 
     @Test
-    public void testMail() {
+    public void testMail() throws ValidationException {
         PasswordResetDto passwordResetDto = new PasswordResetDto();
         passwordResetDto.setEmail("markus@email.com");
 

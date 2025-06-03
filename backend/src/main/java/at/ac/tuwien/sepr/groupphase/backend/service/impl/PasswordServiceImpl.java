@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.OttDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordChangeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
@@ -13,17 +12,21 @@ import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
 import at.ac.tuwien.sepr.groupphase.backend.service.PasswordService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest;
 import org.springframework.security.authentication.ott.OneTimeToken;
 import org.springframework.security.authentication.ott.OneTimeTokenService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
 public class PasswordServiceImpl implements PasswordService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final UserRepository userRepository;
     MailService mailService;
@@ -44,8 +47,8 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     public void requestResetPassword(PasswordResetDto passwordResetDto) throws NotFoundException, IllegalArgumentException, ValidationException {
-
-        String email;
+        LOGGER.info("Password Reset starting");
+        String email = "";
 
         if (passwordResetDto.getEmail() == null) {
             throw new IllegalArgumentException("no email provided");
@@ -57,36 +60,36 @@ public class PasswordServiceImpl implements PasswordService {
         if (userService.findApplicationUserByEmail(email) == null) {
             throw new NotFoundException(email);
         }
-        mailService.sendPasswordResetEmail(email, createOttLink(email, "/account/reset-password"));
+        mailService.sendPasswordResetEmail(email, createOttLink(email, "/reset-password"));
     }
 
 
-    private void validateOtt(OttDto ottDto) throws IllegalArgumentException {
+    private void validateOtt(PasswordChangeDto passwordChangeDto) throws IllegalArgumentException {
 
-        Long userId = otTokenRepository.findUserIdByOtToken(ottDto.getOtToken());
+        Long userId = otTokenRepository.findUserIdByOtToken(passwordChangeDto.getOtToken());
 
         if (userId == null) {
             throw new IllegalArgumentException("One-Time-Token is wrong");
         } else {
 
-            Optional<PasswordOtt> maybeToken = otTokenRepository.findByTokenAndConsumedFalseAndValidUntilAfter(ottDto.getOtToken(), LocalDateTime.now());
+            Optional<PasswordOtt> maybeToken = otTokenRepository.findByOtTokenAndConsumedFalseAndValidUntilAfter(passwordChangeDto.getOtToken(), LocalDateTime.now());
             if (maybeToken.isEmpty()) {
                 throw new IllegalArgumentException("Token is invalid or already used");
             }
             otTokenRepository.markConsumed(userId);
-            ottDto.setUserId(userId);
+            passwordChangeDto.setUserId(userId);
         }
 
     }
 
     @Override
-    public void changePassword(PasswordChangeDto passwordChangeDto, OttDto ottDto) throws NotFoundException, ValidationException, IllegalArgumentException {
+    public void changePassword(PasswordChangeDto passwordChangeDto) throws NotFoundException, ValidationException, IllegalArgumentException {
 
-        validateOtt(ottDto);
+        validateOtt(passwordChangeDto);
 
         userValidator.validateForPasswordChange(passwordChangeDto);
 
-        ApplicationUser user = userService.findUserById(ottDto.getUserId());
+        ApplicationUser user = userService.findUserById(passwordChangeDto.getUserId());
         if (user == null) {
             throw new NotFoundException("No User found");
         }

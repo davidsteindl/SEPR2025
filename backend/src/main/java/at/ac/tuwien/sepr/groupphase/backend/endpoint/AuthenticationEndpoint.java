@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.OttDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordChangeDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserLoginDto;
@@ -16,9 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 
 
 @RestController
@@ -62,15 +58,15 @@ public class AuthenticationEndpoint {
 
     @PermitAll
     @PostMapping("/resetPassword")
-    public ResponseEntity<Void> passwordReset(@Valid @RequestBody PasswordResetDto passwordResetDto) {
+    public ResponseEntity<Void> passwordReset(@RequestBody PasswordResetDto passwordResetDto) throws ValidationException {
         passwordService.requestResetPassword(passwordResetDto);
         return ResponseEntity.ok().build();
     }
 
     @PermitAll
     @PostMapping("/changePassword")
-    public ResponseEntity<Void> passwordChange(@Valid @RequestBody PasswordChangeDto passwordChangeDto, @Valid @RequestBody OttDto ottDto) throws ValidationException {
-        passwordService.changePassword(passwordChangeDto, ottDto);
+    public ResponseEntity<Void> passwordChange(@Valid @RequestBody PasswordChangeDto passwordChangeDto) throws ValidationException {
+        passwordService.changePassword(passwordChangeDto);
         return ResponseEntity.ok().build();
     }
 

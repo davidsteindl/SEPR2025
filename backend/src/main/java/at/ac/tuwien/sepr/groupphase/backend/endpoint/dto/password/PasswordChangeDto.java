@@ -14,6 +14,26 @@ public class PasswordChangeDto {
     @NotNull
     String confirmPassword;
 
+    @NotNull
+    String otToken;
+
+    Long userId;
+
+    public String getOtToken() {
+        return otToken;
+    }
+
+    public void setOtToken(String otToken) {
+        this.otToken = otToken;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
     public String getPassword() {
         return password;
