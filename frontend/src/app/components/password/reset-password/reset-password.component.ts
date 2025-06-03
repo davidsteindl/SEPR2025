@@ -3,6 +3,7 @@ import {EmailSentComponent} from "../email-sent/email-sent.component";
 import {NgIf} from "@angular/common";
 import {FormGroup, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
 import {Router, RouterLink} from "@angular/router";
+import {AuthService} from "../../../services/auth.service";
 
 @Component({
   selector: 'app-reset-password',
@@ -20,14 +21,16 @@ export class ResetPasswordComponent {
   submitted = false;
   isSubmitting = false;
 
-  constructor(private formBuilder: UntypedFormBuilder, private router: Router) {
+  constructor(private formBuilder: UntypedFormBuilder, private router: Router, private authService: AuthService) {
     this.passwordResetForm = this.formBuilder.group({
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(8)]]
     });
   }
 
-  resetPassword(){
+  changePassword(){
+
+    this.authService.changePassword();
 
   }
 

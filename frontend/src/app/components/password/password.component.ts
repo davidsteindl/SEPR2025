@@ -3,6 +3,8 @@ import {NgIf} from "@angular/common";
 import {FormGroup, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
 import {Router, RouterLink} from "@angular/router";
 import {EmailSentComponent} from "./email-sent/email-sent.component";
+import {AuthService} from "../../services/auth.service";
+import {ToastrService} from "ngx-toastr";
 
 
 @Component({
@@ -20,27 +22,45 @@ export class PasswordComponent {
   passwordResetForm: FormGroup;
   submitted = false;
   emailSent = false;
+  email= '';
   isSubmitting = false;
+  error = false;
+  errorMessage = '';
 
-  constructor(private formBuilder: UntypedFormBuilder, private router: Router) {
+  constructor(private formBuilder: UntypedFormBuilder, private router: Router, private authService: AuthService, private notification: ToastrService) {
     this.passwordResetForm = this.formBuilder.group({
       email: ['', [Validators.required]]
     });
   }
 
-  resetPassword() {
-    this.submitted = true;
+  resetPassword(email: string) {
 
-    if (this.passwordResetForm.invalid) {
-      return;
-    }
+    console.log("resetPassword started");
 
-    this.isSubmitting = true;
-    this.emailSent = true;
+    this.authService.resetPassword(email).subscribe({
+      next: () => {
+        this.submitted = true;
+        this.email = email;
+        this.emailSent = true;
+        this.isSubmitting = true;
+      },
+      error: error => {
+        console.log(`Could not send email because ${error.error.errors}`);
+        this.error = true;
+        this.passwordResetForm.reset();
+        this.submitted = false;
+        if (typeof error.error === 'object') {
+          this.notification.error(`Validation of email failed because ${error.error.errors}`);
+        } else {
+          this.errorMessage = error.error;
+        }
+      }
+    });
 
 
-    this.passwordResetForm.reset();
-    this.submitted = false;
+
+
+
   }
 
 }

@@ -39,6 +39,7 @@ import {PastOrderDetailComponent} from "./components/order-detail/past-order-det
 import {EditEventComponent} from "./components/edit-event/edit-event.component";
 import {TicketComponent} from "./components/ticket/ticket.component";
 import { PasswordComponent } from './components/password/password.component';
+import {ResetPasswordComponent} from "./components/password/reset-password/reset-password.component";
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -71,7 +72,8 @@ const routes: Routes = [
   { path: 'orders/refunded/:id', component: RefundedOrderDetailComponent, canActivate: [AuthGuard] },
   { path: 'orders/past/:id', component: PastOrderDetailComponent, canActivate: [AuthGuard] },
   { path: 'ticket/:id/:randomTicketCode', component: TicketComponent, canActivate: [AdminGuard] },
-  { path: 'reset-password', component: PasswordComponent},
+  { path: 'forgot-password', component: PasswordComponent},
+  { path: 'reset-password', component: ResetPasswordComponent},
 ];
 
 @NgModule({

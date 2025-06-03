@@ -89,4 +89,15 @@ export class AuthService {
     return date;
   }
 
+  resetPassword(email: string) : Observable<void> {
+    console.log("Reset-Password-Request");
+    return this.httpClient.post<void>(this.authBaseUri + '/resetPassword', email)
+
+  }
+
+  changePassword() {
+
+  }
+
+
 }
