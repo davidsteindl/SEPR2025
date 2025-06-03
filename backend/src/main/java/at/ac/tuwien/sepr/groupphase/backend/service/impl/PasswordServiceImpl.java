@@ -53,7 +53,6 @@ public class PasswordServiceImpl implements PasswordService {
         if (passwordResetDto.getEmail() == null) {
             throw new IllegalArgumentException("no email provided");
         } else {
-            userValidator.validateEmailForPasswordReset(passwordResetDto);
 
             email = passwordResetDto.getEmail();
         }

@@ -127,21 +127,6 @@ public class UserValidator {
 
     }
 
-    public void validateEmailForPasswordReset(PasswordResetDto passwordResetDto) throws ValidationException {
-
-        LOGGER.info("Validating email for Password-Reset ...");
-        List<String> validationErrors = new ArrayList<>();
-
-        if (!isValidEmail(passwordResetDto.getEmail())) {
-            validationErrors.add("Email is not valid");
-        }
-
-        if (!validationErrors.isEmpty()) {
-            throw new ValidationException("Validation of user for registration failed", validationErrors);
-        }
-
-    }
-
 
     public void validateForUpdate(UserUpdateDto user) throws NotFoundException, ValidationException {
         LOGGER.info("Validating user update ...");
