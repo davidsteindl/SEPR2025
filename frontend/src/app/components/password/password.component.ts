@@ -48,11 +48,6 @@ export class PasswordComponent {
         this.error = true;
         this.passwordResetForm.reset();
         this.submitted = false;
-        if (typeof error.error === 'object') {
-          this.notification.error(`Validation of email failed because ${error}`);
-        } else {
-          this.errorMessage = error.error;
-        }
       }
     });
 

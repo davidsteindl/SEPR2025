@@ -96,7 +96,7 @@ export class AuthService {
 
   }
 
-  changePassword(changePasswordRequest: PasswordChange) {
+  changePassword(changePasswordRequest: PasswordChange): Observable<void> {
     console.log("Change-Password-Request");
     return this.httpClient.post<void>(this.authBaseUri + '/changePassword', changePasswordRequest)
   }

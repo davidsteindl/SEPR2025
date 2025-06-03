@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {EmailSentComponent} from "../email-sent/email-sent.component";
 import {NgIf} from "@angular/common";
 import {FormGroup, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
@@ -10,22 +10,21 @@ import {PasswordChange} from "../../../dtos/password-change";
 @Component({
   selector: 'app-reset-password',
     imports: [
-        EmailSentComponent,
         NgIf,
         ReactiveFormsModule,
-        RouterLink
     ],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss'
 })
-export class ResetPasswordComponent {
+export class ResetPasswordComponent implements OnInit{
   passwordResetForm: FormGroup;
   submitted = false;
   isSubmitting = false;
 
   constructor(private route: ActivatedRoute,
               private formBuilder: UntypedFormBuilder,
-              private authService: AuthService) {
+              private authService: AuthService,
+              private router: Router) {
     this.passwordResetForm = this.formBuilder.group({
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(8)]]
@@ -42,10 +41,27 @@ export class ResetPasswordComponent {
       confirmPassword: this.passwordResetForm.controls.confirmPassword.value,
       otToken: token
     }
+    console.log(changePasswordRequest);
 
-    this.authService.changePassword(changePasswordRequest);
+    this.authService.changePassword(changePasswordRequest).subscribe({
+      next: () => {
+        console.log('Password changed successfully');
+        this.goToLogin();
+      },
+      error: err => {
+        console.error('Error changing password:', err);
+      }
+    });
+
   }
 
+  ngOnInit(): void {
+    console.log('ResetPasswordComponent loaded');
+  }
+
+  goToLogin(): void {
+    this.router.navigate(['/login']);
+  }
 
 
 }
