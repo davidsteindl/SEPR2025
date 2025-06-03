@@ -58,19 +58,29 @@
     </div>
 
     <div class="form-group mt-3">
-      <label for="eventDuration">Duration (minutes) <span class="text-danger">*</span></label>
-      <input id="eventDuration"
-             name="duration"
-             type="number"
-             class="form-control"
-             [(ngModel)]="event.duration"
-             required
-             min="10"
-             max="10000"
-             placeholder="10min–10000min"
-             title="Duration in minutes"
-             (blur)="validateDuration()"
-             (keydown)="preventNonNumericInput($event)"/>
+      <label for="eventDuration">Duration <span class="text-danger">*</span></label>
+      <input
+        id="eventDuration"
+        name="eventDuration"
+        type="number"
+        class="form-control"
+        [(ngModel)]="event.duration"
+        required
+        min="10"
+        max="10000"
+        placeholder="10min–10000min"
+        title="Duration in minutes"
+        (blur)="validateDuration()"
+        (keydown)="preventNonNumericInput($event)"
+        #eventDuration="ngModel"/>
+      <div *ngIf="eventDuration.touched">
+        <div *ngIf="eventDuration.errors?.required" class="text-danger">
+          Duration is required.
+        </div>
+        <div *ngIf="eventDuration.errors?.min" class="text-danger">
+          Duration must be a positive number.
+        </div>
+      </div>
     </div>
 
     <div class="form-group mt-3">
