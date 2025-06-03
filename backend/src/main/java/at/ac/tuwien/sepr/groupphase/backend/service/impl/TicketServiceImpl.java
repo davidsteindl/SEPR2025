@@ -110,11 +110,13 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public OrderDto buyTickets(TicketRequestDto request) {
+    public OrderDto buyTickets(TicketRequestDto request) throws ValidationException {
         LOGGER.debug("Buy tickets request: {}", request);
         ticketValidator.validateForBuyTickets(request);
+        ticketValidator.validateCheckoutPaymentData(request);
+        ticketValidator.validateCheckoutAddress(request);
         Show show = loadShow(request.getShowId());
-        Order order = initOrder(authFacade.getCurrentUserId(), OrderType.ORDER);
+        Order order = initOrderWithAdresse(authFacade.getCurrentUserId(), OrderType.ORDER, request);
 
         var result = createTickets(order, show, request.getTargets(), TicketStatus.BOUGHT);
         finalizeOrder(order, result.tickets);
@@ -159,7 +161,7 @@ public class TicketServiceImpl implements TicketService {
      * @param type the type of the order (ORDER or RESERVATION)
      * @return the persisted Order entity
      */
-    private Order initOrder(Long userId, OrderType type) {
+    private Order initOrderWithAdresse(Long userId, OrderType type, TicketRequestDto request) {
         LOGGER.debug("Initializing order for user: {}, type: {}", userId, type);
         Order order = new Order();
         order.setCreatedAt(LocalDateTime.now());
@@ -167,13 +169,13 @@ public class TicketServiceImpl implements TicketService {
         order.setUserId(userId);
         order.setOrderType(type);
 
-        order.setFirstName(order.getFirstName());
-        order.setLastName(order.getLastName());
-        order.setHousenumber(order.getHousenumber());
-        order.setStreet(order.getStreet());
-        order.setPostalCode(order.getPostalCode());
-        order.setCity(order.getCity());
-        order.setCountry(order.getCountry());
+        order.setFirstName(request.getFirstName());
+        order.setLastName(request.getLastName());
+        order.setHousenumber(request.getHousenumber());
+        order.setStreet(request.getStreet());
+        order.setPostalCode(request.getPostalCode());
+        order.setCity(request.getCity());
+        order.setCountry(request.getCountry());
 
         OrderGroup group = new OrderGroup();
         group.setUserId(userId);
@@ -181,6 +183,22 @@ public class TicketServiceImpl implements TicketService {
         order.setOrderGroup(group);
         return orderRepository.save(order);
     }
+
+    private Order initOrder(Long userId, OrderType type) {
+        LOGGER.debug("Initializing order without address for user: {}, type: {}", userId, type);
+        Order order = new Order();
+        order.setCreatedAt(LocalDateTime.now());
+        order.setUserId(userId);
+        order.setOrderType(type);
+
+        OrderGroup group = new OrderGroup();
+        group.setUserId(userId);
+        orderGroupRepository.save(group);
+        order.setOrderGroup(group);
+
+        return orderRepository.save(order);
+    }
+
 
     /**
      * Creates tickets for the given order and show based on target DTOs, saves them, and calculates total price.

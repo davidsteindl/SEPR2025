@@ -322,7 +322,11 @@ public class TicketValidator {
      */
     private void validateTicketsOwnedByCurrentUser(List<Ticket> tickets) {
         Long me = authenticationFacade.getCurrentUserId();
-        boolean any = tickets.stream().anyMatch(t -> !t.getOrder().getUserId().equals(me));
+
+        boolean any = tickets.stream()
+            .flatMap(t -> t.getOrders().stream())
+            .anyMatch(o -> !o.getUserId().equals(me));
+
         if (any) {
             throw new SeatUnavailableException("Cannot operate on tickets you do not own");
         }
@@ -335,7 +339,7 @@ public class TicketValidator {
      * @param dto the checkout request containing payment details
      * @throws ValidationException if any credit card field is invalid
      */
-    public void validateCheckoutPaymentData(CheckoutRequestDto dto) throws ValidationException {
+    public void validateCheckoutPaymentData(TicketRequestDto dto) throws ValidationException {
         LOGGER.debug("Validating credit card data with bulk validation");
 
         List<String> errors = new ArrayList<>();
@@ -402,7 +406,7 @@ public class TicketValidator {
      * @param dto the checkout request containing address and personal data
      * @throws ValidationException if any address or name field is invalid or incomplete
      */
-    public void validateCheckoutAddress(CheckoutRequestDto dto) throws ValidationException {
+    public void validateCheckoutAddress(TicketRequestDto dto) throws ValidationException {
         List<String> validationErrors = new ArrayList<>();
 
         if (dto.getFirstName() == null || dto.getFirstName().isBlank()) {
