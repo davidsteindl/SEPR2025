@@ -8,7 +8,7 @@ import {FormsModule} from "@angular/forms";
 import {CommonModule, NgForOf} from "@angular/common";
 import {EventService} from '../../../services/event.service';
 import {LocationService} from '../../../services/location.service';
-import { Router } from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-create-event',
@@ -16,7 +16,8 @@ import { Router } from '@angular/router';
   imports: [
     CommonModule,
     FormsModule,
-    NgForOf
+    NgForOf,
+    RouterLink
   ],
   templateUrl: './create-event.component.html',
   styleUrl: './create-event.component.scss'
@@ -104,6 +105,10 @@ export class CreateEventComponent implements OnInit {
     } else if (this.event.duration > 10000) {
       this.event.duration = 10000;
     }
+  }
+
+  cancel(): void {
+    this.router.navigate(['/admin']);
   }
 }
 

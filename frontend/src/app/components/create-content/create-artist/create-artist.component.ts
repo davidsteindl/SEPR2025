@@ -7,14 +7,15 @@ import {ShowService} from '../../../services/show.service';
 import {Show} from '../../../dtos/show';
 import {ToastrService} from 'ngx-toastr';
 import {ErrorFormatterService} from '../../../services/error-formatter.service';
-import { Router } from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-create-artist',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    RouterLink
   ],
   templateUrl: './create-artist.component.html',
   styleUrl: './create-artist.component.scss'
@@ -96,5 +97,9 @@ export class CreateArtistComponent implements OnInit {
         });
       }
     });
+  }
+
+  cancel(): void {
+    this.router.navigate(['/admin']);
   }
 }
