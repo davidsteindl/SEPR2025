@@ -1,111 +1,110 @@
 <div class="mt-4 container">
-  <div class="row">
-
-    <h2 class="modal-title">Create Location</h2>
-    <hr>
-
-    <form #locationForm="ngForm" class="tab-box" (ngSubmit)="createLocation()" novalidate>
-
-      <div class="form-group">
-        <label for="locationName">Name <span class="text-danger">*</span></label>
-        <input
-          id="locationName"
-          [(ngModel)]="location.name"
-          name="locationName"
-          required
-          class="form-control"
-          #locationName="ngModel"/>
-        <div *ngIf="locationName.invalid && locationName.touched" class="text-danger">
-          Name is required.
-        </div>
-      </div>
-
-      <div class="form-group mt-3">
-        <label for="locationType">Type <span class="text-danger">*</span></label>
-        <select
-          id="locationType"
-          [(ngModel)]="location.type"
-          name="locationType"
-          required
-          class="form-control"
-          #locationType="ngModel">
-          <option [ngValue]="null" disabled selected>Select type</option>
-          <option *ngFor="let option of locationTypeOptions" [value]="option.value">{{ option.label }}</option>
-        </select>
-        <div *ngIf="locationType.invalid && locationType.touched" class="text-danger">
-          Type is required.
-        </div>
-      </div>
-
-      <div class="form-group mt-3">
-        <label for="locationCountry">Country <span class="text-danger">*</span></label>
-        <select
-          id="locationCountry"
-          [(ngModel)]="location.country"
-          name="locationCountry"
-          required
-          class="form-control"
-          #locationCountry="ngModel">
-          <option [ngValue]="null" disabled selected>Select country</option>
-          <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
-        </select>
-        <div *ngIf="locationCountry.invalid && locationCountry.touched" class="text-danger">
-          Country is required.
-        </div>
-      </div>
-
-
-      <div class="form-group mt-3">
-        <label for="locationCity">City <span class="text-danger">*</span></label>
-        <input
-          id="locationCity"
-          [(ngModel)]="location.city"
-          name="locationCity"
-          required
-          class="form-control"
-          #locationCity="ngModel"/>
-        <div *ngIf="locationCity.invalid && locationCity.touched" class="text-danger">
-          City is required.
-        </div>
-      </div>
-
-      <div class="form-group mt-3">
-        <label for="locationStreet">Street <span class="text-danger">*</span></label>
-        <input
-          id="locationStreet"
-          [(ngModel)]="location.street"
-          name="locationStreet"
-          required
-          class="form-control"
-          #locationStreet="ngModel"/>
-        <div *ngIf="locationStreet.invalid && locationStreet.touched" class="text-danger">
-          Street is required.
-        </div>
-      </div>
-
-      <div class="form-group mt-3">
-        <label for="locationPostalCode">Postal Code <span class="text-danger">*</span></label>
-        <input
-          id="locationPostalCode"
-          [(ngModel)]="location.postalCode"
-          name="locationPostalCode"
-          required
-          class="form-control"
-          #locationPostalCode="ngModel"/>
-        <div *ngIf="locationPostalCode.invalid && locationPostalCode.touched" class="text-danger">
-          Postal code is required.
-        </div>
-      </div>
-
-      <div class="text-center">
-        <button
-          class="btn btn-success mt-4"
-          type="submit"
-          [disabled]="locationForm.invalid">
-          Create Location
-        </button>
-      </div>
-
-    </form>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Create Location</h2>
+    <button class="btn btn-outline-secondary" [routerLink]="['/admin']">
+      ← Back to Admin Page
+    </button>
   </div>
+  <hr>
+
+  <form #locationForm="ngForm" class="tab-box" (ngSubmit)="createLocation()" novalidate>
+
+    <div class="form-group">
+      <label for="locationName">Name <span class="text-danger">*</span></label>
+      <input
+        id="locationName"
+        [(ngModel)]="location.name"
+        name="locationName"
+        required
+        class="form-control"
+        #locationName="ngModel"/>
+      <div *ngIf="locationName.invalid && locationName.touched" class="text-danger">
+        Name is required.
+      </div>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="locationType">Type <span class="text-danger">*</span></label>
+      <select
+        id="locationType"
+        [(ngModel)]="location.type"
+        name="locationType"
+        required
+        class="form-control"
+        #locationType="ngModel">
+        <option [ngValue]="null" disabled selected>Select type</option>
+        <option *ngFor="let option of locationTypeOptions" [value]="option.value">{{ option.label }}</option>
+      </select>
+      <div *ngIf="locationType.invalid && locationType.touched" class="text-danger">
+        Type is required.
+      </div>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="locationCountry">Country <span class="text-danger">*</span></label>
+      <select
+        id="locationCountry"
+        [(ngModel)]="location.country"
+        name="locationCountry"
+        required
+        class="form-control"
+        #locationCountry="ngModel">
+        <option [ngValue]="null" disabled selected>Select country</option>
+        <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+      </select>
+      <div *ngIf="locationCountry.invalid && locationCountry.touched" class="text-danger">
+        Country is required.
+      </div>
+    </div>
+
+
+    <div class="form-group mt-3">
+      <label for="locationCity">City <span class="text-danger">*</span></label>
+      <input
+        id="locationCity"
+        [(ngModel)]="location.city"
+        name="locationCity"
+        required
+        class="form-control"
+        #locationCity="ngModel"/>
+      <div *ngIf="locationCity.invalid && locationCity.touched" class="text-danger">
+        City is required.
+      </div>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="locationStreet">Street <span class="text-danger">*</span></label>
+      <input
+        id="locationStreet"
+        [(ngModel)]="location.street"
+        name="locationStreet"
+        required
+        class="form-control"
+        #locationStreet="ngModel"/>
+      <div *ngIf="locationStreet.invalid && locationStreet.touched" class="text-danger">
+        Street is required.
+      </div>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="locationPostalCode">Postal Code <span class="text-danger">*</span></label>
+      <input
+        id="locationPostalCode"
+        [(ngModel)]="location.postalCode"
+        name="locationPostalCode"
+        required
+        class="form-control"
+        #locationPostalCode="ngModel"/>
+      <div *ngIf="locationPostalCode.invalid && locationPostalCode.touched" class="text-danger">
+        Postal code is required.
+      </div>
+    </div>
+
+    <div class="mt-4 text-center">
+      <button type="submit" class=" btn btn-success me-2" [disabled]="locationForm.invalid">Create Location</button>
+      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+    </div>
+
+  </form>
 </div>
+

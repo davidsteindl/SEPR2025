@@ -9,7 +9,7 @@ import {Event} from '../../../dtos/event';
 import {Artist} from '../../../dtos/artist';
 import {ToastrService} from 'ngx-toastr';
 import {ErrorFormatterService} from '../../../services/error-formatter.service';
-import {Router} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import {Room} from "../../../dtos/room";
 import {RoomService} from "../../../services/room.service";
 
@@ -18,7 +18,8 @@ import {RoomService} from "../../../services/room.service";
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    RouterLink
   ],
   templateUrl: './create-show.component.html',
   styleUrl: './create-show.component.scss'
@@ -129,5 +130,9 @@ export class CreateShowComponent implements OnInit {
         });
       }
     });
+  }
+
+  cancel(): void {
+    this.router.navigate(['/admin']);
   }
 }
