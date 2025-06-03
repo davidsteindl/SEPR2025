@@ -189,4 +189,16 @@ export class CreateShowComponent implements OnInit {
       event.preventDefault();
     }
   }
+
+  validateDuration(): void {
+    if (this.show.duration == null) {
+      return;
+    }
+
+    if (this.show.duration < 10) {
+      this.show.duration = 10;
+    } else if (this.show.duration > 600) {
+      this.show.duration = 600;
+    }
+  }
 }
