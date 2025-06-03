@@ -165,7 +165,7 @@ public class TicketServiceImpl implements TicketService {
         LOGGER.debug("Initializing order for user: {}, type: {}", userId, type);
         Order order = new Order();
         order.setCreatedAt(LocalDateTime.now());
-        order.setTickets(List.of());
+        order.setTickets(new ArrayList<>());
         order.setUserId(userId);
         order.setOrderType(type);
 
@@ -179,6 +179,7 @@ public class TicketServiceImpl implements TicketService {
 
         OrderGroup group = new OrderGroup();
         group.setUserId(userId);
+        group.getOrders().add(order);
         orderGroupRepository.save(group);
         order.setOrderGroup(group);
         return orderRepository.save(order);
@@ -190,9 +191,11 @@ public class TicketServiceImpl implements TicketService {
         order.setCreatedAt(LocalDateTime.now());
         order.setUserId(userId);
         order.setOrderType(type);
+        order.setTickets(new ArrayList<>());
 
         OrderGroup group = new OrderGroup();
         group.setUserId(userId);
+        group.getOrders().add(order);
         orderGroupRepository.save(group);
         order.setOrderGroup(group);
 
@@ -272,7 +275,9 @@ public class TicketServiceImpl implements TicketService {
                                TicketStatus status) {
         LOGGER.debug("Building ticket for order: {}, show: {}, sector: {}, seat: {}, status: {}", order, show, sector, seat, status);
         Ticket ticket = new Ticket();
-        ticket.setOrders(List.of(order));
+        List<Order> orders = new ArrayList<>();
+        orders.add(order);
+        ticket.setOrders(orders);
         ticket.setShow(show);
         ticket.setStatus(status);
         ticket.setSector(sector);
@@ -291,7 +296,7 @@ public class TicketServiceImpl implements TicketService {
      */
     private void finalizeOrder(Order order, List<Ticket> tickets) {
         LOGGER.debug("Finalize order: {}", order);
-        order.setTickets(tickets);
+        order.setTickets(new ArrayList<>(tickets));
         orderRepository.save(order);
     }
 
@@ -312,6 +317,13 @@ public class TicketServiceImpl implements TicketService {
         dto.setTickets(tickets.stream()
             .map(ticketMapper::toDto)
             .collect(Collectors.toList()));
+        dto.setFirstName(order.getFirstName());
+        dto.setLastName(order.getLastName());
+        dto.setStreet(order.getStreet());
+        dto.setHousenumber(order.getHousenumber());
+        dto.setCity(order.getCity());
+        dto.setCountry(order.getCountry());
+        dto.setPostalCode(order.getPostalCode());
         return dto;
     }
 
@@ -420,6 +432,20 @@ public class TicketServiceImpl implements TicketService {
             TicketStatus.REFUNDED
         );
 
+        List<Ticket> remainingTickets = original.getTickets()
+            .stream()
+            .filter(t -> !ticketIds.contains(t.getId()))
+            .toList();
+
+        if (!remainingTickets.isEmpty()) {
+            processTicketTransfer(
+                remainingTickets,
+                original,
+                OrderType.ORDER,
+                TicketStatus.BOUGHT
+            );
+        }
+
         return ticketRepository.findAllById(ticketIds)
             .stream()
             .map(ticketMapper::toDto)
@@ -457,12 +483,19 @@ public class TicketServiceImpl implements TicketService {
 
         OrderGroup group = oldOrder.getOrderGroup();
         newOrder.setOrderGroup(group);
+        group.getOrders().add(newOrder);
 
         tickets.forEach(t -> {
+            if (oldOrder.getOrderType() == OrderType.RESERVATION) {
+                t.getOrders().remove(oldOrder);
+                oldOrder.getTickets().remove(t);
+            }
+
             t.getOrders().add(newOrder);
             t.setStatus(newStatus);
         });
 
+        newOrder.getTickets().addAll(tickets);
         ticketRepository.saveAll(tickets);
         finalizeOrder(newOrder, tickets);
         return newOrder;

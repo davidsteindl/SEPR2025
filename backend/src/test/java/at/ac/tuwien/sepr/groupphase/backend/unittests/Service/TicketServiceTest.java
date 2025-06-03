@@ -5,14 +5,19 @@ import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.*;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.*;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Order;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.OrderGroup;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
 import at.ac.tuwien.sepr.groupphase.backend.exception.SeatUnavailableException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.*;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderGroupRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.AuthenticationFacade;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
 import at.ac.tuwien.sepr.groupphase.backend.service.TicketService;
+import at.ac.tuwien.sepr.groupphase.backend.service.validators.TicketValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,6 +58,8 @@ public class TicketServiceTest {
     private EventRepository eventRepository;
     @Autowired
     private ArtistRepository artistRepository;
+    @Autowired
+    private OrderGroupRepository orderGroupRepository;
 
     @MockitoBean
     private AuthenticationFacade authenticationFacade;
@@ -161,21 +168,35 @@ public class TicketServiceTest {
         postalCode = "1010";
     }
 
-    @Test
-    @Transactional
-    public void testBuySingleTicket_createsTicketWithCorrectAttributes() {
+    private TicketRequestDto createBuyRequest(List<TicketTargetDto> targets) {
         TicketRequestDto request = new TicketRequestDto();
         request.setShowId(testShow.getId());
+        request.setTargets(targets);
+        request.setFirstName(firstName);
+        request.setLastName(lastName);
+        request.setStreet(street);
+        request.setHousenumber(houseNumber);
+        request.setCity(city);
+        request.setCountry(country);
+        request.setPostalCode(postalCode);
+        request.setCardNumber("4242424242424242");
+        request.setExpirationDate("12/30");
+        request.setSecurityCode("123");
+        return request;
+    }
 
+    @Test
+    @Transactional
+    public void testBuySingleTicket_createsTicketWithCorrectAttributes() throws ValidationException {
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
         target.setSectorId(seatedSector.getId());
         target.setSeatId(seat.getId());
-        request.setTargets(List.of(target));
+        TicketRequestDto request = createBuyRequest(List.of(target));
 
         OrderDto orderDto = ticketService.buyTickets(request);
         TicketDto dto = orderDto.getTickets().getFirst();
 
-
+        var orderEntity = orderRepository.findById(orderDto.getId()).orElseThrow();
 
         assertAll(
             () -> assertNotNull(orderDto.getId()),
@@ -185,15 +206,48 @@ public class TicketServiceTest {
             () -> assertEquals(seat.getId(), dto.getSeatId()),
             () -> assertEquals(seatedSector.getId(), dto.getSectorId()),
             () -> assertEquals(TicketStatus.BOUGHT, dto.getStatus()),
+            () -> assertEquals(firstName, orderEntity.getFirstName()),
+            () -> assertEquals(lastName, orderEntity.getLastName()),
+            () -> assertEquals(street, orderEntity.getStreet()),
+            () -> assertEquals(houseNumber, orderEntity.getHousenumber()),
+            () -> assertEquals(postalCode, orderEntity.getPostalCode()),
+            () -> assertEquals(city, orderEntity.getCity()),
+            () -> assertEquals(country, orderEntity.getCountry()),
+            () -> assertNotNull(orderEntity.getOrderGroup()),
+            () -> assertEquals(1L, orderEntity.getOrderGroup().getUserId()),
             () -> assertEquals(1, orderRepository.findAll().size()),
             () -> assertEquals(1, ticketRepository.findAll().size())
         );
-
     }
 
     @Test
     @Transactional
-    public void testBuyMultipleTickets_multipleSeated_createsMultipleTicketsAndSingleOrder() {
+    public void testBuyStandingTicket_savesAddressAndGroupCorrectly() throws ValidationException {
+        TicketTargetStandingDto standingTarget = new TicketTargetStandingDto();
+        standingTarget.setSectorId(standingSector.getId());
+        standingTarget.setQuantity(2);
+        TicketRequestDto request = createBuyRequest(List.of(standingTarget));
+
+        OrderDto orderDto = ticketService.buyTickets(request);
+        var orderEntity = orderRepository.findById(orderDto.getId()).orElseThrow();
+
+        assertAll(
+            () -> assertEquals(2, orderDto.getTickets().size()),
+            () -> assertEquals(firstName, orderEntity.getFirstName()),
+            () -> assertEquals(lastName, orderEntity.getLastName()),
+            () -> assertEquals(street, orderEntity.getStreet()),
+            () -> assertEquals(houseNumber, orderEntity.getHousenumber()),
+            () -> assertEquals(postalCode, orderEntity.getPostalCode()),
+            () -> assertEquals(city, orderEntity.getCity()),
+            () -> assertEquals(country, orderEntity.getCountry()),
+            () -> assertNotNull(orderEntity.getOrderGroup()),
+            () -> assertEquals(1L, orderEntity.getOrderGroup().getUserId())
+        );
+    }
+
+    @Test
+    @Transactional
+    public void testBuyMultipleTickets_multipleSeated_createsMultipleTicketsAndSingleOrder() throws ValidationException {
         // select two seats
         Seat seat2 = new Seat();
         seat2.setRowNumber(1);
@@ -207,15 +261,17 @@ public class TicketServiceTest {
             .filter(se -> !se.getId().equals(seat.getId()))
             .findFirst().orElseThrow();
 
-        TicketRequestDto request = new TicketRequestDto();
-        request.setShowId(testShow.getId());
+        // create targets
         TicketTargetSeatedDto t1 = new TicketTargetSeatedDto();
         t1.setSectorId(seatedSector.getId());
         t1.setSeatId(seat.getId());
+
         TicketTargetSeatedDto t2 = new TicketTargetSeatedDto();
         t2.setSectorId(seatedSector.getId());
         t2.setSeatId(seat2.getId());
-        request.setTargets(List.of(t1, t2));
+
+        // use helper method
+        TicketRequestDto request = createBuyRequest(List.of(t1, t2));
 
         OrderDto orderDto = ticketService.buyTickets(request);
 
@@ -223,35 +279,45 @@ public class TicketServiceTest {
             () -> assertNotNull(orderDto.getId()),
             () -> assertEquals(2, orderDto.getTickets().size()),
             () -> assertEquals(1, orderRepository.findAll().size(), "Only one order should be created"),
-            () -> assertEquals(2, ticketRepository.findAll().size(), "Two tickets should be persisted")
+            () -> assertEquals(2, ticketRepository.findAll().size(), "Two tickets should be persisted"),
+            () -> assertEquals(firstName, orderRepository.findAll().getFirst().getFirstName(), "First name should be set on order"),
+            () -> assertNotNull(orderRepository.findAll().getFirst().getOrderGroup(), "Order group should be created")
         );
-
     }
+
 
     @Test
     @Transactional
-    public void testBuyStandingTickets_createsMultipleTicketsWithNullSeat() {
-        TicketRequestDto request = new TicketRequestDto();
-        request.setShowId(testShow.getId());
-
+    public void testBuyStandingTickets_createsMultipleTicketsWithNullSeat() throws ValidationException {
+        // prepare standing ticket target
         TicketTargetStandingDto standingTarget = new TicketTargetStandingDto();
         standingTarget.setSectorId(standingSector.getId());
         standingTarget.setQuantity(3);
-        request.setTargets(List.of(standingTarget));
+
+        // use helper method
+        TicketRequestDto request = createBuyRequest(List.of(standingTarget));
 
         OrderDto orderDto = ticketService.buyTickets(request);
 
-        assertNotNull(orderDto.getId());
-        assertEquals(3, orderDto.getTickets().size());
+        assertAll(
+            () -> assertNotNull(orderDto.getId()),
+            () -> assertEquals(3, orderDto.getTickets().size(), "Should create 3 tickets"),
+            () -> assertEquals(1, orderRepository.findAll().size(), "Should create 1 order"),
+            () -> assertEquals(3, ticketRepository.findAll().size(), "Should persist 3 tickets"),
+            () -> assertEquals(firstName, orderRepository.findAll().getFirst().getFirstName(), "First name should be mapped to order"),
+            () -> assertNotNull(orderRepository.findAll().getFirst().getOrderGroup(), "Order group should be assigned")
+        );
+
         orderDto.getTickets().forEach(dto -> {
-            assertNull(dto.getSeatId());
-            assertEquals(standingSector.getId(), dto.getSectorId());
-            assertEquals(standingSector.getPrice(), dto.getPrice());
-            assertEquals(TicketStatus.BOUGHT, dto.getStatus());
+            assertAll(
+                () -> assertNull(dto.getSeatId(), "Standing ticket should not have a seat"),
+                () -> assertEquals(standingSector.getId(), dto.getSectorId()),
+                () -> assertEquals(standingSector.getPrice(), dto.getPrice()),
+                () -> assertEquals(TicketStatus.BOUGHT, dto.getStatus())
+            );
         });
-        assertEquals(1, orderRepository.findAll().size());
-        assertEquals(3, ticketRepository.findAll().size());
     }
+
 
     @Test
     @Transactional
@@ -279,23 +345,18 @@ public class TicketServiceTest {
 
     @Test
     @Transactional
-    public void testReserveOnAlreadyBoughtTicket_throwsValidationException() {
+    public void testReserveOnAlreadyBoughtTicket_throwsValidationException() throws ValidationException {
         // buy a ticket first
-        TicketRequestDto buyReq = new TicketRequestDto();
-        buyReq.setShowId(testShow.getId());
         TicketTargetSeatedDto buyTarget = new TicketTargetSeatedDto();
         buyTarget.setSectorId(seatedSector.getId());
         buyTarget.setSeatId(seat.getId());
-        buyReq.setTargets(List.of(buyTarget));
+        TicketRequestDto buyReq = createBuyRequest(List.of(buyTarget));
         ticketService.buyTickets(buyReq);
 
         // now try to reserve the same seat
         TicketRequestDto reserveReq = new TicketRequestDto();
         reserveReq.setShowId(testShow.getId());
-        TicketTargetSeatedDto resTarget = new TicketTargetSeatedDto();
-        resTarget.setSectorId(seatedSector.getId());
-        resTarget.setSeatId(seat.getId());
-        reserveReq.setTargets(List.of(resTarget));
+        reserveReq.setTargets(List.of(buyTarget));
 
         assertThrows(SeatUnavailableException.class, () -> {
             ticketService.reserveTickets(reserveReq);
@@ -304,14 +365,12 @@ public class TicketServiceTest {
 
     @Test
     @Transactional
-    public void testBuyReservedTickets_onAlreadyBoughtTicket_throwsValidationException() {
+    public void testBuyReservedTickets_onAlreadyBoughtTicket_throwsValidationException() throws ValidationException {
         // buy a ticket first
-        TicketRequestDto buyReq = new TicketRequestDto();
-        buyReq.setShowId(testShow.getId());
         TicketTargetSeatedDto buyTarget = new TicketTargetSeatedDto();
         buyTarget.setSectorId(seatedSector.getId());
         buyTarget.setSeatId(seat.getId());
-        buyReq.setTargets(List.of(buyTarget));
+        TicketRequestDto buyReq = createBuyRequest(List.of(buyTarget));
         OrderDto boughtOrder = ticketService.buyTickets(buyReq);
 
         // attempt to reserva a already bought ticket
@@ -340,21 +399,31 @@ public class TicketServiceTest {
         // buy the reserved ticket
         OrderDto newOrder = ticketService.buyReservedTickets(List.of(reservedTicketId));
 
-        // new order should be type ORDER, contain that ticket, and ticket status updated
-        assertEquals(OrderType.ORDER, newOrder.getOrderType());
-        assertEquals(1, newOrder.getTickets().size());
-        TicketDto bought = newOrder.getTickets().getFirst();
-        assertEquals(reservedTicketId, bought.getId());
-        assertEquals(TicketStatus.BOUGHT, bought.getStatus());
-
-        // repository now has two orders
-        assertEquals(2, orderRepository.findAll().size());
-
-        // old reservation must no longer own that ticket
         var oldOrderOpt = orderRepository.findById(reservationOrderId);
-        assertTrue(oldOrderOpt.isPresent());
-        assertTrue(oldOrderOpt.get().getTickets().isEmpty());
+        var newOrderOpt = orderRepository.findById(newOrder.getId());
+
+        assertAll(
+            // Order type and ticket state
+            () -> assertEquals(OrderType.ORDER, newOrder.getOrderType()),
+            () -> assertEquals(1, newOrder.getTickets().size()),
+            () -> assertEquals(reservedTicketId, newOrder.getTickets().getFirst().getId()),
+            () -> assertEquals(TicketStatus.BOUGHT, newOrder.getTickets().getFirst().getStatus()),
+
+            // Repository state
+            () -> assertEquals(2, orderRepository.findAll().size()),
+            () -> assertTrue(oldOrderOpt.isPresent(), "Old reservation order should still exist"),
+            () -> assertTrue(oldOrderOpt.get().getTickets().isEmpty(), "Old reservation should no longer hold the ticket"),
+
+            // Check that both orders are in the same OrderGroup
+            () -> assertTrue(newOrderOpt.isPresent(), "New order should exist"),
+            () -> assertEquals(
+                oldOrderOpt.get().getOrderGroup().getId(),
+                newOrderOpt.get().getOrderGroup().getId(),
+                "Transferred orders should belong to the same OrderGroup"
+            )
+        );
     }
+
 
     @Test
     @Transactional
@@ -396,46 +465,99 @@ public class TicketServiceTest {
 
         Long reservedTicketId = reservation.getTickets().getFirst().getId();
         Long reservationOrderId = reservation.getId();
+        Long initialOrderGroupId = orderRepository.findById(reservationOrderId)
+            .orElseThrow()
+            .getOrderGroup()
+            .getId();
 
         // Cancel that reservation
         List<TicketDto> cancelled = ticketService.cancelReservations(List.of(reservedTicketId));
-        assertEquals(1, cancelled.size());
-        assertEquals(TicketStatus.CANCELLED, cancelled.getFirst().getStatus());
+        assertAll(
+            () -> assertEquals(1, cancelled.size()),
+            () -> assertEquals(TicketStatus.CANCELLED, cancelled.getFirst().getStatus())
+        );
 
         // Now we should be able to reserve the same seat again
         ReservationDto newRes = ticketService.reserveTickets(reserveReq);
-        assertNotNull(newRes.getId());
-        assertNotEquals(reservationOrderId, newRes.getId());
-        assertEquals(TicketStatus.RESERVED, newRes.getTickets().getFirst().getStatus());
+
+        Long newReservationOrderId = newRes.getId();
+        Long newOrderGroupId = orderRepository.findById(newReservationOrderId)
+            .orElseThrow()
+            .getOrderGroup()
+            .getId();
+
+        assertAll(
+            () -> assertNotNull(newRes.getId()),
+            () -> assertNotEquals(reservationOrderId, newRes.getId()),
+            () -> assertEquals(TicketStatus.RESERVED, newRes.getTickets().getFirst().getStatus()),
+            () -> assertNotEquals(initialOrderGroupId, newOrderGroupId, "New reservation should have a new OrderGroup")
+        );
     }
+
 
     @Test
     @Transactional
-    public void testRefundTickets_freesSeat_forRebuy() {
+    public void testRefundTickets_freesSeat_forRebuy() throws ValidationException {
         // Buy a seat
         TicketRequestDto buyReq = new TicketRequestDto();
         buyReq.setShowId(testShow.getId());
+
         TicketTargetSeatedDto buyTarget = new TicketTargetSeatedDto();
         buyTarget.setSectorId(seatedSector.getId());
         buyTarget.setSeatId(seat.getId());
         buyReq.setTargets(List.of(buyTarget));
-        OrderDto buyOrder = ticketService.buyTickets(buyReq);
+        buyReq.setFirstName(firstName);
+        buyReq.setLastName(lastName);
+        buyReq.setStreet(street);
+        buyReq.setHousenumber(houseNumber);
+        buyReq.setCity(city);
+        buyReq.setCountry(country);
+        buyReq.setPostalCode(postalCode);
+        buyReq.setCardNumber("4242424242424242");
+        buyReq.setExpirationDate("12/30");
+        buyReq.setSecurityCode("123");
 
+        OrderDto buyOrder = ticketService.buyTickets(buyReq);
         Long boughtTicketId = buyOrder.getTickets().getFirst().getId();
+
+        Long originalOrderGroupId = orderRepository.findById(buyOrder.getId())
+            .orElseThrow()
+            .getOrderGroup()
+            .getId();
 
         // Refund it
         List<TicketDto> refunded = ticketService.refundTickets(List.of(boughtTicketId));
-        assertEquals(1, refunded.size());
-        assertEquals(TicketStatus.REFUNDED, refunded.getFirst().getStatus());
+
+        assertAll(
+            () -> assertEquals(1, refunded.size()),
+            () -> assertEquals(TicketStatus.REFUNDED, refunded.getFirst().getStatus())
+        );
 
         // buy the same seat again
         OrderDto rebuy = ticketService.buyTickets(buyReq);
-        assertNotNull(rebuy.getId());
-        assertNotEquals(buyOrder.getId(), rebuy.getId());
+        Long newOrderGroupId = orderRepository.findById(rebuy.getId())
+            .orElseThrow()
+            .getOrderGroup()
+            .getId();
+
         TicketDto newTicket = rebuy.getTickets().getFirst();
-        assertEquals(seat.getId(), newTicket.getSeatId());
-        assertEquals(TicketStatus.BOUGHT, newTicket.getStatus());
+
+        assertAll(
+            () -> assertNotNull(rebuy.getId()),
+            () -> assertNotEquals(buyOrder.getId(), rebuy.getId(), "New order should have different ID"),
+            () -> assertEquals(seat.getId(), newTicket.getSeatId()),
+            () -> assertEquals(TicketStatus.BOUGHT, newTicket.getStatus()),
+            () -> assertNotEquals(originalOrderGroupId, newOrderGroupId, "Rebuy should create new OrderGroup"),
+            () -> assertEquals(firstName, rebuy.getFirstName()),
+            () -> assertEquals(lastName, rebuy.getLastName()),
+            () -> assertEquals(street, rebuy.getStreet()),
+            () -> assertEquals(houseNumber, rebuy.getHousenumber()),
+            () -> assertEquals(city, rebuy.getCity()),
+            () -> assertEquals(postalCode, rebuy.getPostalCode()),
+            () -> assertEquals(country, rebuy.getCountry())
+        );
     }
+
 
     @Test
     @Transactional
@@ -458,416 +580,180 @@ public class TicketServiceTest {
 
     @Test
     @Transactional
-    public void testRefundTickets_updatesTicketStatusToRefunded() {
-        // Buy first
-        TicketRequestDto req = new TicketRequestDto();
-        req.setShowId(testShow.getId());
+    public void testRefundTickets_updatesTicketStatusToRefunded() throws ValidationException {
         TicketTargetSeatedDto t = new TicketTargetSeatedDto();
         t.setSectorId(seatedSector.getId());
         t.setSeatId(seat.getId());
-        req.setTargets(List.of(t));
+
+        TicketRequestDto req = createBuyRequest(List.of(t));
         OrderDto ord = ticketService.buyTickets(req);
 
-        Long id = ord.getTickets().getFirst().getId();
-        List<TicketDto> dtos = ticketService.refundTickets(List.of(id));
+        Long ticketId = ord.getTickets().getFirst().getId();
 
-        assertEquals(1, dtos.size());
-        assertEquals(TicketStatus.REFUNDED, dtos.getFirst().getStatus());
-    }
-
-    @Test
-    @Transactional
-    public void getOrdersForUser_futureOrders_returnsOnlyFutureOrders() {
-        // Buy ticket for future show
-        TicketRequestDto request = new TicketRequestDto();
-        request.setShowId(testShow.getId());
-
-        TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
-        target.setSeatId(seat.getId());
-        request.setTargets(List.of(target));
-
-        ticketService.buyTickets(request);
-
-        var result = ticketService.getOrdersForUser(1L, OrderType.ORDER, false, Pageable.ofSize(10));
+        // Refund
+        List<TicketDto> dtos = ticketService.refundTickets(List.of(ticketId));
 
         assertAll(
-            () -> assertEquals(1, result.getTotalElements(), "Should return one future order"),
-            () -> assertEquals(OrderType.ORDER, result.getContent().getFirst().getOrderType()),
-            () -> assertFalse(result.getContent().getFirst().getShowDate().isBefore(LocalDateTime.now()))
+            () -> assertEquals(1, dtos.size(), "Exactly one ticket should be refunded"),
+            () -> assertEquals(TicketStatus.REFUNDED, dtos.getFirst().getStatus(), "Ticket status should be REFUNDED"),
+            () -> assertEquals(ticketId, dtos.getFirst().getId(), "Refunded ticket ID should match the original")
         );
     }
 
+
     @Test
     @Transactional
-    public void getOrdersForUser_reservations_returnsOnlyActiveReservations() {
-        Seat reserveSeat = new Seat();
-        reserveSeat.setRowNumber(2);
-        reserveSeat.setColumnNumber(42);
-        reserveSeat.setDeleted(false);
-        seatedSector.addSeat(reserveSeat);
+    public void testRefundedPurchase_createsTwoOrdersInOrderGroup() throws ValidationException {
+        // Buy ticket
+        TicketTargetSeatedDto target = new TicketTargetSeatedDto();
+        target.setSectorId(seatedSector.getId());
+        target.setSeatId(seat.getId());
+        TicketRequestDto request = createBuyRequest(List.of(target));
+        OrderDto initialOrder = ticketService.buyTickets(request);
+        Long ticketId = initialOrder.getTickets().getFirst().getId();
 
-        reserveSeat = roomRepository.save(testRoom).getSectors().stream()
-            .filter(s -> s instanceof SeatedSector)
-            .map(s -> ((SeatedSector) s).getSeats())
-            .flatMap(List::stream)
-            .filter(se -> se.getColumnNumber() == 42)
-            .findFirst()
+        // Refund ticket
+        ticketService.refundTickets(List.of(ticketId));
+
+        // Reload OrderGroup with fetched orders
+        Long groupId = orderRepository.findById(initialOrder.getId())
+            .orElseThrow()
+            .getOrderGroup()
+            .getId();
+        OrderGroup group = orderGroupRepository.findByIdWithOrders(groupId)
             .orElseThrow();
 
-        TicketRequestDto request = new TicketRequestDto();
-        request.setShowId(testShow.getId());
-
-        TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
-        target.setSeatId(reserveSeat.getId());
-        request.setTargets(List.of(target));
-
-        ticketService.reserveTickets(request);
-
-        var result = ticketService.getOrdersForUser(1L, OrderType.RESERVATION, false, Pageable.ofSize(10));
-
         assertAll(
-            () -> assertEquals(1, result.getTotalElements(), "Should return one active reservation"),
-            () -> assertEquals(OrderType.RESERVATION, result.getContent().getFirst().getOrderType()),
-            () -> assertFalse(result.getContent().getFirst().getShowDate().isBefore(LocalDateTime.now()))
+            () -> assertEquals(2, group.getOrders().size(), "Refund should result in two orders in the group")
         );
     }
 
+    /**
+     * Tests that buying two tickets and refunding only one results in three orders in the same order group:
+     * - One original ORDER
+     * - One REFUND for the refunded ticket
+     * - One ORDER still containing the other bought ticket
+     */
     @Test
     @Transactional
-    public void getOrdersForUser_pastReservations_returnsEmptyList() {
-        var result = ticketService.getOrdersForUser(1L, OrderType.RESERVATION, true, Pageable.ofSize(10));
-
-        assertAll(
-            () -> assertEquals(0, result.getTotalElements(), "Should return no past reservations")
-        );
-    }
-
-    @Test
-    @Transactional
-    public void testGetOrderWithTicketsById_returnsFullOrder() {
-        // Create order
-        TicketRequestDto request = new TicketRequestDto();
-        request.setShowId(testShow.getId());
-        TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
-        target.setSeatId(seat.getId());
-        request.setTargets(List.of(target));
-
-        OrderDto createdOrder = ticketService.buyTickets(request);
-        Long orderId = createdOrder.getId();
-
-        // Retrieve full order with tickets
-        OrderDto fetched = ticketService.getOrderWithTicketsById(orderId);
-
-        assertAll(
-            () -> assertNotNull(fetched),
-            () -> assertEquals(orderId, fetched.getId()),
-            () -> assertEquals(testShow.getName(), fetched.getShowName()),
-            () -> assertEquals(testShow.getDate(), fetched.getShowDate()),
-            () -> assertEquals(location.getName(), fetched.getLocationName()),
-            () -> assertNotNull(fetched.getTickets()),
-            () -> assertEquals(1, fetched.getTickets().size()),
-            () -> assertEquals(TicketStatus.BOUGHT, fetched.getTickets().getFirst().getStatus())
-        );
-    }
-
-    @Test
-    @Transactional
-    public void testReserveTicketsGrouped_createsReservationWithGroup() {
-        TicketRequestDto request = new TicketRequestDto();
-        request.setShowId(testShow.getId());
-
-        TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
-        target.setSeatId(seat.getId());
-        request.setTargets(List.of(target));
-
-        ReservationDto reservationDto = ticketService.reserveTicketsGrouped(request);
-
-        assertAll(
-            () -> assertNotNull(reservationDto.getId()),
-            () -> assertEquals(1, reservationDto.getTickets().size()),
-            () -> assertEquals(OrderType.RESERVATION, reservationDto.getOrderType()),
-            () -> assertEquals(TicketStatus.RESERVED, reservationDto.getTickets().getFirst().getStatus()),
-            () -> assertNotNull(orderRepository.findById(reservationDto.getId()).get().getOrderGroup())
-        );
-    }
-
-    @Test
-    @Transactional
-    public void testRefundTicketsGroup_createsRefundAndKeepsRemaining() {
-        // Setup - buy two tickets
-        Seat seat2 = new Seat();
-        seat2.setRowNumber(2);
-        seat2.setColumnNumber(2);
-        seat2.setDeleted(false);
-        seatedSector.addSeat(seat2);
-        seat2 = roomRepository.save(testRoom).getSectors().stream()
+    public void testPartialRefund_createsThreeOrdersInOrderGroup() throws ValidationException {
+        // Create two seated tickets
+        Seat secondSeat = new Seat();
+        secondSeat.setRowNumber(1);
+        secondSeat.setColumnNumber(2);
+        secondSeat.setDeleted(false);
+        seatedSector.addSeat(secondSeat);
+        secondSeat = roomRepository.save(testRoom).getSectors().stream()
             .filter(s -> s instanceof SeatedSector)
             .map(s -> ((SeatedSector) s).getSeats())
             .flatMap(List::stream)
-            .filter(se -> se.getColumnNumber() == 2)
+            .filter(se -> !se.getId().equals(seat.getId()))
             .findFirst().orElseThrow();
 
-        TicketRequestDto request = new TicketRequestDto();
-        request.setShowId(testShow.getId());
         TicketTargetSeatedDto t1 = new TicketTargetSeatedDto();
         t1.setSectorId(seatedSector.getId());
         t1.setSeatId(seat.getId());
+
         TicketTargetSeatedDto t2 = new TicketTargetSeatedDto();
         t2.setSectorId(seatedSector.getId());
-        t2.setSeatId(seat2.getId());
-        request.setTargets(List.of(t1, t2));
+        t2.setSeatId(secondSeat.getId());
 
-        OrderDto originalOrder = ticketService.buyTickets(request);
-        List<TicketDto> originalTickets = originalOrder.getTickets();
-        assertEquals(2, originalTickets.size());
+        TicketRequestDto request = createBuyRequest(List.of(t1, t2));
 
-        Long toRefundId = originalTickets.getFirst().getId();
-        List<TicketDto> refunded = ticketService.refundTicketsGroup(List.of(toRefundId));
+        // Buy tickets
+        OrderDto initialOrder = ticketService.buyTickets(request);
+        List<TicketDto> boughtTickets = initialOrder.getTickets();
+
+        Long refundedTicketId = boughtTickets.getFirst().getId();
+        Long remainingTicketId = boughtTickets.getLast().getId();
+
+        // Refund only one of the two
+        ticketService.refundTickets(List.of(refundedTicketId));
+
+        Long groupId = orderRepository.findById(initialOrder.getId())
+            .orElseThrow()
+            .getOrderGroup()
+            .getId();
+
+        OrderGroup group = orderGroupRepository.findByIdWithOrders(groupId)
+            .orElseThrow();
 
         assertAll(
-            () -> assertEquals(1, refunded.size(), "Exactly one ticket should be refunded"),
-            () -> assertEquals(TicketStatus.REFUNDED, refunded.getFirst().getStatus(), "Refunded ticket should have status REFUNDED"),
-            () -> assertNotNull(refunded.getFirst().getOriginalTicketId(), "Refunded ticket should reference original ticket"),
-            () -> assertEquals(toRefundId, refunded.getFirst().getOriginalTicketId(), "Refunded ticket should refer to the correct original ticket"),
-            () -> assertEquals(4, ticketRepository.findAll().size(), "Total ticket count should be 4: 2 original + 1 refund + 1 new"),
-            () -> assertEquals(3, orderRepository.findAll().size(), "Three orders: 1 original + 1 refund + 1 new")
+            () -> assertEquals(3, group.getOrders().size(), "There should be three orders in the order group"),
+            () -> {
+                Order originalOrder = group.getOrders().stream()
+                    .filter(o -> o.getOrderType() == OrderType.ORDER)
+                    .findFirst()
+                    .orElseThrow();
+
+                Order refundOrder = group.getOrders().stream()
+                    .filter(o -> o.getOrderType() == OrderType.REFUND)
+                    .findFirst()
+                    .orElseThrow();
+
+                Order newOrder = group.getOrders().stream()
+                    .filter(o -> o != originalOrder && o != refundOrder)
+                    .findFirst()
+                    .orElseThrow();
+
+                assertEquals(2, originalOrder.getTickets().size(), "Original order should still contain both tickets");
+                assertEquals(1, refundOrder.getTickets().size(), "Refund order should contain the refunded ticket");
+                assertEquals(1, newOrder.getTickets().size(), "New order should contain the remaining ticket");
+
+                Ticket refundedTicket = refundOrder.getTickets().getFirst();
+                Ticket remainingTicket = newOrder.getTickets().getFirst();
+
+                assertEquals(refundedTicketId, refundedTicket.getId(), "Refunded ticket ID should match");
+                assertEquals(TicketStatus.REFUNDED, refundedTicket.getStatus(), "Refunded ticket should have status REFUNDED");
+
+                assertEquals(remainingTicketId, remainingTicket.getId(), "Remaining ticket ID should match");
+                assertEquals(TicketStatus.BOUGHT, remainingTicket.getStatus(), "Remaining ticket should still have status BOUGHT");
+            }
         );
     }
 
-
     @Test
     @Transactional
-    public void testCheckoutTickets_createsFullOrderWithReservedAndNew() throws ValidationException {
-        // First, reserve a ticket
-        TicketRequestDto reserveReq = new TicketRequestDto();
-        reserveReq.setShowId(testShow.getId());
-        TicketTargetSeatedDto reserveTarget = new TicketTargetSeatedDto();
-        reserveTarget.setSectorId(seatedSector.getId());
-        reserveTarget.setSeatId(seat.getId());
-        reserveReq.setTargets(List.of(reserveTarget));
-
-        ReservationDto reservation = ticketService.reserveTickets(reserveReq);
-        Long reservedTicketId = reservation.getTickets().getFirst().getId();
-
-        // Then checkout that reservation
-        CheckoutRequestDto checkout = new CheckoutRequestDto();
-        checkout.setShowId(testShow.getId());
-        checkout.setFirstName(firstName);
-        checkout.setLastName(lastName);
-        checkout.setStreet(street);
-        checkout.setHousenumber(houseNumber);
-        checkout.setCity(city);
-        checkout.setCountry(country);
-        checkout.setPostalCode(postalCode);
-        checkout.setReservedTicketIds(List.of(reservedTicketId));
-        checkout.setCardNumber("4111111111111111");
-        checkout.setSecurityCode("123");
-        checkout.setExpirationDate("12/28");
-        // Add one new standing ticket
-        TicketTargetStandingDto standing = new TicketTargetStandingDto();
-        standing.setSectorId(standingSector.getId());
-        standing.setQuantity(1);
-        checkout.setTargets(List.of(standing));
-
-        OrderGroupDto groupDto = ticketService.checkoutTickets(checkout);
-
-        assertAll(
-            () -> assertNotNull(groupDto.getId()),
-            () -> assertEquals(1, groupDto.getOrders().size()),
-            () -> assertEquals(2, groupDto.getOrders().getFirst().getTickets().size()),
-            () -> assertEquals("John", groupDto.getOrders().getFirst().getFirstName()),
-            () -> assertEquals("Doe", groupDto.getOrders().getFirst().getLastName()),
-            () -> assertTrue(groupDto.getTotalPrice() > 0)
-        );
-    }
-
-
-    @Test
-    @Transactional
-    public void testCheckoutTickets_withInvalidPaymentData_throwsValidationException() {
-        CheckoutRequestDto checkout = new CheckoutRequestDto();
-        checkout.setShowId(testShow.getId());
-        checkout.setFirstName(firstName);
-        checkout.setLastName(lastName);
-        checkout.setStreet(street);
-        checkout.setHousenumber(houseNumber);
-        checkout.setCity(city);
-        checkout.setCountry(country);
-        checkout.setPostalCode(postalCode);
-        checkout.setCardNumber("invalid-card");
-        checkout.setSecurityCode("123");
-        checkout.setExpirationDate("20/03");
-
-        checkout.setShowId(testShow.getId());
-
-        assertThrows(ValidationException.class, () -> {
-            ticketService.checkoutTickets(checkout);
-        });
-    }
-
-
-    @Test
-    @Transactional
-    public void testReserveTicketsGrouped_withInvalidSector_throwsValidationException() {
-        TicketRequestDto request = new TicketRequestDto();
-        request.setShowId(testShow.getId());
-
+    public void testBuyTickets_shouldThrowValidationException_whenInvalidCardDetails() {
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(-1L);
+        target.setSectorId(seatedSector.getId());
         target.setSeatId(seat.getId());
 
-        request.setTargets(List.of(target));
+        TicketRequestDto request = createBuyRequest(List.of(target));
+        request.setCardNumber("1234");
+        request.setSecurityCode("12");
+        request.setExpirationDate("12/31");
 
-        assertThrows(SeatUnavailableException.class, () -> {
-            ticketService.reserveTicketsGrouped(request);
-        });
-    }
+        ValidationException ex = assertThrows(ValidationException.class,
+            () -> ticketService.buyTickets(request),
+            "Expected ValidationException due to invalid card data");
 
-
-    @Test
-    @Transactional
-    public void testReserveTicketsGrouped_withTakenSeat_throwsSeatUnavailableException() {
-        TicketRequestDto request1 = new TicketRequestDto();
-        request1.setShowId(testShow.getId());
-        TicketTargetSeatedDto t1 = new TicketTargetSeatedDto();
-        t1.setSectorId(seatedSector.getId());
-        t1.setSeatId(seat.getId());
-        request1.setTargets(List.of(t1));
-        ticketService.reserveTicketsGrouped(request1);
-
-        TicketRequestDto request2 = new TicketRequestDto();
-        request2.setShowId(testShow.getId());
-        TicketTargetSeatedDto t2 = new TicketTargetSeatedDto();
-        t2.setSectorId(seatedSector.getId());
-        t2.setSeatId(seat.getId());
-        request2.setTargets(List.of(t2));
-
-        assertThrows(SeatUnavailableException.class, () -> {
-            ticketService.reserveTicketsGrouped(request2);
-        });
-    }
-
-
-    @Test
-    @Transactional
-    public void testGetOrderGroupsForUser_withReservedGroup_returnsCorrectOrderGroupDto() {
-        // Prepare reservation
-        TicketRequestDto reserveReq = new TicketRequestDto();
-        reserveReq.setShowId(testShow.getId());
-
-        TicketTargetSeatedDto reserveTarget = new TicketTargetSeatedDto();
-        reserveTarget.setSectorId(seatedSector.getId());
-        reserveTarget.setSeatId(seat.getId());
-        reserveReq.setTargets(List.of(reserveTarget));
-
-        ReservationDto reservation = ticketService.reserveTicketsGrouped(reserveReq);
-
-        var page = ticketService.getOrderGroupsForUser(OrderGroupType.RESERVED, Pageable.ofSize(10));
-
-        assertAll(
-            () -> assertEquals(1, page.getTotalElements(), "Should return one reserved order group"),
-            () -> assertEquals(testShow.getName(), page.getContent().getFirst().getShowName()),
-            () -> assertEquals(location.getName(), page.getContent().getFirst().getLocationName()),
-            () -> assertEquals(testShow.getDate(), page.getContent().getFirst().getShowDate()),
-            () -> assertEquals(1, page.getContent().getFirst().getOrders().size()),
-            () -> assertEquals(OrderType.RESERVATION, page.getContent().getFirst().getOrders().getFirst().getOrderType())
-        );
-    }
-
-
-    @Test
-    @Transactional
-    public void testGetOrderGroupsForUser_afterPartialRefund() throws ValidationException {
-        // Buy two tickets
-        TicketTargetStandingDto target = new TicketTargetStandingDto();
-        target.setSectorId(standingSector.getId());
-        target.setQuantity(2);
-
-        CheckoutRequestDto checkout = new CheckoutRequestDto();
-        checkout.setShowId(testShow.getId());
-        checkout.setTargets(List.of(target));
-        checkout.setCardNumber("4111111111111111");
-        checkout.setSecurityCode("123");
-        checkout.setExpirationDate("12/30");
-        checkout.setFirstName(firstName);
-        checkout.setLastName(lastName);
-        checkout.setStreet(street);
-        checkout.setHousenumber(houseNumber);
-        checkout.setCity(city);
-        checkout.setPostalCode(postalCode);
-        checkout.setCountry(country);
-
-        OrderGroupDto checkoutGroup = ticketService.checkoutTickets(checkout);
-        Long groupId = checkoutGroup.getId();
-
-        // Refund one ticket
-        List<TicketDto> allTickets = checkoutGroup.getOrders().getFirst().getTickets();
-        assertEquals(2, allTickets.size(), "Two tickets should be bought");
-
-        Long ticketIdToRefund = allTickets.getFirst().getId();
-        List<TicketDto> refunded = ticketService.refundTicketsGroup(List.of(ticketIdToRefund));
-        assertEquals(1, refunded.size(), "One ticket should be refunded");
-
-        var result = ticketService.getOrderGroupsForUser(OrderGroupType.PURCHASED, Pageable.ofSize(10));
-
-        assertAll(
-            () -> assertEquals(1, result.getTotalElements(), "There should be exactly one OrderGroup"),
-            () -> assertEquals(groupId, result.getContent().getFirst().getId(), "The group ID should match the original checkout group"),
-            () -> assertEquals(3, result.getContent().getFirst().getOrders().size(), "The group should contain the old, the new and the refunded Order"),
-            () -> assertTrue(
-                result.getContent().getFirst().getOrders().stream().anyMatch(o -> o.getOrderType() == OrderType.ORDER),
-                "An ORDER should be present in the group"
-            ),
-            () -> assertTrue(
-                result.getContent().getFirst().getOrders().stream().anyMatch(o -> o.getOrderType() == OrderType.REFUND),
-                "A REFUND should be present in the group"
-            )
-        );
+        assertTrue(ex.getMessage().toLowerCase().contains("card")
+            || ex.getMessage().toLowerCase().contains("cvc"));
     }
 
     @Test
     @Transactional
-    public void testGetOrderGroupDetails_returnsCorrectData() throws ValidationException {
-        TicketTargetStandingDto target = new TicketTargetStandingDto();
-        target.setSectorId(standingSector.getId());
-        target.setQuantity(1);
+    public void testBuyTickets_shouldThrowValidationException_whenInvalidAddressData() {
+        TicketTargetSeatedDto target = new TicketTargetSeatedDto();
+        target.setSectorId(seatedSector.getId());
+        target.setSeatId(seat.getId());
 
-        CheckoutRequestDto checkout = new CheckoutRequestDto();
-        checkout.setShowId(testShow.getId());
-        checkout.setTargets(List.of(target));
-        checkout.setCardNumber("4111111111111111");
-        checkout.setSecurityCode("123");
-        checkout.setExpirationDate("12/30");
-        checkout.setFirstName(firstName);
-        checkout.setLastName(lastName);
-        checkout.setStreet(street);
-        checkout.setHousenumber(houseNumber);
-        checkout.setCity(city);
-        checkout.setPostalCode(postalCode);
-        checkout.setCountry(country);
+        TicketRequestDto request = createBuyRequest(List.of(target));
+        request.setStreet("");
+        request.setCity(null);
+        request.setPostalCode(null);
+        request.setCountry("");
 
-        OrderGroupDto checkoutGroup = ticketService.checkoutTickets(checkout);
-        Long groupId = checkoutGroup.getId();
+        ValidationException ex = assertThrows(ValidationException.class,
+            () -> ticketService.buyTickets(request),
+            "Expected ValidationException due to invalid address data");
 
-        OrderGroupDto detail = ticketService.getOrderGroupDetails(groupId);
-
-        assertAll(
-            () -> assertNotNull(detail),
-            () -> assertEquals(groupId, detail.getId(), "OrderGroup ID should match"),
-            () -> assertEquals(testShow.getName(), detail.getShowName(), "Show name should match"),
-            () -> assertEquals(testShow.getDate(), detail.getShowDate(), "Show date should match"),
-            () -> assertEquals(location.getName(), detail.getLocationName(), "Location should match"),
-            () -> assertEquals(1, detail.getOrders().size(), "One order should exist in group"),
-            () -> assertEquals(OrderType.ORDER, detail.getOrders().getFirst().getOrderType(), "Order type should be ORDER"),
-            () -> assertEquals(1, detail.getOrders().getFirst().getTickets().size(), "One ticket should be in the order"),
-            () -> assertEquals(TicketStatus.BOUGHT, detail.getOrders().getFirst().getTickets().getFirst().getStatus(), "Ticket should be BOUGHT")
-        );
+        assertTrue(ex.getMessage().toLowerCase().contains("address")
+                || ex.getMessage().toLowerCase().contains("street")
+                || ex.getMessage().toLowerCase().contains("postal"),
+            "Error message should mention invalid address");
     }
-
 
 }
 

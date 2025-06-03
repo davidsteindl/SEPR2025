@@ -89,7 +89,7 @@ class PdfExportServiceImplTest {
         when(ticket.getShow()).thenReturn(show);
         when(ticket.getSector()).thenReturn(sector);
         when(ticket.getSeat()).thenReturn(seat);
-        when(ticket.getOrder()).thenReturn(order);
+        when(ticket.getOrders()).thenReturn(List.of(order));
 
         return ticket;
     }

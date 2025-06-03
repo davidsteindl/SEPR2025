@@ -51,7 +51,7 @@ public class TicketEndpoint {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Initiate ticket purchase", security = @SecurityRequirement(name = "apiKey"))
     public OrderDto buyTickets(
-        @RequestBody @Valid TicketRequestDto ticketRequestDto) {
+        @RequestBody @Valid TicketRequestDto ticketRequestDto) throws ValidationException {
         LOGGER.info("POST /api/v1/tickets/buy with request {}", ticketRequestDto);
         return ticketService.buyTickets(ticketRequestDto);
     }
@@ -104,34 +104,6 @@ public class TicketEndpoint {
     public void createTicketHold(@RequestBody @Valid CreateHoldDto createHoldDto) {
         LOGGER.info("POST /api/v1/tickets/holds with request {}", createHoldDto);
         ticketService.createTicketHold(createHoldDto);
-    }
-
-    @PostMapping("/checkout")
-    @Secured("ROLE_USER")
-    @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Checkout: buy reserved/new tickets with adresse and payment", security = @SecurityRequirement(name = "apiKey"))
-    public OrderGroupDto checkoutTickets(@RequestBody @Valid CheckoutRequestDto dto) throws ValidationException {
-        LOGGER.info("POST /api/v1/tickets/checkout with request {}", dto);
-        return ticketService.checkoutTickets(dto);
-    }
-
-    @PostMapping("/reserve-grouped")
-    @Secured("ROLE_USER")
-    @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Reserves tickets in a new OrderGroup", security = @SecurityRequirement(name = "apiKey"))
-    public ReservationDto reserveTicketsGrouped(@RequestBody @Valid TicketRequestDto ticketRequestDto) {
-        LOGGER.info("POST /api/v1/tickets/reserve-grouped with request {}", ticketRequestDto);
-        return ticketService.reserveTicketsGrouped(ticketRequestDto);
-    }
-
-
-    @PostMapping("/refund-grouped")
-    @Secured("ROLE_USER")
-    @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Refund selected tickets and split remaining into a new order in the same OrderGroup", security = @SecurityRequirement(name = "apiKey"))
-    public List<TicketDto> refundTicketsGrouped(@RequestBody List<Long> ticketIds) {
-        LOGGER.info("POST /api/v1/tickets/refund-grouped with tickets {}", ticketIds);
-        return ticketService.refundTicketsGroup(ticketIds);
     }
 
 

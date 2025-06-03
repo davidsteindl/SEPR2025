@@ -172,7 +172,7 @@ public class PdfExportEndpointTest implements TestData {
         testTicket = new Ticket();
         testTicket.setShow(testShow);
         testTicket.setSector(sector);
-        testTicket.setOrder(order);
+        testTicket.setOrders(List.of(order));
         testTicket.setCreatedAt(LocalDateTime.now());
         testTicket.setStatus(TicketStatus.BOUGHT);
         testTicket.setRandomTicketCode("4d5d4d7ddddd44");
