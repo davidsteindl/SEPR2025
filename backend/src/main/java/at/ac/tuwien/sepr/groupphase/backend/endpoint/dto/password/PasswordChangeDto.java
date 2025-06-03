@@ -7,8 +7,6 @@ import java.util.Objects;
 
 public class PasswordChangeDto {
 
-    @NotNull
-    Long id;
 
     @NotNull
     String password;
@@ -16,13 +14,6 @@ public class PasswordChangeDto {
     @NotNull
     String confirmPassword;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getPassword() {
         return password;

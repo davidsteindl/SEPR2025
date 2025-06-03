@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordChangeDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
@@ -95,7 +96,7 @@ public class UserValidator {
      * @param email the email to be checked
      * @return true or false - depends on if the email is valid
      */
-    public static boolean isValidEmail(String email) {
+    private static boolean isValidEmail(String email) {
         if (email == null) {
             return false;
         }
@@ -123,6 +124,21 @@ public class UserValidator {
             throw new ValidationException("Validation of user for registration failed", validationErrors);
         }
 
+
+    }
+
+    public void validateEmailForPasswordReset(PasswordResetDto passwordResetDto) throws ValidationException {
+
+        LOGGER.info("Validating email for Password-Reset ...");
+        List<String> validationErrors = new ArrayList<>();
+
+        if (!isValidEmail(passwordResetDto.getEmail())) {
+            validationErrors.add("Email is not valid");
+        }
+
+        if (!validationErrors.isEmpty()) {
+            throw new ValidationException("Validation of user for registration failed", validationErrors);
+        }
 
     }
 

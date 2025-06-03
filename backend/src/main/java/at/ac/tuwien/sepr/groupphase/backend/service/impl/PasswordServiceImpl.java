@@ -43,12 +43,15 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public void requestResetPassword(PasswordResetDto passwordResetDto) throws NotFoundException, IllegalArgumentException {
+    public void requestResetPassword(PasswordResetDto passwordResetDto) throws NotFoundException, IllegalArgumentException, ValidationException {
 
         String email;
+
         if (passwordResetDto.getEmail() == null) {
             throw new IllegalArgumentException("no email provided");
         } else {
+            userValidator.validateEmailForPasswordReset(passwordResetDto);
+
             email = passwordResetDto.getEmail();
         }
         if (userService.findApplicationUserByEmail(email) == null) {
