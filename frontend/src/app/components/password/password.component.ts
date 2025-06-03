@@ -33,24 +33,23 @@ export class PasswordComponent {
     });
   }
 
-  resetPassword(email: string) {
-
+  resetPassword() {
     console.log("resetPassword started");
-
-    this.authService.resetPassword(email).subscribe({
+    this.email = this.passwordResetForm.controls.email.value;
+    console.log(this.email);
+    this.authService.resetPassword(this.email).subscribe({
       next: () => {
         this.submitted = true;
-        this.email = email;
         this.emailSent = true;
         this.isSubmitting = true;
       },
       error: error => {
-        console.log(`Could not send email because ${error.error.errors}`);
+        console.log(`Could not send email because ${error}`);
         this.error = true;
         this.passwordResetForm.reset();
         this.submitted = false;
         if (typeof error.error === 'object') {
-          this.notification.error(`Validation of email failed because ${error.error.errors}`);
+          this.notification.error(`Validation of email failed because ${error}`);
         } else {
           this.errorMessage = error.error;
         }

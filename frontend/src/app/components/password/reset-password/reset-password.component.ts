@@ -33,14 +33,17 @@ export class ResetPasswordComponent {
   }
 
   changePassword(){
+
+    const token = this.route.snapshot.queryParamMap.get('token');
+    console.log('Token from URL:', token);
+
     const changePasswordRequest: PasswordChange = {
       password: this.passwordResetForm.controls.password.value,
       confirmPassword: this.passwordResetForm.controls.confirmPassword.value,
-      otToken: String(this.route.snapshot.paramMap.get('token'))
+      otToken: token
     }
 
     this.authService.changePassword(changePasswordRequest);
-
   }
 
 
