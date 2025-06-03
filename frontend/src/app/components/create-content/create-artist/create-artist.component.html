@@ -1,8 +1,11 @@
 <div class="mt-4 container">
-  <div class="row">
-
-    <h2 class="modal-title">Create Artist</h2>
-    <hr>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Create Artist</h2>
+    <button class="btn btn-outline-secondary" [routerLink]="['/admin']">
+      ← Back to Admin Page
+    </button>
+  </div>
+  <hr>
 
     <form #artistForm="ngForm" class="tab-box" (ngSubmit)="createArtist()" novalidate>
 
@@ -58,12 +61,10 @@
         Please provide either a stage name or both first and last names.
       </div>
 
-      <div class="text-center">
-        <button class="btn btn-success mt-4" type="submit" [disabled]="artistForm.invalid || !isNameValid()">Create
-          Artist
-        </button>
+      <div class="mt-4 text-center">
+        <button type="submit" class=" btn btn-success me-2" [disabled]="artistForm.invalid">Create Artist</button>
+        <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
       </div>
 
     </form>
   </div>
-</div>
