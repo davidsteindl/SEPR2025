@@ -166,6 +166,19 @@ public class TicketServiceImpl implements TicketService {
         order.setTickets(List.of());
         order.setUserId(userId);
         order.setOrderType(type);
+
+        order.setFirstName(order.getFirstName());
+        order.setLastName(order.getLastName());
+        order.setHousenumber(order.getHousenumber());
+        order.setStreet(order.getStreet());
+        order.setPostalCode(order.getPostalCode());
+        order.setCity(order.getCity());
+        order.setCountry(order.getCountry());
+
+        OrderGroup group = new OrderGroup();
+        group.setUserId(userId);
+        orderGroupRepository.save(group);
+        order.setOrderGroup(group);
         return orderRepository.save(order);
     }
 
@@ -241,7 +254,7 @@ public class TicketServiceImpl implements TicketService {
                                TicketStatus status) {
         LOGGER.debug("Building ticket for order: {}, show: {}, sector: {}, seat: {}, status: {}", order, show, sector, seat, status);
         Ticket ticket = new Ticket();
-        ticket.setOrder(order);
+        ticket.setOrders(List.of(order));
         ticket.setShow(show);
         ticket.setStatus(status);
         ticket.setSector(sector);
@@ -315,7 +328,12 @@ public class TicketServiceImpl implements TicketService {
         List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
         ticketValidator.validateForBuyReservedTickets(ticketIds, tickets);
 
-        Order oldReservation = tickets.getFirst().getOrder();
+        Order oldReservation = tickets.getFirst()
+            .getOrders()
+            .stream()
+            .filter(o -> o.getOrderType() == OrderType.RESERVATION)
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Ticket is not part of a reservation order"));
         Order newOrder = processTicketTransfer(
             tickets,
             oldReservation,
@@ -340,7 +358,12 @@ public class TicketServiceImpl implements TicketService {
             return List.of();
         }
 
-        Order oldRes = tickets.getFirst().getOrder();
+        Order oldRes = tickets.getFirst()
+            .getOrders()
+            .stream()
+            .filter(o -> o.getOrderType() == OrderType.RESERVATION)
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("No reservation order found for ticket"));
         Order cancelOrder = processTicketTransfer(
             tickets,
             oldRes,
@@ -365,7 +388,13 @@ public class TicketServiceImpl implements TicketService {
             return List.of();
         }
 
-        Order original = tickets.getFirst().getOrder();
+        Order original = tickets.getFirst()
+            .getOrders()
+            .stream()
+            .filter(o -> o.getOrderType() == OrderType.ORDER)
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("No original order found for ticket"));
+
         Order refundOrder = processTicketTransfer(
             tickets,
             original,
@@ -408,24 +437,18 @@ public class TicketServiceImpl implements TicketService {
     ) {
         Order newOrder = initOrder(authFacade.getCurrentUserId(), newType);
 
-        Long userId = authFacade.getCurrentUserId();
-
-        OrderGroup group = new OrderGroup();
-        group.setUserId(userId);
-        orderGroupRepository.save(group);
+        OrderGroup group = oldOrder.getOrderGroup();
         newOrder.setOrderGroup(group);
 
-        // detach and reattach
         tickets.forEach(t -> {
-            oldOrder.getTickets().remove(t);
-            t.setOrder(newOrder);
+            t.getOrders().add(newOrder);
             t.setStatus(newStatus);
         });
 
-        orderRepository.save(oldOrder);
         ticketRepository.saveAll(tickets);
         finalizeOrder(newOrder, tickets);
         return newOrder;
+
     }
 
     @Override
@@ -444,238 +467,6 @@ public class TicketServiceImpl implements TicketService {
         holdRepository.save(hold);
 
 
-    }
-
-    /**
-     * Executes the full checkout operation, including payment validation, upgrading reserved tickets to purchased status,
-     * and creating new tickets if needed.
-     *
-     * @param dto The {@link CheckoutRequestDto} containing all data required to complete the ticket purchase
-     * @return A fully populated {@link OrderGroupDto} including show details, address, total price, and ticket info
-     * @throws ValidationException If credit card or address data fails validation
-     */
-    @Override
-    @Transactional
-    public OrderGroupDto checkoutTickets(CheckoutRequestDto dto) throws ValidationException {
-        LOGGER.debug("Checkout ticket purchase: {}", dto);
-        ticketValidator.validateCheckoutPaymentData(dto);
-        ticketValidator.validateCheckoutAddress(dto);
-
-        Long userId = authFacade.getCurrentUserId();
-
-        OrderGroup group = new OrderGroup();
-        group.setUserId(userId);
-
-        Order order = initOrderWithAddress(userId, OrderType.ORDER, dto);
-        order.setOrderGroup(group);
-        group.getOrders().add(order);
-
-        orderGroupRepository.save(group);
-
-
-        Show show = loadShow(dto.getShowId());
-
-        List<Ticket> finalTickets = new ArrayList<>();
-        int totalPrice = 0;
-
-        if (dto.getReservedTicketIds() != null && !dto.getReservedTicketIds().isEmpty()) {
-            List<Ticket> reservedTickets = ticketRepository.findAllById(dto.getReservedTicketIds());
-            for (Ticket t : reservedTickets) {
-                if (t.getStatus() != TicketStatus.RESERVED) {
-                    throw new IllegalStateException("Ticket " + t.getId() + " is not reserved");
-                }
-                t.setStatus(TicketStatus.BOUGHT);
-                t.setOrder(order);
-                finalTickets.add(t);
-                totalPrice += t.getSector().getPrice();
-            }
-        }
-
-        if (dto.getTargets() != null && !dto.getTargets().isEmpty()) {
-            var result = createTickets(order, show, dto.getTargets(), TicketStatus.BOUGHT);
-            finalTickets.addAll(result.tickets);
-            totalPrice += result.totalPrice;
-        }
-
-        ticketRepository.saveAll(finalTickets);
-        finalizeOrder(order, finalTickets);
-
-        OrderDto orderDto = buildOrderDto(order, finalTickets);
-        orderDto.setTotalPrice(totalPrice);
-        setAddressOnOrderDto(orderDto, dto);
-
-        OrderGroupDto groupDto = new OrderGroupDto();
-        groupDto.setId(group.getId());
-        groupDto.setOrders(List.of(orderDto));
-        groupDto.setShowName(show.getName());
-        groupDto.setShowDate(show.getDate());
-        groupDto.setLocationName(show.getEvent().getLocation().getName());
-        groupDto.setTotalPrice(totalPrice);
-
-        return groupDto;
-    }
-
-
-    /**
-     * Copies address information from the {@link CheckoutRequestDto} into the resulting {@link OrderDto}.
-     *
-     * @param dto The target order DTO to populate with address fields
-     * @param request The source request containing address input from the user
-     */
-    private void setAddressOnOrderDto(OrderDto dto, CheckoutRequestDto request) {
-        dto.setFirstName(request.getFirstName());
-        dto.setLastName(request.getLastName());
-        dto.setStreet(request.getStreet());
-        dto.setHousenumber(request.getHousenumber());
-        dto.setCity(request.getCity());
-        dto.setCountry(request.getCountry());
-        dto.setPostalCode(request.getPostalCode());
-    }
-
-    /**
-     * Initializes a new {@link Order} with basic metadata (user, type, timestamp) and full billing address data.
-     *
-     * @param userId The ID of the currently authenticated user
-     * @param type The type of the order (typically {@code ORDER})
-     * @param dto The checkout data containing address information
-     * @return A newly constructed {@link Order} (not yet persisted)
-     */
-    private Order initOrderWithAddress(Long userId, OrderType type, CheckoutRequestDto dto) {
-        Order order = new Order();
-        order.setCreatedAt(LocalDateTime.now());
-        order.setTickets(List.of());
-        order.setUserId(userId);
-        order.setOrderType(type);
-
-        order.setFirstName(dto.getFirstName());
-        order.setLastName(dto.getLastName());
-        order.setStreet(dto.getStreet());
-        order.setHousenumber(dto.getHousenumber());
-        order.setCity(dto.getCity());
-        order.setCountry(dto.getCountry());
-        order.setPostalCode(dto.getPostalCode());
-
-        return order;
-    }
-
-    /**
-     * Reserves tickets for a given show in a newly created {@link OrderGroup}.
-     * This method creates a new {@link OrderGroup} for the currently authenticated user and
-     * associates a new {@link Order} of type {@link OrderType#RESERVATION} with it. The requested
-     * tickets are reserved with status {@link TicketStatus#RESERVED}. Reservations expire 30 minutes
-     * before the start of the show.
-     *
-     * @param request the ticket reservation request containing the show ID and selected sectors/seats
-     * @return a {@link ReservationDto} containing reservation details and expiration time
-     */
-    @Override
-    @Transactional
-    public ReservationDto reserveTicketsGrouped(TicketRequestDto request) {
-        LOGGER.debug("Grouped reservation request: {}", request);
-        ticketValidator.validateForReserveTickets(request);
-
-        Long userId = authFacade.getCurrentUserId();
-
-        OrderGroup group = new OrderGroup();
-        group.setUserId(userId);
-        orderGroupRepository.save(group);
-
-        Order order = initOrder(userId, OrderType.RESERVATION);
-        order.setOrderGroup(group);
-        group.getOrders().add(order);
-        orderRepository.save(order);
-
-        Show show = loadShow(request.getShowId());
-
-        var result = createTickets(order, show, request.getTargets(), TicketStatus.RESERVED);
-        ticketRepository.saveAll(result.tickets);
-        finalizeOrder(order, result.tickets);
-
-        return buildReservationDto(order, result.tickets, show.getDate().minusMinutes(30));
-    }
-
-    /**
-     * Refunds the given purchased tickets by creating a new {@link Order} of type {@link OrderType#REFUND}.
-     * For the remaining tickets in the original order (if any), a new {@link Order} of type {@link OrderType#ORDER}
-     * is created to preserve the original invoice structure. The original order remains unchanged.
-     * Each refunded ticket is duplicated as a new ticket with status {@link TicketStatus#REFUNDED}, and
-     * links back to the original ticket via the {@code originalTicket} field.
-     *
-     * @param ticketIds the IDs of tickets to be refunded
-     * @return a list of {@link TicketDto} representing the newly created refunded tickets
-     */
-    @Override
-    @Transactional
-    public List<TicketDto> refundTicketsGroup(List<Long> ticketIds) {
-        LOGGER.debug("Refund tickets request: {}", ticketIds);
-        List<Ticket> toRefund = ticketRepository.findAllById(ticketIds);
-        ticketValidator.validateForRefundTickets(ticketIds, toRefund);
-
-        if (toRefund.isEmpty()) {
-            return List.of();
-        }
-
-        Long userId = authFacade.getCurrentUserId();
-
-        Order originalOrder = toRefund.getFirst().getOrder();
-        OrderGroup group = originalOrder.getOrderGroup();
-        if (group == null) {
-            group = new OrderGroup();
-            group.setUserId(userId);
-            orderGroupRepository.save(group);
-        }
-
-        Order refundOrder = initOrder(userId, OrderType.REFUND);
-        refundOrder.setOrderGroup(group);
-        group.getOrders().add(refundOrder);
-        orderRepository.save(refundOrder);
-
-        List<Ticket> refundTickets = new ArrayList<>();
-        for (Ticket original : toRefund) {
-            Ticket refund = new Ticket();
-            refund.setOriginalTicket(original);
-            refund.setOrder(refundOrder);
-            refund.setShow(original.getShow());
-            refund.setSector(original.getSector());
-            refund.setSeat(original.getSeat());
-            refund.setCreatedAt(LocalDateTime.now());
-            refund.setStatus(TicketStatus.REFUNDED);
-            refundTickets.add(refund);
-        }
-
-        ticketRepository.saveAll(refundTickets);
-        finalizeOrder(refundOrder, refundTickets);
-
-        List<Ticket> remainingOriginals = originalOrder.getTickets().stream()
-            .filter(t -> ticketIds.stream().noneMatch(id -> id.equals(t.getId())))
-            .toList();
-
-        if (!remainingOriginals.isEmpty()) {
-            Order newRemainingOrder = initOrder(userId, OrderType.ORDER);
-            newRemainingOrder.setOrderGroup(group);
-            group.getOrders().add(newRemainingOrder);
-            orderRepository.save(newRemainingOrder);
-
-            List<Ticket> duplicatedRemaining = new ArrayList<>();
-            for (Ticket original : remainingOriginals) {
-                Ticket copy = new Ticket();
-                copy.setOriginalTicket(original);
-                copy.setOrder(newRemainingOrder);
-                copy.setShow(original.getShow());
-                copy.setSector(original.getSector());
-                copy.setSeat(original.getSeat());
-                copy.setCreatedAt(LocalDateTime.now());
-                copy.setStatus(TicketStatus.BOUGHT);
-                duplicatedRemaining.add(copy);
-            }
-
-            ticketRepository.saveAll(duplicatedRemaining);
-            finalizeOrder(newRemainingOrder, duplicatedRemaining);
-        }
-
-        return refundTickets.stream()
-            .map(ticketMapper::toDto)
-            .collect(Collectors.toList());
     }
 
 

@@ -127,30 +127,7 @@ public interface TicketService {
      */
     void createTicketHold(CreateHoldDto createHoldDto);
 
-    /**
-     * Finalizes the ticket purchase process (including both newly selected and previously reserved tickets).
-     *
-     * @param dto The checkout request containing seat selection, reserved ticket IDs, address, and payment information
-     * @return An {@link OrderGroupDto} representing the completed order group, including tickets, order, and show info
-     * @throws ValidationException If any of the payment or address data is invalid
-     */
-    OrderGroupDto checkoutTickets(CheckoutRequestDto dto) throws ValidationException;
 
-    /**
-     * Creates a reservation for one or more tickets and returns reservation metadata.
-     *
-     * @param request A {@link TicketRequestDto} containing the show ID and desired ticket targets
-     * @return A {@link ReservationDto} containing reserved tickets and reservation expiration info
-     */
-    ReservationDto reserveTicketsGrouped(TicketRequestDto request);
-
-    /**
-     * Refunds one or more already bought tickets by splitting the original order.
-
-     * @param ticketIds the list of ticket IDs to refund
-     * @return the list of refunded ticket DTOs
-     */
-    List<TicketDto> refundTicketsGroup(List<Long> ticketIds);
 
 
     /**
