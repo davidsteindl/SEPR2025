@@ -1,7 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket;
 
-import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderGroupType;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -14,9 +12,6 @@ public class OrderGroupDto {
 
     private List<OrderDto> orders;
 
-    private int totalPrice;
-
-    private OrderGroupType type;
 
     public OrderGroupDto() {
     }
@@ -26,7 +21,6 @@ public class OrderGroupDto {
         this.showName = showName;
         this.showDate = showDate;
         this.locationName = locationName;
-        this.totalPrice = totalPrice;
         this.orders = orders;
     }
 
@@ -70,19 +64,4 @@ public class OrderGroupDto {
         this.orders = orders;
     }
 
-    public int getTotalPrice() {
-        return totalPrice;
-    }
-
-    public void setTotalPrice(int totalPrice) {
-        this.totalPrice = totalPrice;
-    }
-
-    public OrderGroupType getType() {
-        return type;
-    }
-
-    public void setType(OrderGroupType type) {
-        this.type = type;
-    }
 }

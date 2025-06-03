@@ -160,6 +160,30 @@ public class TicketServiceImpl implements TicketService {
      * @param type the type of the order (ORDER or RESERVATION)
      * @return the persisted Order entity
      */
+    private Order initOrder(Long userId, OrderType type) {
+        LOGGER.debug("Initializing order without address for user: {}, type: {}", userId, type);
+        Order order = new Order();
+        order.setCreatedAt(LocalDateTime.now());
+        order.setUserId(userId);
+        order.setOrderType(type);
+        order.setTickets(new ArrayList<>());
+
+        OrderGroup group = new OrderGroup();
+        group.setUserId(userId);
+        group.getOrders().add(order);
+        orderGroupRepository.save(group);
+        order.setOrderGroup(group);
+
+        return orderRepository.save(order);
+    }
+
+    /**
+     * Initializes a new Order with adresse for a user with the specified type and persists it.
+     *
+     * @param userId the ID of the user placing the order
+     * @param type the type of the order (ORDER or RESERVATION)
+     * @return the persisted Order entity
+     */
     private Order initOrderWithAdresse(Long userId, OrderType type, TicketRequestDto request) {
         LOGGER.debug("Initializing order for user: {}, type: {}", userId, type);
         Order order = new Order();
@@ -183,24 +207,6 @@ public class TicketServiceImpl implements TicketService {
         order.setOrderGroup(group);
         return orderRepository.save(order);
     }
-
-    private Order initOrder(Long userId, OrderType type) {
-        LOGGER.debug("Initializing order without address for user: {}, type: {}", userId, type);
-        Order order = new Order();
-        order.setCreatedAt(LocalDateTime.now());
-        order.setUserId(userId);
-        order.setOrderType(type);
-        order.setTickets(new ArrayList<>());
-
-        OrderGroup group = new OrderGroup();
-        group.setUserId(userId);
-        group.getOrders().add(order);
-        orderGroupRepository.save(group);
-        order.setOrderGroup(group);
-
-        return orderRepository.save(order);
-    }
-
 
     /**
      * Creates tickets for the given order and show based on target DTOs, saves them, and calculates total price.
@@ -522,114 +528,26 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public Page<OrderDto> getOrdersForUser(Long userId, OrderType orderType, boolean past, Pageable pageable) {
-        LocalDateTime now = LocalDateTime.now();
-        Page<Long> orderIdsPage = orderRepository.findOrderIdsByTypeAndPast(userId, orderType, past, now, pageable);
-        List<Order> fullOrders = orderRepository.findAllWithDetailsByIdIn(orderIdsPage.getContent());
-        List<OrderDto> orderDtos = orderMapper.toDto(fullOrders);
-
-        return new PageImpl<>(orderDtos, pageable, orderIdsPage.getTotalElements());
-    }
-
-    @Override
-    @Transactional
-    public OrderDto getOrderWithTicketsById(Long orderId) {
-        return orderRepository.findByIdWithDetails(orderId)
-            .map(orderMapper::toDto)
-            .orElseThrow(() -> new NotFoundException("Order with ID " + orderId + " not found"));
-    }
-
-    @Override
-    @Transactional
-    public Page<OrderGroupDto> getOrderGroupsForUser(OrderGroupType category, Pageable pageable) {
+    public Page<OrderGroupDto> getOrderGroupsByCategory(boolean isReservation, boolean past, Pageable pageable) {
         Long userId = authFacade.getCurrentUserId();
+        Page<OrderGroup> groups = orderGroupRepository.findByCategory(userId, isReservation, past, pageable);
+        return groups.map(group -> {
+            OrderGroupDto dto = new OrderGroupDto();
+            dto.setId(group.getId());
 
-        boolean isReservation = category == OrderGroupType.RESERVED;
-        boolean isPast = category == OrderGroupType.PAST;
+            Order firstOrder = group.getOrders().stream().findFirst().orElse(null);
+            if (firstOrder != null && !firstOrder.getTickets().isEmpty()) {
+                Ticket ticket = firstOrder.getTickets().getFirst();
+                dto.setShowName(ticket.getShow().getName());
+                dto.setShowDate(ticket.getShow().getDate());
+                dto.setLocationName(ticket.getShow().getEvent().getLocation().getName());
+            }
 
-        Page<OrderGroup> groups = orderGroupRepository.findByCategory(userId, isReservation, isPast, pageable);
-
-        return groups.map(this::mapOrderGroupToDto);
-    }
-
-    /**
-     * Converts an {@link OrderGroup} entity to a {@link OrderGroupDto}.
-     * Assumes that all {@link Order}s in the group are associated with the same {@link Show}.
-     * Uses the first order as a reference and sums all ticket prices in the group.
-     *
-     * @param group the OrderGroup to convert
-     * @return the corresponding OrderGroupDto with basic show and location info
-     * @throws IllegalStateException if the group contains no orders
-     */
-    private OrderGroupDto mapOrderGroupToDto(OrderGroup group) {
-        List<Order> orders = group.getOrders();
-        if (orders == null || orders.isEmpty()) {
-            throw new IllegalStateException("OrderGroup with id " + group.getId() + " has no orders");
-        }
-
-        Order referenceOrder = orders.getFirst();
-        List<Ticket> allTickets = orders.stream()
-            .flatMap(o -> o.getTickets().stream())
-            .toList();
-
-        Show show = allTickets.getFirst().getShow();
-
-        int totalPrice = allTickets.stream()
-            .filter(t -> t.getStatus() == TicketStatus.BOUGHT)
-            .mapToInt(t -> t.getSector().getPrice())
-            .sum();
-
-
-        return new OrderGroupDto(
-            group.getId(),
-            show.getName(),
-            show.getDate(),
-            show.getRoom().getEventLocation().getName(),
-            totalPrice,
-            orders.stream().map(orderMapper::toDto).toList()
-        );
-    }
-
-    @Override
-    @Transactional
-    public OrderGroupDto getOrderGroupDetails(Long orderGroupId) {
-        OrderGroup group = orderGroupRepository.findByIdWithOrders(orderGroupId)
-            .orElseThrow(() -> new NotFoundException("OrderGroup with ID " + orderGroupId + " not found"));
-
-        List<Order> orders = group.getOrders();
-        if (orders == null || orders.isEmpty()) {
-            throw new IllegalStateException("OrderGroup with ID " + orderGroupId + " has no orders");
-        }
-
-        Show show = orders.stream()
-            .flatMap(order -> order.getTickets().stream())
-            .findFirst()
-            .map(Ticket::getShow)
-            .orElseThrow(() -> new IllegalStateException("No tickets found in OrderGroup"));
-
-        int totalPrice = orders.stream()
-            .flatMap(o -> o.getTickets().stream())
-            .filter(t -> t.getStatus() == TicketStatus.BOUGHT)
-            .mapToInt(t -> t.getSector().getPrice())
-            .sum();
-
-        List<OrderDto> orderDtos = orders.stream()
-            .sorted(Comparator.comparing(Order::getCreatedAt))
-            .map(order -> {
-                OrderDto dto = orderMapper.toDto(order);
-                dto.setTickets(order.getTickets().stream().map(ticketMapper::toDto).toList());
-                return dto;
-            })
-            .toList();
-
-        return new OrderGroupDto(
-            group.getId(),
-            show.getName(),
-            show.getDate(),
-            show.getEvent().getLocation().getName(),
-            totalPrice,
-            orderDtos
-        );
+            dto.setOrders(group.getOrders().stream()
+                .map(orderMapper::toDto)
+                .collect(Collectors.toList()));
+            return dto;
+        });
     }
 
 

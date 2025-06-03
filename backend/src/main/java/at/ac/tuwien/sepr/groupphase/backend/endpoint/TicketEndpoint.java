@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -106,75 +107,16 @@ public class TicketEndpoint {
     }
 
 
-    @GetMapping("/orders/upcoming")
+    @GetMapping("/order-groups")
     @Secured("ROLE_USER")
-    @Operation(summary = "Get purchased upcoming orders", security = @SecurityRequirement(name = "apiKey"))
-    public Page<OrderDto> getUpcomingPurchasedOrders(Pageable pageable) {
-        Long userId = authenticationFacade.getCurrentUserId();
-        LOGGER.info("GET /api/v1/tickets/orders/upcoming by user {}", userId);
-        return ticketService.getOrdersForUser(userId, OrderType.ORDER, false, pageable);
-    }
-
-    @GetMapping("/orders/reservations")
-    @Secured("ROLE_USER")
-    @Operation(summary = "Get active reservations", security = @SecurityRequirement(name = "apiKey"))
-    public Page<OrderDto> getUpcomingReservations(Pageable pageable) {
-        Long userId = authenticationFacade.getCurrentUserId();
-        LOGGER.info("GET /api/v1/tickets/orders/reservations by user {}", userId);
-        return ticketService.getOrdersForUser(userId, OrderType.RESERVATION, false, pageable);
-    }
-
-    @GetMapping("/orders/past")
-    @Secured("ROLE_USER")
-    @Operation(summary = "Get past purchased orders", security = @SecurityRequirement(name = "apiKey"))
-    public Page<OrderDto> getPastOrders(Pageable pageable) {
-        Long userId = authenticationFacade.getCurrentUserId();
-        LOGGER.info("GET /api/v1/tickets/orders/past by user {}", userId);
-        return ticketService.getOrdersForUser(userId, OrderType.ORDER, true, pageable);
-    }
-
-    @GetMapping("/orders/refunded")
-    @Secured("ROLE_USER")
-    @Operation(summary = "Get refunded orders", security = @SecurityRequirement(name = "apiKey"))
-    public Page<OrderDto> getRefundedOrders(Pageable pageable) {
-        Long userId = authenticationFacade.getCurrentUserId();
-        LOGGER.info("GET /api/v1/tickets/orders/refunded by user {}", userId);
-        return ticketService.getOrdersForUser(userId, OrderType.REFUND, false, pageable);
-    }
-
-    @GetMapping("/orders/{orderId}/with-tickets")
-    @Secured("ROLE_USER")
-    @Operation(summary = "Get full order including tickets", security = @SecurityRequirement(name = "apiKey"))
-    public OrderDto getOrderWithTickets(@PathVariable("orderId") Long orderId) {
-        LOGGER.info("GET /api/v1/tickets/orders/{}/with-tickets by user {}", orderId, authenticationFacade.getCurrentUserId());
-        return ticketService.getOrderWithTicketsById(orderId);
-    }
-
-    @GetMapping("/ordergroups")
-    @Secured("ROLE_USER")
-    @Operation(
-        summary = "Get grouped orders (reservations, purchases, or past orders)",
-        description = "Returns a paginated list of order groups categorized by status and show date",
-        security = @SecurityRequirement(name = "apiKey")
-    )
-    public Page<OrderGroupDto> getGroupedOrders(
-        @org.springframework.web.bind.annotation.RequestParam("category") OrderGroupType category,
+    @Operation(summary = "Get order groups", security = @SecurityRequirement(name = "apiKey"))
+    public Page<OrderGroupDto> getOrderGroupsByCategory(
+        @RequestParam(name = "isReservation") boolean isReservation,
+        @RequestParam(name = "past") boolean past,
         Pageable pageable
     ) {
-        Long userId = authenticationFacade.getCurrentUserId();
-        LOGGER.info("GET /api/v1/tickets/ordergroups?category={} by user {}", category, userId);
-        return ticketService.getOrderGroupsForUser(category, pageable);
-    }
-
-    @GetMapping("/ordergroups/{id}")
-    @Secured("ROLE_USER")
-    @Operation(
-        summary = "Get detailed view of an OrderGroup including all orders and tickets",
-        security = @SecurityRequirement(name = "apiKey")
-    )
-    public OrderGroupDto getOrderGroupDetails(@PathVariable("id") Long id) {
-        LOGGER.info("GET /api/v1/tickets/ordergroups/{} by user {}", id, authenticationFacade.getCurrentUserId());
-        return ticketService.getOrderGroupDetails(id);
+        LOGGER.info("GET /api/v1/tickets/order-groups?isReservation={}&past={}", isReservation, past);
+        return ticketService.getOrderGroupsByCategory(isReservation, past, pageable);
     }
 
 

@@ -40,7 +40,9 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -291,6 +293,75 @@ public class TicketEndpointTest implements TestData {
             .andReturn();
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    @Transactional
+    public void getOrderGroupsByCategory_shouldReturnOneGroup_whenValidReservationExists() throws Exception {
+        TicketRequestDto reserveRequest = new TicketRequestDto();
+        reserveRequest.setShowId(futureShow.getId());
+
+        TicketTargetStandingDto target = new TicketTargetStandingDto();
+        target.setSectorId(sector.getId());
+        target.setQuantity(1);
+        reserveRequest.setTargets(List.of(target));
+
+        String jwt = jwtTokenizer.getAuthToken("user@email.com", List.of("ROLE_USER"));
+
+        mockMvc.perform(post("/api/v1/tickets/reserve")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reserveRequest))
+                .header("Authorization", jwt))
+            .andExpect(status().isCreated());
+
+        MvcResult result = mockMvc.perform(
+                get("/api/v1/tickets/order-groups")
+                    .param("isReservation", "true")
+                    .param("past", "false")
+                    .header("Authorization", jwt)
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
+
+        assertAll(
+            () -> assertTrue(json.has("content")),
+            () -> assertTrue(json.get("content").isArray()),
+            () -> assertEquals(1, json.get("content").size(), "Expected one reservation group"),
+            () -> assertTrue(json.get("content").get(0).has("orders")),
+            () -> assertEquals(1, json.get("content").get(0).get("orders").size()),
+            () -> assertEquals("Test Show", json.get("content").get(0).get("showName").asText())
+        );
+    }
+
+
+    @Test
+    @Transactional
+    public void getOrderGroupsByCategory_shouldReturnEmptyPage_whenNoMatchingOrdersExist() throws Exception {
+
+        String jwt = jwtTokenizer.getAuthToken("user@email.com", List.of("ROLE_USER"));
+
+        MvcResult result = mockMvc.perform(
+                get("/api/v1/tickets/order-groups")
+                    .param("isReservation", "true")
+                    .param("past", "false")
+                    .header("Authorization", jwt)
+                    .accept(MediaType.APPLICATION_JSON)
+            )
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
+
+        assertAll(
+            () -> assertTrue(json.has("content")),
+            () -> assertTrue(json.get("content").isArray()),
+            () -> assertEquals(0, json.get("content").size(), "Expected empty list when no reservations exist")
+        );
     }
 
 

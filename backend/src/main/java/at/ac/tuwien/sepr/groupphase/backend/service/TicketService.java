@@ -126,43 +126,27 @@ public interface TicketService {
      */
     void createTicketHold(CreateHoldDto createHoldDto);
 
-
-
-
     /**
-     * Retrieves a paginated list of orders (purchases or reservations) for the given user.
+     * Retrieves paginated {@link OrderGroupDto} entries based on the reservation status and show date.
+     * <p>
+     * This method is intended to support frontend filtering for order overviews in tabs such as
+     * PURCHASED, RESERVED, and PAST. The filtering is controlled via the parameters:
+     * </p>
+     * <ul>
+     *   <li><strong>isReservation = true</strong>: returns only groups with reservation orders.</li>
+     *   <li><strong>isReservation = false</strong> and <strong>past = false</strong>: returns purchased/refunded orders for future shows.</li>
+     *   <li><strong>isReservation = false</strong> and <strong>past = true</strong>: returns purchased/refunded orders for past shows.</li>
+     * </ul>
      *
-     * @param userId the ID of the user whose orders should be fetched
-     * @param type the type of the order: ODER or RESERVATION
-     * @param past if true, only orders for past shows are returned; if false, only future shows
-     * @param pageable pagination information (page number, size, sort)
-     * @return a paginated list of {@link OrderDto} objects
+     * @param isReservation flag indicating whether to fetch reservation orders (true) or actual purchases/refunds (false)
+     * @param past flag indicating whether to include only past shows (true) or only upcoming ones (false); ignored if isReservation is true
+     * @param pageable the pagination information to apply
+     * @return a page of {@link OrderGroupDto} objects matching the specified filters
      */
-    Page<OrderDto> getOrdersForUser(Long userId, OrderType type, boolean past, Pageable pageable);
+    Page<OrderGroupDto> getOrderGroupsByCategory(boolean isReservation, boolean past, Pageable pageable);
 
-    /**
-     * Retrieves full order data including all associated tickets (no pagination).
-     *
-     * @param orderId the ID of the order to retrieve
-     * @return {@link OrderDto} with all ticket details
-     */
-    OrderDto getOrderWithTicketsById(Long orderId);
 
-    /**
-     * Retrieves a paginated list of {@link OrderGroupDto}s for the current user based on the selected category.
-     * The category determines whether upcoming purchases, reservations, or past orders are returned.
-     *
-     * @param category The desired category: {@link OrderGroupType#PURCHASED}, {@link OrderGroupType#RESERVED}, or {@link OrderGroupType#PAST}
-     * @param pageable the pagination and sorting information
-     * @return a page of {@link OrderGroupDto}s matching the selected category
-     */
-    Page<OrderGroupDto> getOrderGroupsForUser(OrderGroupType category, Pageable pageable);
 
-    /**
-     * Retrieves full detail information for a specific OrderGroup by its ID.
-     *
-     * @param orderGroupId The ID of the OrderGroup to retrieve
-     * @return A fully populated {@link OrderGroupDto} with all associated orders and tickets
-     */
-    OrderGroupDto getOrderGroupDetails(Long orderGroupId);
+
+
 }

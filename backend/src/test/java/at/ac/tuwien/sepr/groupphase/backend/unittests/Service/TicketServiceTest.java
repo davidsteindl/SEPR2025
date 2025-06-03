@@ -754,6 +754,44 @@ public class TicketServiceTest {
             "Error message should mention invalid address");
     }
 
+    @Test
+    @Transactional
+    public void testGetOrderGroupsByCategory_returnsOnlyPurchasedFutureGroups() throws ValidationException {
+        TicketTargetStandingDto target = new TicketTargetStandingDto();
+        target.setSectorId(standingSector.getId());
+        target.setQuantity(1);
+        TicketRequestDto request = createBuyRequest(List.of(target));
+        ticketService.buyTickets(request);
+
+        var page = ticketService.getOrderGroupsByCategory(false, false, Pageable.ofSize(10));
+
+        assertAll(
+            () -> assertNotNull(page),
+            () -> assertEquals(1, page.getTotalElements(), "Should return one order group"),
+            () -> assertEquals("Test Show", page.getContent().getFirst().getShowName()),
+            () -> assertEquals(location.getName(), page.getContent().getFirst().getLocationName())
+        );
+    }
+
+    @Test
+    @Transactional
+    public void testGetOrderGroupsByCategory_whenNoReservationsExist_returnsEmptyPage() throws ValidationException {
+        TicketTargetStandingDto target = new TicketTargetStandingDto();
+        target.setSectorId(standingSector.getId());
+        target.setQuantity(1);
+        TicketRequestDto request = createBuyRequest(List.of(target));
+        ticketService.buyTickets(request);
+
+        var page = ticketService.getOrderGroupsByCategory(true, false, Pageable.ofSize(10));
+
+        assertAll(
+            () -> assertNotNull(page),
+            () -> assertEquals(0, page.getTotalElements(), "Expected no reservation order groups"),
+            () -> assertTrue(page.getContent().isEmpty(), "Result list should be empty")
+        );
+    }
+
+
 }
 
 
