@@ -2,8 +2,10 @@ import { Component } from '@angular/core';
 import {EmailSentComponent} from "../email-sent/email-sent.component";
 import {NgIf} from "@angular/common";
 import {FormGroup, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
-import {Router, RouterLink} from "@angular/router";
+import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {AuthService} from "../../../services/auth.service";
+import {RegisterUser} from "../../../dtos/register-user";
+import {PasswordChange} from "../../../dtos/password-change";
 
 @Component({
   selector: 'app-reset-password',
@@ -21,7 +23,9 @@ export class ResetPasswordComponent {
   submitted = false;
   isSubmitting = false;
 
-  constructor(private formBuilder: UntypedFormBuilder, private router: Router, private authService: AuthService) {
+  constructor(private route: ActivatedRoute,
+              private formBuilder: UntypedFormBuilder,
+              private authService: AuthService) {
     this.passwordResetForm = this.formBuilder.group({
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(8)]]
@@ -29,8 +33,13 @@ export class ResetPasswordComponent {
   }
 
   changePassword(){
+    const changePasswordRequest: PasswordChange = {
+      password: this.passwordResetForm.controls.password.value,
+      confirmPassword: this.passwordResetForm.controls.confirmPassword.value,
+      otToken: String(this.route.snapshot.paramMap.get('token'))
+    }
 
-    this.authService.changePassword();
+    this.authService.changePassword(changePasswordRequest);
 
   }
 
