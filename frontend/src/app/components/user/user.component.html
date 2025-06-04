@@ -5,16 +5,6 @@
      <hr>
    </div>
 
- <button
-   class="btn orders"
-   [routerLink]="['/orders']"
-   aria-label="User Orders"
-   onmouseenter="this.style.backgroundColor='#4b2991'; this.style.color='white';"
-   onmouseleave="this.style.backgroundColor='transparent'; this.style.color='#6f42c1';"
- >
-    My Orders
- </button>
-
  <div style="margin-left: 7rem;">
   <div class="row">
     <div class="col-md-6">
@@ -51,7 +41,6 @@
       </div>
     </div>
   </div>
-
 
     <div class="col-md-6">
       <div class="mb-2">
@@ -108,12 +97,12 @@
 
   <div class="mt-3 d-flex">
 
-    <button class="btn btn-outline-warning mr-2" [routerLink]="['/user-edit']" aria-label="Edit user">
+    <button class="btn btn-warning" [routerLink]="['/user-edit']" aria-label="Edit user">
       <i class="bi bi-pencil"></i> Edit
     </button>
     <span>&nbsp;</span>
 
-    <button class="btn btn-outline-danger" (click)="userForDeletion = user"
+    <button class="btn btn-danger" (click)="userForDeletion = user"
             data-bs-toggle="modal" data-bs-target="#delete-dialog" aria-label="Delete user">
       <i class="bi bi-trash"></i> Delete
     </button>

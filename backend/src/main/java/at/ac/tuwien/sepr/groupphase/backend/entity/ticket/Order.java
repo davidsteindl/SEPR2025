@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -32,6 +34,31 @@ public class Order {
     private OrderType orderType;
 
     private Long userId;
+
+    @ManyToOne
+    @JoinColumn(name = "order_group_id")
+    private OrderGroup orderGroup;
+
+    @Column(length = 100)
+    private String firstName;
+
+    @Column(length = 100)
+    private String lastName;
+
+    @Column(length = 100)
+    private String housenumber;
+
+    @Column(length = 100)
+    private String country;
+
+    @Column(length = 100)
+    private String city;
+
+    @Column(length = 200)
+    private String street;
+
+    @Column(length = 100)
+    private String postalCode;
 
     public List<Ticket> getTickets() {
         return tickets;
@@ -75,5 +102,69 @@ public class Order {
 
     public void setOrderType(OrderType orderType) {
         this.orderType = orderType;
+    }
+
+    public OrderGroup getOrderGroup() {
+        return orderGroup;
+    }
+
+    public void setOrderGroup(OrderGroup orderGroup) {
+        this.orderGroup = orderGroup;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getHousenumber() {
+        return housenumber;
+    }
+
+    public void setHousenumber(String housenumber) {
+        this.housenumber = housenumber;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
     }
 }
