@@ -39,17 +39,7 @@ public class UserValidator {
         LOGGER.info("Validating user registration ...");
         List<String> validationErrors = new ArrayList<>();
 
-        if (userRegisterDto.getFirstName() == null || userRegisterDto.getFirstName().isEmpty()) {
-            validationErrors.add("First name is required");
-        } else if (userRegisterDto.getFirstName().length() >= 100) {
-            validationErrors.add("First name is too long");
-        }
-
-        if (userRegisterDto.getLastName() == null) {
-            validationErrors.add("Last name is required");
-        } else if (userRegisterDto.getLastName().length() >= 100) {
-            validationErrors.add("Last name is too long");
-        }
+        checkName(validationErrors, userRegisterDto.getFirstName(), userRegisterDto.getLastName());
 
         if (userRegisterDto.getEmail() == null || !isValidEmail(userRegisterDto.getEmail())) {
             validationErrors.add("Email is not valid");
@@ -80,6 +70,20 @@ public class UserValidator {
 
     }
 
+    private void checkName(List<String> validationErrors, String firstName, String lastName) {
+        if (firstName == null || firstName.isEmpty()) {
+            validationErrors.add("First name is required");
+        } else if (firstName.length() >= 100) {
+            validationErrors.add("First name is too long");
+        }
+
+        if (lastName == null) {
+            validationErrors.add("Last name is required");
+        } else if (lastName.length() >= 100) {
+            validationErrors.add("Last name is too long");
+        }
+    }
+
     /**
      * The method to check if the email is valid via Pattern.
      *
@@ -87,6 +91,7 @@ public class UserValidator {
      * @return true or false - depends on if the email is valid
      */
     private static boolean isValidEmail(String email) {
+        LOGGER.info("Validating email address ...");
         if (email == null) {
             return false;
         }
@@ -108,6 +113,7 @@ public class UserValidator {
     }
 
     private void checkPassword(List<String> validationErrors, String password, String confirmPassword) {
+        LOGGER.debug("Checking passwords ...");
         if (password == null || password.length() < 8) {
             validationErrors.add("Password must be at least 8 characters");
         }
@@ -116,7 +122,7 @@ public class UserValidator {
             validationErrors.add("ConfirmPassword must be at least 8 characters");
         }
 
-        if (!password.equals(confirmPassword)) {
+        if (password != null && confirmPassword != null && !password.equals(confirmPassword)) {
             validationErrors.add("Passwords do not match");
         }
     }
@@ -138,18 +144,7 @@ public class UserValidator {
             validationErrors.add("No Email found");
         }
 
-        if (user.getFirstName() == null || user.getFirstName().isEmpty()) {
-            validationErrors.add("First name is required");
-        } else if (user.getFirstName().length() >= 100) {
-            validationErrors.add("First name is too long");
-        }
-
-        if (user.getLastName() == null) {
-            validationErrors.add("Last name is required");
-        } else if (user.getLastName().length() >= 100) {
-            validationErrors.add("Last name is too long");
-        }
-
+        checkName(validationErrors, user.getFirstName(), user.getLastName());
 
         if (user.getFirstName() != null && !user.getFirstName().matches("^[a-zA-ZäöüÄÖÜ -]+$")) {
             validationErrors.add("First Name contains symbols");
