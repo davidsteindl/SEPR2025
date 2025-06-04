@@ -6,7 +6,7 @@ import {Location} from "../../../dtos/location";
 import {LocationService} from "../../../services/location.service";
 import {ToastrService} from "ngx-toastr";
 import {ErrorFormatterService} from "../../../services/error-formatter.service";
-import {Router, RouterLink} from "@angular/router";
+import {Router} from "@angular/router";
 import {RoomService} from "../../../services/room.service";
 import {Room} from "../../../dtos/room";
 
