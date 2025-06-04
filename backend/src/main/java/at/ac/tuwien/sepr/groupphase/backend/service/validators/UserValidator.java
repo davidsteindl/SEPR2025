@@ -106,7 +106,7 @@ public class UserValidator {
         checkPassword(validationErrors, passwordChangeDto.getPassword(), passwordChangeDto.getConfirmPassword());
 
         if (!validationErrors.isEmpty()) {
-            throw new ValidationException("Validation of user for registration failed", validationErrors);
+            throw new ValidationException("Validation for Password Change failed", validationErrors);
         }
 
 
