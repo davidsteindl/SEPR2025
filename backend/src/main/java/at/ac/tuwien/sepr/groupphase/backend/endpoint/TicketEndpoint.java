@@ -124,6 +124,4 @@ public class TicketEndpoint {
     public OrderGroupDetailDto getOrderGroupDetails(@PathVariable("id") Long id) {
         return ticketService.getOrderGroupDetails(id);
     }
-
-
 }
