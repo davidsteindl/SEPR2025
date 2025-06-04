@@ -1,5 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-import {FormsModule} from '@angular/forms';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {FormsModule, NgForm} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {CreateArtist} from '../../../dtos/create-artist';
 import {ArtistService} from '../../../services/artist.service';
@@ -15,12 +15,12 @@ import {Router, RouterLink} from '@angular/router';
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink
   ],
   templateUrl: './create-artist.component.html',
   styleUrl: './create-artist.component.scss'
 })
 export class CreateArtistComponent implements OnInit {
+  @ViewChild('artistForm') form!: NgForm;
 
   artist: CreateArtist = {
     firstname: '',
@@ -28,6 +28,7 @@ export class CreateArtistComponent implements OnInit {
     stagename: '',
     showIds: []
   };
+  private initialArtist!: CreateArtist;
 
   shows: Show[] = [];
 
@@ -53,6 +54,8 @@ export class CreateArtistComponent implements OnInit {
         });
       }
     });
+
+    this.initialArtist= JSON.parse(JSON.stringify(this.artist));
   }
 
   isNameValid(): boolean {
@@ -88,6 +91,8 @@ export class CreateArtistComponent implements OnInit {
           stagename: '',
           showIds: []
         };
+        this.form.resetForm();
+        this.initialArtist = JSON.parse(JSON.stringify(this.artist));
       },
       error: (err) => {
         console.error('Error creating artist:', err);
@@ -99,7 +104,28 @@ export class CreateArtistComponent implements OnInit {
     });
   }
 
-  cancel(): void {
+  showConfirm: boolean = false;
+
+  private isUnchanged(): boolean {
+    return (
+      JSON.stringify(this.initialArtist) === JSON.stringify(this.artist)
+    );
+  }
+
+  onBackClick(): void {
+    if (this.isUnchanged()) {
+      this.router.navigate(['/admin']);
+    } else {
+      this.showConfirm = true;
+    }
+  }
+
+  stay(): void {
+    this.showConfirm = false;
+  }
+
+  exit(): void {
+    this.showConfirm = false;
     this.router.navigate(['/admin']);
   }
 }
