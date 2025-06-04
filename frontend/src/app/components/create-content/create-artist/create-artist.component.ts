@@ -7,7 +7,7 @@ import {ShowService} from '../../../services/show.service';
 import {Show} from '../../../dtos/show';
 import {ToastrService} from 'ngx-toastr';
 import {ErrorFormatterService} from '../../../services/error-formatter.service';
-import {Router, RouterLink} from '@angular/router';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-create-artist',
