@@ -80,20 +80,20 @@ public class PasswordServiceImpl implements PasswordService {
         LOGGER.debug("Validating One-Time-Token");
 
         LOGGER.debug("Eingehender Token: {}", passwordChangeDto.getOtToken());
-        otTokenRepository.findAll().forEach(o -> LOGGER.debug("DB: {}", o.getOtToken()));
+        otTokenRepository.findAll().forEach(o -> LOGGER.debug("DB: {}  {}", o.getOtToken(), o.getConsumed()));
 
         Long userId = otTokenRepository.findUserIdByOtTokenIfValid(passwordChangeDto.getOtToken());
 
         if (userId == null) {
-            throw new IllegalArgumentException("One-Time-Token is wrong");
+            throw new IllegalArgumentException("One-Time-Token is invalid or already used");
         } else {
 
             Optional<PasswordOtt> maybeToken =
                 otTokenRepository.findByOtTokenAndConsumedFalseAndValidUntilAfter(passwordChangeDto.getOtToken(), LocalDateTime.now());
             if (maybeToken.isEmpty()) {
-                throw new IllegalArgumentException("Token is invalid or already used");
+                throw new IllegalArgumentException("One-Time-Token is invalid or already used");
             }
-            otTokenRepository.markConsumed(userId);
+            otTokenRepository.markConsumed(passwordChangeDto.getOtToken());
             passwordChangeDto.setUserId(userId);
         }
 

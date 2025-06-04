@@ -72,6 +72,10 @@ public class PasswordOtt {
         this.userId = userId;
     }
 
+    public Boolean getConsumed() {
+        return consumed;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
