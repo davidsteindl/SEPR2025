@@ -15,6 +15,7 @@ import at.ac.tuwien.sepr.groupphase.backend.service.TicketService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -58,11 +60,10 @@ public class TicketServiceTest {
 
     private EventLocation location;
     private Room testRoom;
-    private SeatedSector seatedSector;
+    private Sector sector;
     private Seat seat;
     private StandingSector standingSector;
     private Show testShow;
-    private Seat pastSeat;
 
     @BeforeEach
     public void setUp() {
@@ -81,29 +82,43 @@ public class TicketServiceTest {
         eventLocationRepository.save(location);
 
         // build a room with one seated and one standing sector
-        testRoom = new Room();
-        testRoom.setName("Test Room");
-        testRoom.setEventLocation(location);
-
-        seatedSector = SeatedSector.SeatedSectorBuilder.aSeatedSector()
-            .price(100)
-            .room(testRoom)
-            .seats(List.of())
+        testRoom = Room.RoomBuilder.aRoom()
+            .withName("Test Room")
+            .withEventLocation(location)
+            .withSeats(new ArrayList<>())
             .build();
-        // add one seat
-        seat = new Seat();
-        seat.setRowNumber(1);
-        seat.setColumnNumber(1);
-        seat.setDeleted(false);
-        seatedSector.addSeat(seat);
-        testRoom.addSector(seatedSector);
+
+        sector = Sector.SectorBuilder.aSector()
+            .withPrice(100)
+            .withRoom(testRoom)
+            .build();
+        testRoom.addSector(sector);
 
         standingSector = StandingSector.StandingSectorBuilder.aStandingSector()
-            .price(50)
-            .capacity(10)
-            .room(testRoom)
+            .withPrice(50)
+            .withCapacity(10)
+            .withRoom(testRoom)
             .build();
         testRoom.addSector(standingSector);
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 7; j++) {
+                Seat s = new Seat();
+                s.setRowNumber(i + 1);
+                s.setColumnNumber(j + 1);
+                s.setDeleted(false);
+                if (i < 2) {
+                    s.setSector(sector);
+                } else {
+                    s.setSector(standingSector);
+                }
+                testRoom.addSeat(s);
+
+                if (seat == null && s.getSector().equals(sector)) {
+                    seat = s;
+                }
+            }
+        }
 
         testRoom = roomRepository.save(testRoom);
 
@@ -143,7 +158,6 @@ public class TicketServiceTest {
         } catch (ValidationException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @Test
@@ -153,7 +167,7 @@ public class TicketServiceTest {
         request.setShowId(testShow.getId());
 
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
+        target.setSectorId(sector.getId());
         target.setSeatId(seat.getId());
         request.setTargets(List.of(target));
 
@@ -161,14 +175,13 @@ public class TicketServiceTest {
         TicketDto dto = orderDto.getTickets().getFirst();
 
 
-
         assertAll(
             () -> assertNotNull(orderDto.getId()),
             () -> assertEquals(1, orderDto.getTickets().size()),
             () -> assertEquals(testShow.getName(), dto.getShowName()),
-            () -> assertEquals(seatedSector.getPrice(), dto.getPrice()),
+            () -> assertEquals(sector.getPrice(), dto.getPrice()),
             () -> assertEquals(seat.getId(), dto.getSeatId()),
-            () -> assertEquals(seatedSector.getId(), dto.getSectorId()),
+            () -> assertEquals(sector.getId(), dto.getSectorId()),
             () -> assertEquals(TicketStatus.BOUGHT, dto.getStatus()),
             () -> assertEquals(1, orderRepository.findAll().size()),
             () -> assertEquals(1, ticketRepository.findAll().size())
@@ -179,38 +192,38 @@ public class TicketServiceTest {
     @Test
     @Transactional
     public void testBuyMultipleTickets_multipleSeated_createsMultipleTicketsAndSingleOrder() {
-        // select two seats
-        Seat seat2 = new Seat();
-        seat2.setRowNumber(1);
-        seat2.setColumnNumber(2);
-        seat2.setDeleted(false);
-        seatedSector.addSeat(seat2);
-        seat2 = roomRepository.save(testRoom).getSectors().stream()
-            .filter(s -> s instanceof SeatedSector)
-            .map(s -> ((SeatedSector) s).getSeats())
-            .flatMap(List::stream)
-            .filter(se -> !se.getId().equals(seat.getId()))
-            .findFirst().orElseThrow();
-
         TicketRequestDto request = new TicketRequestDto();
         request.setShowId(testShow.getId());
-        TicketTargetSeatedDto t1 = new TicketTargetSeatedDto();
-        t1.setSectorId(seatedSector.getId());
-        t1.setSeatId(seat.getId());
-        TicketTargetSeatedDto t2 = new TicketTargetSeatedDto();
-        t2.setSectorId(seatedSector.getId());
-        t2.setSeatId(seat2.getId());
-        request.setTargets(List.of(t1, t2));
 
+        List<TicketTargetSeatedDto> targets = testRoom.getSeats().stream()
+            .filter(seat -> seat.getSector().equals(sector))
+            .limit(3)
+            .map(seat -> {
+                TicketTargetSeatedDto dto = new TicketTargetSeatedDto();
+                dto.setSectorId(seat.getSector().getId());
+                dto.setSeatId(seat.getId());
+                return dto;
+            }).toList();
+
+        request.setTargets(List.copyOf(targets));
         OrderDto orderDto = ticketService.buyTickets(request);
 
         assertAll(
             () -> assertNotNull(orderDto.getId()),
-            () -> assertEquals(2, orderDto.getTickets().size()),
-            () -> assertEquals(1, orderRepository.findAll().size(), "Only one order should be created"),
-            () -> assertEquals(2, ticketRepository.findAll().size(), "Two tickets should be persisted")
+            () -> assertEquals(3, orderDto.getTickets().size()),
+            () -> assertEquals(1, orderRepository.findAll().size()),
+            () -> assertEquals(3, ticketRepository.findAll().size())
         );
 
+        assertAll(
+            orderDto.getTickets().stream()
+                .map(dto -> (Executable) () -> assertAll(
+                    () -> assertEquals(TicketStatus.BOUGHT, dto.getStatus()),
+                    () -> assertEquals(sector.getId(), dto.getSectorId()),
+                    () -> assertNotNull(dto.getSeatId())
+                ))
+                .toArray(Executable[]::new)
+        );
     }
 
     @Test
@@ -245,7 +258,7 @@ public class TicketServiceTest {
         request.setShowId(testShow.getId());
 
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
+        target.setSectorId(sector.getId());
         target.setSeatId(seat.getId());
         request.setTargets(List.of(target));
 
@@ -269,7 +282,7 @@ public class TicketServiceTest {
         TicketRequestDto buyReq = new TicketRequestDto();
         buyReq.setShowId(testShow.getId());
         TicketTargetSeatedDto buyTarget = new TicketTargetSeatedDto();
-        buyTarget.setSectorId(seatedSector.getId());
+        buyTarget.setSectorId(sector.getId());
         buyTarget.setSeatId(seat.getId());
         buyReq.setTargets(List.of(buyTarget));
         ticketService.buyTickets(buyReq);
@@ -278,7 +291,7 @@ public class TicketServiceTest {
         TicketRequestDto reserveReq = new TicketRequestDto();
         reserveReq.setShowId(testShow.getId());
         TicketTargetSeatedDto resTarget = new TicketTargetSeatedDto();
-        resTarget.setSectorId(seatedSector.getId());
+        resTarget.setSectorId(sector.getId());
         resTarget.setSeatId(seat.getId());
         reserveReq.setTargets(List.of(resTarget));
 
@@ -294,7 +307,7 @@ public class TicketServiceTest {
         TicketRequestDto buyReq = new TicketRequestDto();
         buyReq.setShowId(testShow.getId());
         TicketTargetSeatedDto buyTarget = new TicketTargetSeatedDto();
-        buyTarget.setSectorId(seatedSector.getId());
+        buyTarget.setSectorId(sector.getId());
         buyTarget.setSeatId(seat.getId());
         buyReq.setTargets(List.of(buyTarget));
         OrderDto boughtOrder = ticketService.buyTickets(buyReq);
@@ -313,7 +326,7 @@ public class TicketServiceTest {
         TicketRequestDto reserveReq = new TicketRequestDto();
         reserveReq.setShowId(testShow.getId());
         TicketTargetSeatedDto resTarget = new TicketTargetSeatedDto();
-        resTarget.setSectorId(seatedSector.getId());
+        resTarget.setSectorId(sector.getId());
         resTarget.setSeatId(seat.getId());
         reserveReq.setTargets(List.of(resTarget));
         ReservationDto reservation = ticketService.reserveTickets(reserveReq);
@@ -348,7 +361,7 @@ public class TicketServiceTest {
         TicketRequestDto reserveReq = new TicketRequestDto();
         reserveReq.setShowId(testShow.getId());
         TicketTargetSeatedDto resTarget = new TicketTargetSeatedDto();
-        resTarget.setSectorId(seatedSector.getId());
+        resTarget.setSectorId(sector.getId());
         resTarget.setSeatId(seat.getId());
         reserveReq.setTargets(List.of(resTarget));
         ReservationDto reservation = ticketService.reserveTickets(reserveReq);
@@ -374,7 +387,7 @@ public class TicketServiceTest {
         TicketRequestDto reserveReq = new TicketRequestDto();
         reserveReq.setShowId(testShow.getId());
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
+        target.setSectorId(sector.getId());
         target.setSeatId(seat.getId());
         reserveReq.setTargets(List.of(target));
         ReservationDto reservation = ticketService.reserveTickets(reserveReq);
@@ -401,7 +414,7 @@ public class TicketServiceTest {
         TicketRequestDto buyReq = new TicketRequestDto();
         buyReq.setShowId(testShow.getId());
         TicketTargetSeatedDto buyTarget = new TicketTargetSeatedDto();
-        buyTarget.setSectorId(seatedSector.getId());
+        buyTarget.setSectorId(sector.getId());
         buyTarget.setSeatId(seat.getId());
         buyReq.setTargets(List.of(buyTarget));
         OrderDto buyOrder = ticketService.buyTickets(buyReq);
@@ -429,7 +442,7 @@ public class TicketServiceTest {
         TicketRequestDto req = new TicketRequestDto();
         req.setShowId(testShow.getId());
         TicketTargetSeatedDto t = new TicketTargetSeatedDto();
-        t.setSectorId(seatedSector.getId());
+        t.setSectorId(sector.getId());
         t.setSeatId(seat.getId());
         req.setTargets(List.of(t));
         ReservationDto res = ticketService.reserveTickets(req);
@@ -448,7 +461,7 @@ public class TicketServiceTest {
         TicketRequestDto req = new TicketRequestDto();
         req.setShowId(testShow.getId());
         TicketTargetSeatedDto t = new TicketTargetSeatedDto();
-        t.setSectorId(seatedSector.getId());
+        t.setSectorId(sector.getId());
         t.setSeatId(seat.getId());
         req.setTargets(List.of(t));
         OrderDto ord = ticketService.buyTickets(req);
@@ -468,7 +481,7 @@ public class TicketServiceTest {
         request.setShowId(testShow.getId());
 
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
+        target.setSectorId(sector.getId());
         target.setSeatId(seat.getId());
         request.setTargets(List.of(target));
 
@@ -486,29 +499,15 @@ public class TicketServiceTest {
     @Test
     @Transactional
     public void getOrdersForUser_reservations_returnsOnlyActiveReservations() {
-        Seat reserveSeat = new Seat();
-        reserveSeat.setRowNumber(2);
-        reserveSeat.setColumnNumber(42);
-        reserveSeat.setDeleted(false);
-        seatedSector.addSeat(reserveSeat);
-
-        reserveSeat = roomRepository.save(testRoom).getSectors().stream()
-            .filter(s -> s instanceof SeatedSector)
-            .map(s -> ((SeatedSector) s).getSeats())
-            .flatMap(List::stream)
-            .filter(se -> se.getColumnNumber() == 42)
-            .findFirst()
-            .orElseThrow();
-
-        TicketRequestDto request = new TicketRequestDto();
-        request.setShowId(testShow.getId());
-
+        // Reserve a ticket
+        TicketRequestDto reserveReq = new TicketRequestDto();
+        reserveReq.setShowId(testShow.getId());
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
-        target.setSeatId(reserveSeat.getId());
-        request.setTargets(List.of(target));
+        target.setSectorId(sector.getId());
+        target.setSeatId(seat.getId());
+        reserveReq.setTargets(List.of(target));
 
-        ticketService.reserveTickets(request);
+        ReservationDto reservation = ticketService.reserveTickets(reserveReq);
 
         var result = ticketService.getOrdersForUser(1L, OrderType.RESERVATION, false, Pageable.ofSize(10));
 
@@ -536,7 +535,7 @@ public class TicketServiceTest {
         TicketRequestDto request = new TicketRequestDto();
         request.setShowId(testShow.getId());
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
+        target.setSectorId(sector.getId());
         target.setSeatId(seat.getId());
         request.setTargets(List.of(target));
 

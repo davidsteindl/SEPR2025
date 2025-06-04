@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.util.MinMaxTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -55,4 +56,6 @@ public interface ShowRepository extends JpaRepository<Show, Long>, JpaSpecificat
             """)
     Optional<Show> findByIdWithRoomAndSectors(@Param("id") Long id);
 
+    @EntityGraph(attributePaths = {"room.sectors", "event"})
+    Page<Show> findAll(Specification<Show> spec, Pageable pageable);
 }

@@ -63,13 +63,13 @@ public class ArtistRepositoryTest {
 
 
         Room room = Room.RoomBuilder.aRoom()
-            .name("Main Room")
-            .eventLocation(location)
+            .withName("Main Room")
+            .withEventLocation(location)
             .build();
         roomRepository.save(room);
 
         LocalDateTime eventStart = LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.MINUTES);
-            Event event = Event.EventBuilder.anEvent()
+        Event event = Event.EventBuilder.anEvent()
             .withName("Electronic Night")
             .withCategory(Event.EventCategory.ELECTRONIC)
             .withDescription("An electrifying night with the best DJs.")

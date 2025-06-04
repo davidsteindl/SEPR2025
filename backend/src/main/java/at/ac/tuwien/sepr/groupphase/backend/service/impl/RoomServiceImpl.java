@@ -265,8 +265,11 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public List<RoomDetailDto> getAllRooms() {
-        LOGGER.info("Fetching all rooms");
-        return roomRepository.findAll().stream()
+        List<Room> rooms = roomRepository.findAllWithSectorsAndSeats();
+
+        rooms.forEach(r -> r.getSeats().size());
+
+        return rooms.stream()
             .map(roomMapper::roomToRoomDetailDto)
             .toList();
     }
@@ -298,6 +301,14 @@ public class RoomServiceImpl implements RoomService {
             } else {
                 seat = new Seat();
                 room.addSeat(seat);
+            }
+
+            if (dto.getSectorId() != null) {
+                Sector sector = this.sectorRepository.findById(dto.getSectorId())
+                    .orElseThrow(() -> new EntityNotFoundException("Sector not found with id " + dto.getSectorId()));
+                seat.setSector(sector);
+            } else {
+                seat.setSector(null);
             }
 
             seat.setRowNumber(dto.getRowNumber());
@@ -347,7 +358,7 @@ public class RoomServiceImpl implements RoomService {
     private StandingSector syncStanding(Map<Long, Sector> existing, Room room, StandingSectorDto dto) {
         LOGGER.debug("Syncing the standing sector with details: {}", dto);
         if (dto.getId() != null && !existing.containsKey(dto.getId())) {
-            throw new EntityNotFoundException("SeatedSector not found with id " + dto.getId());
+            throw new EntityNotFoundException("StandingSector not found with id " + dto.getId());
         }
         StandingSector sec = (StandingSector) existing.getOrDefault(dto.getId(), new StandingSector());
         sec.setPrice(dto.getPrice());
