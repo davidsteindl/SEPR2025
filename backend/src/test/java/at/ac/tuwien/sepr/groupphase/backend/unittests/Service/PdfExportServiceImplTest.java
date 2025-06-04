@@ -90,6 +90,8 @@ class PdfExportServiceImplTest {
         when(ticket.getSector()).thenReturn(sector);
         when(ticket.getSeat()).thenReturn(seat);
         when(ticket.getOrders()).thenReturn(List.of(order));
+        when(order.getOrderType()).thenReturn(OrderType.ORDER);
+        //when(ticket.getOrder()).thenReturn(order);
 
         return ticket;
     }
@@ -130,7 +132,6 @@ class PdfExportServiceImplTest {
         });
     }
 
-    /*
     @Test
     void makeTicketPdf_SuccessfullyGeneratesPdf_WithoutVerificationCode() {
         Ticket ticketMock = createMockTicket(1L, "randomCode");
@@ -147,7 +148,6 @@ class PdfExportServiceImplTest {
 
         assertTrue(outputStream.size() > 0);
     }
-     */
 
     @Test
     void makeTicketPdf_SuccessfullyGeneratesPdf_WithVerificationCode() {

@@ -2,7 +2,6 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
-import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Order;
 import at.ac.tuwien.sepr.groupphase.backend.exception.AuthorizationException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -68,14 +67,20 @@ public class PdfExportServiceImpl implements PdfExportService {
         var ticket = ticketRepository.findById(id).orElseThrow(NotFoundException::new);
         if (verficationCode.isEmpty()) {
             var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-            Optional<Order> maybeOrder = ticket.getOrders().stream()
-                .filter(o -> o.getOrderType() == OrderType.ORDER)
-                .findFirst();
-
-            if (maybeOrder.isEmpty() || !maybeOrder.get().getUserId().equals(idloggedin)) {
+            boolean authorized = ticket.getOrders().stream()
+                .anyMatch(order ->
+                    order.getOrderType() == OrderType.ORDER &&
+                        order.getUserId() != null &&
+                        order.getUserId().equals(idloggedin)
+                );
+            if (!authorized) {
                 throw new AuthorizationException("You are not authorized to export this ticket.");
             }
-
+            /*
+            if (!ticket.getOrder().getUserId().equals(idloggedin)) {
+                throw new AuthorizationException("You are not authorized to export this ticket.");
+            }
+            */
             if (ticket.getRandomTicketCode() == null) {
                 ticket.setRandomTicketCode(RandomStringUtils.randomAlphanumeric(32));
                 ticketRepository.save(ticket);

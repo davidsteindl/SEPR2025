@@ -83,6 +83,7 @@ public class PdfExportEndpointTest implements TestData {
     private EventLocationRepository eventLocationRepository;
     @Autowired
     private SectorRepository sectorRepository;
+    private Long testOrderId;
 
     @Transactional
     @BeforeEach
@@ -136,13 +137,13 @@ public class PdfExportEndpointTest implements TestData {
         testArtist.setStagename("LF");
         artistRepository.save(testArtist);
 
-       Room testRoom = Room.RoomBuilder.aRoom()
+        Room testRoom = Room.RoomBuilder.aRoom()
             .name("Test Room A")
             .eventLocation(testLocation)
             .build();
         roomRepository.save(testRoom);
 
-       Show testShow = Show.ShowBuilder.aShow()
+        Show testShow = Show.ShowBuilder.aShow()
             .withName("Funky Evening")
             .withDuration(75)
             .withDate(java.time.LocalDateTime.now().plusDays(1))
@@ -157,6 +158,7 @@ public class PdfExportEndpointTest implements TestData {
         order.setCreatedAt(LocalDateTime.now());
         order.setOrderType(OrderType.ORDER);
         orderRepository.save(order);
+        testOrderId = order.getId();
 
         refundOrder = new Order();
         refundOrder.setUserId(user.getId());
@@ -172,7 +174,9 @@ public class PdfExportEndpointTest implements TestData {
         testTicket = new Ticket();
         testTicket.setShow(testShow);
         testTicket.setSector(sector);
+        order.setTickets(List.of(testTicket));
         testTicket.setOrders(List.of(order));
+        //testTicket.setOrder(order);
         testTicket.setCreatedAt(LocalDateTime.now());
         testTicket.setStatus(TicketStatus.BOUGHT);
         testTicket.setRandomTicketCode("4d5d4d7ddddd44");
@@ -228,55 +232,67 @@ public class PdfExportEndpointTest implements TestData {
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), result.getResponse().getStatus());
     }
 
-    /*
-  @Test
-  public void exportInvoicePdf_shouldSucceed() throws Exception {
-    MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/invoice/" + testTicket.getOrder().getId())
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getId().toString(), List.of("ROLE_USER"))))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_PDF))
-        .andReturn();
+    @Test
+    public void exportInvoicePdf_shouldSucceed() throws Exception {
+        MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/invoice/" + testOrderId)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getId().toString(), List.of("ROLE_USER"))))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+            .andReturn();
+        /*
+        MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/invoice/" + testTicket.getOrder().getId())
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getId().toString(), List.of("ROLE_USER"))))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+            .andReturn();
+        */
 
-    byte[] pdfBytes = result.getResponse().getContentAsByteArray();
-    assertNotNull(pdfBytes);
-    assertTrue(pdfBytes.length > 0);
-  }
+        byte[] pdfBytes = result.getResponse().getContentAsByteArray();
+        assertNotNull(pdfBytes);
+        assertTrue(pdfBytes.length > 0);
+    }
 
 
 
-  @Test
-  public void exportInvoicePdf_shouldFailWithoutAuthorization() throws Exception {
-    MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/invoice/" + testTicket.getOrder().getId()))
+    @Test
+    public void exportInvoicePdf_shouldFailWithoutAuthorization() throws Exception {
+        MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/invoice/" + testOrderId))
+            .andExpect(status().isForbidden())
+            .andReturn();
+
+        /*
+        MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/invoice/" + testTicket.getOrder().getId()))
         .andExpect(status().isForbidden())
         .andReturn();
 
-    assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
-  }
-*/
+         */
 
-  @Test
-  public void exportCancelInvoicePdf_shouldSucceed() throws Exception {
-    MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/cancelinvoice/" + refundOrder.getId())
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getId().toString(), List.of("ROLE_USER"))))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_PDF))
-        .andReturn();
+        assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
+    }
 
-    byte[] pdfBytes = result.getResponse().getContentAsByteArray();
-    assertNotNull(pdfBytes);
-    assertTrue(pdfBytes.length > 0);
-  }
+    @Test
+    public void exportCancelInvoicePdf_shouldSucceed() throws Exception {
+        MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/cancelinvoice/" + refundOrder.getId())
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(user.getId().toString(), List.of("ROLE_USER"))))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+            .andReturn();
+
+        byte[] pdfBytes = result.getResponse().getContentAsByteArray();
+        assertNotNull(pdfBytes);
+        assertTrue(pdfBytes.length > 0);
+    }
 
 
 
-  @Test
-  public void exportCancelInvoicePdf_shouldFailWithoutAuthorization() throws Exception {
-    MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/cancelinvoice/" + refundOrder.getId()))
-        .andExpect(status().isForbidden())
-        .andReturn();
+    @Test
+    public void exportCancelInvoicePdf_shouldFailWithoutAuthorization() throws Exception {
+        MvcResult result = mockMvc.perform(get(PDF_BASE_URI + "/cancelinvoice/" + refundOrder.getId()))
+            .andExpect(status().isForbidden())
+            .andReturn();
 
-    assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
-  }
+        assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
+    }
 
 
 
