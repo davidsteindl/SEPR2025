@@ -6,7 +6,6 @@ import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetStandingDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.*;
 import at.ac.tuwien.sepr.groupphase.backend.repository.*;
@@ -52,7 +51,6 @@ public class TicketEndpointTest implements TestData {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private JwtTokenizer jwtTokenizer;
-    @Autowired private SecurityProperties securityProperties;
     @Autowired private ObjectMapper objectMapper;
     @Autowired private RoomRepository roomRepository;
     @Autowired private EventRepository eventRepository;

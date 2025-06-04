@@ -16,7 +16,7 @@ public class OrderGroupDto {
     public OrderGroupDto() {
     }
 
-    public OrderGroupDto(Long id, String showName, LocalDateTime showDate, String locationName, int totalPrice, List<OrderDto> orders) {
+    public OrderGroupDto(Long id, String showName, LocalDateTime showDate, String locationName, List<OrderDto> orders) {
         this.id = id;
         this.showName = showName;
         this.showDate = showDate;

@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
-import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderGroupType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
 import at.ac.tuwien.sepr.groupphase.backend.entity.*;
