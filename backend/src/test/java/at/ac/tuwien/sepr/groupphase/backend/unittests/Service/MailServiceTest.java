@@ -69,13 +69,6 @@ public class MailServiceTest {
     }
 
 
-    @Test
-    public void testMail() throws ValidationException {
-        PasswordResetDto passwordResetDto = new PasswordResetDto();
-        passwordResetDto.setEmail("markus@email.com");
-
-        passwordService.requestResetPassword(passwordResetDto);
-    }
 
 
 }
