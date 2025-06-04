@@ -47,8 +47,6 @@
           class="form-control"
           name="eventEditDateTime"
           required
-          placeholder="2025-06-01T20:00"
-          pattern="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}"
           [(ngModel)]="event.dateTime"
           #eventEditDateTime="ngModel"/>
         <div *ngIf="eventEditDateTime.invalid && eventEditDateTime.touched" class="text-danger">
