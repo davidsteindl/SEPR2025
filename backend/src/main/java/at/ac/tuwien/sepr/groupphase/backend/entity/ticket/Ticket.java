@@ -12,11 +12,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(indexes = {@Index(columnList = "randomTicketCode")})
@@ -25,9 +28,14 @@ public class Ticket {
     @GeneratedValue
     Long id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
+    @ManyToMany
+    @JoinTable(
+        name = "ticket_order",
+        joinColumns = @JoinColumn(name = "ticket_id"),
+        inverseJoinColumns = @JoinColumn(name = "order_id")
+    )
+    private List<Order> orders;
+
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "show_id", nullable = false)
@@ -52,12 +60,12 @@ public class Ticket {
     @Column(nullable = true)
     private String randomTicketCode;
 
-    public Order getOrder() {
-        return order;
+    public List<Order> getOrders() {
+        return orders;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
 
     public Show getShow() {
@@ -115,4 +123,5 @@ public class Ticket {
     public void setRandomTicketCode(String randomTicketCode) {
         this.randomTicketCode = randomTicketCode;
     }
+
 }

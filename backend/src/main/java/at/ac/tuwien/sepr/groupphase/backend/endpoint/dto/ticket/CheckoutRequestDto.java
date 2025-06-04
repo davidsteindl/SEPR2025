@@ -2,28 +2,16 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket;
 
 import java.util.List;
 
-/**
- * Data Transfer Object for initiating ticket operations (purchase or reservation) for a specific show.
- *
- * <p>
- * Clients populate this DTO when selecting one or more ticket targets via the graphical seat map
- * (seated or standing sectors). The service will either create a payment session (for immediate purchase)
- * or hold the selected seats for later confirmation (reservation).
- *
- * <ul>
- *   <li><strong>Seated targets</strong>: {@code TicketTargetSeatedDto} specifying sector, row, and seat IDs.</li>
- *   <li><strong>Standing targets</strong>: {@code TicketTargetStandingDto} specifying sector ID and quantity.</li>
- * </ul>
- *
- * @see TicketTargetSeatedDto
- * @see TicketTargetStandingDto
- */
-public class TicketRequestDto {
-    private List<TicketTargetDto> targets;
+public class CheckoutRequestDto {
+
     private Long showId;
 
+    private List<TicketTargetDto> targets;
+
+    private List<Long> reservedTicketIds;
+
     private String cardNumber;
-    private String expirationDate;
+    private String expirationDate; // MM/YY
     private String securityCode;
 
     private String firstName;
@@ -33,6 +21,7 @@ public class TicketRequestDto {
     private String city;
     private String street;
     private String postalCode;
+
 
     public Long getShowId() {
         return showId;
@@ -48,6 +37,14 @@ public class TicketRequestDto {
 
     public void setTargets(List<TicketTargetDto> targets) {
         this.targets = targets;
+    }
+
+    public List<Long> getReservedTicketIds() {
+        return reservedTicketIds;
+    }
+
+    public void setReservedTicketIds(List<Long> reservedTicketIds) {
+        this.reservedTicketIds = reservedTicketIds;
     }
 
     public String getCardNumber() {
