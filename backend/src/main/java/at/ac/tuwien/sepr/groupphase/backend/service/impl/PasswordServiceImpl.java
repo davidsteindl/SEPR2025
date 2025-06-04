@@ -14,31 +14,31 @@ import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.UUID;
-import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest;
-import org.springframework.security.authentication.ott.OneTimeToken;
 import org.springframework.security.authentication.ott.OneTimeTokenService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class PasswordServiceImpl implements PasswordService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final UserRepository userRepository;
+    private final UserValidator userValidator;
+    private final PasswordEncoder passwordEncoder;
     MailService mailService;
     OneTimeTokenService oneTimeTokenService;
     UserService userService;
     OtTokenRepository otTokenRepository;
-    private final UserValidator userValidator;
 
-    public PasswordServiceImpl(MailService mailService, UserService userService,
+    public PasswordServiceImpl(MailService mailService, UserService userService, PasswordEncoder passwordEncoder,
                                OtTokenRepository otTokenRepository, UserRepository userRepository, UserValidator userValidator) {
         this.mailService = mailService;
+        this.passwordEncoder = passwordEncoder;
         this.userService = userService;
         this.otTokenRepository = otTokenRepository;
         this.userRepository = userRepository;
@@ -62,29 +62,6 @@ public class PasswordServiceImpl implements PasswordService {
         mailService.sendPasswordResetEmail(email, createOttLink(email, "reset-password"));
     }
 
-
-    private void validateOtt(PasswordChangeDto passwordChangeDto) throws IllegalArgumentException {
-        LOGGER.debug("Validating One-Time-Token");
-
-        LOGGER.debug("Eingehender Token: {}", passwordChangeDto.getOtToken());
-        otTokenRepository.findAll().forEach(o -> LOGGER.debug("DB: {}", o.getOtToken()));
-
-        Long userId = otTokenRepository.findUserIdByOtToken(passwordChangeDto.getOtToken());
-
-        if (userId == null) {
-            throw new IllegalArgumentException("One-Time-Token is wrong");
-        } else {
-
-            Optional<PasswordOtt> maybeToken = otTokenRepository.findByOtTokenAndConsumedFalseAndValidUntilAfter(passwordChangeDto.getOtToken(), LocalDateTime.now());
-            if (maybeToken.isEmpty()) {
-                throw new IllegalArgumentException("Token is invalid or already used");
-            }
-            otTokenRepository.markConsumed(userId);
-            passwordChangeDto.setUserId(userId);
-        }
-
-    }
-
     @Override
     public void changePassword(PasswordChangeDto passwordChangeDto) throws NotFoundException, ValidationException, IllegalArgumentException {
         LOGGER.debug("starting changing password");
@@ -99,10 +76,33 @@ public class PasswordServiceImpl implements PasswordService {
         updateUser(user, passwordChangeDto);
     }
 
+    private void validateOtt(PasswordChangeDto passwordChangeDto) throws IllegalArgumentException {
+        LOGGER.debug("Validating One-Time-Token");
+
+        LOGGER.debug("Eingehender Token: {}", passwordChangeDto.getOtToken());
+        otTokenRepository.findAll().forEach(o -> LOGGER.debug("DB: {}", o.getOtToken()));
+
+        Long userId = otTokenRepository.findUserIdByOtTokenIfValid(passwordChangeDto.getOtToken());
+
+        if (userId == null) {
+            throw new IllegalArgumentException("One-Time-Token is wrong");
+        } else {
+
+            Optional<PasswordOtt> maybeToken =
+                otTokenRepository.findByOtTokenAndConsumedFalseAndValidUntilAfter(passwordChangeDto.getOtToken(), LocalDateTime.now());
+            if (maybeToken.isEmpty()) {
+                throw new IllegalArgumentException("Token is invalid or already used");
+            }
+            otTokenRepository.markConsumed(userId);
+            passwordChangeDto.setUserId(userId);
+        }
+
+    }
+
     private void updateUser(ApplicationUser user, PasswordChangeDto passwordChangeDto) {
         LOGGER.debug("Updating user");
 
-        user.setPassword(passwordChangeDto.getPassword());
+        user.setPassword(passwordEncoder.encode(passwordChangeDto.getPassword()));
         userRepository.save(user);
     }
 
@@ -123,7 +123,7 @@ public class PasswordServiceImpl implements PasswordService {
         ott.setConsumed(false);
         otTokenRepository.save(ott);
 
-        return  "http://localhost:4200/" + relativePath + "?token=" + token;
+        return "http://localhost:4200/" + relativePath + "?token=" + token;
     }
 
 
