@@ -8,7 +8,7 @@ import {FormsModule, NgForm} from "@angular/forms";
 import {CommonModule, NgForOf} from "@angular/common";
 import {EventService} from '../../../services/event.service';
 import {LocationService} from '../../../services/location.service';
-import {Router} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-create-event',
@@ -151,13 +151,6 @@ export class CreateEventComponent implements OnInit {
   exit(): void {
     this.showConfirm = false;
     this.router.navigate(['/admin']);
-  }
-
-  preventNonNumericInput(event: KeyboardEvent): void {
-    const invalidChars = ['e', 'E', '+', '-', '.'];
-    if (invalidChars.includes(event.key)) {
-      event.preventDefault();
-    }
   }
 }
 

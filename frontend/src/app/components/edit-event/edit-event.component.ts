@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {NgForm, FormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {EventService} from '../../services/event.service';
