@@ -20,7 +20,6 @@ public class PasswordOtt {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     private Long userId;
 
     @NotNull

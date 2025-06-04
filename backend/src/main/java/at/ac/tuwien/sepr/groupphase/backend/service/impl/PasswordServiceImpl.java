@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -63,7 +65,7 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public void changePassword(PasswordChangeDto passwordChangeDto) throws NotFoundException, ValidationException, IllegalArgumentException {
+    public void changePassword(PasswordChangeDto passwordChangeDto) throws NotFoundException, ValidationException {
         LOGGER.debug("starting changing password");
         validateOtt(passwordChangeDto);
 
@@ -74,29 +76,30 @@ public class PasswordServiceImpl implements PasswordService {
             throw new NotFoundException("No User found");
         }
         updateUser(user, passwordChangeDto);
+        otTokenRepository.markConsumed(passwordChangeDto.getOtToken());
     }
 
-    private void validateOtt(PasswordChangeDto passwordChangeDto) throws IllegalArgumentException {
+    private void validateOtt(PasswordChangeDto passwordChangeDto) throws IllegalArgumentException, ValidationException {
         LOGGER.debug("Validating One-Time-Token");
-
-        LOGGER.debug("Eingehender Token: {}", passwordChangeDto.getOtToken());
-        otTokenRepository.findAll().forEach(o -> LOGGER.debug("DB: {}  {}", o.getOtToken(), o.getConsumed()));
-
+        List<String> validationErrors = new ArrayList<>();
         Long userId = otTokenRepository.findUserIdByOtTokenIfValid(passwordChangeDto.getOtToken());
 
         if (userId == null) {
-            throw new IllegalArgumentException("One-Time-Token is invalid or already used");
+            validationErrors.add("One-Time-Token is invalid or already used");
         } else {
 
             Optional<PasswordOtt> maybeToken =
                 otTokenRepository.findByOtTokenAndConsumedFalseAndValidUntilAfter(passwordChangeDto.getOtToken(), LocalDateTime.now());
             if (maybeToken.isEmpty()) {
-                throw new IllegalArgumentException("One-Time-Token is invalid or already used");
+                validationErrors.add("One-Time-Token is invalid or already used");
             }
-            otTokenRepository.markConsumed(passwordChangeDto.getOtToken());
-            passwordChangeDto.setUserId(userId);
-        }
+            if (!validationErrors.isEmpty()) {
+                throw new ValidationException("Validation of Token failed", validationErrors);
+            } else {
 
+                passwordChangeDto.setUserId(userId);
+            }
+        }
     }
 
     private void updateUser(ApplicationUser user, PasswordChangeDto passwordChangeDto) {
