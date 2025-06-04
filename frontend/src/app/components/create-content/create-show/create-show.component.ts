@@ -1,5 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-import {FormsModule} from '@angular/forms';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {FormsModule, NgForm} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {ShowService} from '../../../services/show.service';
 import {EventService} from '../../../services/event.service';
@@ -25,6 +25,8 @@ import {RoomService} from "../../../services/room.service";
   styleUrl: './create-show.component.scss'
 })
 export class CreateShowComponent implements OnInit {
+  @ViewChild('showForm') form!: NgForm;
+
   show: CreateShow = {
     name: '',
     duration: 60,
@@ -33,6 +35,8 @@ export class CreateShowComponent implements OnInit {
     artistIds: [],
     roomId: null
   };
+
+  private initialShow!: CreateShow;
 
   events: Event[] = [];
   artists: Artist[] = [];
@@ -60,6 +64,7 @@ export class CreateShowComponent implements OnInit {
           enableHtml: true,
           timeOut: 8000,
         });
+
       }
     });
 
@@ -86,6 +91,7 @@ export class CreateShowComponent implements OnInit {
         });
       }
     });
+    this.initialShow = JSON.parse(JSON.stringify(this.show));
   }
 
   isArtistSelected(artistId: number): boolean {
@@ -114,6 +120,8 @@ export class CreateShowComponent implements OnInit {
           artistIds: [],
           roomId: null
         };
+        this.form.resetForm();
+        this.initialShow = JSON.parse(JSON.stringify(this.show));
         if (createdShow) {
           this.notification.success(`Show ${createdShow.name} created successfully!`, 'Success', {
             enableHtml: true,
@@ -130,10 +138,6 @@ export class CreateShowComponent implements OnInit {
         });
       }
     });
-  }
-
-  cancel(): void {
-    this.router.navigate(['/admin']);
   }
 
   preventNonNumericInput(event: KeyboardEvent): void {
@@ -153,5 +157,30 @@ export class CreateShowComponent implements OnInit {
     } else if (this.show.duration > 600) {
       this.show.duration = 600;
     }
+  }
+
+  showConfirm: boolean = false;
+
+  private isUnchanged(): boolean {
+    return (
+      JSON.stringify(this.initialShow) === JSON.stringify(this.show)
+    );
+  }
+
+  onBackClick(): void {
+    if (this.isUnchanged()) {
+      this.router.navigate(['/admin']);
+    } else {
+      this.showConfirm = true;
+    }
+  }
+
+  stay(): void {
+    this.showConfirm = false;
+  }
+
+  exit(): void {
+    this.showConfirm = false;
+    this.router.navigate(['/admin']);
   }
 }

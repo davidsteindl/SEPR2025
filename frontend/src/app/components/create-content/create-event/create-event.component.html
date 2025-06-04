@@ -1,7 +1,7 @@
 <div class="mt-4 container">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Create Event</h2>
-    <button class="btn btn-outline-secondary" [routerLink]="['/admin']">
+    <button class="btn btn-outline-secondary" (click)="onBackClick()">
       ← Back to Admin Page
     </button>
   </div>
@@ -120,8 +120,33 @@
 
     <div class="mt-4 text-center">
       <button type="submit" class=" btn btn-success me-2" [disabled]="eventForm.invalid">Create Event</button>
-      <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
     </div>
 
   </form>
+
+  <div *ngIf="showConfirm">
+    <div class="modal-backdrop fade show"></div>
+
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header justify-content-center border-0">
+            <h5 class="modal-title text-center fw-bold mb-0">
+              Confirm Exit
+            </h5>
+          </div>
+          <div class="modal-body text-center py-2">
+            <p class="mb-1">
+              If you exit this page, your changes will not be saved.
+            </p>
+          </div>
+          <div class="modal-footer justify-content-center pt-1 pb-2 border-0">
+            <button type="button" class="btn btn-success me-2" (click)="stay()">Stay on Page</button>
+            <button type="button" class="btn btn-danger" (click)="exit()">Exit Page</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
