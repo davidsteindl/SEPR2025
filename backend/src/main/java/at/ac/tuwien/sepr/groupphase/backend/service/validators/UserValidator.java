@@ -63,17 +63,7 @@ public class UserValidator {
             validationErrors.add("You must be at least 18 years old to use the Service");
         }
 
-        if (userRegisterDto.getPassword() == null || userRegisterDto.getPassword().length() < 8) {
-            validationErrors.add("Password must be at least 8 characters");
-        }
-
-        if (userRegisterDto.getConfirmPassword() == null || userRegisterDto.getConfirmPassword().length() < 8) {
-            validationErrors.add("ConfirmPassword must be at least 8 characters");
-        }
-
-        if (!userRegisterDto.getPassword().equals(userRegisterDto.getConfirmPassword())) {
-            validationErrors.add("Passwords do not match");
-        }
+        checkPassword(validationErrors, userRegisterDto.getPassword(), userRegisterDto.getConfirmPassword());
 
         if (!userRegisterDto.getTermsAccepted()) {
             validationErrors.add("Terms and Condition must be accepted");
@@ -108,23 +98,27 @@ public class UserValidator {
         LOGGER.info("Validating for Password-Change ...");
         List<String> validationErrors = new ArrayList<>();
 
-        if (passwordChangeDto.getPassword() == null || passwordChangeDto.getPassword().length() < 8) {
-            validationErrors.add("Password must be at least 8 characters");
-        }
-
-        if (passwordChangeDto.getConfirmPassword() == null || passwordChangeDto.getConfirmPassword().length() < 8) {
-            validationErrors.add("ConfirmPassword must be at least 8 characters");
-        }
-
-        if (!passwordChangeDto.getPassword().equals(passwordChangeDto.getConfirmPassword())) {
-            validationErrors.add("Passwords do not match");
-        }
+        checkPassword(validationErrors, passwordChangeDto.getPassword(), passwordChangeDto.getConfirmPassword());
 
         if (!validationErrors.isEmpty()) {
             throw new ValidationException("Validation of user for registration failed", validationErrors);
         }
 
 
+    }
+
+    private void checkPassword(List<String> validationErrors, String password, String confirmPassword) {
+        if (password == null || password.length() < 8) {
+            validationErrors.add("Password must be at least 8 characters");
+        }
+
+        if (confirmPassword == null || confirmPassword.length() < 8) {
+            validationErrors.add("ConfirmPassword must be at least 8 characters");
+        }
+
+        if (!password.equals(confirmPassword)) {
+            validationErrors.add("Passwords do not match");
+        }
     }
 
 
