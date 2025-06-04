@@ -41,10 +41,15 @@ public interface OrderGroupRepository extends JpaRepository<OrderGroup, Long> {
     );
 
     @Query("""
-            SELECT DISTINCT og FROM OrderGroup og
-            LEFT JOIN FETCH og.orders o
-            WHERE og.id = :id
+            SELECT og FROM OrderGroup og
+            WHERE og.id = :groupId AND og.userId = :userId
+        """)
+    Optional<OrderGroup> findByIdWithDetails(@Param("groupId") Long groupId, @Param("userId") Long userId);
+
+    @Query("""
+        SELECT og FROM OrderGroup og
+        LEFT JOIN FETCH og.orders o
+        WHERE og.id = :id
         """)
     Optional<OrderGroup> findByIdWithOrders(@Param("id") Long id);
-
 }

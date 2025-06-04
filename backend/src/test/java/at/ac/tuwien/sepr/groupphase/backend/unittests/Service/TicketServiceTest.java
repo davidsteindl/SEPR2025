@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.*;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Order;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.OrderGroup;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.SeatUnavailableException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.*;
@@ -627,12 +628,7 @@ public class TicketServiceTest {
         );
     }
 
-    /**
-     * Tests that buying two tickets and refunding only one results in three orders in the same order group:
-     * - One original ORDER
-     * - One REFUND for the refunded ticket
-     * - One ORDER still containing the other bought ticket
-     */
+
     @Test
     @Transactional
     public void testPartialRefund_createsThreeOrdersInOrderGroup() throws ValidationException {
@@ -789,6 +785,45 @@ public class TicketServiceTest {
             () -> assertEquals(0, page.getTotalElements(), "Expected no reservation order groups"),
             () -> assertTrue(page.getContent().isEmpty(), "Result list should be empty")
         );
+    }
+
+    @Test
+    @Transactional
+    public void getOrderGroupDetails_shouldReturnCorrectInfo_whenGroupExistsAndBelongsToUser() throws ValidationException {
+        TicketTargetSeatedDto target = new TicketTargetSeatedDto();
+        target.setSectorId(seatedSector.getId());
+        target.setSeatId(seat.getId());
+        OrderDto initialOrder = ticketService.buyTickets(createBuyRequest(List.of(target)));
+
+        Long groupId = orderRepository.findById(initialOrder.getId())
+            .orElseThrow()
+            .getOrderGroup()
+            .getId();
+
+        OrderGroupDetailDto dto = ticketService.getOrderGroupDetails(groupId);
+
+        assertAll(
+            () -> assertNotNull(dto, "DTO should not be null"),
+            () -> assertEquals(groupId, dto.getId(), "Group ID should match"),
+            () -> assertEquals("Test Show", dto.getShowName(), "Show name should match"),
+            () -> assertEquals(location.getName(), dto.getLocationName(), "Location name should match"),
+            () -> assertEquals(testShow.getDate(), dto.getShowDate(), "Show date should match"),
+
+            () -> assertEquals(1, dto.getTickets().size(), "Should contain 1 ticket"),
+            () -> assertEquals(TicketStatus.BOUGHT, dto.getTickets().getFirst().getStatus(), "Ticket should be BOUGHT"),
+            () -> assertEquals(1, dto.getOrders().size(), "Should contain 1 order"),
+            () -> assertEquals(OrderType.ORDER, dto.getOrders().getFirst().getOrderType(), "Order type should be ORDER")
+        );
+    }
+
+    @Test
+    @Transactional
+    public void getOrderGroupDetails_shouldThrowNotFound_whenGroupDoesNotExistOrWrongUser() {
+        Long nonExistentGroupId = 999999L;
+
+        assertThrows(NotFoundException.class, () -> {
+            ticketService.getOrderGroupDetails(nonExistentGroupId);
+        });
     }
 
 

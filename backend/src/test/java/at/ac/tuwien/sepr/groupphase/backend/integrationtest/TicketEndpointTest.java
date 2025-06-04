@@ -364,6 +364,64 @@ public class TicketEndpointTest implements TestData {
         );
     }
 
+    @Test
+    @Transactional
+    public void getOrderGroupDetails_shouldReturnFullDetails_whenGroupExistsAndBelongsToUser() throws Exception {
+        TicketRequestDto request = new TicketRequestDto();
+        request.setShowId(futureShow.getId());
+
+        TicketTargetStandingDto target = new TicketTargetStandingDto();
+        target.setSectorId(sector.getId());
+        target.setQuantity(1);
+
+        request.setTargets(List.of(target));
+        request.setFirstName(firstName);
+        request.setLastName(lastName);
+        request.setStreet(street);
+        request.setHousenumber(houseNumber);
+        request.setCity(city);
+        request.setCountry(country);
+        request.setPostalCode(postalCode);
+        request.setCardNumber("4242424242424242");
+        request.setExpirationDate("12/30");
+        request.setSecurityCode("123");
+
+        String jwt = jwtTokenizer.getAuthToken("user@email.com", List.of("ROLE_USER"));
+
+        MvcResult buyResult = mockMvc.perform(post("/api/v1/tickets/buy")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+                .header("Authorization", jwt))
+            .andExpect(status().isCreated())
+            .andReturn();
+
+        JsonNode buyJson = objectMapper.readTree(buyResult.getResponse().getContentAsString());
+        Long groupId = buyJson.get("id").asLong();
+
+        Long realGroupId = orderRepository.findById(groupId)
+            .orElseThrow()
+            .getOrderGroup()
+            .getId();
+
+        MvcResult detailResult = mockMvc.perform(get("/api/v1/tickets/order-groups/" + realGroupId)
+                .header("Authorization", jwt)
+                .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        JsonNode json = objectMapper.readTree(detailResult.getResponse().getContentAsString());
+
+
+        assertAll(
+            () -> assertEquals(realGroupId, json.get("id").asLong()),
+            () -> assertEquals("Test Show", json.get("showName").asText()),
+            () -> assertEquals("Arena", json.get("locationName").asText()),
+            () -> assertTrue(json.has("tickets"), "Should contain tickets"),
+            () -> assertEquals(1, json.get("tickets").size(), "Should contain one ticket"),
+            () -> assertTrue(json.has("orders"), "Should contain orders"),
+            () -> assertEquals(1, json.get("orders").size(), "Should contain one order")
+        );
+    }
 
 
 }

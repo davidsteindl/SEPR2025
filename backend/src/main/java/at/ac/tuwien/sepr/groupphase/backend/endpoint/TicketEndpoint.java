@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderGroupType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CreateHoldDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderGroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderGroupDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
@@ -117,6 +118,13 @@ public class TicketEndpoint {
     ) {
         LOGGER.info("GET /api/v1/tickets/order-groups?isReservation={}&past={}", isReservation, past);
         return ticketService.getOrderGroupsByCategory(isReservation, past, pageable);
+    }
+
+    @GetMapping("/order-groups/{id}")
+    @Secured("ROLE_USER")
+    @Operation(summary = "Get order group details", security = @SecurityRequirement(name = "apiKey"))
+    public OrderGroupDetailDto getOrderGroupDetails(@PathVariable("id") Long id) {
+        return ticketService.getOrderGroupDetails(id);
     }
 
 

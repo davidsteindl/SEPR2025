@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderGroupType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CreateHoldDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderGroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderGroupDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
@@ -145,8 +146,13 @@ public interface TicketService {
      */
     Page<OrderGroupDto> getOrderGroupsByCategory(boolean isReservation, boolean past, Pageable pageable);
 
-
-
+    /**
+     * Retrieves detailed information about a specific {@link OrderGroupDto}, including all related tickets and orders.
+     *
+     * @param orderGroupId the ID of the {@link at.ac.tuwien.sepr.groupphase.backend.entity.ticket.OrderGroup} to retrieve
+     * @return a detailed {@link at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderGroupDetailDto} object containing all relevant data
+     */
+    OrderGroupDetailDto getOrderGroupDetails(Long orderGroupId);
 
 
 }

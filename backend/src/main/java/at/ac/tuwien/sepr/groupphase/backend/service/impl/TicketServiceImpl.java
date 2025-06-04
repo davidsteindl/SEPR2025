@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.CreateHoldDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderGroupDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderGroupDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.ReservationDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
@@ -550,5 +551,41 @@ public class TicketServiceImpl implements TicketService {
         });
     }
 
+    @Override
+    @Transactional
+    public OrderGroupDetailDto getOrderGroupDetails(Long groupId) {
+        Long userId = authFacade.getCurrentUserId();
+        OrderGroup group = orderGroupRepository.findByIdWithDetails(groupId, userId)
+            .orElseThrow(() -> new NotFoundException("OrderGroup not found or access denied"));
+
+        group.getOrders().forEach(order -> order.getTickets().size());
+
+        OrderGroupDetailDto dto = new OrderGroupDetailDto();
+        dto.setId(group.getId());
+
+        Ticket firstTicket = group.getOrders().stream()
+            .flatMap(o -> o.getTickets().stream())
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("No tickets found in OrderGroup"));
+
+        dto.setShowName(firstTicket.getShow().getName());
+        dto.setShowDate(firstTicket.getShow().getDate());
+        dto.setLocationName(firstTicket.getShow().getEvent().getLocation().getName());
+
+        List<TicketDto> tickets = group.getOrders().stream()
+            .flatMap(order -> order.getTickets().stream())
+            .distinct()
+            .map(ticketMapper::toDto)
+            .toList();
+        dto.setTickets(tickets);
+
+        List<OrderDto> sortedOrders = group.getOrders().stream()
+            .sorted(Comparator.comparing(Order::getCreatedAt))
+            .map(orderMapper::toDto)
+            .toList();
+        dto.setOrders(sortedOrders);
+
+        return dto;
+    }
 
 }
