@@ -6,7 +6,7 @@ import {Location} from "../../../dtos/location";
 import {CreateLocation} from "../../../dtos/create-location";
 import {ToastrService} from 'ngx-toastr';
 import {ErrorFormatterService} from '../../../services/error-formatter.service';
-import {Router, RouterLink} from '@angular/router';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-create-location',

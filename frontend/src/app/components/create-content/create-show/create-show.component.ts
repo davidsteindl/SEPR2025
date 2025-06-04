@@ -19,7 +19,6 @@ import {RoomService} from "../../../services/room.service";
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink
   ],
   templateUrl: './create-show.component.html',
   styleUrl: './create-show.component.scss'

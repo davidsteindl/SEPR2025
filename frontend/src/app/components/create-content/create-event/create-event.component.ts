@@ -8,7 +8,7 @@ import {FormsModule, NgForm} from "@angular/forms";
 import {CommonModule, NgForOf} from "@angular/common";
 import {EventService} from '../../../services/event.service';
 import {LocationService} from '../../../services/location.service';
-import {Router, RouterLink} from '@angular/router';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-create-event',
