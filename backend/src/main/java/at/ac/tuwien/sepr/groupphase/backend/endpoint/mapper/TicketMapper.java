@@ -1,12 +1,9 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
-import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface TicketMapper {
@@ -19,26 +16,4 @@ public interface TicketMapper {
     @Mapping(source = "status",       target = "status")
     TicketDto toDto(Ticket ticket);
 
-    @AfterMapping
-    default void mapSeatDetails(Ticket ticket, @MappingTarget TicketDto dto) {
-        Seat seat = ticket.getSeat();
-        if (seat != null) {
-            dto.setRowNumber(seat.getRowNumber());
-            dto.setSeatLabel(convertColumnNumberToLetter(seat.getColumnNumber()));
-        }
-
-        if (ticket.getOriginalTicket() != null) {
-            dto.setOriginalTicketId(ticket.getOriginalTicket().getId());
-        }
-    }
-
-    default String convertColumnNumberToLetter(int columnNumber) {
-        StringBuilder result = new StringBuilder();
-        while (columnNumber > 0) {
-            columnNumber--;
-            result.insert(0, (char) ('A' + (columnNumber % 26)));
-            columnNumber /= 26;
-        }
-        return result.toString();
-    }
 }
