@@ -69,9 +69,9 @@ public class PdfExportServiceImpl implements PdfExportService {
             var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
             boolean authorized = ticket.getOrders().stream()
                 .anyMatch(order ->
-                    order.getOrderType() == OrderType.ORDER &&
-                        order.getUserId() != null &&
-                        order.getUserId().equals(idloggedin)
+                    order.getOrderType() == OrderType.ORDER
+                        && order.getUserId() != null
+                        && order.getUserId().equals(idloggedin)
                 );
             if (!authorized) {
                 throw new AuthorizationException("You are not authorized to export this ticket.");
