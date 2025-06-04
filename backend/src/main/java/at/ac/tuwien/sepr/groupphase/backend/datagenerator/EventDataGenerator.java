@@ -38,8 +38,10 @@ import java.util.Set;
 public class EventDataGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventDataGenerator.class);
-    private static final int NUMBER_OF_EVENTS = 200;
-    private static final int NUMBER_OF_SHOWS = 500;
+    private static final int NUMBER_OF_FUTURE_EVENTS = 200;
+    private static final int NUMBER_OF_PAST_EVENTS = 50;
+    private static final int NUMBER_OF_FUTURE_SHOWS = 500;
+    private static final int NUMBER_OF_PAST_SHOWS = 50;
     private static final int NUMBER_OF_ARTISTS = 100;
     private static final int MIN_SHOWS_PER_ARTIST = 1;
     private static final int MAX_SHOWS_PER_ARTIST = 20;
@@ -80,12 +82,43 @@ public class EventDataGenerator {
             LOGGER.warn("No Rooms found: generate Rooms first");
             return;
         }
-
-        List<Event> events = new ArrayList<>(NUMBER_OF_EVENTS);
+        List<Event> pastEvents = new ArrayList<>(NUMBER_OF_PAST_EVENTS);
         Event.EventCategory[] categories = Event.EventCategory.values();
 
-        LOGGER.debug("Generating {} Events", NUMBER_OF_EVENTS);
-        for (int i = 0; i < NUMBER_OF_EVENTS; i++) {
+        LOGGER.debug("Generating {} Past Events", NUMBER_OF_PAST_EVENTS);
+        for (int i = 0; i < NUMBER_OF_PAST_EVENTS; i++) {
+            EventLocation loc = locations.get(random.nextInt(locations.size()));
+
+            LocalDateTime now = LocalDateTime.now();
+            long daysBack = 1 + random.nextInt(365);
+            LocalDateTime eventStart = now
+                .minusDays(daysBack)
+                .minusHours(random.nextInt(24))
+                .minusMinutes(random.nextInt(60))
+                .truncatedTo(ChronoUnit.MINUTES);
+
+            int eventDuration = 180 + random.nextInt(1261);
+
+            Event.EventCategory category = categories[random.nextInt(categories.length)];
+
+            Event event = Event.EventBuilder.anEvent()
+                .withName("PastEvent " + i)
+                .withCategory(category)
+                .withDescription("Description of PastEvent " + i)
+                .withDateTime(eventStart)
+                .withDuration(eventDuration)
+                .withLocation(loc)
+                .build();
+
+            pastEvents.add(event);
+        }
+        eventRepository.saveAll(pastEvents);
+        LOGGER.debug("Saved {} Past Events", pastEvents.size());
+
+        List<Event> futureEvents = new ArrayList<>(NUMBER_OF_FUTURE_EVENTS);
+
+        LOGGER.debug("Generating {} Future Events", NUMBER_OF_FUTURE_EVENTS);
+        for (int i = 0; i < NUMBER_OF_FUTURE_EVENTS; i++) {
 
             EventLocation loc = locations.get(random.nextInt(locations.size()));
 
@@ -109,17 +142,17 @@ public class EventDataGenerator {
                 .withLocation(loc)
                 .build();
 
-            events.add(event);
+            futureEvents.add(event);
         }
 
-        eventRepository.saveAll(events);
-        LOGGER.debug("Saved {} Events", events.size());
+        eventRepository.saveAll(futureEvents);
+        LOGGER.debug("Saved {} Future Events", futureEvents.size());
 
 
-        List<Show> shows = new ArrayList<>(NUMBER_OF_SHOWS);
-        LOGGER.debug("Generating {} Shows", NUMBER_OF_SHOWS);
-        for (int j = 0; j < NUMBER_OF_SHOWS; j++) {
-            Event assignedEvent = events.get(random.nextInt(events.size()));
+        List<Show> shows = new ArrayList<>(NUMBER_OF_FUTURE_SHOWS + NUMBER_OF_PAST_SHOWS);
+        LOGGER.debug("Generating {} Future Shows", NUMBER_OF_FUTURE_SHOWS);
+        for (int j = 0; j < NUMBER_OF_FUTURE_SHOWS; j++) {
+            Event assignedEvent = futureEvents.get(random.nextInt(futureEvents.size()));
             LocalDateTime eventStart = assignedEvent.getDateTime();
 
 
@@ -139,7 +172,7 @@ public class EventDataGenerator {
 
             Room assignedRoom = rooms.get(random.nextInt(rooms.size()));
 
-            Show show = Show.ShowBuilder.aShow()
+            Show futureShow = Show.ShowBuilder.aShow()
                 .withName("Show " + j)
                 .withDuration(showDuration)
                 .withDate(showStart)
@@ -147,11 +180,38 @@ public class EventDataGenerator {
                 .withRoom(assignedRoom)
                 .build();
 
-            shows.add(show);
+            shows.add(futureShow);
         }
 
+        LOGGER.debug("Generating {} Past Shows", NUMBER_OF_PAST_SHOWS);
+        for (int k = 0; k < NUMBER_OF_PAST_SHOWS; k++) {
+            Event assignedEvent = pastEvents.get(random.nextInt(pastEvents.size()));
+            LocalDateTime eventStart = assignedEvent.getDateTime();
+
+            LocalDateTime eventEnd = eventStart.plusMinutes(assignedEvent.getDuration());
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime latestPossibleStart = eventEnd.isBefore(now) ? eventEnd : now.minusMinutes(10);
+            long totalPastWindow = ChronoUnit.MINUTES.between(eventStart, latestPossibleStart);
+            long offsetPast = (totalPastWindow > 0) ? random.nextInt((int) totalPastWindow + 1) : 0;
+            LocalDateTime showStart = eventStart.plusMinutes(offsetPast)
+                .truncatedTo(ChronoUnit.MINUTES);
+
+            int showDuration = 10 + random.nextInt(171);
+
+            Room assignedRoom = rooms.get(random.nextInt(rooms.size()));
+
+            Show pastShow = Show.ShowBuilder.aShow()
+                .withName("PastShow " + k)
+                .withDuration(showDuration)
+                .withDate(showStart)
+                .withEvent(assignedEvent)
+                .withRoom(assignedRoom)
+                .build();
+
+            shows.add(pastShow);
+        }
         showRepository.saveAll(shows);
-        LOGGER.debug("Saved {} Shows", shows.size());
+        LOGGER.debug("Saved {} Shows ({} future + {} past)", shows.size(),  NUMBER_OF_FUTURE_SHOWS, NUMBER_OF_PAST_SHOWS);
 
         List<Show> persistedShows = showRepository.findAll();
         if (persistedShows.isEmpty()) {
