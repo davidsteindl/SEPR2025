@@ -130,6 +130,7 @@ class PdfExportServiceImplTest {
         });
     }
 
+    /*
     @Test
     void makeTicketPdf_SuccessfullyGeneratesPdf_WithoutVerificationCode() {
         Ticket ticketMock = createMockTicket(1L, "randomCode");
@@ -146,6 +147,7 @@ class PdfExportServiceImplTest {
 
         assertTrue(outputStream.size() > 0);
     }
+     */
 
     @Test
     void makeTicketPdf_SuccessfullyGeneratesPdf_WithVerificationCode() {

@@ -129,6 +129,7 @@ public interface TicketService {
 
     /**
      * Retrieves paginated {@link OrderGroupDto} entries based on the reservation status and show date.
+     *
      * <p>
      * This method is intended to support frontend filtering for order overviews in tabs such as
      * PURCHASED, RESERVED, and PAST. The filtering is controlled via the parameters:
