@@ -14,6 +14,7 @@ import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.UUID;
 import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest;
 import org.springframework.security.authentication.ott.OneTimeToken;
 import org.springframework.security.authentication.ott.OneTimeTokenService;
@@ -35,10 +36,9 @@ public class PasswordServiceImpl implements PasswordService {
     OtTokenRepository otTokenRepository;
     private final UserValidator userValidator;
 
-    public PasswordServiceImpl(MailService mailService, OneTimeTokenService oneTimeTokenService, UserService userService,
+    public PasswordServiceImpl(MailService mailService, UserService userService,
                                OtTokenRepository otTokenRepository, UserRepository userRepository, UserValidator userValidator) {
         this.mailService = mailService;
-        this.oneTimeTokenService = oneTimeTokenService;
         this.userService = userService;
         this.otTokenRepository = otTokenRepository;
         this.userRepository = userRepository;
@@ -46,7 +46,7 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public void requestResetPassword(PasswordResetDto passwordResetDto) throws NotFoundException, IllegalArgumentException, ValidationException {
+    public void requestResetPassword(PasswordResetDto passwordResetDto) throws NotFoundException, IllegalArgumentException {
         LOGGER.info("Password Reset starting");
         String email = "";
 
@@ -59,11 +59,15 @@ public class PasswordServiceImpl implements PasswordService {
         if (userService.findApplicationUserByEmail(email) == null) {
             throw new NotFoundException(email);
         }
-        mailService.sendPasswordResetEmail(email, createOttLink(email, "/reset-password"));
+        mailService.sendPasswordResetEmail(email, createOttLink(email, "reset-password"));
     }
 
 
     private void validateOtt(PasswordChangeDto passwordChangeDto) throws IllegalArgumentException {
+        LOGGER.debug("Validating One-Time-Token");
+
+        LOGGER.debug("Eingehender Token: {}", passwordChangeDto.getOtToken());
+        otTokenRepository.findAll().forEach(o -> LOGGER.debug("DB: {}", o.getOtToken()));
 
         Long userId = otTokenRepository.findUserIdByOtToken(passwordChangeDto.getOtToken());
 
@@ -83,7 +87,7 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     public void changePassword(PasswordChangeDto passwordChangeDto) throws NotFoundException, ValidationException, IllegalArgumentException {
-
+        LOGGER.debug("starting changing password");
         validateOtt(passwordChangeDto);
 
         userValidator.validateForPasswordChange(passwordChangeDto);
@@ -96,34 +100,30 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     private void updateUser(ApplicationUser user, PasswordChangeDto passwordChangeDto) {
-        user.setPassword(passwordChangeDto.getPassword());
+        LOGGER.debug("Updating user");
 
+        user.setPassword(passwordChangeDto.getPassword());
         userRepository.save(user);
     }
 
 
     private String createOttLink(String email, String relativePath) {
-        if (userService.findApplicationUserByEmail(email).getId() == null) {
+        ApplicationUser user = userService.findApplicationUserByEmail(email);
+        if (user == null || user.getId() == null) {
             throw new NotFoundException("email not found");
         }
-        OneTimeToken oneTimeToken = oneTimeTokenService.generate(new GenerateOneTimeTokenRequest(email));
 
-        PasswordOtt passwordOtt = new PasswordOtt();
+        String token = UUID.randomUUID().toString();
+        LocalDateTime validUntil = LocalDateTime.now().plusMinutes(5);
 
-        passwordOtt.setOtToken(oneTimeToken.toString());
-        passwordOtt.setConsumed(false);
-        passwordOtt.setValidUntil(LocalDateTime.now().plusSeconds(300L));
-        passwordOtt.setUserId(userService.findApplicationUserByEmail(email).getId());
+        PasswordOtt ott = new PasswordOtt();
+        ott.setUserId(user.getId());
+        ott.setOtToken(token);
+        ott.setValidUntil(validUntil);
+        ott.setConsumed(false);
+        otTokenRepository.save(ott);
 
-        otTokenRepository.save(passwordOtt);
-
-        return ServletUriComponentsBuilder
-            .fromCurrentContextPath()
-            .port(4200)
-            .path(relativePath)
-            .queryParam("token", oneTimeToken.getTokenValue())
-            .build()
-            .toUriString();
+        return  "http://localhost:4200/" + relativePath + "?token=" + token;
     }
 
 

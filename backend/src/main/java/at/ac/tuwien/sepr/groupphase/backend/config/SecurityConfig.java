@@ -52,8 +52,4 @@ public class SecurityConfig {
         }
     }
 
-    @Bean
-    OneTimeTokenService oneTimeTokenService() {
-        return new InMemoryOneTimeTokenService();
-    }
 }

@@ -17,7 +17,7 @@ public interface PasswordService {
      *
      * @param passwordResetDto the receiver email
      */
-    void requestResetPassword(PasswordResetDto passwordResetDto) throws NotFoundException, IllegalArgumentException, ValidationException;
+    void requestResetPassword(PasswordResetDto passwordResetDto) throws NotFoundException, IllegalArgumentException;
 
 
     /**

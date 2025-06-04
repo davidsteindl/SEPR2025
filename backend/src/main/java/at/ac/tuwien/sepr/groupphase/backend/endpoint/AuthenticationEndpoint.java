@@ -58,14 +58,14 @@ public class AuthenticationEndpoint {
 
     @PermitAll
     @PostMapping("/resetPassword")
-    public ResponseEntity<Void> passwordReset(@RequestBody PasswordResetDto passwordResetDto) throws ValidationException {
+    public ResponseEntity<Void> passwordReset(@RequestBody PasswordResetDto passwordResetDto) {
         passwordService.requestResetPassword(passwordResetDto);
         return ResponseEntity.ok().build();
     }
 
     @PermitAll
     @PostMapping("/changePassword")
-    public ResponseEntity<Void> passwordChange(@Valid @RequestBody PasswordChangeDto passwordChangeDto) throws ValidationException {
+    public ResponseEntity<Void> passwordChange(@RequestBody PasswordChangeDto passwordChangeDto) throws ValidationException {
         passwordService.changePassword(passwordChangeDto);
         return ResponseEntity.ok().build();
     }
