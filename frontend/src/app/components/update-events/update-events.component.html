@@ -10,24 +10,35 @@
   <hr>
 
   <div *ngIf="loading" class="text-center my-3">Loading…</div>
-  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 
   <table *ngIf="!loading && events.length" class="table table-bordered">
     <thead class="table-light">
     <tr>
       <th>Event name</th>
-      <th>Category</th>
-      <th>Duration</th>
       <th>Description</th>
+      <th>Start Date &amp; Time</th>
+      <th>Duration</th>
+      <th>Category</th>
+      <th>Location</th>
+
       <th class="text-center">Update Event</th>
     </tr>
     </thead>
     <tbody>
     <tr *ngFor="let ev of events">
       <td><strong>{{ ev.name }}</strong></td>
-      <td>{{ ev.category }}</td>
-      <td>{{ ev.duration }}</td>
       <td>{{ ev.description }}</td>
+      <td>
+        <input
+          type="datetime-local"
+          class="form-control-plaintext"
+          [value]="ev.dateTime"
+          readonly
+        />
+      </td>
+      <td>{{ ev.duration }}</td>
+      <td>{{ ev.category }}</td>
+      <td>{{ locationMap[ev.locationId] }}</td>
       <td class="text-center">
         <button
           class="btn btn-sm btn-primary"
