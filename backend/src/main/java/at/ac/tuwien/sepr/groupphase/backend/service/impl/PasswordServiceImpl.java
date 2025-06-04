@@ -84,7 +84,8 @@ public class PasswordServiceImpl implements PasswordService {
         List<String> validationErrors = new ArrayList<>();
         Long userId = otTokenRepository.findUserIdByOtTokenIfValid(passwordChangeDto.getOtToken());
 
-        if (userId == null) {
+
+        if (String.valueOf(userId) == null) {
             validationErrors.add("One-Time-Token is invalid or already used");
         } else {
 
