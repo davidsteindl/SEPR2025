@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.validation.constraints.Positive;
 
 import java.util.Objects;
 
@@ -9,6 +10,7 @@ import java.util.Objects;
 public class StandingSector extends Sector {
 
     @Column(nullable = false)
+    @Positive(message = "Capacity must be positive")
     private int capacity;
 
     public int getCapacity() {

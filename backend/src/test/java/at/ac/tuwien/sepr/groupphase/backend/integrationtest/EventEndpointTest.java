@@ -113,8 +113,8 @@ public class EventEndpointTest implements TestData {
         artistRepository.save(testArtist);
 
         testRoom = Room.RoomBuilder.aRoom()
-            .name("Test Room A")
-            .eventLocation(testLocation)
+            .withName("Test Room A")
+            .withEventLocation(testLocation)
             .build();
         roomRepository.save(testRoom);
 

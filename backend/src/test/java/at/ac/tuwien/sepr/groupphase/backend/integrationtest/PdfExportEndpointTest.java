@@ -12,6 +12,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import jakarta.transaction.Transactional;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -138,8 +139,8 @@ public class PdfExportEndpointTest implements TestData {
         artistRepository.save(testArtist);
 
         Room testRoom = Room.RoomBuilder.aRoom()
-            .name("Test Room A")
-            .eventLocation(testLocation)
+            .withName("Test Room A")
+            .withEventLocation(testLocation)
             .build();
         roomRepository.save(testRoom);
 
@@ -166,8 +167,9 @@ public class PdfExportEndpointTest implements TestData {
         refundOrder.setOrderType(OrderType.REFUND);
         orderRepository.save(refundOrder);
 
-        Sector sector = new StandingSector();
+        StandingSector sector = new StandingSector();
         sector.setPrice(30);
+        sector.setCapacity(10);
         sector.setRoom(testRoom);
         sectorRepository.save(sector);
 

@@ -90,8 +90,8 @@ public class ShowEndpointTest implements TestData {
         eventLocationRepository.save(location);
 
         testRoom = Room.RoomBuilder.aRoom()
-            .name("Main Room")
-            .eventLocation(location)
+            .withName("Main Room")
+            .withEventLocation(location)
             .build();
         roomRepository.save(testRoom);
         testRoom = roomRepository.save(testRoom);
