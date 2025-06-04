@@ -13,10 +13,10 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ReservationExpiredException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ReservationNotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.SeatUnavailableException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.HoldRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.AuthenticationFacade;
-import at.ac.tuwien.sepr.groupphase.backend.security.AuthenticationFacadeImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.RoomServiceImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ShowServiceImpl;
 import org.slf4j.Logger;
@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -319,11 +320,169 @@ public class TicketValidator {
      */
     private void validateTicketsOwnedByCurrentUser(List<Ticket> tickets) {
         Long me = authenticationFacade.getCurrentUserId();
-        boolean any = tickets.stream().anyMatch(t -> !t.getOrder().getUserId().equals(me));
+
+        boolean any = tickets.stream()
+            .flatMap(t -> t.getOrders().stream())
+            .anyMatch(o -> !o.getUserId().equals(me));
+
         if (any) {
             throw new SeatUnavailableException("Cannot operate on tickets you do not own");
         }
     }
 
+    /**
+     * Validates credit card fields in the checkout request, including number format,
+     * expiration date, and CVC. Throws ValidationException if any errors are found.
+     *
+     * @param dto the checkout request containing payment details
+     * @throws ValidationException if any credit card field is invalid
+     */
+    public void validateCheckoutPaymentData(TicketRequestDto dto) throws ValidationException {
+        LOGGER.debug("Validating credit card data with bulk validation");
+
+        List<String> errors = new ArrayList<>();
+
+        if (dto.getCardNumber() == null || !dto.getCardNumber().matches("\\d{13,19}")) {
+            errors.add("Invalid credit card number format");
+        } else if (!passesLuhnCheck(dto.getCardNumber())) {
+            errors.add("Invalid credit card number (Luhn check failed)");
+        }
+
+        if (dto.getExpirationDate() == null || !dto.getExpirationDate().matches("(0[1-9]|1[0-2])/\\d{2}")) {
+            errors.add("Invalid expiration date format (must be MM/YY)");
+        } else {
+            try {
+                String[] parts = dto.getExpirationDate().split("/");
+                int expMonth = Integer.parseInt(parts[0]);
+                int expYear = 2000 + Integer.parseInt(parts[1]);
+
+                LocalDateTime now = LocalDateTime.now();
+                if (expYear < now.getYear() || (expYear == now.getYear() && expMonth < now.getMonthValue())) {
+                    errors.add("Credit card is expired");
+                }
+            } catch (Exception e) {
+                errors.add("Unable to parse expiration date");
+            }
+        }
+
+        if (dto.getSecurityCode() == null || !dto.getSecurityCode().matches("\\d{3,4}")) {
+            errors.add("Invalid CVC code (must be 3 or 4 digits)");
+        }
+
+        if (!errors.isEmpty()) {
+            throw new ValidationException("Invalid credit card data", errors);
+        }
+    }
+
+    /**
+     * Performs a Luhn algorithm check on a given credit card number to verify its validity.
+     *
+     * @param number the credit card number as a string
+     * @return true if the number passes the Luhn check, false otherwise
+     */
+    private boolean passesLuhnCheck(String number) {
+        int sum = 0;
+        boolean alternate = false;
+        for (int i = number.length() - 1; i >= 0; i--) {
+            int n = Integer.parseInt(number.substring(i, i + 1));
+            if (alternate) {
+                n *= 2;
+                if (n > 9) {
+                    n -= 9;
+                }
+            }
+            sum += n;
+            alternate = !alternate;
+        }
+        return (sum % 10 == 0);
+    }
+
+    /**
+     * Validates personal and address-related fields in the checkout request.
+     * Ensures all required fields are present and meet basic format and length constraints.
+     *
+     * @param dto the checkout request containing address and personal data
+     * @throws ValidationException if any address or name field is invalid or incomplete
+     */
+    public void validateCheckoutAddress(TicketRequestDto dto) throws ValidationException {
+        List<String> validationErrors = new ArrayList<>();
+
+        if (dto.getFirstName() == null || dto.getFirstName().isBlank()) {
+            validationErrors.add("First name is required");
+        } else if (dto.getFirstName().length() > 100) {
+            validationErrors.add("First name is too long (max 100 characters)");
+        }
+
+        if (dto.getLastName() == null || dto.getLastName().isBlank()) {
+            validationErrors.add("Last name is required");
+        } else if (dto.getLastName().length() > 100) {
+            validationErrors.add("Last name is too long (max 100 characters)");
+        }
+
+        int addressCounter = 0;
+
+        if (dto.getStreet() != null) {
+            if (dto.getStreet().isBlank()) {
+                validationErrors.add("Street is given but blank");
+            } else {
+                addressCounter++;
+            }
+            if (dto.getStreet().length() > 200) {
+                validationErrors.add("Street is too long (max 200 characters)");
+            }
+        }
+
+        if (dto.getHousenumber() != null) {
+            if (dto.getHousenumber().isBlank()) {
+                validationErrors.add("House number is given but blank");
+            } else {
+                addressCounter++;
+            }
+            if (dto.getHousenumber().length() > 100) {
+                validationErrors.add("House number is too long (max 100 characters)");
+            }
+        }
+
+        if (dto.getPostalCode() != null) {
+            if (dto.getPostalCode().isBlank()) {
+                validationErrors.add("Postal code is given but blank");
+            } else {
+                addressCounter++;
+            }
+            if (dto.getPostalCode().length() > 20) {
+                validationErrors.add("Postal code is too long (max 20 characters)");
+            }
+        }
+
+        if (dto.getCity() != null) {
+            if (dto.getCity().isBlank()) {
+                validationErrors.add("City is given but blank");
+            } else {
+                addressCounter++;
+            }
+            if (dto.getCity().length() > 100) {
+                validationErrors.add("City is too long (max 100 characters)");
+            }
+        }
+
+        if (dto.getCountry() != null) {
+            if (dto.getCountry().isBlank()) {
+                validationErrors.add("Country is given but blank");
+            } else {
+                addressCounter++;
+            }
+            if (dto.getCountry().length() > 100) {
+                validationErrors.add("Country is too long (max 100 characters)");
+            }
+        }
+
+        if (addressCounter != 0 && addressCounter < 5) {
+            validationErrors.add("Address is incomplete: please fill out all address fields");
+        }
+
+        if (!validationErrors.isEmpty()) {
+            throw new ValidationException("Checkout address validation failed", validationErrors);
+        }
+    }
 
 }

@@ -1,15 +1,14 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity.ticket;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
@@ -27,7 +26,7 @@ public class Order {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(mappedBy = "orders")
     private List<Ticket> tickets;
 
     @NotNull
@@ -80,13 +79,9 @@ public class Order {
         this.userId = userId;
     }
 
-
-
     public void setTickets(List<Ticket> tickets) {
         this.tickets = tickets;
     }
-
-
 
     public void setId(Long id) {
         this.id = id;
