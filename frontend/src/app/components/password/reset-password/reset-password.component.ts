@@ -6,14 +6,16 @@ import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {AuthService} from "../../../services/auth.service";
 import {RegisterUser} from "../../../dtos/register-user";
 import {PasswordChange} from "../../../dtos/password-change";
+import {ToastrService} from "ngx-toastr";
 
 @Component({
   selector: 'app-reset-password',
-    imports: [
-        NgIf,
-        ReactiveFormsModule,
-    ],
+  imports: [
+    NgIf,
+    ReactiveFormsModule,
+  ],
   templateUrl: './reset-password.component.html',
+  standalone: true,
   styleUrl: './reset-password.component.scss'
 })
 export class ResetPasswordComponent implements OnInit{
@@ -24,7 +26,8 @@ export class ResetPasswordComponent implements OnInit{
   constructor(private route: ActivatedRoute,
               private formBuilder: UntypedFormBuilder,
               private authService: AuthService,
-              private router: Router) {
+              private router: Router,
+              private notification: ToastrService) {
     this.passwordResetForm = this.formBuilder.group({
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(8)]]
@@ -45,11 +48,13 @@ export class ResetPasswordComponent implements OnInit{
 
     this.authService.changePassword(changePasswordRequest).subscribe({
       next: () => {
+        this.notification.success(`Password changed successfully`);
         console.log('Password changed successfully');
         this.goToLogin();
       },
       error: err => {
-        console.error('Error changing password:', err);
+        this.notification.error(`Password-Reset failed because ${err.error.errors}`);
+        console.error('Error changing password:', err.error);
       }
     });
 
