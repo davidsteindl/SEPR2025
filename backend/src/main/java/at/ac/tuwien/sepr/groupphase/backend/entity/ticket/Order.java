@@ -79,13 +79,9 @@ public class Order {
         this.userId = userId;
     }
 
-
-
     public void setTickets(List<Ticket> tickets) {
         this.tickets = tickets;
     }
-
-
 
     public void setId(Long id) {
         this.id = id;

@@ -60,10 +60,6 @@ public class Ticket {
     @Column(nullable = true)
     private String randomTicketCode;
 
-    @ManyToOne
-    @JoinColumn(name = "original_ticket_id")
-    private Ticket originalTicket;
-
     public List<Order> getOrders() {
         return orders;
     }
@@ -128,11 +124,4 @@ public class Ticket {
         this.randomTicketCode = randomTicketCode;
     }
 
-    public Ticket getOriginalTicket() {
-        return originalTicket;
-    }
-
-    public void setOriginalTicket(Ticket originalTicket) {
-        this.originalTicket = originalTicket;
-    }
 }
