@@ -23,6 +23,8 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.invoke.MethodHandles;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +43,8 @@ import com.google.zxing.qrcode.QRCodeWriter;
 
 @Service
 public class PdfExportServiceImpl implements PdfExportService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final TicketRepository ticketRepository;
     private final OrderRepository orderRepository;
@@ -58,7 +63,7 @@ public class PdfExportServiceImpl implements PdfExportService {
     @Override
     @Transactional
     public void makeTicketPdf(Long id, OutputStream responseBody, Optional<String> verficationCode) throws ValidationException {
-
+        LOGGER.debug("Make ticket pdf");
         var ticket = ticketRepository.findById(id).orElseThrow(NotFoundException::new);
         if (verficationCode.isEmpty()) {
             var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
@@ -107,7 +112,7 @@ public class PdfExportServiceImpl implements PdfExportService {
 
         document.add(new Paragraph("Price: " + ticket.getSector().getPrice() + " EUR"));
 
-        String qrContent = "http://localhost:4200/#/ticket/" + ticket.getId() + "/" + ticket.getRandomTicketCode();
+        String qrContent = "http://localhost:4200/ticket/" + ticket.getId() + "/" + ticket.getRandomTicketCode();
         BufferedImage qrImage = generateQrCodeImage(qrContent);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -125,6 +130,7 @@ public class PdfExportServiceImpl implements PdfExportService {
     }
 
     private BufferedImage generateQrCodeImage(String content) {
+        LOGGER.debug("generateQrCodeImage");
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         try {
             BitMatrix bitMatrix = qrCodeWriter.encode(content, BarcodeFormat.QR_CODE, 200, 200);
@@ -138,8 +144,7 @@ public class PdfExportServiceImpl implements PdfExportService {
     @Override
     @Transactional
     public void makeInvoicePdf(Long id, OutputStream responseBody) {
-
-        System.out.println(id);
+        LOGGER.debug("Make invoice pdf");
         var order = orderRepository.findById(id).orElseThrow(NotFoundException::new);
         final var user = userRepository.findById(order.getUserId()).orElseThrow(NotFoundException::new);
         var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
@@ -260,8 +265,7 @@ public class PdfExportServiceImpl implements PdfExportService {
     @Override
     @Transactional
     public void makeCancelInvoicePdf(Long id, OutputStream responseBody) {
-
-        System.out.println(id);
+        LOGGER.debug("make Cancel Invoice Pdf");
         var order = orderRepository.findById(id).orElseThrow(NotFoundException::new);
         var idloggedin = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
         if (!order.getUserId().equals(idloggedin)) {

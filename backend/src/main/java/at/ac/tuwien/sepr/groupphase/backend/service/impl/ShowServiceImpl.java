@@ -47,20 +47,20 @@ public class ShowServiceImpl implements ShowService {
 
     @Override
     public Show getShowById(Long id) {
-        LOGGER.info("Find show with id {}", id);
+        LOGGER.debug("Find show with id {}", id);
         return showRepository.findByIdWithArtists(id).orElse(null);
     }
 
     @Override
     public List<Show> getAllShows() {
-        LOGGER.info("Get all shows");
+        LOGGER.debug("Get all shows");
         return showRepository.findAllWithArtists();
     }
 
     @Override
     @Transactional
     public Show createShow(Show show) throws ValidationException {
-        LOGGER.info("Saving new show with name '{}'", show.getName());
+        LOGGER.debug("Saving new show with name '{}'", show.getName());
 
         showValidator.validateForCreate(show);
 
@@ -83,6 +83,7 @@ public class ShowServiceImpl implements ShowService {
 
     @Override
     public List<Show> findShowsByEventId(Long eventId) {
+        LOGGER.debug("find Shows by EventId {}", eventId);
         var event = eventRepository.findById(eventId)
             .orElseThrow(() -> new EntityNotFoundException("Event not found"));
         return showRepository.findByEventOrderByDateAsc(event);

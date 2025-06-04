@@ -49,7 +49,7 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     public void requestResetPassword(PasswordResetDto passwordResetDto) throws NotFoundException, IllegalArgumentException {
-        LOGGER.info("Password Reset starting");
+        LOGGER.debug("Password Reset starting");
         String email = "";
 
         if (passwordResetDto.getEmail() == null) {
@@ -79,7 +79,13 @@ public class PasswordServiceImpl implements PasswordService {
         otTokenRepository.markConsumed(passwordChangeDto.getOtToken());
     }
 
-    private void validateOtt(PasswordChangeDto passwordChangeDto) throws IllegalArgumentException, ValidationException {
+    /**
+     * Method to validate the one-time-token from the user.
+     *
+     * @param passwordChangeDto the DTO which has the one-time-token
+     * @throws ValidationException If the validation of the token failed (invalid or already used)
+     */
+    private void validateOtt(PasswordChangeDto passwordChangeDto) throws ValidationException {
         LOGGER.debug("Validating One-Time-Token");
         List<String> validationErrors = new ArrayList<>();
         Long userId = otTokenRepository.findUserIdByOtTokenIfValid(passwordChangeDto.getOtToken());
@@ -103,6 +109,12 @@ public class PasswordServiceImpl implements PasswordService {
         }
     }
 
+    /**
+     * Method to Update the Password of the user.
+     *
+     * @param user the user who gets a new password
+     * @param passwordChangeDto the new password
+     */
     private void updateUser(ApplicationUser user, PasswordChangeDto passwordChangeDto) {
         LOGGER.debug("Updating user");
 
@@ -110,8 +122,15 @@ public class PasswordServiceImpl implements PasswordService {
         userRepository.save(user);
     }
 
-
+    /**
+     * Method to create the One-Time-Token Link for the User to click on in the email.
+     *
+     * @param email the email-address of the receiving person
+     * @param relativePath the Path for the function which will be triggered
+     * @return the Link for the email
+     */
     private String createOttLink(String email, String relativePath) {
+        LOGGER.debug("creating One-Time-Token Link");
         ApplicationUser user = userService.findApplicationUserByEmail(email);
         if (user == null || user.getId() == null) {
             throw new NotFoundException("email not found");

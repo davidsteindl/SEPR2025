@@ -50,6 +50,7 @@ public class MailServiceImpl implements MailService {
         sendMail(email, "Reset password for your TicketLine-Account", htmlContent);
     }
 
+    @Override
     public void sendMail(String to, String subject, String text) {
         LOGGER.info("Sending Html-mail to {}", to);
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
