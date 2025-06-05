@@ -76,7 +76,7 @@
             <div class="form-group">
               <label for="email">Email</label>
               <input type="text" name="email" formControlName="email" class="form-control" id="email"
-                     aria-describedby="emailHelp">
+                     placeholder= "Enter Email" aria-describedby="emailHelp">
               <div *ngIf="submitted && registerForm.controls.email.errors" class="error">
                 <small class="form-text text-warning" *ngIf="registerForm.controls.email.errors.required">Your email
                   is
@@ -88,7 +88,7 @@
             <div class="form-group">
               <label for="password">Password</label>
               <input type="password" name="password" formControlName="password" class="form-control" id="password"
-                     placeholder="Password">
+                     placeholder="Enter Password">
               <div *ngIf="submitted && registerForm.controls.password.errors" class="error">
                 <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.required">Your
                   password
@@ -105,7 +105,7 @@
             <div class="form-group">
               <label for="confirmPassword">Repeat Password</label>
               <input type="password" name="confirmPassword" formControlName="confirmPassword" class="form-control"
-                     id="confirmPassword">
+                     placeholder= "Enter confirmPassword" id="confirmPassword">
               <div *ngIf="submitted && registerForm.controls.confirmPassword.errors" class="error">
                 <small class="form-text text-warning" *ngIf="registerForm.controls.confirmPassword.errors.required">Your
                   password
@@ -142,7 +142,7 @@
             </div>
 
             <br>
-            <button type="submit" [disabled]="buttonDisabled" class="btn btn-success float-right">Register</button>
+            <button type="submit" [disabled]="registerForm.invalid || buttonDisabled" class="btn btn-success float-right">Register</button>
             <button type="button" style="margin-left: 10px;" routerLink="/login"
                     class="btn btn-secondary float-right ">Back</button>
 
