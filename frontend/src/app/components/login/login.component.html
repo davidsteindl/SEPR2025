@@ -9,9 +9,6 @@
 
 <div *ngIf="!validationErrors.length && error" class="alert alert-warning alert-dismissible fade show" role="alert">
   {{ errorMessage.detail }}
-  <p *ngIf="errorMessage.status === 401">
-    You have <strong>{{ remainingAttempts }}</strong> attempts remaining.
-  </p>
   <button type="button" class="btn-close" aria-label="Close" (click)="vanishError()"></button>
 </div>
 
