@@ -58,7 +58,7 @@ public class UserDataGenerator {
             }
 
             for (int i = 1; i <= 1000; i++) {
-                String email = String.format("user" + i + "email.com");
+                String email = String.format("user" + i + "@email.com");
                 String firstName = "UserFirstName" + i;
                 String lastName = "UserLastName" + i;
 
