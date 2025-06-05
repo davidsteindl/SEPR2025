@@ -64,6 +64,14 @@
               </div>
             </div>
 
+            <div class="form-group">
+              <div class="mb-3">
+                <label class="col-form-label text-md-end text-muted col-md-2">Image</label>
+                <span>&nbsp;</span>
+                <img [src]="newsImage()" alt="News Image" class="img-fluid" style="max-width: 200px; max-height: 200px;">
+              </div>
+            </div>
+
             <button type="button" (click)="addMessage(messageForm)" id="add-msg" class="btn btn-success float-right"
                     *ngIf="!currentMessage.id">Add message
             </button>
