@@ -119,9 +119,22 @@
               </div>
             </div>
 
-            <label for="termsAccepted">I accept <u><a routerLink="/termsandconditions"> Terms and Conditions </a></u></label>
-            <input type="checkbox" name="termsAccepted" formControlName="termsAccepted"
-                   id="termsAccepted" style="margin: 10px">
+
+            <label for="termsAccepted">
+              I accept
+              <u>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">
+                  Terms and Conditions
+                </a>
+              </u>
+            </label>
+            <input
+              type="checkbox"
+              name="termsAccepted"
+              formControlName="termsAccepted"
+              id="termsAccepted"
+              style="margin: 10px"
+            />
             <div *ngIf="submitted && registerForm.controls.termsAccepted.errors" class="error">
               <small class="form-text text-warning" *ngIf="registerForm.controls.termsAccepted.errors.required">
                 The Checkbox must be checked!
@@ -134,6 +147,9 @@
                     class="btn btn-secondary float-right ">Back</button>
 
           </form>
+          <app-termsandservice
+            id="termsandservice">
+          </app-termsandservice>
         </div>
       </div>
     </div>
