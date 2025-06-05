@@ -215,7 +215,7 @@ public class SearchValidator {
         boolean hasMinPrice = criteria.getMinPrice() != null;
         boolean hasMaxPrice = criteria.getMaxPrice() != null;
 
-        if(!hasEventName && !hasRoomName && !hasstartDate && !hasEndDate && !hasMinPrice && !hasMaxPrice) {
+        if (!hasEventName && !hasRoomName && !hasstartDate && !hasEndDate && !hasMinPrice && !hasMaxPrice) {
             validationErrors.add("At least one of the following fields must be filled: event name, room name, start date, end date, minimum price, maximum price.");
         }
 
