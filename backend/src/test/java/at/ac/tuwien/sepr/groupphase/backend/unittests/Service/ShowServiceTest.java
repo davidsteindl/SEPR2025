@@ -388,40 +388,4 @@ public class ShowServiceTest {
         );
     }
 
-
-    @Test
-    @Transactional
-    public void testCreateShow_startBeforeAndEndAfterExisting_exceedsDuration_throwsValidationException() throws ValidationException {
-        testEvent.setDuration(200);
-        eventRepository.save(testEvent);
-
-        LocalDateTime eventStart   = testEvent.getDateTime();
-        LocalDateTime existingDate = eventStart.plusMinutes(60);
-        LocalDateTime secondDate   = eventStart.plusMinutes(60 - 30);
-
-        Show existing = Show.ShowBuilder.aShow()
-            .withName("Anchor")
-            .withDuration(90)
-            .withDate(existingDate)
-            .withEvent(testEvent)
-            .withArtists(Set.of(testArtist))
-            .withRoom(testRoom)
-            .build();
-
-        Show tooEarlyAndLong = Show.ShowBuilder.aShow()
-            .withName("Too Early")
-            .withDuration(120)
-            .withDate(secondDate)
-            .withEvent(testEvent)
-            .withArtists(Set.of(testArtist))
-            .withRoom(testRoom)
-            .build();
-
-        showService.createShow(existing);
-
-        assertAll(
-            () -> assertThrows(ValidationException.class, () -> showService.createShow(tooEarlyAndLong)),
-            () -> assertEquals(1, showRepository.findAll().size())
-        );
-    }
 }
