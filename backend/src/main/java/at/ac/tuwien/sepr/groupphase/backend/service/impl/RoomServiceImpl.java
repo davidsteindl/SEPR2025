@@ -383,7 +383,6 @@ public class RoomServiceImpl implements RoomService {
             throw new EntityNotFoundException("SeatedSector not found with id " + dto.getId());
         }
         StageSector sec = (StageSector) existing.getOrDefault(dto.getId(), new StageSector());
-        sec.setPrice(dto.getPrice());
         sec.setRoom(room);
         if (dto.getId() == null) {
             room.addSector(sec);

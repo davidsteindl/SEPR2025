@@ -33,7 +33,7 @@ public class Sector {
         this.id = id;
     }
 
-    public int getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
