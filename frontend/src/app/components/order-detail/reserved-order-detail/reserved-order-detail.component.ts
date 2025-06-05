@@ -83,6 +83,9 @@ export class ReservedOrderDetailComponent implements OnInit {
 
   cancelSelected(): void {
     const ticketIds = this.getSelectedIds();
+    if (ticketIds.length === 0) {
+      return;
+    }
     this.ticketService.cancelReservations(ticketIds).subscribe(() => {
       this.loadOrder(this.order!.id);
     });
