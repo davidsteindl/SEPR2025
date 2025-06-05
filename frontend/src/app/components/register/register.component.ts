@@ -5,6 +5,8 @@ import {Router, RouterLink} from "@angular/router";
 import {NgIf} from "@angular/common";
 import {RegisterUser} from "../../dtos/register-user";
 import {ToastrService} from "ngx-toastr";
+import {EmailSentComponent} from "../password/email-sent/email-sent.component";
+import {TermsandconditionsComponent} from "../termsandconditions/termsandconditions.component";
 
 
 @Component({
@@ -14,7 +16,8 @@ import {ToastrService} from "ngx-toastr";
   imports: [
     NgIf,
     ReactiveFormsModule,
-    RouterLink
+    RouterLink,
+    TermsandconditionsComponent
   ],
   styleUrls: ['./register.component.scss']
 })
