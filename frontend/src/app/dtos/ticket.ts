@@ -10,6 +10,7 @@ export type OrderType = 'ORDER' | 'RESERVATION' | 'REFUND' | 'CANCELLATION';
 export interface TicketDto {
   id: number;
   showName: string;
+  showId?: number;
   price: number;
   seatId: number | null;
   sectorId: number;

@@ -74,7 +74,7 @@ export class ReservedOrderDetailComponent implements OnInit {
         rowNumber: t.rowNumber ?? undefined,
         columnNumber: t.seatLabel ? parseInt(t.seatLabel) || undefined : undefined,
         quantity: t.seatId ? undefined : 1,
-        showId: undefined
+        showId: t.showId
       }));
   }
 
