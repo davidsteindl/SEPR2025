@@ -102,10 +102,19 @@ export class PaymentFormComponent implements OnInit {
           this.router.navigate(['/orders']);
         },
         error: (err) => {
-          this.toastr.error(
-            err?.message ?? 'Something went wrong.',
-            'Payment Failed'
-          );
+          const backendErrors = err?.error;
+
+          if (backendErrors?.errors && Array.isArray(backendErrors.errors)) {
+            backendErrors.errors.forEach((e: string) => {
+              this.toastr.error(e, 'Validation Error');
+            });
+          } else if (backendErrors?.message) {
+            this.toastr.error(backendErrors.message, 'Payment Failed');
+          } else {
+            this.toastr.error('Error occurred', 'Error');
+          }
+
+          console.error('Backend error:', err);
         }
       })
       .add(() => (this.loading = false));
