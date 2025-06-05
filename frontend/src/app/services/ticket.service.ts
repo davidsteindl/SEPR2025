@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaymentItem } from '../dtos/payment-item';
-import { OrderDto }  from '../dtos/order';
+import {OrderDto, OrderGroupDto} from '../dtos/order';
 import { TicketDto, TicketRequestDto, ReservationDto } from '../dtos/ticket';
 import { Globals } from '../global/globals';
+import {Page} from "../dtos/page";
 
 @Injectable({ providedIn: 'root' })
 export class TicketService {
@@ -99,6 +100,17 @@ export class TicketService {
     return this.http.post<TicketDto[]>(
       `${this.globals.backendUri}/tickets/cancel-reservations`,
       ticketIds
+    );
+  }
+
+  getOrderGroupsPaged(
+    isReservation: boolean,
+    past: boolean,
+    page: number = 0,
+    size: number = 10
+  ): Observable<Page<OrderGroupDto>> {
+    return this.http.get<Page<OrderGroupDto>>(
+      `${this.globals.backendUri}/tickets/order-groups?isReservation=${isReservation}&past=${past}&page=${page}&size=${size}`
     );
   }
 

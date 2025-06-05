@@ -15,3 +15,16 @@ export interface OrderDto {
   showDate: string;
   locationName: string;
 }
+
+export interface OrderGroupDto {
+  id: number;
+  showName: string;
+  showDate: string;
+  locationName: string;
+  orders: OrderDto[];
+}
+
+export interface OrderGroupDetailDto extends OrderGroupDto {
+  tickets: TicketDto[];
+}
+
