@@ -3,27 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaymentItem } from '../dtos/payment-item';
 import { OrderDto }  from '../dtos/order';
-import { TicketDto } from '../dtos/ticket';
+import { TicketDto, TicketRequestDto } from '../dtos/ticket';
 import { Globals } from '../global/globals';
-
-// Backend DTOs
-interface TicketTargetSeatedDto {
-  type: 'seated';
-  sectorId: number;
-  seatId: number;
-}
-interface TicketTargetStandingDto {
-  type: 'standing';
-  sectorId: number;
-  quantity: number;
-}
-
-interface TicketRequestDto {
-  showId: number;
-  targets: (TicketTargetSeatedDto | TicketTargetStandingDto)[];
-}
-
-
 
 @Injectable({ providedIn: 'root' })
 export class TicketService {
@@ -32,7 +13,22 @@ export class TicketService {
 
   constructor(private http: HttpClient, private globals: Globals) {}
 
-  buyTickets(showId: number, items: PaymentItem[]): Observable<OrderDto> {
+  buyTickets(
+    showId: number,
+    items: PaymentItem[],
+    paymentForm: {
+      cardNumber: string;
+      expirationDate: string;
+      securityCode: string;
+      firstName: string;
+      lastName: string;
+      street: string;
+      housenumber: string;
+      postalCode: string;
+      city: string;
+      country: string;
+    }
+  ): Observable<OrderDto> {
     const targets = items.map(i => {
       if (i.type === 'SEATED') {
         return {
@@ -49,9 +45,15 @@ export class TicketService {
       }
     });
 
-    const payload: TicketRequestDto = { showId, targets };
+    const payload: TicketRequestDto = {
+      showId,
+      targets,
+      ...paymentForm
+    };
+
     return this.http.post<OrderDto>(`${this.base}/buy`, payload);
   }
+
 
   refundTickets(ticketIds: number[]): Observable<TicketDto[]> {
     return this.http.post<TicketDto[]>(

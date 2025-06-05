@@ -64,7 +64,8 @@ export class PaymentFormComponent implements OnInit {
       country: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      address: ['', Validators.required],
+      street: ['', Validators.required],
+      housenumber: ['', Validators.required],
       postalCode: [
         '',
         [
@@ -90,7 +91,7 @@ export class PaymentFormComponent implements OnInit {
     }
 
     this.loading = true;
-    this.ticketService.buyTickets(this.items[0].showId, this.items)
+    this.ticketService.buyTickets(this.items[0].showId, this.items, this.paymentForm.value)
       .subscribe({
         next: (order: OrderDto) => {
           const dt = new Date(order.createdAt);
