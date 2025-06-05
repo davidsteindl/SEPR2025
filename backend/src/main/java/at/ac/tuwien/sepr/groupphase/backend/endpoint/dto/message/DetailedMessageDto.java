@@ -5,6 +5,8 @@ import java.util.Objects;
 
 public class DetailedMessageDto extends SimpleMessageDto {
 
+    //Liste an Bildern soll ImageDto
+
     private String text;
 
     public String getText() {
