@@ -3,7 +3,6 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import jakarta.validation.constraints.NotNull;
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -19,10 +18,9 @@ public class SectorDto {
 
     private Long id;
 
-    @NotNull(message = "Sector type must not be null")
     private SectorType type;
 
-    private int price;
+    private Integer price;
 
     public Long getId() {
         return id;

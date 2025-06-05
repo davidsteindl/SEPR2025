@@ -26,6 +26,14 @@ public class SectorValidator {
                     List.of("Sector with ID " + sectorDto.getId() + " does not exist.")));
         }
 
+        if (sectorDto.getType() != null) {
+            if (!sectorDto.getType().equals(SectorType.STANDING) || !sectorDto.getType().equals(SectorType.STAGE)) {
+                throw new ValidationException("Invalid sector type: " + sectorDto.getType(),
+                    List.of("Sector type must be either null, STANDING or STAGE."));
+
+            }
+        }
+
         if (sectorDto.getType().equals(SectorType.STAGE)) {
             if (sectorDto.getPrice() != null) {
                 throw new ValidationException("Stage sectors cannot have a price.", List.of("Stage sectors cannot have a price."));
