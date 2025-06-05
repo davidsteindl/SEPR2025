@@ -1,12 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+
+import jakarta.persistence.*;
 
 @Entity
 public class Message {
@@ -26,6 +24,10 @@ public class Message {
 
     @Column(nullable = false, length = 10000)
     private String text;
+
+    @OneToMany()
+    private List<Image> images;
+
 
     public Long getId() {
         return id;
