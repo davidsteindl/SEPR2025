@@ -1,16 +1,33 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StageSectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StandingSectorDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StandingSectorUsageDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Hold;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
+import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.HoldRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.SeatRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +37,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,12 +57,26 @@ public class RoomServiceTests {
     @Autowired
     private TicketRepository ticketRepository;
 
+    @Autowired
+    private ShowRepository showRepository;
+
+    @Autowired
+    private HoldRepository holdRepository;
+
+    @Autowired
+    private SeatRepository seatRepository;
+
     // <-- let Spring inject the @Service (and its @Transactional proxy)
     @Autowired
     private RoomService roomService;
 
     private EventLocation testLocation;
     private CreateRoomDto createRoomDto;
+    private Event event;
+    @Autowired
+    private EventRepository eventRepository;
+    @Autowired
+    private SectorRepository sectorRepository;
 
     @BeforeEach
     public void setUp() {
@@ -58,6 +90,16 @@ public class RoomServiceTests {
             .build();
         eventLocationRepository.save(testLocation);
 
+        event = Event.EventBuilder.anEvent()
+            .withName("Test Event")
+            .withDescription("This is a test event")
+            .withLocation(testLocation)
+            .withCategory(Event.EventCategory.CLASSICAL)
+            .withDuration(600)
+            .withDateTime(LocalDateTime.now().plusYears(1))
+            .build();
+        event = eventRepository.save(event);
+
         createRoomDto = CreateRoomDto.CreateRoomDtoBuilder
             .aCreateRoomDtoBuilder()
             .eventLocationId(testLocation.getId())
@@ -69,8 +111,14 @@ public class RoomServiceTests {
 
     @AfterEach
     public void tearDown() {
+        ticketRepository.deleteAll();
+        holdRepository.deleteAll();
+        showRepository.deleteAll();
+        eventRepository.deleteAll();
         roomRepository.deleteAll();
         eventLocationRepository.deleteAll();
+        seatRepository.deleteAll();
+        sectorRepository.deleteAll();
     }
 
     @Test
@@ -113,7 +161,7 @@ public class RoomServiceTests {
     }
 
     @Test
-    public void testUpdateRoom_removeSector_deletesIt() {
+    public void testUpdateRoom_removeSector_deletesIt() throws ValidationException {
         RoomDetailDto created = roomService.createRoom(createRoomDto);
 
         StandingSectorDto standing = new StandingSectorDto();
@@ -142,7 +190,6 @@ public class RoomServiceTests {
 
         assertEquals(0, result.getSectors().size());
     }
-
 
 
     @Test
@@ -180,7 +227,7 @@ public class RoomServiceTests {
     }
 
     @Test
-    public void testUpdateRoom_addStandingSector() {
+    public void testUpdateRoom_addStandingSector() throws ValidationException {
         RoomDetailDto original = roomService.createRoom(createRoomDto);
         StandingSectorDto newSector = new StandingSectorDto();
         newSector.setPrice(55);
@@ -189,7 +236,9 @@ public class RoomServiceTests {
         RoomDetailDto update = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
             .id(original.getId())
             .name(original.getName())
-            .sectors(new ArrayList<>(original.getSectors()) {{ add(newSector); }})
+            .sectors(new ArrayList<>(original.getSectors()) {{
+                add(newSector);
+            }})
             .seats(original.getSeats())
             .eventLocationId(original.getEventLocationId())
             .build();
@@ -204,15 +253,16 @@ public class RoomServiceTests {
     }
 
     @Test
-    public void testUpdateRoom_addStageSector() {
+    public void testUpdateRoom_addStageSector() throws ValidationException {
         RoomDetailDto original = roomService.createRoom(createRoomDto);
         StageSectorDto newSector = new StageSectorDto();
-        newSector.setPrice(10);
 
         RoomDetailDto update = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
             .id(original.getId())
             .name(original.getName())
-            .sectors(new ArrayList<>(original.getSectors()) {{ add(newSector); }})
+            .sectors(new ArrayList<>(original.getSectors()) {{
+                add(newSector);
+            }})
             .seats(original.getSeats())
             .eventLocationId(original.getEventLocationId())
             .build();
@@ -242,7 +292,7 @@ public class RoomServiceTests {
             .eventLocationId(original.getEventLocationId())
             .build();
 
-        assertThrows(EntityNotFoundException.class, () -> roomService.updateRoom(original.getId(), update));
+        assertThrows(ValidationException.class, () -> roomService.updateRoom(original.getId(), update));
     }
 
     @Test
@@ -253,4 +303,146 @@ public class RoomServiceTests {
         List<RoomDetailDto> allRooms = roomService.getAllRooms();
         assertEquals(2, allRooms.size());
     }
+
+    @Test
+    public void testGetRoomUsageForShow_allSeatsAvailable_noTickets_noHolds() {
+        RoomDetailDto room = roomService.createRoom(createRoomDto);
+
+        Sector sector = new Sector();
+        sector.setRoom(roomRepository.findById(room.getId()).orElseThrow());
+        sector.setPrice(20);
+        sectorRepository.save(sector);
+
+        List<Seat> allSeats = seatRepository.findAll();
+        for (Seat seat : allSeats) {
+            seat.setSector(sector);
+        }
+        seatRepository.saveAll(allSeats);
+
+        Show show = Show.ShowBuilder.aShow()
+            .withName("Test Show")
+            .withDate(LocalDateTime.now().plusYears(1))
+            .withDuration(120)
+            .withRoom(roomRepository.findById(room.getId()).orElseThrow())
+            .withEvent(event)
+            .build();
+
+        show = showRepository.save(show);
+
+        RoomDetailDto usage = roomService.getRoomUsageForShow(show.getId());
+
+        assertAll(
+            () -> assertEquals(100, usage.getSeats().size(), "All seats should be returned"),
+            () -> assertTrue(usage.getSeats().stream()
+                .map(s -> (SeatUsageDto) s)
+                .allMatch(SeatUsageDto::isAvailable), "All seats should be available"),
+            () -> assertEquals(1, usage.getSectors().size(), "One sector should be present")
+        );
+    }
+
+
+    @Test
+    public void testGetRoomUsageForShow_someSeatsOccupied_byTickets() {
+        RoomDetailDto room = roomService.createRoom(createRoomDto);
+
+        Sector sector = new Sector();
+        sector.setRoom(roomRepository.findById(room.getId()).orElseThrow());
+        sector.setPrice(20);
+        sector = sectorRepository.save(sector);
+
+        List<Seat> allSeats = seatRepository.findAll();
+
+        for (Seat seat : allSeats) {
+            seat.setSector(sector);
+        }
+        seatRepository.saveAll(allSeats);
+
+
+        Show show = Show.ShowBuilder.aShow()
+            .withName("Test Show")
+            .withDate(LocalDateTime.now().plusYears(1))
+            .withDuration(120)
+            .withRoom(roomRepository.findById(room.getId()).orElseThrow())
+            .withEvent(event)
+            .build();
+
+        show = showRepository.save(show);
+
+        List<Seat> targetedSeats = allSeats.subList(0, 3);
+        for (Seat seat : targetedSeats) {
+            Ticket ticket = new Ticket();
+            ticket.setShow(show);
+            ticket.setStatus(TicketStatus.BOUGHT);
+            ticket.setSeat(seat);
+            ticket.setSector(seat.getSector());
+            ticket.setCreatedAt(LocalDateTime.now());
+            ticketRepository.save(ticket);
+        }
+
+        RoomDetailDto usage = roomService.getRoomUsageForShow(show.getId());
+
+        long unavailableCount = usage.getSeats().stream()
+            .map(s -> (SeatUsageDto) s)
+            .filter(s -> !s.isAvailable())
+            .count();
+
+        assertEquals(3, unavailableCount, "Exactly 3 seats should be marked unavailable");
+    }
+
+    @Test
+    @Transactional
+    public void testGetRoomUsageForShow_standingSector_soldAndHeld() throws ValidationException {
+        RoomDetailDto room = roomService.createRoom(createRoomDto);
+        StandingSectorDto standing = new StandingSectorDto();
+        standing.setPrice(15);
+        standing.setCapacity(10);
+
+        room = roomService.updateRoom(room.getId(), RoomDetailDto.RoomDetailDtoBuilder
+            .aRoomDetailDto()
+            .id(room.getId())
+            .name(room.getName())
+            .eventLocationId(room.getEventLocationId())
+            .seats(room.getSeats())
+            .sectors(List.of(standing))
+            .build());
+
+        StandingSector sectorEntity = (StandingSector) roomRepository.findById(room.getId()).get()
+            .getSectors().stream().findFirst().orElseThrow();
+
+        Show show = Show.ShowBuilder.aShow()
+            .withName("Test Show")
+            .withDate(LocalDateTime.now().plusYears(1))
+            .withDuration(120)
+            .withRoom(roomRepository.findById(room.getId()).orElseThrow())
+            .withEvent(event)
+            .build();
+
+        show = showRepository.save(show);
+
+        for (int i = 0; i < 3; i++) {
+            Ticket ticket = new Ticket();
+            ticket.setShow(show);
+            ticket.setStatus(TicketStatus.BOUGHT);
+            ticket.setSector(sectorEntity);
+            ticketRepository.save(ticket);
+        }
+
+        for (int i = 0; i < 2; i++) {
+            Hold hold = new Hold();
+            hold.setShowId(show.getId());
+            hold.setUserId(1L);
+            hold.setSectorId(sectorEntity.getId());
+            hold.setValidUntil(LocalDateTime.now().plusMinutes(10));
+            holdRepository.save(hold);
+        }
+
+        RoomDetailDto usage = roomService.getRoomUsageForShow(show.getId());
+
+        StandingSectorUsageDto usageDto = (StandingSectorUsageDto) usage.getSectors().stream()
+            .filter(s -> s instanceof StandingSectorUsageDto)
+            .findFirst().orElseThrow();
+
+        assertEquals(5, usageDto.getAvailableCapacity(), "Should be 5 available from 10");
+    }
+
 }

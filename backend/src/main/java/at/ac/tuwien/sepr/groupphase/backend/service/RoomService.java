@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public interface RoomService {
      * @param id the unique identifier of the room to update
      * @param roomDetailDto the DTO containing the updated room layout and properties
      */
-    RoomDetailDto updateRoom(Long id, RoomDetailDto roomDetailDto);
+    RoomDetailDto updateRoom(Long id, RoomDetailDto roomDetailDto) throws ValidationException;
 
 
     /**
