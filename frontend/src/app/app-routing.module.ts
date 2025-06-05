@@ -32,9 +32,6 @@ import {
 import {
   ReservedOrderDetailComponent
 } from "./components/order-detail/reserved-order-detail/reserved-order-detail.component";
-import {
-  RefundedOrderDetailComponent
-} from "./components/order-detail/refunded-order-detail/refunded-order-detail.component";
 import {PastOrderDetailComponent} from "./components/order-detail/past-order-detail/past-order-detail.component";
 import {EditEventComponent} from "./components/edit-event/edit-event.component";
 import {TicketComponent} from "./components/ticket/ticket.component";
@@ -69,7 +66,6 @@ const routes: Routes = [
   { path: 'shows/:id/room-usage', component: RoomUsageComponent, canActivate: [AuthGuard] },
   { path: 'orders/purchased/:id', component: PurchasedOrderDetailComponent, canActivate: [AuthGuard] },
   { path: 'orders/reserved/:id', component: ReservedOrderDetailComponent, canActivate: [AuthGuard] },
-  { path: 'orders/refunded/:id', component: RefundedOrderDetailComponent, canActivate: [AuthGuard] },
   { path: 'orders/past/:id', component: PastOrderDetailComponent, canActivate: [AuthGuard] },
   { path: 'ticket/:id/:randomTicketCode', component: TicketComponent, canActivate: [AdminGuard] },
   { path: 'forgot-password', component: PasswordComponent},
