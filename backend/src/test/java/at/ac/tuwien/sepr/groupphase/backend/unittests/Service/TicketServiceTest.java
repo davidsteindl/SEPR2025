@@ -202,7 +202,7 @@ public class TicketServiceTest {
 
     @Test
     @Transactional
-    public void testBuySingleTicket_createsTicketWithCorrectAttributes() {
+    public void testBuySingleTicket_createsTicketWithCorrectAttributes() throws ValidationException {
         TicketRequestDto request = new TicketRequestDto();
         request.setShowId(testShow.getId());
 
@@ -231,7 +231,7 @@ public class TicketServiceTest {
 
     @Test
     @Transactional
-    public void testBuyMultipleTickets_multipleSeated_createsMultipleTicketsAndSingleOrder() {
+    public void testBuyMultipleTickets_multipleSeated_createsMultipleTicketsAndSingleOrder() throws ValidationException {
         TicketRequestDto request = new TicketRequestDto();
         request.setShowId(testShow.getId());
 
@@ -268,7 +268,7 @@ public class TicketServiceTest {
 
     @Test
     @Transactional
-    public void testBuyStandingTickets_createsMultipleTicketsWithNullSeat() {
+    public void testBuyStandingTickets_createsMultipleTicketsWithNullSeat() throws ValidationException {
         TicketRequestDto request = new TicketRequestDto();
         request.setShowId(testShow.getId());
 
@@ -317,7 +317,7 @@ public class TicketServiceTest {
 
     @Test
     @Transactional
-    public void testReserveOnAlreadyBoughtTicket_throwsValidationException() {
+    public void testReserveOnAlreadyBoughtTicket_throwsValidationException() throws ValidationException {
         // buy a ticket first
         TicketRequestDto buyReq = new TicketRequestDto();
         buyReq.setShowId(testShow.getId());
@@ -342,7 +342,7 @@ public class TicketServiceTest {
 
     @Test
     @Transactional
-    public void testBuyReservedTickets_onAlreadyBoughtTicket_throwsValidationException() {
+    public void testBuyReservedTickets_onAlreadyBoughtTicket_throwsValidationException() throws ValidationException {
         // buy a ticket first
         TicketRequestDto buyReq = new TicketRequestDto();
         buyReq.setShowId(testShow.getId());
@@ -449,7 +449,7 @@ public class TicketServiceTest {
 
     @Test
     @Transactional
-    public void testRefundTickets_freesSeat_forRebuy() {
+    public void testRefundTickets_freesSeat_forRebuy() throws ValidationException {
         // Buy a seat
         TicketRequestDto buyReq = new TicketRequestDto();
         buyReq.setShowId(testShow.getId());
@@ -496,7 +496,7 @@ public class TicketServiceTest {
 
     @Test
     @Transactional
-    public void testRefundTickets_updatesTicketStatusToRefunded() {
+    public void testRefundTickets_updatesTicketStatusToRefunded() throws ValidationException {
         // Buy first
         TicketRequestDto req = new TicketRequestDto();
         req.setShowId(testShow.getId());
