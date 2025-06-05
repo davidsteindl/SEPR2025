@@ -44,7 +44,9 @@ import com.google.zxing.qrcode.QRCodeWriter;
 
 @Service
 public class PdfExportServiceImpl implements PdfExportService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
     private final TicketRepository ticketRepository;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
@@ -123,7 +125,7 @@ public class PdfExportServiceImpl implements PdfExportService {
 
         document.add(new Paragraph("Price: " + ticket.getSector().getPrice() + " EUR"));
 
-        String qrContent = "http://localhost:4200/#/ticket/" + ticket.getId() + "/" + ticket.getRandomTicketCode();
+        String qrContent = "http://localhost:4200/ticket/" + ticket.getId() + "/" + ticket.getRandomTicketCode();
         BufferedImage qrImage = generateQrCodeImage(qrContent);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -141,6 +143,7 @@ public class PdfExportServiceImpl implements PdfExportService {
     }
 
     private BufferedImage generateQrCodeImage(String content) {
+        LOGGER.debug("generateQrCodeImage");
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         try {
             BitMatrix bitMatrix = qrCodeWriter.encode(content, BarcodeFormat.QR_CODE, 200, 200);

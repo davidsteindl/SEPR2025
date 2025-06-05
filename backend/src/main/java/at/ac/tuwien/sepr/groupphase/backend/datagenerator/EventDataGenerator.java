@@ -50,7 +50,7 @@ public class EventDataGenerator {
             var rooms = roomRepository.findAll();
             List<Event> events = new ArrayList<>();
             for (int i = 0; i < NUMBER_OF_EVENTS; i++) {
-                LocalDateTime eventStart = LocalDateTime.of(2025, 6, i + 1, 14, 0);
+                LocalDateTime eventStart = LocalDateTime.of(2025, 8, i + 1, 14, 0);
                 int duration = 180 + i * 10;
 
                 Event ev = Event.EventBuilder.anEvent()
@@ -95,7 +95,7 @@ public class EventDataGenerator {
                 LocalDateTime eventStart = event.getDateTime();
                 int eventDuration = event.getDuration();
                 int showDuration = eventDuration / SHOWS_PER_ARTIST_PAIR;
-                
+
                 for (int j = 0; j < SHOWS_PER_ARTIST_PAIR; j++) {
                     LocalDateTime showStart = eventStart.plusMinutes(j * showDuration);
                     var a1 = artists.get(artistIndex % artists.size());

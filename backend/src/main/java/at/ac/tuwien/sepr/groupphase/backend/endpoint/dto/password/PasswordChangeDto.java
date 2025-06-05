@@ -1,0 +1,75 @@
+package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password;
+
+
+import jakarta.validation.constraints.NotNull;
+
+import java.util.Objects;
+
+public class PasswordChangeDto {
+
+
+    @NotNull
+    String password;
+
+    @NotNull
+    String confirmPassword;
+
+    @NotNull
+    String otToken;
+
+    Long userId;
+
+    public String getOtToken() {
+        return otToken;
+    }
+
+    public void setOtToken(String otToken) {
+        this.otToken = otToken;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PasswordChangeDto that = (PasswordChangeDto) o;
+        return Objects.equals(password, that.password) && Objects.equals(confirmPassword, that.confirmPassword);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(password, confirmPassword);
+    }
+
+    @Override
+    public String toString() {
+        return "PasswordChangeDto{"
+            + "password='" + password + '\''
+            + ", confirmPassword='" + confirmPassword + '\''
+            + '}';
+    }
+}

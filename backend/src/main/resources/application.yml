@@ -26,6 +26,17 @@ spring:
     # is disabled since it breaks the principle of least astonishment and leads to bad performance. To learn more,
     # follow this link: https://bit.ly/2LaX9ku
     open-in-view: false
+  mail:
+    host: localhost
+    port: 1025
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
 
 security:
   auth:
@@ -44,12 +55,6 @@ management:
   server:
     port: 8081
   endpoint:
-    shutdown:
-      enabled: true
-    metrics:
-      enabled: true
-    prometheus:
-      enabled: true
     health:
       probes:
         enabled: true

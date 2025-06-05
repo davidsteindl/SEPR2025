@@ -92,6 +92,7 @@ public class TicketServiceImpl implements TicketService {
     @Override
     @Transactional
     public OrderDto getOrderById(Long id) {
+        LOGGER.debug("get Order by Id {}", id);
         return orderRepository.findById(id)
             .map(order -> buildOrderDto(order, order.getTickets()))
             .orElse(null);
@@ -100,6 +101,7 @@ public class TicketServiceImpl implements TicketService {
     @Override
     @Transactional
     public TicketDto getTicketById(Long id) {
+        LOGGER.debug("get Ticket by Id {}", id);
         return ticketRepository.findById(id)
             .map(ticketMapper::toDto)
             .orElse(null);
@@ -462,6 +464,7 @@ public class TicketServiceImpl implements TicketService {
      * @return the total price across all provided tickets
      */
     private int calculateTotalPrice(List<Ticket> tickets) {
+        LOGGER.debug("calculateTotalPrice for Tickets");
         return tickets.stream()
             .mapToInt(t -> t.getSector().getPrice())
             .sum();
@@ -482,6 +485,7 @@ public class TicketServiceImpl implements TicketService {
         OrderType newType,
         TicketStatus newStatus
     ) {
+        LOGGER.debug("process Ticket Transfer");
         Order newOrder = initOrder(authFacade.getCurrentUserId(), newType);
 
         OrderGroup group = oldOrder.getOrderGroup();

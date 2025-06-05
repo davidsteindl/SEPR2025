@@ -6,6 +6,7 @@ import {tap} from 'rxjs/operators';
 import {jwtDecode} from 'jwt-decode';
 import {Globals} from '../global/globals';
 import {RegisterUser} from "../dtos/register-user";
+import {PasswordChange} from "../dtos/password-change";
 
 @Injectable({
   providedIn: 'root'
@@ -88,5 +89,17 @@ export class AuthService {
     date.setUTCSeconds(decoded.exp);
     return date;
   }
+
+  resetPassword(email: string) : Observable<void> {
+    console.log("Reset-Password-Request");
+    return this.httpClient.post<void>(this.authBaseUri + '/resetPassword', { email })
+
+  }
+
+  changePassword(changePasswordRequest: PasswordChange): Observable<void> {
+    console.log("Change-Password-Request");
+    return this.httpClient.post<void>(this.authBaseUri + '/changePassword', changePasswordRequest)
+  }
+
 
 }

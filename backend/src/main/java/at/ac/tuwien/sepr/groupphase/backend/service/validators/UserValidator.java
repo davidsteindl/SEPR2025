@@ -1,5 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.validators;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordChangeDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
@@ -37,17 +39,7 @@ public class UserValidator {
         LOGGER.info("Validating user registration ...");
         List<String> validationErrors = new ArrayList<>();
 
-        if (userRegisterDto.getFirstName() == null || userRegisterDto.getFirstName().isEmpty()) {
-            validationErrors.add("First name is required");
-        } else if (userRegisterDto.getFirstName().length() >= 100) {
-            validationErrors.add("First name is too long");
-        }
-
-        if (userRegisterDto.getLastName() == null) {
-            validationErrors.add("Last name is required");
-        } else if (userRegisterDto.getLastName().length() >= 100) {
-            validationErrors.add("Last name is too long");
-        }
+        checkName(validationErrors, userRegisterDto.getFirstName(), userRegisterDto.getLastName());
 
         if (userRegisterDto.getEmail() == null || !isValidEmail(userRegisterDto.getEmail())) {
             validationErrors.add("Email is not valid");
@@ -61,17 +53,7 @@ public class UserValidator {
             validationErrors.add("You must be at least 18 years old to use the Service");
         }
 
-        if (userRegisterDto.getPassword() == null || userRegisterDto.getPassword().length() < 8) {
-            validationErrors.add("Password must be at least 8 characters");
-        }
-
-        if (userRegisterDto.getConfirmPassword() == null || userRegisterDto.getConfirmPassword().length() < 8) {
-            validationErrors.add("ConfirmPassword must be at least 8 characters");
-        }
-
-        if (!userRegisterDto.getPassword().equals(userRegisterDto.getConfirmPassword())) {
-            validationErrors.add("Passwords do not match");
-        }
+        checkPassword(validationErrors, userRegisterDto.getPassword(), userRegisterDto.getConfirmPassword());
 
         if (!userRegisterDto.getTermsAccepted()) {
             validationErrors.add("Terms and Condition must be accepted");
@@ -88,18 +70,61 @@ public class UserValidator {
 
     }
 
+    private void checkName(List<String> validationErrors, String firstName, String lastName) {
+        if (firstName == null || firstName.isEmpty()) {
+            validationErrors.add("First name is required");
+        } else if (firstName.length() >= 100) {
+            validationErrors.add("First name is too long");
+        }
+
+        if (lastName == null) {
+            validationErrors.add("Last name is required");
+        } else if (lastName.length() >= 100) {
+            validationErrors.add("Last name is too long");
+        }
+    }
+
     /**
      * The method to check if the email is valid via Pattern.
      *
      * @param email the email to be checked
      * @return true or false - depends on if the email is valid
      */
-    public static boolean isValidEmail(String email) {
+    private static boolean isValidEmail(String email) {
+        LOGGER.info("Validating email address ...");
         if (email == null) {
             return false;
         }
         Matcher matcher = EMAIL_PATTERN.matcher(email);
         return matcher.matches();
+    }
+
+    public void validateForPasswordChange(PasswordChangeDto passwordChangeDto) throws ValidationException {
+        LOGGER.info("Validating for Password-Change ...");
+        List<String> validationErrors = new ArrayList<>();
+
+        checkPassword(validationErrors, passwordChangeDto.getPassword(), passwordChangeDto.getConfirmPassword());
+
+        if (!validationErrors.isEmpty()) {
+            throw new ValidationException("Validation for Password Change failed", validationErrors);
+        }
+
+
+    }
+
+    private void checkPassword(List<String> validationErrors, String password, String confirmPassword) {
+        LOGGER.debug("Checking passwords ...");
+        if (password == null || password.length() < 8) {
+            validationErrors.add("Password must be at least 8 characters");
+        }
+
+        if (confirmPassword == null || confirmPassword.length() < 8) {
+            validationErrors.add("ConfirmPassword must be at least 8 characters");
+        }
+
+        if (password != null && confirmPassword != null && !password.equals(confirmPassword)) {
+            validationErrors.add("Passwords do not match");
+        }
     }
 
 
@@ -115,17 +140,11 @@ public class UserValidator {
             validationErrors.add("The Birthdate must be in the past");
         }
 
-        if (user.getFirstName() == null || user.getFirstName().isEmpty()) {
-            validationErrors.add("First name is required");
-        } else if (user.getFirstName().length() >= 100) {
-            validationErrors.add("First name is too long");
+        if (user.getEmail() == null) {
+            validationErrors.add("No Email found");
         }
 
-        if (user.getLastName() == null) {
-            validationErrors.add("Last name is required");
-        } else if (user.getLastName().length() >= 100) {
-            validationErrors.add("Last name is too long");
-        }
+        checkName(validationErrors, user.getFirstName(), user.getLastName());
 
         if (user.getFirstName() != null && !user.getFirstName().matches("^[a-zA-ZäöüÄÖÜ -]+$")) {
             validationErrors.add("First Name contains symbols");

@@ -56,19 +56,19 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Event getEventById(Long id) {
-        LOGGER.info("Find event with id {}", id);
+        LOGGER.debug("Find event with id {}", id);
         return eventRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<Event> getAllEvents() {
-        LOGGER.info("Get all events");
+        LOGGER.debug("Get all events");
         return eventRepository.findAll();
     }
 
     @Override
     public Event createEvent(Event event) throws ValidationException {
-        LOGGER.info("Save event {}", event);
+        LOGGER.debug("Save event {}", event);
 
         eventValidator.validateForCreate(event);
         if (event.getLocation() != null) {
@@ -83,7 +83,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Event updateEvent(Long id, Event event) throws ValidationException {
-        LOGGER.info("Update event {} with data {}", id, event);
+        LOGGER.debug("Update event {} with data {}", id, event);
 
         eventValidator.validateForUpdate(id, event);
 
@@ -104,14 +104,14 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<EventDetailDto> getEventsByArtist(Long artistId, Pageable pageable) {
-        LOGGER.info("Fetching events for artistId={} with pageable={}", artistId, pageable);
+        LOGGER.debug("Fetching events for artistId={} with pageable={}", artistId, pageable);
         return showRepository.findEventsByArtistId(artistId, pageable)
             .map(eventMapper::eventToEventDetailDto);
     }
 
     @Override
     public Page<ShowDetailDto> getPaginatedShowsForEvent(Long eventId, Pageable pageable) {
-        LOGGER.info("Fetching paginated shows for eventId={} with pageable={}", eventId, pageable);
+        LOGGER.debug("Fetching paginated shows for eventId={} with pageable={}", eventId, pageable);
 
         Event event = eventRepository.findById(eventId)
             .orElseThrow(() -> new IllegalArgumentException("Event not found with id: " + eventId));
@@ -122,7 +122,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventTopTenDto> getTopTenEventsByCategory(String category) throws ValidationException {
-        LOGGER.info("Fetching top ten events for category={}", category);
+        LOGGER.debug("Fetching top ten events for category={}", category);
         Pageable topTen = PageRequest.of(0, 10);
         List<Object[]> topTenEvents;
         if (category.equalsIgnoreCase("all")) {
@@ -176,7 +176,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventCategoryDto> getAllEventCategories() {
-        LOGGER.info("Fetching all event categories");
+        LOGGER.debug("Fetching all event categories");
         return Arrays.stream(Event.EventCategory.values())
             .map(cat -> EventCategoryDto.EventCategoryDtoBuilder
                 .anEventCategoryDto()
