@@ -4,4 +4,5 @@ export class Message {
   summary: string;
   text: string;
   publishedAt: string;
+  image?: File[];
 }
