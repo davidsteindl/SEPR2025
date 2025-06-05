@@ -26,8 +26,15 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType.*;
-import static at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus.*;
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType.CANCELLATION;
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType.ORDER;
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType.REFUND;
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType.RESERVATION;
+
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus.BOUGHT;
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus.CANCELLED;
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus.REFUNDED;
+import static at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus.RESERVED;
 
 @Profile("generateData")
 @DependsOn("userDataGenerator")
@@ -61,12 +68,13 @@ public class OrderDataGenerator {
         List<ApplicationUser> users = userRepository.findAll();
         List<Show> allShows = showRepository.findAll();
         List<Sector> sectors = sectorRepository.findAll();
-        Random random = new Random();
+
 
         if (users.isEmpty() || allShows.isEmpty() || sectors.isEmpty()) {
             LOGGER.warn("No shows, users or sectors available, cannot generate tickets");
             return;
         }
+
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -85,6 +93,8 @@ public class OrderDataGenerator {
             LOGGER.warn("No Future-Shows available: reservation & purchase orders cannot be generated.");
             return;
         }
+
+        Random random = new Random();
 
         LOGGER.debug("Generating 60 BOUGHT Orders on Past-Shows");
         generateOrderGroup(60, ORDER, BOUGHT, pastShows, users, sectors, random, now);
