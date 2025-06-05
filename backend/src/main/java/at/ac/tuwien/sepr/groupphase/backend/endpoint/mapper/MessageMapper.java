@@ -3,14 +3,17 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.DetailedMessageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.MessageInquiryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.SimpleMessageDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Image;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Message;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ImageMapper.class})
 public interface MessageMapper {
 
     @Named("simpleMessage")
@@ -30,4 +33,13 @@ public interface MessageMapper {
     Message messageInquiryDtoToMessage(MessageInquiryDto messageInquiryDto);
 
     MessageInquiryDto messageToMessageInquiryDto(Message message);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "images", source = "multipartFiles") // Mappe MultipartFiles zu Images
+    Message toMessage(MessageInquiryDto messageDto, List<MultipartFile> multipartFiles);
+
+    @IterableMapping(qualifiedByName = "toImage")
+    List<Image> mapMultipartFilesToImages(List<MultipartFile> multipartFiles);
+
+
 }
