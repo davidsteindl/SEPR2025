@@ -21,6 +21,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StageSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.HoldRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
@@ -29,6 +30,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
+import at.ac.tuwien.sepr.groupphase.backend.service.validators.SectorValidator;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -59,12 +61,13 @@ public class RoomServiceImpl implements RoomService {
     private final RoomMapper roomMapper;
     private final SectorMapper sectorMapper;
     private final SeatMapper seatMapper;
+    private final SectorValidator sectorValidator;
 
     @Autowired
     public RoomServiceImpl(EventLocationRepository eventLocationRepository,
                            RoomRepository roomRepository, SectorRepository sectorRepository, SeatRepository seatRepository, ShowService showService,
                            TicketRepository ticketRepository, HoldRepository holdRepository, RoomMapper roomMapper, SectorMapper sectorMapper,
-                           SeatMapper seatMapper) {
+                           SeatMapper seatMapper, SectorValidator sectorValidator) {
         this.eventLocationRepository = eventLocationRepository;
         this.roomRepository = roomRepository;
         this.sectorRepository = sectorRepository;
@@ -75,6 +78,7 @@ public class RoomServiceImpl implements RoomService {
         this.roomMapper = roomMapper;
         this.sectorMapper = sectorMapper;
         this.seatMapper = seatMapper;
+        this.sectorValidator = sectorValidator;
     }
 
     @Override
@@ -108,7 +112,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional
-    public RoomDetailDto updateRoom(Long id, RoomDetailDto dto) {
+    public RoomDetailDto updateRoom(Long id, RoomDetailDto dto) throws ValidationException {
         LOGGER.info("Updating a room with details: {}", dto);
         if (!Objects.equals(id, dto.getId())) {
             throw new IllegalArgumentException("ID in path and payload must match");
@@ -116,6 +120,13 @@ public class RoomServiceImpl implements RoomService {
 
         Room room = roomRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Room not found: " + id));
+
+        List<SectorDto> dtoSectors = dto.getSectors();
+        if (!dtoSectors.isEmpty()) {
+            for (SectorDto sectorDto : dtoSectors) {
+                sectorValidator.validateSector(sectorDto);
+            }
+        }
 
         room.setName(dto.getName());
 
@@ -126,7 +137,7 @@ public class RoomServiceImpl implements RoomService {
 
         syncSeats(room, dto.getSeats());
 
-        syncSectors(room, dto.getSectors());
+        syncSectors(room, dtoSectors);
 
         roomRepository.saveAndFlush(room);
         return roomMapper.roomToRoomDetailDto(room);

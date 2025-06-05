@@ -95,7 +95,6 @@ public class RoomDataGenerator {
 
                 StageSector stageSector = new StageSector();
                 stageSector.setRoom(room);
-                stageSector.setPrice(0);
 
                 for (Seat seat : allSeats) {
                     if (seat.getRowNumber() == 1) {

@@ -8,7 +8,6 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.Positive;
 
 import java.util.Objects;
 
@@ -20,8 +19,7 @@ public class Sector {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Positive(message = "Price must be positive")
-    private int price;
+    private Integer price;
 
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)
@@ -39,7 +37,7 @@ public class Sector {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 
@@ -83,7 +81,7 @@ public class Sector {
     }
 
     public static final class SectorBuilder {
-        private int price;
+        private Integer price;
         private Room room;
 
         private SectorBuilder() {
@@ -93,7 +91,7 @@ public class Sector {
             return new SectorBuilder();
         }
 
-        public SectorBuilder withPrice(int price) {
+        public SectorBuilder withPrice(Integer price) {
             this.price = price;
             return this;
         }
