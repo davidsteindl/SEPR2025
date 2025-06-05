@@ -209,6 +209,8 @@ public class SearchValidator {
         if (criteria.getSize() == null || criteria.getSize() <= 0) {
             validationErrors.add("Page size must be greater than zero");
         }
+
+        boolean hasName = criteria.getName() != null && !criteria.getName().isBlank();
         boolean hasEventName = criteria.getEventName() != null && !criteria.getEventName().isBlank();
         boolean hasRoomName = criteria.getRoomName() != null && !criteria.getRoomName().isBlank();
         boolean hasstartDate = criteria.getStartDate() != null;
@@ -216,8 +218,9 @@ public class SearchValidator {
         boolean hasMinPrice = criteria.getMinPrice() != null;
         boolean hasMaxPrice = criteria.getMaxPrice() != null;
 
-        if (!hasEventName && !hasRoomName && !hasstartDate && !hasEndDate && !hasMinPrice && !hasMaxPrice) {
-            validationErrors.add("At least one of the following fields must be filled: event name, room name, start date, end date, minimum price, maximum price.");
+        if (!hasName && !hasEventName && !hasRoomName && !hasstartDate && !hasEndDate && !hasMinPrice && !hasMaxPrice) {
+            validationErrors.add(
+                "At least one of the following fields must be filled: name, event name, room name, start date, end date, minimum price, maximum price.");
         }
 
         boolean hasName = criteria.getName() != null && !criteria.getName().isBlank();
