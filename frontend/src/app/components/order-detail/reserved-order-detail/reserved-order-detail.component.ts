@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {OrderDto} from "../../../dtos/order";
+import {OrderDto, OrderGroupDetailDto} from "../../../dtos/order";
 import {ActivatedRoute, RouterLink} from "@angular/router";
 import {TicketService} from "../../../services/ticket.service";
 import {OrderService} from "../../../services/order.service";
@@ -25,7 +25,7 @@ import { PaymentItem } from 'src/app/dtos/payment-item';
   styleUrl: './reserved-order-detail.component.scss'
 })
 export class ReservedOrderDetailComponent implements OnInit {
-  order: OrderDto | null = null;
+  group: OrderGroupDetailDto | null = null;
   selected: { [ticketId: number]: boolean } = {};
   isLoading = true;
   showConfirmModal = false;
@@ -40,22 +40,19 @@ export class ReservedOrderDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const orderId = Number(this.route.snapshot.paramMap.get('id'));
-    this.loadOrder(orderId);
-  }
-
-  loadOrder(orderId: number): void {
-    this.orderService.getOrderWithTickets(orderId).subscribe({
-      next: order => {
-        this.order = order;
+    const groupId = Number(this.route.snapshot.paramMap.get('id'));
+    this.ticketService.getOrderGroupDetails(groupId).subscribe({
+      next: (res) => {
+        this.group = res;
         this.isLoading = false;
       },
-      error: err => {
-        console.error('Failed to load order', err);
+      error: (err) => {
+        console.error('Failed to load order group', err);
         this.isLoading = false;
       }
     });
   }
+
 
   buySelected(): void {
     const items = this.toPaymentItems();
@@ -64,12 +61,12 @@ export class ReservedOrderDetailComponent implements OnInit {
   }
 
   toPaymentItems(): PaymentItem[] {
-    if (!this.order) return [];
+    if (!this.group) return [];
 
-    return this.order.tickets
+    return this.group.tickets
       .filter(t => this.selected[t.id])
       .map(t => ({
-        eventName: this.order!.showName,
+        eventName: this.group!.showName,
         type: t.seatId ? 'SEATED' : 'STANDING',
         price: t.price,
         sectorId: t.sectorId,
@@ -87,7 +84,7 @@ export class ReservedOrderDetailComponent implements OnInit {
       return;
     }
     this.ticketService.cancelReservations(ticketIds).subscribe(() => {
-      this.loadOrder(this.order!.id);
+      this.ngOnInit();
     });
   }
 

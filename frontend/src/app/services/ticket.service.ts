@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaymentItem } from '../dtos/payment-item';
-import {OrderDto, OrderGroupDto} from '../dtos/order';
+import {OrderDto, OrderGroupDetailDto, OrderGroupDto} from '../dtos/order';
 import { TicketDto, TicketRequestDto, ReservationDto } from '../dtos/ticket';
 import { Globals } from '../global/globals';
 import {Page} from "../dtos/page";
@@ -112,6 +112,10 @@ export class TicketService {
     return this.http.get<Page<OrderGroupDto>>(
       `${this.globals.backendUri}/tickets/order-groups?isReservation=${isReservation}&past=${past}&page=${page}&size=${size}`
     );
+  }
+
+  getOrderGroupDetails(groupId: number): Observable<OrderGroupDetailDto> {
+    return this.http.get<OrderGroupDetailDto>(`/api/v1/tickets/order-groups/${groupId}`);
   }
 
 }

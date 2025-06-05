@@ -1,8 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {Page} from "../../dtos/page";
-import {OrderDto, OrderGroupDto} from 'src/app/dtos/order';
-import {OrderService} from "../../services/order.service";
+import {OrderGroupDto} from 'src/app/dtos/order';
 import {DatePipe} from "@angular/common";
 import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {PdfExportService} from "../../services/pdf-export.service";
