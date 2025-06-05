@@ -263,10 +263,9 @@ public class RoomServiceImpl implements RoomService {
     }
 
 
-    @Override
     public List<RoomDetailDto> getAllRooms() {
         LOGGER.info("Fetching all rooms");
-        return roomRepository.findAll().stream()
+        return roomRepository.findAllWithSectorsAndSeats().stream()
             .map(roomMapper::roomToRoomDetailDto)
             .toList();
     }

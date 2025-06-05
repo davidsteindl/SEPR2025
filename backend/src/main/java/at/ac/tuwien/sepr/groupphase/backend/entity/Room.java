@@ -11,8 +11,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 public class Room {
@@ -25,7 +27,7 @@ public class Room {
     private String name;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Sector> sectors = new ArrayList<>();
+    private Set<Sector> sectors = new HashSet<>();
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Seat> seats = new ArrayList<>();
@@ -50,11 +52,11 @@ public class Room {
         this.name = name;
     }
 
-    public List<Sector> getSectors() {
+    public Set<Sector> getSectors() {
         return sectors;
     }
 
-    public void setSectors(List<Sector> sectors) {
+    public void setSectors(Set<Sector> sectors) {
         this.sectors = sectors;
     }
 
@@ -126,7 +128,7 @@ public class Room {
 
     public static final class RoomBuilder {
         private String name;
-        private List<Sector> sectors = new ArrayList<>();
+        private Set<Sector> sectors = new HashSet<>();
         private List<Seat> seats = new ArrayList<>();
         private EventLocation eventLocation;
 
@@ -142,7 +144,7 @@ public class Room {
             return this;
         }
 
-        public RoomBuilder withSectors(List<Sector> sectors) {
+        public RoomBuilder withSectors(Set<Sector> sectors) {
             this.sectors = sectors;
             return this;
         }
