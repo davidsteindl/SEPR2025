@@ -1,6 +1,10 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -43,7 +47,9 @@ public class Image {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Image image1 = (Image) o;
         return Objects.equals(id, image1.id) && Arrays.equals(image, image1.image) && Objects.equals(imageType, image1.imageType);
