@@ -115,7 +115,7 @@ export class TicketService {
   }
 
   getOrderGroupDetails(groupId: number): Observable<OrderGroupDetailDto> {
-    return this.http.get<OrderGroupDetailDto>(`/api/v1/tickets/order-groups/${groupId}`);
+    return this.http.get<OrderGroupDetailDto>(`${this.globals.backendUri}/tickets/order-groups/${groupId}`);
   }
 
 }

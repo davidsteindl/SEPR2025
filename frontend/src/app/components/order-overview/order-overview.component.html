@@ -32,7 +32,7 @@
           Location: {{ group.locationName }} <br>
 
           <div class="order-buttons">
-            <button class="view-button" [routerLink]="['/orders', group.id]">View full order</button>
+            <button class="view-button" [routerLink]="['/orders/purchased', group.id]">View full order</button>
           </div>
         </div>
       </div>
@@ -64,7 +64,7 @@
           Location: {{ group.locationName }} <br>
 
           <div class="order-buttons">
-            <button class="view-button" [routerLink]="['/orders', group.id]">View full order</button>
+            <button class="view-button" [routerLink]="['/orders/reserved', group.id]">View full order</button>
           </div>
         </div>
       </div>
@@ -96,7 +96,7 @@
           Location: {{ group.locationName }} <br>
 
           <div class="order-buttons">
-            <button class="view-button" [routerLink]="['/orders', group.id]">View full order</button>
+            <button class="view-button" [routerLink]="['/orders/past', group.id]">View full order</button>
           </div>
         </div>
       </div>
