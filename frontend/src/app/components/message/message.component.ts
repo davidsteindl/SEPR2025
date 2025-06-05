@@ -127,6 +127,13 @@ export class MessageComponent implements OnInit {
   }
 
 
+  newsImage(): string {
+   /* if(this.message){
+      return baseUri + '/' + this.message.id + '/image'
+    }*/
+    return ''
+  }
+
   private defaultServiceErrorHandling(error: any) {
     console.log(error);
     this.error = true;
