@@ -1,7 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
-import at.ac.tuwien.sepr.groupphase.backend.entity.SeatedSector;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
 import jakarta.annotation.PostConstruct;
@@ -37,7 +37,7 @@ public class SectorDataGenerator {
         Room room = rooms.getFirst();
 
         for (int i = 0; i < 3; i++) {
-            SeatedSector sector = new SeatedSector();
+            Sector sector = new Sector();
             sector.setPrice(1500 + i * 100);
             sector.setRoom(room);
             sectorRepository.save(sector);

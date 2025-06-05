@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -65,7 +66,7 @@ public class TicketServiceTest {
 
     private EventLocation location;
     private Room testRoom;
-    private SeatedSector seatedSector;
+    private Sector sector;
     private Seat seat;
     private StandingSector standingSector;
     private Show testShow;
@@ -95,29 +96,43 @@ public class TicketServiceTest {
         eventLocationRepository.save(location);
 
         // build a room with one seated and one standing sector
-        testRoom = new Room();
-        testRoom.setName("Test Room");
-        testRoom.setEventLocation(location);
-
-        seatedSector = SeatedSector.SeatedSectorBuilder.aSeatedSector()
-            .price(100)
-            .room(testRoom)
-            .seats(List.of())
+        testRoom = Room.RoomBuilder.aRoom()
+            .withName("Test Room")
+            .withEventLocation(location)
+            .withSeats(new ArrayList<>())
             .build();
-        // add one seat
-        seat = new Seat();
-        seat.setRowNumber(1);
-        seat.setColumnNumber(1);
-        seat.setDeleted(false);
-        seatedSector.addSeat(seat);
-        testRoom.addSector(seatedSector);
+
+        sector = Sector.SectorBuilder.aSector()
+            .withPrice(100)
+            .withRoom(testRoom)
+            .build();
+        testRoom.addSector(sector);
 
         standingSector = StandingSector.StandingSectorBuilder.aStandingSector()
-            .price(50)
-            .capacity(10)
-            .room(testRoom)
+            .withPrice(50)
+            .withCapacity(10)
+            .withRoom(testRoom)
             .build();
         testRoom.addSector(standingSector);
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 7; j++) {
+                Seat s = new Seat();
+                s.setRowNumber(i + 1);
+                s.setColumnNumber(j + 1);
+                s.setDeleted(false);
+                if (i < 2) {
+                    s.setSector(sector);
+                } else {
+                    s.setSector(standingSector);
+                }
+                testRoom.addSeat(s);
+
+                if (seat == null && s.getSector().equals(sector)) {
+                    seat = s;
+                }
+            }
+        }
 
         testRoom = roomRepository.save(testRoom);
 
@@ -188,7 +203,7 @@ public class TicketServiceTest {
     @Transactional
     public void testBuySingleTicket_createsTicketWithCorrectAttributes() throws ValidationException {
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
+        target.setSectorId(sector.getId());
         target.setSeatId(seat.getId());
         TicketRequestDto request = createBuyRequest(List.of(target));
 
@@ -201,9 +216,9 @@ public class TicketServiceTest {
             () -> assertNotNull(orderDto.getId()),
             () -> assertEquals(1, orderDto.getTickets().size()),
             () -> assertEquals(testShow.getName(), dto.getShowName()),
-            () -> assertEquals(seatedSector.getPrice(), dto.getPrice()),
+            () -> assertEquals(sector.getPrice(), dto.getPrice()),
             () -> assertEquals(seat.getId(), dto.getSeatId()),
-            () -> assertEquals(seatedSector.getId(), dto.getSectorId()),
+            () -> assertEquals(sector.getId(), dto.getSectorId()),
             () -> assertEquals(TicketStatus.BOUGHT, dto.getStatus()),
             () -> assertEquals(firstName, orderEntity.getFirstName()),
             () -> assertEquals(lastName, orderEntity.getLastName()),
@@ -247,29 +262,26 @@ public class TicketServiceTest {
     @Test
     @Transactional
     public void testBuyMultipleTickets_multipleSeated_createsMultipleTicketsAndSingleOrder() throws ValidationException {
-        // select two seats
-        Seat seat2 = new Seat();
-        seat2.setRowNumber(1);
-        seat2.setColumnNumber(2);
-        seat2.setDeleted(false);
-        seatedSector.addSeat(seat2);
-        seat2 = roomRepository.save(testRoom).getSectors().stream()
-            .filter(s -> s instanceof SeatedSector)
-            .map(s -> ((SeatedSector) s).getSeats())
-            .flatMap(List::stream)
-            .filter(se -> !se.getId().equals(seat.getId()))
-            .findFirst().orElseThrow();
+        // Suche zwei verschiedene Seats aus dem bestehenden Sector
+        List<Seat> seatsInSector = testRoom.getSeats().stream()
+            .filter(s -> s.getSector() != null && s.getSector().equals(sector))
+            .limit(2)
+            .toList();
 
-        // create targets
+        assertEquals(2, seatsInSector.size(), "Es müssen mindestens zwei Seats im selben Sector vorhanden sein");
+
+        Seat first = seatsInSector.get(0);
+        Seat second = seatsInSector.get(1);
+
+        // Erstelle Ticket-Ziele
         TicketTargetSeatedDto t1 = new TicketTargetSeatedDto();
-        t1.setSectorId(seatedSector.getId());
-        t1.setSeatId(seat.getId());
+        t1.setSectorId(sector.getId());
+        t1.setSeatId(first.getId());
 
         TicketTargetSeatedDto t2 = new TicketTargetSeatedDto();
-        t2.setSectorId(seatedSector.getId());
-        t2.setSeatId(seat2.getId());
+        t2.setSectorId(sector.getId());
+        t2.setSeatId(second.getId());
 
-        // use helper method
         TicketRequestDto request = createBuyRequest(List.of(t1, t2));
 
         OrderDto orderDto = ticketService.buyTickets(request);
@@ -325,7 +337,7 @@ public class TicketServiceTest {
         request.setShowId(testShow.getId());
 
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
+        target.setSectorId(sector.getId());
         target.setSeatId(seat.getId());
         request.setTargets(List.of(target));
 
@@ -347,7 +359,7 @@ public class TicketServiceTest {
     public void testReserveOnAlreadyBoughtTicket_throwsValidationException() throws ValidationException {
         // buy a ticket first
         TicketTargetSeatedDto buyTarget = new TicketTargetSeatedDto();
-        buyTarget.setSectorId(seatedSector.getId());
+        buyTarget.setSectorId(sector.getId());
         buyTarget.setSeatId(seat.getId());
         TicketRequestDto buyReq = createBuyRequest(List.of(buyTarget));
         ticketService.buyTickets(buyReq);
@@ -367,7 +379,7 @@ public class TicketServiceTest {
     public void testBuyReservedTickets_onAlreadyBoughtTicket_throwsValidationException() throws ValidationException {
         // buy a ticket first
         TicketTargetSeatedDto buyTarget = new TicketTargetSeatedDto();
-        buyTarget.setSectorId(seatedSector.getId());
+        buyTarget.setSectorId(sector.getId());
         buyTarget.setSeatId(seat.getId());
         TicketRequestDto buyReq = createBuyRequest(List.of(buyTarget));
         OrderDto boughtOrder = ticketService.buyTickets(buyReq);
@@ -386,7 +398,7 @@ public class TicketServiceTest {
         TicketRequestDto reserveReq = new TicketRequestDto();
         reserveReq.setShowId(testShow.getId());
         TicketTargetSeatedDto resTarget = new TicketTargetSeatedDto();
-        resTarget.setSectorId(seatedSector.getId());
+        resTarget.setSectorId(sector.getId());
         resTarget.setSeatId(seat.getId());
         reserveReq.setTargets(List.of(resTarget));
         ReservationDto reservation = ticketService.reserveTickets(reserveReq);
@@ -431,7 +443,7 @@ public class TicketServiceTest {
         TicketRequestDto reserveReq = new TicketRequestDto();
         reserveReq.setShowId(testShow.getId());
         TicketTargetSeatedDto resTarget = new TicketTargetSeatedDto();
-        resTarget.setSectorId(seatedSector.getId());
+        resTarget.setSectorId(sector.getId());
         resTarget.setSeatId(seat.getId());
         reserveReq.setTargets(List.of(resTarget));
         ReservationDto reservation = ticketService.reserveTickets(reserveReq);
@@ -457,7 +469,7 @@ public class TicketServiceTest {
         TicketRequestDto reserveReq = new TicketRequestDto();
         reserveReq.setShowId(testShow.getId());
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
+        target.setSectorId(sector.getId());
         target.setSeatId(seat.getId());
         reserveReq.setTargets(List.of(target));
         ReservationDto reservation = ticketService.reserveTickets(reserveReq);
@@ -502,7 +514,7 @@ public class TicketServiceTest {
         buyReq.setShowId(testShow.getId());
 
         TicketTargetSeatedDto buyTarget = new TicketTargetSeatedDto();
-        buyTarget.setSectorId(seatedSector.getId());
+        buyTarget.setSectorId(sector.getId());
         buyTarget.setSeatId(seat.getId());
         buyReq.setTargets(List.of(buyTarget));
         buyReq.setFirstName(firstName);
@@ -565,7 +577,7 @@ public class TicketServiceTest {
         TicketRequestDto req = new TicketRequestDto();
         req.setShowId(testShow.getId());
         TicketTargetSeatedDto t = new TicketTargetSeatedDto();
-        t.setSectorId(seatedSector.getId());
+        t.setSectorId(sector.getId());
         t.setSeatId(seat.getId());
         req.setTargets(List.of(t));
         ReservationDto res = ticketService.reserveTickets(req);
@@ -581,7 +593,7 @@ public class TicketServiceTest {
     @Transactional
     public void testRefundTickets_updatesTicketStatusToRefunded() throws ValidationException {
         TicketTargetSeatedDto t = new TicketTargetSeatedDto();
-        t.setSectorId(seatedSector.getId());
+        t.setSectorId(sector.getId());
         t.setSeatId(seat.getId());
 
         TicketRequestDto req = createBuyRequest(List.of(t));
@@ -605,7 +617,7 @@ public class TicketServiceTest {
     public void testRefundedPurchase_createsTwoOrdersInOrderGroup() throws ValidationException {
         // Buy ticket
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
+        target.setSectorId(sector.getId());
         target.setSeatId(seat.getId());
         TicketRequestDto request = createBuyRequest(List.of(target));
         OrderDto initialOrder = ticketService.buyTickets(request);
@@ -631,37 +643,34 @@ public class TicketServiceTest {
     @Test
     @Transactional
     public void testPartialRefund_createsThreeOrdersInOrderGroup() throws ValidationException {
-        // Create two seated tickets
-        Seat secondSeat = new Seat();
-        secondSeat.setRowNumber(1);
-        secondSeat.setColumnNumber(2);
-        secondSeat.setDeleted(false);
-        seatedSector.addSeat(secondSeat);
-        secondSeat = roomRepository.save(testRoom).getSectors().stream()
-            .filter(s -> s instanceof SeatedSector)
-            .map(s -> ((SeatedSector) s).getSeats())
-            .flatMap(List::stream)
-            .filter(se -> !se.getId().equals(seat.getId()))
-            .findFirst().orElseThrow();
+        // Zwei Seats aus demselben Sector wählen
+        List<Seat> seatsInSector = testRoom.getSeats().stream()
+            .filter(s -> s.getSector() != null && s.getSector().equals(sector))
+            .limit(2)
+            .toList();
 
+        assertEquals(2, seatsInSector.size(), "Es müssen mindestens zwei Seats im selben Sector vorhanden sein");
+
+        Seat first = seatsInSector.get(0);
+        Seat second = seatsInSector.get(1);
+
+        // Ticket-Ziele erstellen
         TicketTargetSeatedDto t1 = new TicketTargetSeatedDto();
-        t1.setSectorId(seatedSector.getId());
-        t1.setSeatId(seat.getId());
+        t1.setSectorId(sector.getId());
+        t1.setSeatId(first.getId());
 
         TicketTargetSeatedDto t2 = new TicketTargetSeatedDto();
-        t2.setSectorId(seatedSector.getId());
-        t2.setSeatId(secondSeat.getId());
+        t2.setSectorId(sector.getId());
+        t2.setSeatId(second.getId());
 
         TicketRequestDto request = createBuyRequest(List.of(t1, t2));
-
-        // Buy tickets
         OrderDto initialOrder = ticketService.buyTickets(request);
         List<TicketDto> boughtTickets = initialOrder.getTickets();
 
         Long refundedTicketId = boughtTickets.getFirst().getId();
         Long remainingTicketId = boughtTickets.getLast().getId();
 
-        // Refund only one of the two
+        // Refund nur eines der beiden Tickets
         ticketService.refundTickets(List.of(refundedTicketId));
 
         Long groupId = orderRepository.findById(initialOrder.getId())
@@ -706,11 +715,12 @@ public class TicketServiceTest {
         );
     }
 
+
     @Test
     @Transactional
     public void testBuyTickets_shouldThrowValidationException_whenInvalidCardDetails() {
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
+        target.setSectorId(sector.getId());
         target.setSeatId(seat.getId());
 
         TicketRequestDto request = createBuyRequest(List.of(target));
@@ -730,7 +740,7 @@ public class TicketServiceTest {
     @Transactional
     public void testBuyTickets_shouldThrowValidationException_whenInvalidAddressData() {
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
+        target.setSectorId(sector.getId());
         target.setSeatId(seat.getId());
 
         TicketRequestDto request = createBuyRequest(List.of(target));
@@ -790,7 +800,7 @@ public class TicketServiceTest {
     @Transactional
     public void getOrderGroupDetails_shouldReturnCorrectInfo_whenGroupExistsAndBelongsToUser() throws ValidationException {
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
-        target.setSectorId(seatedSector.getId());
+        target.setSectorId(sector.getId());
         target.setSeatId(seat.getId());
         OrderDto initialOrder = ticketService.buyTickets(createBuyRequest(List.of(target)));
 
@@ -824,9 +834,4 @@ public class TicketServiceTest {
             ticketService.getOrderGroupDetails(nonExistentGroupId);
         });
     }
-
-
 }
-
-
-

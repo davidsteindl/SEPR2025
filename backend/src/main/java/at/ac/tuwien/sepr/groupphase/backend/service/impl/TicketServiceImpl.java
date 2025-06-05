@@ -16,7 +16,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.OrderMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.TicketMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Hold;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
-import at.ac.tuwien.sepr.groupphase.backend.entity.SeatedSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
@@ -156,7 +155,7 @@ public class TicketServiceImpl implements TicketService {
      * Initializes a new Order for a user with the specified type and persists it.
      *
      * @param userId the ID of the user placing the order
-     * @param type the type of the order (ORDER or RESERVATION)
+     * @param type   the type of the order (ORDER or RESERVATION)
      * @return the persisted Order entity
      */
     private Order initOrder(Long userId, OrderType type) {
@@ -210,10 +209,10 @@ public class TicketServiceImpl implements TicketService {
     /**
      * Creates tickets for the given order and show based on target DTOs, saves them, and calculates total price.
      *
-     * @param order the Order to attach tickets to
-     * @param show the Show for which tickets are created
+     * @param order   the Order to attach tickets to
+     * @param show    the Show for which tickets are created
      * @param targets the list of ticket target DTOs specifying seats or quantities
-     * @param status the status to apply to created tickets (BOUGHT or RESERVED)
+     * @param status  the status to apply to created tickets (BOUGHT or RESERVED)
      * @return a TicketCreationResult containing saved tickets and total price in cents
      */
     private TicketCreationResult createTickets(Order order,
@@ -229,16 +228,16 @@ public class TicketServiceImpl implements TicketService {
 
                 Sector raw = roomService.getSectorById(seated.getSectorId());
                 // …then verify it really is a SeatedSector
-                if (!(raw instanceof SeatedSector sector)) {
+                if (!raw.isBookable()) {
                     throw new IllegalArgumentException(
                         "Sector " + seated.getSectorId() + " is not a seated sector"
                     );
                 }
                 Seat seat = roomService.getSeatById(seated.getSeatId());
 
-                Ticket ticket = buildTicket(order, show, sector, seat, status);
+                Ticket ticket = buildTicket(order, show, raw, seat, status);
                 tickets.add(ticket);
-                totalPrice += (status == TicketStatus.BOUGHT ? sector.getPrice() : 0);
+                totalPrice += (status == TicketStatus.BOUGHT ? raw.getPrice() : 0);
 
             } else if (target instanceof TicketTargetStandingDto standing) {
                 Sector raw = roomService.getSectorById(standing.getSectorId());
@@ -265,10 +264,10 @@ public class TicketServiceImpl implements TicketService {
     /**
      * Builds a Ticket entity with the specified order, show, sector, seat, and status.
      *
-     * @param order the Order to which the ticket belongs
-     * @param show the Show associated with the ticket
+     * @param order  the Order to which the ticket belongs
+     * @param show   the Show associated with the ticket
      * @param sector the Sector (seated or standing) for the ticket
-     * @param seat the Seat for seated tickets (null for standing tickets)
+     * @param seat   the Seat for seated tickets (null for standing tickets)
      * @param status the status to assign to the ticket
      * @return the constructed Ticket entity
      */
@@ -295,7 +294,7 @@ public class TicketServiceImpl implements TicketService {
     /**
      * Finalizes the given Order by setting its tickets and persisting the update.
      *
-     * @param order the Order to finalize
+     * @param order   the Order to finalize
      * @param tickets the list of tickets to associate with the order
      */
     private void finalizeOrder(Order order, List<Ticket> tickets) {
@@ -307,7 +306,7 @@ public class TicketServiceImpl implements TicketService {
     /**
      * Constructs an OrderDto from an Order entity and its tickets.
      *
-     * @param order the Order entity to convert
+     * @param order   the Order entity to convert
      * @param tickets the list of Ticket entities associated with the order
      * @return the populated OrderDto
      */
@@ -334,8 +333,8 @@ public class TicketServiceImpl implements TicketService {
     /**
      * Constructs a ReservationDto from an Order entity, its tickets, and expiration time.
      *
-     * @param order the Order entity to convert
-     * @param tickets the list of Ticket entities associated with the order
+     * @param order     the Order entity to convert
+     * @param tickets   the list of Ticket entities associated with the order
      * @param expiresAt the timestamp when the reservation expires
      * @return the populated ReservationDto
      */

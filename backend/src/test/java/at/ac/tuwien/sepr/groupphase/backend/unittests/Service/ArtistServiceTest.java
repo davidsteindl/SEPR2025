@@ -66,8 +66,8 @@ public class ArtistServiceTest {
         eventLocationRepository.save(testLocation);
 
         Room testRoom = Room.RoomBuilder.aRoom()
-            .name("Main Room")
-            .eventLocation(testLocation)
+            .withName("Main Room")
+            .withEventLocation(testLocation)
             .build();
         roomRepository.save(testRoom);
 

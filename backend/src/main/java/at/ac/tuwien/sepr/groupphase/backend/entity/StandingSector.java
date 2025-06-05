@@ -1,21 +1,15 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 
 import java.util.Objects;
 
-import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-
 @Entity
-@DiscriminatorValue("STANDING")
 public class StandingSector extends Sector {
 
     @Column(nullable = false)
     private int capacity;
-
-
 
     public int getCapacity() {
         return capacity;
@@ -25,11 +19,9 @@ public class StandingSector extends Sector {
         this.capacity = capacity;
     }
 
-
-
     @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), capacity);
+    public boolean isBookable() {
+        return false;
     }
 
     @Override
@@ -37,68 +29,60 @@ public class StandingSector extends Sector {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof StandingSector)) {
+        if (!(o instanceof StandingSector that)) {
             return false;
         }
         if (!super.equals(o)) {
             return false;
         }
-        StandingSector that = (StandingSector) o;
         return capacity == that.capacity;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), capacity);
     }
 
     @Override
     public String toString() {
         return "StandingSector{"
-               + "id=" + getId()
-               + ", type=" + getType()
-               + ", price=" + getPrice()
-               + ", capacity=" + capacity
-               + '}';
+            + "id=" + getId()
+            + ", price=" + getPrice()
+            + ", room ID=" + (getRoom() != null ? getRoom().getId() : "null")
+            + ", capacity=" + capacity
+            + '}';
     }
 
-
-    
     public static final class StandingSectorBuilder {
-        private Long id;
         private int price;
-        private Room room;
         private int capacity;
-
-        private StandingSectorBuilder() { }
+        private Room room;
 
         public static StandingSectorBuilder aStandingSector() {
             return new StandingSectorBuilder();
         }
 
-        public StandingSectorBuilder id(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public StandingSectorBuilder price(int price) {
+        public StandingSectorBuilder withPrice(int price) {
             this.price = price;
             return this;
         }
 
-        public StandingSectorBuilder room(Room room) {
-            this.room = room;
-            return this;
-        }
-
-        public StandingSectorBuilder capacity(int capacity) {
+        public StandingSectorBuilder withCapacity(int capacity) {
             this.capacity = capacity;
             return this;
         }
 
+        public StandingSectorBuilder withRoom(Room room) {
+            this.room = room;
+            return this;
+        }
+
         public StandingSector build() {
-            StandingSector sector = new StandingSector();
-            sector.setId(id);
-            sector.setType(SectorType.STANDING);
-            sector.setPrice(price);
-            sector.setRoom(room);
-            sector.setCapacity(capacity);
-            return sector;
+            StandingSector standingSector = new StandingSector();
+            standingSector.setPrice(price);
+            standingSector.setCapacity(capacity);
+            standingSector.setRoom(room);
+            return standingSector;
         }
     }
 }

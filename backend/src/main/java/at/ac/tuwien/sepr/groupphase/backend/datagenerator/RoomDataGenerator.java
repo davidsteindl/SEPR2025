@@ -1,7 +1,8 @@
 package at.ac.tuwien.sepr.groupphase.backend.datagenerator;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
-import at.ac.tuwien.sepr.groupphase.backend.entity.SeatedSector;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
+import at.ac.tuwien.sepr.groupphase.backend.entity.StageSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
@@ -13,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Component("roomDataGenerator")
@@ -39,52 +42,76 @@ public class RoomDataGenerator {
     @PostConstruct
     public void generateRooms() {
         if (roomRepository.count() > 0) {
-            LOGGER.debug("Rooms already generated, skipping RoomDataGenerator");
-            return;
-        }
-        List<EventLocation> locations = locationRepository.findAll();
-        if (locations.isEmpty()) {
-            LOGGER.warn("No EventLocations found: generate EventLocations first");
             return;
         }
 
-        List<Room> rooms = new java.util.ArrayList<>();
-        LOGGER.debug("Generating rooms for {} locations", locations.size());
+        List<EventLocation> locations = locationRepository.findAll();
+        if (locations.isEmpty()) {
+            return;
+        }
+
+        List<Room> rooms = new ArrayList<>();
+
         for (EventLocation loc : locations) {
             for (int r = 0; r < ROOMS_PER_LOCATION; r++) {
                 Room room = Room.RoomBuilder.aRoom()
-                    .name(loc.getName() + " - Room " + (r + 1))
-                    .eventLocation(loc)
+                    .withName(loc.getName() + " - Room " + (r + 1))
+                    .withEventLocation(loc)
                     .build();
 
-                SeatedSector seated = SeatedSector.SeatedSectorBuilder
-                    .aSeatedSector()
-                    .price(SEATED_PRICE)
-                    .room(room)
-                    .build();
+                List<Seat> allSeats = new ArrayList<>();
+
                 for (int row = 1; row <= SEATED_ROWS; row++) {
                     for (int col = 1; col <= SEATED_COLUMNS; col++) {
                         Seat seat = new Seat();
                         seat.setRowNumber(row);
                         seat.setColumnNumber(col);
                         seat.setDeleted(false);
-                        seated.addSeat(seat);
+                        seat.setRoom(room);
+                        allSeats.add(seat);
                     }
                 }
-                room.addSector(seated);
 
-                StandingSector standing = StandingSector.StandingSectorBuilder
-                    .aStandingSector()
-                    .price(STANDING_PRICE)
-                    .capacity(STANDING_CAPACITY)
-                    .room(room)
-                    .build();
-                room.addSector(standing);
+                Sector sector = new Sector();
+                sector.setRoom(room);
+                sector.setPrice(SEATED_PRICE);
+
+                for (Seat seat : allSeats) {
+                    if (seat.getColumnNumber() <= SEATED_COLUMNS / 2 && seat.getRowNumber() > 1) {
+                        seat.setSector(sector);
+                    }
+                }
+
+                StandingSector standingSector = new StandingSector();
+                standingSector.setRoom(room);
+                standingSector.setPrice(STANDING_PRICE);
+                standingSector.setCapacity(STANDING_CAPACITY);
+
+                for (Seat seat : allSeats) {
+                    if (seat.getColumnNumber() > SEATED_COLUMNS / 2 && seat.getRowNumber() > 1) {
+                        seat.setSector(standingSector);
+                    }
+                }
+
+                StageSector stageSector = new StageSector();
+                stageSector.setRoom(room);
+                stageSector.setPrice(0);
+
+                for (Seat seat : allSeats) {
+                    if (seat.getRowNumber() == 1) {
+                        seat.setSector(stageSector);
+                    }
+                }
+
+                room.setSeats(allSeats);
+                room.addSector(sector);
+                room.addSector(standingSector);
+                room.addSector(stageSector);
 
                 rooms.add(room);
             }
         }
+
         roomRepository.saveAll(rooms);
-        LOGGER.debug("Saved {} rooms (with sectors & seats)", rooms.size());
     }
 }
