@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaymentItem } from '../dtos/payment-item';
 import { OrderDto }  from '../dtos/order';
-import { TicketDto, TicketRequestDto } from '../dtos/ticket';
+import { TicketDto, TicketRequestDto, ReservationDto } from '../dtos/ticket';
 import { Globals } from '../global/globals';
 
 @Injectable({ providedIn: 'root' })
@@ -53,6 +53,32 @@ export class TicketService {
 
     return this.http.post<OrderDto>(`${this.base}/buy`, payload);
   }
+
+  reserveTickets(showId: number, items: PaymentItem[]): Observable<ReservationDto> {
+    const targets = items.map(i => {
+      if (i.type === 'SEATED') {
+        return {
+          type: 'seated' as const,
+          seatId: i.seatId!,
+          sectorId: i.sectorId
+        };
+      } else {
+        return {
+          type: 'standing' as const,
+          sectorId: i.sectorId,
+          quantity: i.quantity!
+        };
+      }
+    });
+
+    const payload: TicketRequestDto = {
+      showId,
+      targets
+    };
+
+    return this.http.post<ReservationDto>(`${this.base}/reserve`, payload);
+  }
+
 
 
   refundTickets(ticketIds: number[]): Observable<TicketDto[]> {
