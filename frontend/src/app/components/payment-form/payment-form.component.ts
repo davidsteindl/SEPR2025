@@ -8,6 +8,8 @@ import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { TicketService } from 'src/app/services/ticket.service';
 import { OrderDto } from 'src/app/dtos/order';
+import {UserService} from "../../services/user.service";
+import {User} from "../../dtos/user";
 
 @Component({
   selector: 'app-payment-form',
@@ -22,13 +24,15 @@ export class PaymentFormComponent implements OnInit {
 
   paymentForm!: FormGroup;
   loading = false;
+  private readonly FORM_STORAGE_KEY = 'paymentFormData';
 
   constructor(
     private fb: FormBuilder,
     private cart: CartService,
     private ticketService: TicketService,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
@@ -75,6 +79,15 @@ export class PaymentFormComponent implements OnInit {
       ],
       city: ['', Validators.required],
     });
+
+    const saved = localStorage.getItem(this.FORM_STORAGE_KEY);
+    if (saved) {
+      this.paymentForm.patchValue(JSON.parse(saved));
+    }
+
+    this.paymentForm.valueChanges.subscribe(val => {
+      localStorage.setItem(this.FORM_STORAGE_KEY, JSON.stringify(val));
+    });
   }
 
   get total(): number {
@@ -99,6 +112,8 @@ export class PaymentFormComponent implements OnInit {
             `Order #${order.id} placed on ${dt.toLocaleString()}`,
             'Payment Complete'
           );
+          localStorage.removeItem(this.FORM_STORAGE_KEY);
+
           this.router.navigate(['/orders']);
         },
         error: (err) => {
@@ -118,5 +133,27 @@ export class PaymentFormComponent implements OnInit {
         }
       })
       .add(() => (this.loading = false));
+  }
+
+  copyAddressFromProfile(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (!checked) return;
+
+    this.userService.getCurrentUser().subscribe({
+      next: (user: User) => {
+        this.paymentForm.patchValue({
+          firstName: user.firstName || '',
+          lastName: user.lastName || '',
+          street: user.street || '',
+          housenumber: user.housenumber || '',
+          postalCode: user.postalCode || '',
+          city: user.city || '',
+          country: user.country || ''
+        });
+      },
+      error: () => {
+        this.toastr.error('Could not load address from profile', 'Error');
+      }
+    });
   }
 }

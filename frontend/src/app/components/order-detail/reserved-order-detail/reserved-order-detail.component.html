@@ -2,7 +2,7 @@
   <div class="mt-4 container">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2>Order #{{ group.id }} - Details</h2>
-      <button class="btn btn-secondary" [routerLink]="['/orders']">
+      <button class="btn btn-secondary" (click)="goBack()">
         ← Back to My Orders
       </button>
     </div>

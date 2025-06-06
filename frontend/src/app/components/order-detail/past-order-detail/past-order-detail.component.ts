@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {OrderDto, OrderGroupDetailDto} from '../../../dtos/order';
 import { CurrencyPipe, DatePipe, NgIf, NgForOf } from '@angular/common';
 import {TicketService} from "../../../services/ticket.service";
@@ -8,18 +8,20 @@ import {PdfExportService} from "../../../services/pdf-export.service";
 @Component({
   selector: 'app-past-order-detail',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, RouterLink, NgIf, NgForOf],
+  imports: [CurrencyPipe, DatePipe, NgIf, NgForOf],
   templateUrl: './past-order-detail.component.html',
   styleUrl: './past-order-detail.component.scss'
 })
 export class PastOrderDetailComponent implements OnInit {
   group: OrderGroupDetailDto | null = null;
   isLoading = true;
+  tabFromParent: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private ticketService: TicketService,
     private pdfService: PdfExportService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -63,5 +65,11 @@ export class PastOrderDetailComponent implements OnInit {
     } else {
       this.pdfService.exportInvoicePdf(order.id);
     }
+  }
+
+  goBack(): void {
+    this.router.navigate(['/orders'], {
+      queryParams: this.tabFromParent ? { tab: this.tabFromParent } : {}
+    });
   }
 }
