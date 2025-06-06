@@ -1,6 +1,15 @@
-/* Make the page fill the viewport and keep sidebar fixed width */
+:host {
+  display: block;
+  position: relative;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
 .buy-tickets-page {
-  height: 100vh;
+  /* full viewport including header; subtract header height (adjust 64px as needed) */
+    height: calc(100vh - 55px);
+    /* header in normal flow, no extra margin-top needed */
 
   .seat-map-container {
     flex: 1 1 auto;
@@ -23,7 +32,8 @@
       }
     }
     .sidebar-body {
-      /* scrollable area for ticket list */
+      overflow: auto;
+        /* scrollable area for ticket list */
     }
     .sidebar-footer {
       background: #2a2a2a;
