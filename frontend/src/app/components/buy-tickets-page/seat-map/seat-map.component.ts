@@ -35,17 +35,14 @@ export class SeatMapComponent implements OnInit, OnChanges {
   @ViewChild('seatPopoverTpl', { static: true }) seatPopoverTpl!: TemplateRef<any>;
   @ViewChild('standingPopoverTpl', { static: true }) standingPopoverTpl!: TemplateRef<any>;
 
-  // map for sectorId -> random color string (for that sector’s background)
+  // map for sectorId -> random color string 
   sectorColorMap: { [sectorId: number]: string } = {};
 
-  // We store:
-  //  - All seated seats (Sector without capacity)
-  //  - All standing sectors (Sector with capacity)
+
   seatedSectors: Sector[] = [];
   standingSectors: Sector[] = [];
 
-  // For each standing sector, compute its bounding rectangle:
-  //   { sector, minRow, maxRow, minCol, maxCol }
+
   standingRects: Array<{
     sector: Sector;
     minRow: number;
@@ -59,14 +56,14 @@ export class SeatMapComponent implements OnInit, OnChanges {
   private seatById: { [id: number]: Seat } = {};
   private sectorOfSeat: { [seatId: number]: Sector } = {};
 
-  // 2D grid
+
   gridTemplateColumns = '';
   gridTemplateRows = '';
 
-  // Track user quantity input for each standing sector
+
   standingQuantity: { [sectorId: number]: number } = {};
 
-  // Track which seats/sectors are already in cart (so we show check icons)
+
   selectedSeatIdSet = new Set<number>();
   selectedStandingSectorSet = new Set<number>();
 
@@ -191,7 +188,7 @@ export class SeatMapComponent implements OnInit, OnChanges {
     }
   }
 
-  // Called when user presses “+ Add” in the standing popover
+  // Called when user presses ADD in the standing popover
   addStandingToCart(sec: Sector, pop: NgbPopover) {
     const qty = this.standingQuantity[sec.id] || 1;
     const item: PaymentItem = {

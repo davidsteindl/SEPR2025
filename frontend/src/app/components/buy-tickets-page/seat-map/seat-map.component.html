@@ -3,10 +3,10 @@
   [style.gridTemplateColumns]="gridTemplateColumns"
   [style.gridTemplateRows]="gridTemplateRows"
 >
-  <!-- Render each cell that belongs to a seated sector -->
+
   <ng-container *ngFor="let sec of seatedSectors">
     <ng-container *ngFor="let seat of sec.seats">
-      <!-- Each seat has rowNumber, columnNumber -->
+
       <div
         class="grid-cell"
         [ngClass]="{
@@ -16,14 +16,14 @@
         [style.gridRowStart]="seat.rowNumber"
         [style.gridColumnStart]="seat.columnNumber"
       >
-        <!-- If deleted render an empty, invisible placeholder -->
+
         <ng-container *ngIf="!seat.deleted">
-          <!-- If not available → gray circle -->
+>
           <ng-container *ngIf="seat.available === false; else availSeatTpl">
             <div class="seat-circle unavailable"></div>
           </ng-container>
 
-          <!-- Available seat: colored circle with popover -->
+
           <ng-template #availSeatTpl>
             <div
               class="seat-circle"
@@ -50,7 +50,7 @@
     </ng-container>
   </ng-container>
 
-  <!-- Render each standing sector as one big rectangle -->
+
   <ng-container *ngFor="let rect of standingRects">
     <div
       class="grid-cell standing-rect"
@@ -68,7 +68,7 @@
       container="body"
       (click)="openStandingPopover(rect.sector, standingPop)"
     >
-      <!-- If this standing sector is already selected -> show check icon -->
+
       <i
         class="bi bi-check-circle-fill selected-icon"
         *ngIf="isStandingSelected(rect.sector)"

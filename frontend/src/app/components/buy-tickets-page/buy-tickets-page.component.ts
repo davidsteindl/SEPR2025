@@ -27,7 +27,6 @@ throw new Error('Method not implemented.');
   loadingShow = true;
   loadingRoom = true;
 
-  // subscription to cart items
   cartSub!: Subscription;
   currentItems: PaymentItem[] = [];
 
@@ -87,11 +86,7 @@ throw new Error('Method not implemented.');
     }
   }
 
-  // Called whenever SeatMapComponent emits a new Selection (PaymentItem)
   onSeatOrStandingSelected(item: PaymentItem) {
-    // Check if that exact PaymentItem is already in the cart
-    // For seated seats: match on seatId and sectorId and showId
-    // For standing: match on sectorId and showId
     let items = [...this.currentItems];
     const isSeated = item.type === 'SEATED';
     if (isSeated) {
@@ -103,7 +98,6 @@ throw new Error('Method not implemented.');
           i.seatId === item.seatId
       );
       if (idx === -1) {
-        // not in cart yet -> add
         items.push(item);
       } 
     } else {
@@ -117,7 +111,7 @@ throw new Error('Method not implemented.');
       if (idx === -1) {
         items.push(item);
       } else {
-        // Already in cart as standing. we just replace quantity
+        // Already in cart as standing, just replace quantity
         items[idx] = item;
       }
     }
@@ -153,8 +147,6 @@ throw new Error('Method not implemented.');
   }
 
   onBuyTickets() {
-    // We assume the cart is already up-to-date in CartService,
-    // so just navigate to /checkout
     this.router.navigate(['/checkout']);
   }
 }
