@@ -103,7 +103,7 @@ public class PdfExportServiceImpl implements PdfExportService {
             Verkauf von Tickets für Kino, Theater, Opern, Konzerte und mehr
             Karlsplatz 13, 1040 Wien
             Tel.: 0043 1 523543210, Mail: shop@ticketline.at
-            www.tickeltine.at""");
+            www.ticketline.at""");
         ticketLine.setTextAlignment(TextAlignment.RIGHT);
         document.add(ticketLine);
 
@@ -176,7 +176,7 @@ public class PdfExportServiceImpl implements PdfExportService {
             Verkauf von Tickets für Kino, Theater, Opern, Konzerte und mehr
             Karlsplatz 13, 1040 Wien
             Tel.: 0043 1 523543210, Mail: shop@ticketline.at
-            www.tickeltine.at""");
+            www.ticketline.at""");
         ticketLine.setTextAlignment(TextAlignment.RIGHT);
         document.add(ticketLine);
 
@@ -191,11 +191,11 @@ public class PdfExportServiceImpl implements PdfExportService {
 
         document.add(new Paragraph(user.getFirstName() + " " + user.getLastName()));
 
-        if (user.getStreet() != null && user.getHousenumber() != null && user.getPostalCode() != null
-            && user.getCity() != null && user.getCountry() != null) {
-            document.add(new Paragraph(user.getStreet() + " " + user.getHousenumber()));
-            document.add(new Paragraph(user.getPostalCode() + " " + user.getCity()));
-            document.add(new Paragraph(user.getCountry()));
+        if (order.getStreet() != null && order.getHousenumber() != null && order.getPostalCode() != null
+            && order.getCity() != null && order.getCountry() != null) {
+            document.add(new Paragraph(order.getStreet() + " " + order.getHousenumber()));
+            document.add(new Paragraph(order.getPostalCode() + " " + order.getCity()));
+            document.add(new Paragraph(order.getCountry()));
         }
 
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy");
@@ -296,7 +296,7 @@ public class PdfExportServiceImpl implements PdfExportService {
             Verkauf von Tickets für Kino, Theater, Opern, Konzerte und mehr
             Karlsplatz 13, 1040 Wien
             Tel.: 0043 1 523543210, Mail: shop@ticketline.at
-            www.tickeltine.at""");
+            www.ticketline.at""");
         ticketLine.setTextAlignment(TextAlignment.RIGHT);
         document.add(ticketLine);
 
@@ -310,12 +310,13 @@ public class PdfExportServiceImpl implements PdfExportService {
 
         document.add(new Paragraph(user.getFirstName() + " " + user.getLastName()));
 
-        if (user.getStreet() != null && user.getHousenumber() != null && user.getPostalCode() != null
-            && user.getCity() != null && user.getCountry() != null) {
-            document.add(new Paragraph(user.getStreet() + " " + user.getHousenumber()));
-            document.add(new Paragraph(user.getPostalCode() + " " + user.getCity()));
-            document.add(new Paragraph(user.getCountry()));
+        if (order.getStreet() != null && order.getHousenumber() != null && order.getPostalCode() != null
+            && order.getCity() != null && order.getCountry() != null) {
+            document.add(new Paragraph(order.getStreet() + " " + order.getHousenumber()));
+            document.add(new Paragraph(order.getPostalCode() + " " + order.getCity()));
+            document.add(new Paragraph(order.getCountry()));
         }
+
 
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         var invoiceDateOfOrder = new Paragraph(order.getCreatedAt().format(format));
