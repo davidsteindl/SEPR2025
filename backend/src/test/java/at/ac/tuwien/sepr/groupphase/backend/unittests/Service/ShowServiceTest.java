@@ -390,12 +390,12 @@ public class ShowServiceTest {
         );
     }
 
-
     @Test
     @Transactional
     public void testCreateShow_startBeforeAndEndAfterExisting_exceedsDuration_throwsValidationException() throws ValidationException {
         testEvent.setDuration(200);
         eventRepository.save(testEvent);
+
 
         LocalDateTime eventStart = testEvent.getDateTime();
         LocalDateTime existingDate = eventStart.plusMinutes(60);
