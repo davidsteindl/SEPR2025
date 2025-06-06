@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.*;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.*;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ShowServiceImpl;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,12 +25,18 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 public class ShowServiceTest {
 
-    @Autowired private ShowRepository showRepository;
-    @Autowired private EventRepository eventRepository;
-    @Autowired private ArtistRepository artistRepository;
-    @Autowired private EventLocationRepository eventLocationRepository;
-    @Autowired private RoomRepository roomRepository;
-    @Autowired private ShowValidator showValidator;
+    @Autowired
+    private ShowRepository showRepository;
+    @Autowired
+    private EventRepository eventRepository;
+    @Autowired
+    private ArtistRepository artistRepository;
+    @Autowired
+    private EventLocationRepository eventLocationRepository;
+    @Autowired
+    private RoomRepository roomRepository;
+    @Autowired
+    private ShowValidator showValidator;
 
     private ShowServiceImpl showService;
 
@@ -120,12 +127,7 @@ public class ShowServiceTest {
 
     @Test
     public void testGetShowById_nonExisting_returnsNull() {
-        Show result = showService.getShowById(999L);
-
-        assertAll(
-            () -> assertNull(result),
-            () -> assertEquals(0, showRepository.findAll().size())
-        );
+        assertThrows(EntityNotFoundException.class, () -> showService.getShowById(999L));
     }
 
     @Test
@@ -395,9 +397,9 @@ public class ShowServiceTest {
         testEvent.setDuration(200);
         eventRepository.save(testEvent);
 
-        LocalDateTime eventStart   = testEvent.getDateTime();
+        LocalDateTime eventStart = testEvent.getDateTime();
         LocalDateTime existingDate = eventStart.plusMinutes(60);
-        LocalDateTime secondDate   = eventStart.plusMinutes(60 - 30);
+        LocalDateTime secondDate = eventStart.plusMinutes(60 - 30);
 
         Show existing = Show.ShowBuilder.aShow()
             .withName("Anchor")
