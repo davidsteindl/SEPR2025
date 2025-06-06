@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
@@ -721,5 +722,25 @@ public class RoomServiceTests {
             .orElseThrow();
 
         assertEquals(7, standingUsage.getAvailableCapacity(), "Only tickets should reduce availability, expired holds ignored");
+    }
+
+    @Test
+    public void testUpdateRoom_invalidDtoTypeCombination_throwsValidationException() {
+        RoomDetailDto original = roomService.createRoom(createRoomDto);
+
+        SectorDto invalid = new SectorDto(); // kein StageSectorDto
+        invalid.setType(SectorType.STAGE);  // aber STAGE gesetzt!
+        invalid.setPrice(50);
+
+        RoomDetailDto update = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
+            .id(original.getId())
+            .name(original.getName())
+            .sectors(List.of(invalid))
+            .seats(original.getSeats())
+            .eventLocationId(original.getEventLocationId())
+            .build();
+
+        assertThrows(ValidationException.class,
+            () -> roomService.updateRoom(original.getId(), update));
     }
 }

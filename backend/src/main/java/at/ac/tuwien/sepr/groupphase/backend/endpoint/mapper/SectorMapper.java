@@ -57,8 +57,8 @@ public interface SectorMapper {
             return s;
         }
         throw new ValidationException(
-            "Unknown sector DTO type: " + dto.getClass(),
-            List.of("Sector DTO type must be StandingSectorDto, StageSectorDto, or type NORMAL")
+            "Inconsistent SectorDto: type=" + dto.getType() + ", but actual class=" + dto.getClass().getSimpleName(),
+            List.of("SectorDto type and instance class must match (e.g., STAGE → StageSectorDto)")
         );
     }
 
