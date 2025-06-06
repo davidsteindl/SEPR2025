@@ -56,15 +56,25 @@ public class EventValidator {
         LocalDateTime start = event.getDateTime();
         if (start == null) {
             errors.add("Start date/time must not be null");
+        } else {
+            LocalDateTime nowTrunc = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+            LocalDateTime startTrunc = start.truncatedTo(ChronoUnit.MINUTES);
+            if (startTrunc.isBefore(nowTrunc)) {
+                errors.add("Start date/time must not be in the past");
+            }
         }
 
         int duration = event.getDuration();
         if (duration < 10 || duration > 10000) {
             errors.add("Duration must be between 10 and 10000 minutes");
         }
-        Long locationId = event.getLocation() != null ? event.getLocation().getId() : null;
-        if (locationId == null || !locationRepository.existsById(locationId)) {
-            errors.add("Location not found for ID: " + locationId);
+
+        if (event.getLocation() == null || event.getLocation().getId() == null
+            || !locationRepository.existsById(event.getLocation().getId())) {
+            String locName = event.getLocation() != null && event.getLocation().getName() != null
+                ? "'" + event.getLocation().getName() + "'"
+                : "the specified location";
+            errors.add("Location not found for " + locName);
         }
 
         if (!errors.isEmpty()) {
@@ -96,6 +106,12 @@ public class EventValidator {
 
         if (event.getDateTime() == null) {
             errors.add("Start date/time must not be null");
+        } else {
+            LocalDateTime nowTrunc = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+            LocalDateTime newStartTrunc = event.getDateTime().truncatedTo(ChronoUnit.MINUTES);
+            if (newStartTrunc.isBefore(nowTrunc)) {
+                errors.add("Start date/time must not be in the past");
+            }
         }
 
         int duration = event.getDuration();
@@ -103,13 +119,16 @@ public class EventValidator {
             errors.add("Duration must be between 10 and 10000 minutes");
         }
 
-        Long locId = event.getLocation() != null ? event.getLocation().getId() : null;
-        if (locId == null || !locationRepository.existsById(locId)) {
-            errors.add("Location not found for ID: " + locId);
+        if (event.getLocation() == null || event.getLocation().getId() == null
+            || !locationRepository.existsById(event.getLocation().getId())) {
+            String locName = event.getLocation() != null && event.getLocation().getName() != null
+                ? "'" + event.getLocation().getName() + "'"
+                : "the specified location";
+            errors.add("Location not found for " + locName);
         }
 
         Event existing = eventRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Event not found with ID: " + id));
+            .orElseThrow(() -> new NotFoundException("Event not found"));
 
         LocalDateTime newStart = event.getDateTime();
         LocalDateTime newEnd = newStart.plusMinutes(event.getDuration());
@@ -119,7 +138,7 @@ public class EventValidator {
             LocalDateTime start = s.getDate().truncatedTo(ChronoUnit.MINUTES);
             LocalDateTime end = start.plusMinutes(s.getDuration());
             if (start.isBefore(newStart) || end.isAfter(newEnd)) {
-                errors.add("Show with ID " + s.getId() + " outside event timeframe");
+                errors.add("Show with name " + s.getName() + " outside event timeframe");
             }
         }
         if (!errors.isEmpty()) {

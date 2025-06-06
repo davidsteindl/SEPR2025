@@ -1,8 +1,11 @@
 <div class="mt-4 container">
-  <div class="row">
-
-    <h2 class="modal-title">Create Show</h2>
-    <hr>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Create Show</h2>
+    <button class="btn btn-outline-secondary" (click)="onBackClick()">
+      ← Back to Admin Page
+    </button>
+  </div>
+  <hr>
 
   <form #showForm="ngForm" class="tab-box" (ngSubmit)="createShow()" novalidate>
 
@@ -14,30 +17,40 @@
         name="showName"
         required
         class="form-control"
-        #showName="ngModel" />
+        #showName="ngModel"/>
       <div *ngIf="showName.invalid && showName.touched" class="text-danger">
         Show name is required.
       </div>
     </div>
 
     <div class="form-group mt-3">
-      <label for="showDuration">Duration (minutes) <span class="text-danger">*</span></label>
+      <label for="showDuration">Duration <span class="text-danger">*</span></label>
       <input
         id="showDuration"
         type="number"
+        class="form-control"
         [(ngModel)]="show.duration"
         name="showDuration"
         required
-        min="1"
-        class="form-control"
-        #showDuration="ngModel" />
-      <div *ngIf="showDuration.invalid && showDuration.touched" class="text-danger">
-        Duration is required and must be a positive number.
+        min="10"
+        max="600"
+        placeholder="10min–600min"
+        title="Duration in minutes"
+        (blur)="validateDuration()"
+        (keydown)="preventNonNumericInput($event)"
+        #showDuration="ngModel"/>
+      <div *ngIf="showDuration.touched">
+        <div *ngIf="showDuration.errors?.required" class="text-danger">
+          Duration is required.
+        </div>
+        <div *ngIf="showDuration.errors?.min" class="text-danger">
+          Duration must be a positive number.
+        </div>
       </div>
     </div>
 
     <div class="form-group mt-3">
-      <label for="showDate">Date & Time <span class="text-danger">*</span></label>
+      <label for="showDate">Start Date & Time <span class="text-danger">*</span></label>
       <input
         id="showDate"
         type="datetime-local"
@@ -45,7 +58,7 @@
         name="showDate"
         required
         class="form-control"
-        #showDate="ngModel" />
+        #showDate="ngModel"/>
       <div *ngIf="showDate.invalid && showDate.touched" class="text-danger">
         Date and time are required.
       </div>
@@ -107,15 +120,36 @@
       </div>
     </div>
 
-    <div class="text-center">
-      <button
-        class="btn btn-success mt-4"
-        type="submit"
-        [disabled]="showForm.invalid || !show.artistIds?.length">
-        Create Show
-      </button>
+    <div class="mt-4 text-center">
+      <button type="submit" class=" btn btn-success me-2" [disabled]="showForm.invalid">Create Show</button>
     </div>
 
   </form>
+
+  <div *ngIf="showConfirm">
+    <div class="modal-backdrop fade show"></div>
+
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header justify-content-center border-0">
+            <h5 class="modal-title text-center fw-bold mb-0">
+              Confirm Exit
+            </h5>
+          </div>
+          <div class="modal-body text-center py-2">
+            <p class="mb-1">
+              If you exit this page, your changes will not be saved.
+            </p>
+          </div>
+          <div class="modal-footer justify-content-center pt-1 pb-2 border-0">
+            <button type="button" class="btn btn-success me-2" (click)="stay()">Stay on Page</button>
+            <button type="button" class="btn btn-danger" (click)="exit()">Exit Page</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-</div>
+

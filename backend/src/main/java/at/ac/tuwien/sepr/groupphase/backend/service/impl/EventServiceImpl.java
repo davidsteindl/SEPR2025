@@ -14,6 +14,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.EventService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final EventLocationRepository eventLocationRepository;
     private final ShowRepository showRepository;
+    private final TicketRepository ticketRepository;
     private final EventMapper eventMapper;
     private final ShowMapper showMapper;
     private final EventValidator eventValidator;
@@ -44,11 +46,13 @@ public class EventServiceImpl implements EventService {
     public EventServiceImpl(EventRepository eventRepository,
                             EventLocationRepository eventLocationRepository,
                             ShowRepository showRepository,
+                            TicketRepository ticketRepository,
                             EventMapper eventMapper,
                             ShowMapper showMapper, EventValidator eventValidator) {
         this.eventRepository = eventRepository;
         this.eventLocationRepository = eventLocationRepository;
         this.showRepository = showRepository;
+        this.ticketRepository = ticketRepository;
         this.eventMapper = eventMapper;
         this.showMapper = showMapper;
         this.eventValidator = eventValidator;
@@ -126,32 +130,16 @@ public class EventServiceImpl implements EventService {
         Pageable topTen = PageRequest.of(0, 10);
         List<Object[]> topTenEvents;
         if (category.equalsIgnoreCase("all")) {
-            // Vorbereiteter Code für später, wenn TicketRepository implementiert ist
-            //topTenEvents = ticketRepository.findTopTenEventsOrderByTicketCountDesc(topTen);
+            topTenEvents = ticketRepository.findTopTenEventsOrderByTicketCountDesc(topTen);
         } else {
             try {
                 Event.EventCategory.valueOf(category);
             } catch (IllegalArgumentException e) {
                 throw new ValidationException("Invalid category: " + category, List.of("Invalid category: " + category));
             }
-            // Vorbereiteter Code für später, wenn TicketRepository implementiert ist
-            //topTenEvents = ticketRepository.findTopTenEventsByCategoryOrderByTicketCountDesc(topTen, category);
+            Event.EventCategory eventCategory = Event.EventCategory.valueOf(category.toUpperCase());
+            topTenEvents = ticketRepository.findTopTenEventsByCategoryOrderByTicketCountDesc(eventCategory, topTen);
         }
-
-        // Da es keine Tickets gibt, wird hier eine Dummy-Liste für die zurückgegebenen Events erstellt
-        List<Event> events = category.equalsIgnoreCase("all")
-            ? eventRepository.findAll()
-            : eventRepository.findAllByCategory(Event.EventCategory.valueOf(category));
-
-        topTenEvents = events.stream()
-            .map(event -> new Object[] {
-                event,
-                100L * event.getName().length()
-            })
-            .sorted((a, b) -> Long.compare((Long) b[1], (Long) a[1]))
-            .limit(10)
-            .toList();
-        // Ende der Dummy-Listen Erstellung
 
         List<EventTopTenDto> eventTopTenDtos = new ArrayList<>();
 

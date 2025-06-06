@@ -1,14 +1,14 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {CreateEvent} from '../../../dtos/create-event';
 import {Event} from '../../../dtos/event';
 import {Location} from '../../../dtos/location';
 import {ToastrService} from 'ngx-toastr';
 import {ErrorFormatterService} from '../../../services/error-formatter.service';
-import {FormsModule} from "@angular/forms";
+import {FormsModule, NgForm} from "@angular/forms";
 import {CommonModule, NgForOf} from "@angular/common";
 import {EventService} from '../../../services/event.service';
 import {LocationService} from '../../../services/location.service';
-import { Router } from '@angular/router';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-create-event',
@@ -16,13 +16,15 @@ import { Router } from '@angular/router';
   imports: [
     CommonModule,
     FormsModule,
-    NgForOf
+    NgForOf,
   ],
   templateUrl: './create-event.component.html',
   styleUrl: './create-event.component.scss'
 })
 
 export class CreateEventComponent implements OnInit {
+  @ViewChild('eventForm') form!: NgForm;
+
   event: CreateEvent = {
     name: '',
     description: '',
@@ -31,9 +33,10 @@ export class CreateEventComponent implements OnInit {
     category: null,
     locationId: null
   }
+  private initialEvent!: CreateEvent;
 
-  createdEvent: Event = null;
-  locationNameOfCreatedEvent: String = null;
+  createdEvent: Event | null = null;
+  locationNameOfCreatedEvent: string | null = null;
 
   eventCategoryOptions = eventCategoryOptions;
 
@@ -61,6 +64,8 @@ export class CreateEventComponent implements OnInit {
         });
       }
     });
+
+    this.initialEvent = JSON.parse(JSON.stringify(this.event));
   }
 
   createEvent() {
@@ -83,7 +88,15 @@ export class CreateEventComponent implements OnInit {
           this.notification.success(`Event ${response.name} created successfully!`, 'Success');
           this.router.navigate(['/admin']);
         }
-        this.event = {name: '', description: '', dateTime: new Date().toISOString().slice(0,16), duration: 60, category: null, locationId: null};
+        this.event = {
+          name: '',
+          description: '',
+          dateTime: new Date().toISOString().slice(0,16),
+          duration: 60,
+          category: null,
+          locationId: null};
+        this.form.resetForm();
+        this.initialEvent = JSON.parse(JSON.stringify(this.event));
       },
       error: (err) => {
         console.error('Error while creating event:', err);
@@ -93,6 +106,51 @@ export class CreateEventComponent implements OnInit {
         });
       }
     });
+  }
+
+  validateDuration(): void {
+    if (this.event.duration == null) {
+      return;
+    }
+
+    if (this.event.duration < 10) {
+      this.event.duration = 10;
+    } else if (this.event.duration > 10000) {
+      this.event.duration = 10000;
+    }
+  }
+
+
+  preventNonNumericInput(event: KeyboardEvent): void {
+    const invalidChars = ['e', 'E', '+', '-', '.'];
+    if (invalidChars.includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  showConfirm: boolean = false;
+
+  private isUnchanged(): boolean {
+    return (
+      JSON.stringify(this.initialEvent) === JSON.stringify(this.event)
+    );
+  }
+
+  onBackClick(): void {
+    if (this.isUnchanged()) {
+      this.router.navigate(['/admin']);
+    } else {
+      this.showConfirm = true;
+    }
+  }
+
+  stay(): void {
+    this.showConfirm = false;
+  }
+
+  exit(): void {
+    this.showConfirm = false;
+    this.router.navigate(['/admin']);
   }
 }
 
