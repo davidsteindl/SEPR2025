@@ -32,6 +32,8 @@ public class UserDataGenerator {
 
     @PostConstruct
     private void generateUsers() {
+        LOGGER.debug("Generating test users...");
+
         if (!userRepository.findAll().isEmpty()) {
             LOGGER.debug("Users already generated");
         } else {

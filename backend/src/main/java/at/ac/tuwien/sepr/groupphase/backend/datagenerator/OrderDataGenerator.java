@@ -70,7 +70,7 @@ public class OrderDataGenerator {
 
     @PostConstruct
     public void generateOrders() {
-        LOGGER.debug("Generating test orders...");
+        LOGGER.debug("Generating test data for orders...");
 
         List<ApplicationUser> users = userRepository.findAll();
         List<Show> allShows = showRepository.findAll();
@@ -147,6 +147,8 @@ public class OrderDataGenerator {
                                     List<ApplicationUser> users,
                                     List<Sector> sectors,
                                     Random random) {
+        LOGGER.debug("Starting generateOrderGroups(): Generating {} order groups of type {} with status {}", count, orderType, ticketStatus);
+
         for (int i = 0; i < count; i++) {
             ApplicationUser user = users.get(random.nextInt(users.size()));
             Show show = targetShows.get(random.nextInt(targetShows.size()));
@@ -194,6 +196,9 @@ public class OrderDataGenerator {
                                                  Random random,
                                                  OrderType orderType,
                                                  TicketStatus ticketStatus) {
+        LOGGER.debug("Starting generateSingleTicketOrderGroups(): Generating {} reamining order groups of type {} with status {}",
+            remainingTicketCount, orderType, ticketStatus);
+
         AtomicInteger createdSum = new AtomicInteger(0);
 
         while (createdSum.get() < remainingTicketCount) {
@@ -227,6 +232,8 @@ public class OrderDataGenerator {
     }
 
     private LocalDateTime randomPastDateTimeBefore(Random random, LocalDateTime latestAllowed, int maxBackDays) {
+        LOGGER.debug("Starting randomPastDateTimeBefore(): Generating random past date time before {}", latestAllowed);
+
         long daysBack = 1 + random.nextInt(maxBackDays);
         LocalDateTime earliest = latestAllowed.minusDays(daysBack);
 
@@ -240,6 +247,8 @@ public class OrderDataGenerator {
         }
 
         long randomOffset = random.nextInt((int) totalMinutes);
+
+        LOGGER.debug("randomPastDateTimeBefore(): Generated a random past date time before {}", earliest);
         return earliest.plusMinutes(randomOffset).truncatedTo(ChronoUnit.MINUTES);
     }
 }

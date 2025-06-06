@@ -67,6 +67,8 @@ public class EventDataGenerator {
 
     @PostConstruct
     public void generateEventsShowsAndArtists() {
+        LOGGER.debug("Generating test data for Events, Shows, and Artists...");
+
         if (eventRepository.count() > 0) {
             LOGGER.debug("Events already generated, skipping EventDataGenerator");
             return;
@@ -82,10 +84,23 @@ public class EventDataGenerator {
             LOGGER.warn("No Rooms found: generate Rooms first");
             return;
         }
+        List<Event> pastEvents = generatePastEvents(locations);
+
+        List<Event> futureEvents = generateFutureEvents(locations);
+
+        List<Show> allShows = generateAllShows(pastEvents, futureEvents, rooms);
+
+        generateArtists(allShows);
+
+        LOGGER.debug("Generated {} Past Events, {} Future Events, {} Shows, and {} Artists",
+            pastEvents.size(), futureEvents.size(), allShows.size(), NUMBER_OF_ARTISTS);
+    }
+
+    private List<Event> generatePastEvents(List<EventLocation> locations) {
         List<Event> pastEvents = new ArrayList<>(NUMBER_OF_PAST_EVENTS);
         Event.EventCategory[] categories = Event.EventCategory.values();
 
-        LOGGER.debug("Generating {} Past Events", NUMBER_OF_PAST_EVENTS);
+        LOGGER.debug("Starting generatePastEvents(): Generating {} Past Events", NUMBER_OF_PAST_EVENTS);
         for (int i = 0; i < NUMBER_OF_PAST_EVENTS; i++) {
             EventLocation loc = locations.get(random.nextInt(locations.size()));
 
@@ -98,7 +113,6 @@ public class EventDataGenerator {
                 .truncatedTo(ChronoUnit.MINUTES);
 
             int eventDuration = 180 + random.nextInt(1261);
-
             Event.EventCategory category = categories[random.nextInt(categories.length)];
 
             Event event = Event.EventBuilder.anEvent()
@@ -113,13 +127,16 @@ public class EventDataGenerator {
             pastEvents.add(event);
         }
         eventRepository.saveAll(pastEvents);
-        LOGGER.debug("Saved {} Past Events", pastEvents.size());
+        LOGGER.debug("generatePastEvents(): Saved {} Past Events", pastEvents.size());
+        return pastEvents;
+    }
 
+    private List<Event> generateFutureEvents(List<EventLocation> locations) {
         List<Event> futureEvents = new ArrayList<>(NUMBER_OF_FUTURE_EVENTS);
+        Event.EventCategory[] categories = Event.EventCategory.values();
 
-        LOGGER.debug("Generating {} Future Events", NUMBER_OF_FUTURE_EVENTS);
+        LOGGER.debug("generateFutureEvents(): Generating {} Future Events", NUMBER_OF_FUTURE_EVENTS);
         for (int i = 0; i < NUMBER_OF_FUTURE_EVENTS; i++) {
-
             EventLocation loc = locations.get(random.nextInt(locations.size()));
 
             LocalDateTime eventStart = LocalDateTime.now()
@@ -129,8 +146,6 @@ public class EventDataGenerator {
                 .truncatedTo(ChronoUnit.MINUTES);
 
             int eventDuration = 180 + random.nextInt(1261);
-
-
             Event.EventCategory category = categories[random.nextInt(categories.length)];
 
             Event event = Event.EventBuilder.anEvent()
@@ -144,21 +159,22 @@ public class EventDataGenerator {
 
             futureEvents.add(event);
         }
-
         eventRepository.saveAll(futureEvents);
-        LOGGER.debug("Saved {} Future Events", futureEvents.size());
+        LOGGER.debug("generateFutureEvents(): Saved {} Future Events", futureEvents.size());
+        return futureEvents;
+    }
 
-
+    private List<Show> generateAllShows(List<Event> pastEvents, List<Event> futureEvents, List<Room> rooms) {
         List<Show> shows = new ArrayList<>(NUMBER_OF_FUTURE_SHOWS + NUMBER_OF_PAST_SHOWS);
+        LOGGER.debug("Starting generateAllShows(): Generating future and past shows");
+
         LOGGER.debug("Generating {} Future Shows", NUMBER_OF_FUTURE_SHOWS);
         for (int j = 0; j < NUMBER_OF_FUTURE_SHOWS; j++) {
             Event assignedEvent = futureEvents.get(random.nextInt(futureEvents.size()));
             LocalDateTime eventStart = assignedEvent.getDateTime();
 
-
             int maxShowDur = Math.min(assignedEvent.getDuration(), 180);
             int showDuration = 10 + random.nextInt(maxShowDur - 9);
-
 
             long eventTotalMinutes = assignedEvent.getDuration();
             long latestOffset = eventTotalMinutes - showDuration;
@@ -168,7 +184,6 @@ public class EventDataGenerator {
                 : 0;
             LocalDateTime showStart = eventStart.plusMinutes(offsetMinutes)
                 .truncatedTo(ChronoUnit.MINUTES);
-
 
             Room assignedRoom = rooms.get(random.nextInt(rooms.size()));
 
@@ -191,13 +206,13 @@ public class EventDataGenerator {
             LocalDateTime eventEnd = eventStart.plusMinutes(assignedEvent.getDuration());
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime latestPossibleStart = eventEnd.isBefore(now) ? eventEnd : now.minusMinutes(10);
+
             long totalPastWindow = ChronoUnit.MINUTES.between(eventStart, latestPossibleStart);
             long offsetPast = (totalPastWindow > 0) ? random.nextInt((int) totalPastWindow + 1) : 0;
             LocalDateTime showStart = eventStart.plusMinutes(offsetPast)
                 .truncatedTo(ChronoUnit.MINUTES);
 
             int showDuration = 10 + random.nextInt(171);
-
             Room assignedRoom = rooms.get(random.nextInt(rooms.size()));
 
             Show pastShow = Show.ShowBuilder.aShow()
@@ -211,18 +226,20 @@ public class EventDataGenerator {
             shows.add(pastShow);
         }
         showRepository.saveAll(shows);
-        LOGGER.debug("Saved {} Shows ({} future + {} past)", shows.size(),  NUMBER_OF_FUTURE_SHOWS, NUMBER_OF_PAST_SHOWS);
+        LOGGER.debug("generateAllShows(): Saved {} Shows ({} future + {} past)", shows.size(), NUMBER_OF_FUTURE_SHOWS, NUMBER_OF_PAST_SHOWS);
 
-        List<Show> persistedShows = showRepository.findAll();
+        return showRepository.findAll();
+    }
+
+    private void generateArtists(List<Show> persistedShows) {
         if (persistedShows.isEmpty()) {
             LOGGER.warn("No Shows found after saving: cannot assign Artists");
             return;
         }
 
         List<Artist> artists = new ArrayList<>(NUMBER_OF_ARTISTS);
-        LOGGER.debug("Generating {} Artists", NUMBER_OF_ARTISTS);
+        LOGGER.debug("Starting generateArtists(): Generating {} Artists", NUMBER_OF_ARTISTS);
         for (int k = 0; k < NUMBER_OF_ARTISTS; k++) {
-
             String firstName = "ArtistFirst" + k;
             String lastName = "ArtistLast" + k;
             String stageName = "Stagename" + k;
@@ -246,6 +263,6 @@ public class EventDataGenerator {
         }
 
         artistRepository.saveAll(artists);
-        LOGGER.debug("Saved {} Artists", artists.size());
+        LOGGER.debug("generateArtists(): Saved {} Artists", artists.size());
     }
 }
