@@ -47,8 +47,8 @@ public class ShowServiceImpl implements ShowService {
 
     @Override
     public Show getShowById(Long id) {
-        LOGGER.debug("Find show with id {}", id);
-        return showRepository.findByIdWithArtists(id).orElse(null);
+        return showRepository.findByIdWithRoomAndSectors(id)
+            .orElseThrow(() -> new EntityNotFoundException("Show not found"));
     }
 
     @Override

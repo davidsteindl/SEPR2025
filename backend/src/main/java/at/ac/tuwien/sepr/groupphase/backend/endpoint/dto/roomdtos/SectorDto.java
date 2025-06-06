@@ -18,7 +18,7 @@ public class SectorDto {
 
     private Long id;
 
-    private SectorType type;
+    private SectorType type = SectorType.NORMAL;
 
     private Integer price;
 
