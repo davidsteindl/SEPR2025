@@ -37,6 +37,7 @@ import {EditEventComponent} from "./components/edit-event/edit-event.component";
 import {TicketComponent} from "./components/ticket/ticket.component";
 import { PasswordComponent } from './components/password/password.component';
 import {ResetPasswordComponent} from "./components/password/reset-password/reset-password.component";
+import { BuyTicketsPageComponent } from './components/buy-tickets-page/buy-tickets-page.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -63,7 +64,7 @@ const routes: Routes = [
   { path: 'rooms/:id/edit', component: RoomEditComponent, canActivate: [AdminGuard] },
   { path: 'locations/:id/shows', component: LocationShowsComponent, canActivate: [AuthGuard] },
   { path: 'orders', component: OrderOverviewComponent, canActivate: [AuthGuard] },
-  { path: 'shows/:id/room-usage', component: RoomUsageComponent, canActivate: [AuthGuard] },
+  { path: 'shows/:id/room-usage', component: BuyTicketsPageComponent, canActivate: [AuthGuard] },
   { path: 'orders/purchased/:id', component: PurchasedOrderDetailComponent, canActivate: [AuthGuard] },
   { path: 'orders/reserved/:id', component: ReservedOrderDetailComponent, canActivate: [AuthGuard] },
   { path: 'orders/past/:id', component: PastOrderDetailComponent, canActivate: [AuthGuard] },

@@ -41,13 +41,15 @@ throw new Error('Method not implemented.');
   ngOnInit(): void {
     // Read showId from route parameter
     this.route.paramMap.subscribe((params: ParamMap) => {
-      const idStr = params.get('showId');
+      const idStr = params.get('id');
       if (idStr) {
         this.showId = +idStr;
 
         // load Show
         this.loadingShow = true;
+        console.log("FETCHING SHOWS")
         this.showService.getShowById(this.showId).subscribe({
+          
           next: (s: Show) => {
             this.show = s;
             this.loadingShow = false;
@@ -115,7 +117,7 @@ throw new Error('Method not implemented.');
       if (idx === -1) {
         items.push(item);
       } else {
-        // Already in cart as standing. For simplicity, we just replace quantity:
+        // Already in cart as standing. we just replace quantity
         items[idx] = item;
       }
     }
@@ -123,6 +125,7 @@ throw new Error('Method not implemented.');
     this.cartService.setItems(items);
   }
 
+  
   // Called by TicketListComponent when user removes an item
   onRemoveItem(item: PaymentItem) {
     let items = [...this.currentItems];
