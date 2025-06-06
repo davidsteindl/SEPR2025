@@ -126,7 +126,7 @@ public class ShowServiceTest {
     }
 
     @Test
-    public void testGetShowById_nonExisting_returnsNull() {
+    public void testGetShowById_nonExisting_throwsEntityNotFoundException() {
         assertThrows(EntityNotFoundException.class, () -> showService.getShowById(999L));
     }
 
