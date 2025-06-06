@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventTopTenDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
@@ -10,6 +11,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.EventServiceImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
 import org.junit.jupiter.api.AfterEach;
@@ -29,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -44,6 +47,9 @@ public class EventServiceTest {
 
     @Autowired
     private EventLocationRepository eventLocationRepository;
+
+    @Autowired
+    private TicketRepository ticketRepository;
 
     private EventServiceImpl eventService;
 
@@ -67,11 +73,13 @@ public class EventServiceTest {
 
     @BeforeEach
     public void setUp() {
+        ticketRepository = mock(TicketRepository.class);
         showRepository = mock(ShowRepository.class);
         eventMapper = mock(EventMapper.class);
         showMapper = mock(ShowMapper.class);
         EventValidator eventValidator = new EventValidator(eventRepository, eventLocationRepository, showRepository);
-        eventService = new EventServiceImpl(eventRepository, eventLocationRepository, showRepository, eventMapper, showMapper, eventValidator);
+        eventService =
+            new EventServiceImpl(eventRepository, eventLocationRepository, showRepository, ticketRepository, eventMapper, showMapper, eventValidator);
 
         testLocation = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Test Location")
@@ -345,4 +353,81 @@ public class EventServiceTest {
         );
         assertTrue(ex.getMessage().contains("Location not found"));
     }
+
+    @Test
+    public void testGetTopTenEventsByCategory_validCategory_returnsList() throws ValidationException {
+        Pageable topTen = PageRequest.of(0, 10);
+        Event.EventCategory category = Event.EventCategory.CLASSICAL;
+
+        Event mockEvent = new Event();
+        mockEvent.setId(1L);
+        mockEvent.setName("Event One");
+        mockEvent.setDateTime(LocalDateTime.now());
+
+        Object[] row = new Object[] {mockEvent, 5L};
+        List<Object[]> mockResults = new ArrayList<>();
+        mockResults.add(row);
+
+        when(ticketRepository.findTopTenEventsByCategoryOrderByTicketCountDesc(category, topTen))
+            .thenReturn(mockResults);
+
+        List<EventTopTenDto> result = eventService.getTopTenEventsByCategory(category.name());
+
+        assertAll(
+            () -> assertNotNull(result),
+            () -> assertEquals(1, result.size()),
+            () -> assertEquals("Event One", result.get(0).getName()),
+            () -> assertEquals(5L, result.get(0).getTicketsSold())
+        );
+    }
+
+    @Test
+    public void testGetTopTenEventsByCategory_allCategory_returnsList() throws ValidationException {
+        Pageable topTen = PageRequest.of(0, 10);
+
+        Event mockEvent = new Event();
+        mockEvent.setId(2L);
+        mockEvent.setName("Event Two");
+        mockEvent.setDateTime(LocalDateTime.now());
+
+        Object[] row = new Object[] {mockEvent, 8L};
+        List<Object[]> mockResults = new ArrayList<>();
+        mockResults.add(row);
+
+        when(ticketRepository.findTopTenEventsOrderByTicketCountDesc(topTen))
+            .thenReturn(mockResults);
+
+        List<EventTopTenDto> result = eventService.getTopTenEventsByCategory("all");
+
+        assertAll(
+            () -> assertNotNull(result),
+            () -> assertEquals(1, result.size()),
+            () -> assertEquals("Event Two", result.get(0).getName()),
+            () -> assertEquals(8L, result.get(0).getTicketsSold())
+        );
+    }
+
+    @Test
+    public void testGetTopTenEventsByCategory_invalidCategory_throwsValidationException() {
+        String invalidCategory = "INVALID_CAT";
+
+        assertThrows(ValidationException.class, () -> {
+            eventService.getTopTenEventsByCategory(invalidCategory);
+        });
+    }
+
+    @Test
+    public void testGetTopTenEventsByCategory_emptyResult_returnsEmptyList() throws ValidationException {
+        Pageable topTen = PageRequest.of(0, 10);
+
+        when(ticketRepository.findTopTenEventsOrderByTicketCountDesc(topTen)).thenReturn(List.of());
+
+        List<EventTopTenDto> result = eventService.getTopTenEventsByCategory("all");
+
+        assertAll(
+            () -> assertNotNull(result),
+            () -> assertTrue(result.isEmpty())
+        );
+    }
+
 }
