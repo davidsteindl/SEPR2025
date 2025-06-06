@@ -223,19 +223,6 @@ public class SearchValidator {
                 "At least one of the following fields must be filled: name, event name, room name, start date, end date, minimum price, maximum price.");
         }
 
-        boolean hasName = criteria.getName() != null && !criteria.getName().isBlank();
-        boolean hasEventName = criteria.getEventName() != null && !criteria.getEventName().isBlank();
-        boolean hasRoomName = criteria.getRoomName() != null && !criteria.getRoomName().isBlank();
-        boolean hasstartDate = criteria.getStartDate() != null;
-        boolean hasEndDate = criteria.getEndDate() != null;
-        boolean hasMinPrice = criteria.getMinPrice() != null;
-        boolean hasMaxPrice = criteria.getMaxPrice() != null;
-
-        if (!hasName && !hasEventName && !hasRoomName && !hasstartDate && !hasEndDate && !hasMinPrice && !hasMaxPrice) {
-            validationErrors.add(
-                "At least one of the following fields must be filled: name, event name, room name, start date, end date, minimum price, maximum price.");
-        }
-
         LocalDateTime start = criteria.getStartDate();
         LocalDateTime end = criteria.getEndDate();
         if (start != null && end != null && end.isBefore(start)) {
