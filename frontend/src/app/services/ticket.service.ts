@@ -23,7 +23,21 @@ interface TicketRequestDto {
   targets: (TicketTargetSeatedDto | TicketTargetStandingDto)[];
 }
 
-
+// add full checkout DTO
+interface CheckoutRequestDto {
+  showId: number;
+  targets: (TicketTargetSeatedDto | TicketTargetStandingDto)[];
+  cardNumber: string;
+  expirationDate: string;
+  securityCode: string;
+  firstName: string;
+  lastName: string;
+  street: string;
+  housenumber: string;
+  city: string;
+  country: string;
+  postalCode: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class TicketService {
@@ -51,6 +65,13 @@ export class TicketService {
 
     const payload: TicketRequestDto = { showId, targets };
     return this.http.post<OrderDto>(`${this.base}/buy`, payload);
+  }
+
+  /**
+   * Performs checkout (purchase) including payment and address data
+   */
+  checkout(request: CheckoutRequestDto): Observable<OrderDto> {
+    return this.http.post<OrderDto>(`${this.base}/buy`, request);
   }
 
   refundTickets(ticketIds: number[]): Observable<TicketDto[]> {

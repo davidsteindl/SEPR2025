@@ -64,7 +64,8 @@ export class PaymentFormComponent implements OnInit {
       country: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      address: ['', Validators.required],
+      street: ['', Validators.required],
+      housenumber: ['', Validators.required],
       postalCode: [
         '',
         [
@@ -90,7 +91,29 @@ export class PaymentFormComponent implements OnInit {
     }
 
     this.loading = true;
-    this.ticketService.buyTickets(this.items[0].showId, this.items)
+    // construct targets
+    const targets = this.items.map(it =>
+      it.type === 'SEATED'
+        ? { type: 'seated' as const, sectorId: it.sectorId, seatId: it.seatId! }
+        : { type: 'standing' as const, sectorId: it.sectorId, quantity: it.quantity! }
+    );
+    // build checkout DTO matching backend
+    const payload = {
+      showId: this.items[0].showId!,
+      targets,
+      cardNumber: this.paymentForm.value.cardNumber,
+      expirationDate: this.paymentForm.value.expirationDate,
+      securityCode: this.paymentForm.value.securityCode,
+      firstName: this.paymentForm.value.firstName,
+      lastName: this.paymentForm.value.lastName,
+      street: this.paymentForm.value.street,
+      housenumber: this.paymentForm.value.housenumber,
+      city: this.paymentForm.value.city,
+      country: this.paymentForm.value.country,
+      postalCode: this.paymentForm.value.postalCode
+    };
+
+    this.ticketService.checkout(payload)
       .subscribe({
         next: (order: OrderDto) => {
           const dt = new Date(order.createdAt);
