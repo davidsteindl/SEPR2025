@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -164,6 +165,7 @@ public class OrderDataGenerator {
                 order.setCreatedAt(createdAt);
                 order.setOrderGroup(group);
                 order.setUserId(user.getId());
+                order.setTickets(new ArrayList<>());
                 order = orderRepository.save(order);
 
                 Ticket ticket = new Ticket();
@@ -173,6 +175,9 @@ public class OrderDataGenerator {
                 ticket.setStatus(ticketStatus);
                 ticket.setOrders(List.of(order));
                 ticketRepository.save(ticket);
+
+                order.getTickets().add(ticket);
+                orderRepository.save(order);
             }
 
             LOGGER.trace("Created OrderGroup id={} (user={}), orderType={} with {} tickets at {}",
