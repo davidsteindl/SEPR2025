@@ -259,7 +259,6 @@ public class RoomServiceImpl implements RoomService {
                 SectorDto dto = new SectorDto();
                 dto.setId(sec.getId());
                 dto.setPrice(sec.getPrice());
-                dto.setType(null); // normal sector
                 usageSectors.add(dto);
             }
         }
