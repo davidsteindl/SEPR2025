@@ -101,7 +101,7 @@ public class PdfExportServiceImpl implements PdfExportService {
             Verkauf von Tickets für Kino, Theater, Opern, Konzerte und mehr
             Karlsplatz 13, 1040 Wien
             Tel.: 0043 1 523543210, Mail: shop@ticketline.at
-            www.tickeltine.at""");
+            www.ticketline.at""");
         ticketLine.setTextAlignment(TextAlignment.RIGHT);
         document.add(ticketLine);
 
@@ -173,7 +173,7 @@ public class PdfExportServiceImpl implements PdfExportService {
             Verkauf von Tickets für Kino, Theater, Opern, Konzerte und mehr
             Karlsplatz 13, 1040 Wien
             Tel.: 0043 1 523543210, Mail: shop@ticketline.at
-            www.tickeltine.at""");
+            www.ticketline.at""");
         ticketLine.setTextAlignment(TextAlignment.RIGHT);
         document.add(ticketLine);
 
@@ -293,7 +293,7 @@ public class PdfExportServiceImpl implements PdfExportService {
             Verkauf von Tickets für Kino, Theater, Opern, Konzerte und mehr
             Karlsplatz 13, 1040 Wien
             Tel.: 0043 1 523543210, Mail: shop@ticketline.at
-            www.tickeltine.at""");
+            www.ticketline.at""");
         ticketLine.setTextAlignment(TextAlignment.RIGHT);
         document.add(ticketLine);
 
