@@ -49,13 +49,8 @@ public class ShowValidator {
                 if (showStartTrunc.isBefore(nowTrunc)) {
                     errors.add("Show date must not be in the past");
                 } else {
-                    Event event = eventRepository.findById(show.getEvent().getId()).get();
-                    List<Show> existingShows = showRepository.findByEventOrderByDateAsc(event);
-
-                    if (!existingShows.isEmpty()) {
-                        if (!validateDuration(show.getEvent().getId(), show.getDate(), show.getDuration())) {
-                            errors.add("Show exceeds total event duration");
-                        }
+                    if (!validateDuration(show.getEvent().getId(), show.getDate(), show.getDuration())) {
+                        errors.add("Show exceeds total event duration");
                     }
                 }
             }
