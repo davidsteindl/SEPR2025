@@ -19,7 +19,7 @@ import java.util.List;
 @Profile("generateData")
 public class LocationSeeder {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocationSeeder.class);
-    private static final int NUMBER_OF_LOCATIONS = 5;
+    private static final int NUMBER_OF_LOCATIONS = 25;
 
     private final EventLocationRepository locationRepository;
 

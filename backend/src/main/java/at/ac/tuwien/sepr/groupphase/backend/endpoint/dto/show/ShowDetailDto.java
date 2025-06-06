@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show;
 
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -25,7 +24,6 @@ public class ShowDetailDto {
     private int duration;
 
     @NotNull(message = "Date must not be null")
-    @FutureOrPresent(message = "Date must be in the present or future")
     private LocalDateTime date;
 
     @NotNull(message = "Event ID must not be null")

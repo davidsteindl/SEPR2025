@@ -1,35 +1,64 @@
 <div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Update Events</h2>
-    <button class="btn btn-outline-secondary" [routerLink]="['/update-events']">
-      ← Back to Update Overview
+    <h2>Update Event: {{ event.name }}</h2>
+    <button class="btn btn-outline-secondary" (click)="onBackClick()">
+      ← Back to Admin Page
     </button>
   </div>
   <hr>
 
-  <form #f="ngForm" (ngSubmit)="save(f)" class="tab-box" novalidate>
-    <div class="form-group mt-3">
-      <label for="eventName">Event Name *</label>
-      <input id="eventName" name="name" [(ngModel)]="event.name" required class="form-control"/>
+  <form #editEventForm="ngForm" (ngSubmit)="save(editEventForm)" class="tab-box" novalidate>
+
+    <div class="form-group">
+      <label for="eventEditName">Event Name <span class="text-danger">*</span></label>
+      <input
+        id="eventEditName"
+        [(ngModel)]="event.name"
+        name="eventEditName"
+        required
+        class="form-control"
+        #eventEditName="ngModel"/>
+      <div *ngIf="eventEditName.invalid && eventEditName.touched" class="text-danger">
+        Event name is required.
+      </div>
     </div>
 
     <div class="form-group mt-3">
-      <label for="eventDescription">Description *</label>
-      <textarea id="eventDescription" name="description"
-                [(ngModel)]="event.description" required class="form-control" rows="3"></textarea>
+      <label for="eventEditDescription">Description <span class="text-danger">*</span></label>
+      <textarea
+        id="eventEditDescription"
+        [(ngModel)]="event.description"
+        name="eventEditDescription"
+        required
+        rows="3"
+        class="form-control"
+        #eventEditDescription="ngModel"></textarea>
+      <div *ngIf="eventEditDescription.invalid && eventEditDescription.touched" class="text-danger">
+        Description is required.
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="form-group col-md-6">
+        <label for="eventEditDateTime">Start Date &amp; Time <span class="text-danger">*</span></label>
+        <input
+          id="eventEditDateTime"
+          type="datetime-local"
+          class="form-control"
+          name="eventEditDateTime"
+          required
+          [(ngModel)]="event.dateTime"
+          #eventEditDateTime="ngModel"/>
+        <div *ngIf="eventEditDateTime.invalid && eventEditDateTime.touched" class="text-danger">
+          Start date &amp; time is required.
+        </div>
+      </div>
     </div>
 
     <div class="form-group mt-3">
-      <label for="eventDateTime">Start Date & Time *</label>
-      <input id="eventDateTime" name="dateTime" type="datetime-local"
-             [(ngModel)]="event.dateTime" required class="form-control"/>
-      <small class="form-text text-muted">Format: mm-dd-yyyy hh-mm-AM/PM</small>
-    </div>
-
-    <div class="form-group mt-3">
-      <label for="eventDuration">Duration:</label>
-      <input id="eventDuration"
-             name="duration"
+      <label for="eventEditDuration">Duration </label>
+      <input id="eventEditDuration"
+             name="eventEditDuration"
              type="number"
              class="form-control"
              [(ngModel)]="event.duration"
@@ -38,45 +67,81 @@
              max="10000"
              placeholder="10min–10000min"
              title="Duration in minutes"
-             (blur)="validateDuration()"/>
+             (blur)="validateDuration()"
+             (keydown)="preventNonNumericInput($event)"
+             #eventEditDuration="ngModel"/>
+      <div *ngIf="eventEditDuration.touched">
+        <div *ngIf="eventEditDuration.errors?.required" class="text-danger">
+          Duration is required.
+        </div>
+        <div *ngIf="eventEditDuration.errors?.min" class="text-danger">
+          Duration must be a positive number.
+        </div>
+      </div>
     </div>
 
     <div class="form-group mt-3">
-      <label for="eventCategory">Category *</label>
-      <select id="eventCategory" name="category"
-              [(ngModel)]="event.category" required class="form-control">
-        <option [ngValue]="null" disabled>Select</option>
-        <option *ngFor="let opt of eventCategoryOptions" [ngValue]="opt.value">
-          {{ opt.label }}
-        </option>
+      <label for="eventEditCategory">Category <span class="text-danger">*</span></label>
+      <select
+        id="eventEditCategory"
+        [(ngModel)]="event.category"
+        name="eventEditCategory"
+        required
+        class="form-control"
+        #eventEditCategory="ngModel">
+        <option [ngValue]="null" disabled>Select category</option>
+        <option *ngFor="let option of eventCategoryOptions" [value]="option.value">{{ option.label }}</option>
       </select>
+      <div *ngIf="eventEditCategory.invalid && eventEditCategory.touched" class="text-danger">
+        Category is required.
+      </div>
     </div>
 
     <div class="form-group mt-3">
-      <label for="eventLocation">Location *</label>
-      <select id="eventLocation" name="locationId"
-              [(ngModel)]="event.locationId" required class="form-control">
-        <option [ngValue]="null" disabled>Select</option>
-        <option *ngFor="let loc of locations" [ngValue]="loc.id">
-          {{ loc.name }}
-        </option>
-      </select>
+    <label for="eventEditLocation">Location <span class="text-danger">*</span></label>
+    <select
+      id="eventEditLocation"
+      [(ngModel)]="event.locationId"
+      name="eventEditLocation"
+      required
+      class="form-control"
+      #eventLocation="ngModel">
+      <option [ngValue]="null" disabled>Select Location</option>
+      <option *ngFor="let location of locations" [ngValue]="location.id">{{ location?.name }}</option>
+    </select>
+    <div *ngIf="eventLocation.invalid && eventLocation.touched" class="text-danger">
+      Location is required.
     </div>
+  </div>
 
     <div class="mt-4 text-center">
-      <button
-        type="submit"
-        class="btn btn-primary me-2"
-        [disabled]="f.invalid || loading">
-        Save Changes
-      </button>
-
-      <button
-        type="button"
-        class="btn btn-secondary"
-        (click)="cancel()">
-        Cancel
-      </button>
+      <button type="submit" class="btn btn-success me-2" [disabled]="editEventForm.invalid || loading">Update Event</button>
     </div>
   </form>
+
+  <div *ngIf="showConfirm">
+    <div class="modal-backdrop fade show"></div>
+
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header justify-content-center border-0">
+            <h5 class="modal-title text-center fw-bold mb-0">
+              Confirm Exit
+            </h5>
+          </div>
+          <div class="modal-body text-center py-2">
+            <p class="mb-1">
+              If you exit this page, your changes will not be saved.
+            </p>
+          </div>
+          <div class="modal-footer justify-content-center pt-1 pb-2 border-0">
+            <button type="button" class="btn btn-success me-2" (click)="stay()">Stay on Page</button>
+            <button type="button" class="btn btn-danger" (click)="exit()">Exit Page</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
