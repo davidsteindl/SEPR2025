@@ -334,17 +334,50 @@ public class RoomServiceImpl implements RoomService {
         List<Sector> toKeep = new ArrayList<>();
 
         for (SectorDto sd : sectorDtos) {
-            Sector sector = switch (sd) {
-                case StandingSectorDto ssd -> syncStanding(existing, room, ssd);
-                case StageSectorDto stgd -> syncStage(existing, room, stgd);
-                default -> throw new IllegalArgumentException("Unknown sector DTO type: " + sd.getClass());
-            };
+            Sector sector;
+            if (sd instanceof StandingSectorDto ssd) {
+                sector = syncStanding(existing, room, ssd);
+            } else if (sd instanceof StageSectorDto stgd) {
+                sector = syncStage(existing, room, stgd);
+            } else if (sd instanceof SectorDto normal) {
+                sector = syncNormalSector(existing, room, normal);
+            } else {
+                throw new IllegalArgumentException("Unknown sector DTO type: " + sd.getClass());
+            }
             toKeep.add(sector);
         }
 
         room.getSectors().removeIf(exists ->
             toKeep.stream().noneMatch(s -> Objects.equals(s.getId(), exists.getId())));
     }
+
+    /**
+     * Synchronizes or creates a normal Sector based on the DTO.
+     *
+     * @param existing map of existing sectors by ID
+     * @param room     the Room to attach new sectors to
+     * @param dto      the SectorDto containing updated data
+     * @return the managed Sector instance
+     */
+    private Sector syncNormalSector(Map<Long, Sector> existing, Room room, SectorDto dto) {
+        LOGGER.debug("Syncing normal sector with details: {}", dto);
+
+        Sector sec;
+        if (dto.getId() != null) {
+            if (!existing.containsKey(dto.getId())) {
+                throw new EntityNotFoundException("Sector not found with id " + dto.getId());
+            }
+            sec = existing.get(dto.getId());
+        } else {
+            sec = new Sector();
+            room.addSector(sec);
+        }
+
+        sec.setPrice(dto.getPrice());
+        sec.setRoom(room);
+        return sec;
+    }
+
 
     /**
      * Synchronizes or creates a StandingSector based on the DTO.
