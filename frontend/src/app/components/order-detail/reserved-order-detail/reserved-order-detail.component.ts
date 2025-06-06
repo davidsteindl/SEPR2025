@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {OrderGroupDetailDto} from "../../../dtos/order";
-import {ActivatedRoute, RouterLink} from "@angular/router";
+import {ActivatedRoute} from "@angular/router";
 import {TicketService} from "../../../services/ticket.service";
 import {OrderService} from "../../../services/order.service";
 import {CurrencyPipe, DatePipe, NgForOf, NgIf} from "@angular/common";
@@ -15,7 +15,6 @@ import { PaymentItem } from 'src/app/dtos/payment-item';
   imports: [
     CurrencyPipe,
     FormsModule,
-    RouterLink,
     DatePipe,
     NgIf,
     NgForOf
@@ -30,6 +29,7 @@ export class ReservedOrderDetailComponent implements OnInit {
   isLoading = true;
   showConfirmModal = false;
   confirmAction: 'buy' | 'cancel' | null = null;
+  tabFromParent: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -40,6 +40,7 @@ export class ReservedOrderDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.tabFromParent = this.route.snapshot.queryParamMap.get('tab');
     const groupId = Number(this.route.snapshot.paramMap.get('id'));
     this.ticketService.getOrderGroupDetails(groupId).subscribe({
       next: (res) => {
@@ -119,6 +120,12 @@ export class ReservedOrderDetailComponent implements OnInit {
   cancelConfirm(): void {
     this.showConfirmModal = false;
     this.confirmAction = null;
+  }
+
+  goBack(): void {
+    this.router.navigate(['/orders'], {
+      queryParams: this.tabFromParent ? { tab: this.tabFromParent } : {}
+    });
   }
 
 }

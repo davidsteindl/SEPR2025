@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {ActivatedRoute, RouterLink} from '@angular/router';
-import { OrderService } from 'src/app/services/order.service';
+import {ActivatedRoute, Router} from '@angular/router';
 import {OrderDto, OrderGroupDetailDto} from 'src/app/dtos/order';
 import {FormsModule} from "@angular/forms";
 import {CurrencyPipe, DatePipe, NgForOf, NgIf} from "@angular/common";
@@ -18,8 +17,7 @@ import {ToastrService} from "ngx-toastr";
     CurrencyPipe,
     DatePipe,
     NgIf,
-    NgForOf,
-    RouterLink
+    NgForOf
   ],
   styleUrls: ['./purchased-order-detail.component.scss']
 })
@@ -28,13 +26,14 @@ export class PurchasedOrderDetailComponent implements OnInit {
   selected: { [ticketId: number]: boolean } = {};
   isLoading = true;
   showConfirmModal = false;
+  tabFromParent: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
-    private orderService: OrderService,
     private ticketService: TicketService,
     private pdfService: PdfExportService,
-  private toastr: ToastrService
+    private toastr: ToastrService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -132,5 +131,10 @@ export class PurchasedOrderDetailComponent implements OnInit {
     }
   }
 
+  goBack(): void {
+    this.router.navigate(['/orders'], {
+      queryParams: this.tabFromParent ? { tab: this.tabFromParent } : {}
+    });
+  }
 
 }
