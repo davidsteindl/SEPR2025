@@ -489,6 +489,16 @@ public class TicketServiceImpl implements TicketService {
         LOGGER.debug("process Ticket Transfer");
         Order newOrder = initOrder(authFacade.getCurrentUserId(), newType);
 
+        if (oldOrder.getFirstName() != null) {
+            newOrder.setFirstName(oldOrder.getFirstName());
+            newOrder.setLastName(oldOrder.getLastName());
+            newOrder.setStreet(oldOrder.getStreet());
+            newOrder.setHousenumber(oldOrder.getHousenumber());
+            newOrder.setPostalCode(oldOrder.getPostalCode());
+            newOrder.setCity(oldOrder.getCity());
+            newOrder.setCountry(oldOrder.getCountry());
+        }
+
         OrderGroup group = oldOrder.getOrderGroup();
         newOrder.setOrderGroup(group);
         group.getOrders().add(newOrder);
