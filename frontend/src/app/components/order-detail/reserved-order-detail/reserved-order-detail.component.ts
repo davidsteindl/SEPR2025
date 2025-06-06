@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {OrderGroupDetailDto} from "../../../dtos/order";
-import {ActivatedRoute, RouterLink} from "@angular/router";
+import {ActivatedRoute} from "@angular/router";
 import {TicketService} from "../../../services/ticket.service";
 import {OrderService} from "../../../services/order.service";
 import {CurrencyPipe, DatePipe, NgForOf, NgIf} from "@angular/common";

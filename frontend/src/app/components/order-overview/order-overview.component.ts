@@ -26,19 +26,20 @@ export class OrderOverviewComponent implements OnInit {
   upcomingOrders?: Page<OrderGroupDto>
   reservations?: Page<OrderGroupDto>
   pastOrders?: Page<OrderGroupDto>
-  refundedOrders?: Page<OrderGroupDto>
 
   upcomingPage = 0;
   reservationsPage = 0;
   pastPage = 0;
-  refundedPage = 0;
 
   pageSize = 10;
 
   loading = false;
 
-  constructor(private ticketService: TicketService, private router: Router,  private route: ActivatedRoute,
-              private pdfService: PdfExportService ) {}
+  constructor(private ticketService: TicketService,
+              private router: Router,
+              private route: ActivatedRoute,
+  ) {
+  }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
