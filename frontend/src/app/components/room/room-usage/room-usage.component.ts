@@ -12,6 +12,7 @@ import {Sector} from "../../../dtos/sector";
 import {AuthService} from "../../../services/auth.service";
 import { PaymentItem } from 'src/app/dtos/payment-item';
 import { CartService } from 'src/app/services/cart.service';
+import {TicketService} from "../../../services/ticket.service";
 
 @Component({
   selector: 'app-room-usage',
@@ -48,7 +49,8 @@ export class RoomUsageComponent implements OnInit {
               private authService: AuthService,
               private errorFormatter: ErrorFormatterService,
               private router: Router,
-              private cartService: CartService
+              private cartService: CartService,
+              private ticketService: TicketService
   ) {
   }
 
@@ -219,9 +221,9 @@ buyTickets(): void {
       return seated?.rows.some(r => r.id === seat.id);
     }) as SeatedSector | undefined;
 
-    if (!sector) { 
-      console.warn(`Couldn't find sector for seat ${seat.id}`); 
-      return; 
+    if (!sector) {
+      console.warn(`Couldn't find sector for seat ${seat.id}`);
+      return;
     }
 
     items.push({
@@ -239,8 +241,8 @@ buyTickets(): void {
   // 2) Standing tickets
   Object.entries(this.selectedStandingTickets).forEach(([sectorIdStr, qty]) => {
     const sectorId = Number(sectorIdStr);
-    if (qty <= 0) { 
-      return; 
+    if (qty <= 0) {
+      return;
     }
 
     const sector = this.room!.sectors.find(s => {
@@ -275,5 +277,65 @@ buyTickets(): void {
     console.log('Reserving seated seats:', this.selectedSeats);
     console.log('Reserving standing tickets:', this.selectedStandingTickets);
     // TODO: Call service to submit both
+    if (!this.room) return;
+
+    const showId = Number(this.route.snapshot.paramMap.get('id'));
+    const items: PaymentItem[] = [];
+
+    // Seated tickets
+    this.selectedSeats.forEach(seat => {
+      const sector = this.room!.sectors.find(s => {
+        const seated = this.asSeatedSector(s);
+        return seated?.rows.some(r => r.id === seat.id);
+      }) as SeatedSector | undefined;
+
+      if (!sector) return;
+
+      items.push({
+        eventName: this.room!.name || 'Unbekannt',
+        type: 'SEATED',
+        price: sector.price,
+        sectorId: sector.id,
+        seatId: seat.id,
+        rowNumber: seat.rowNumber,
+        columnNumber: seat.columnNumber,
+        showId
+      });
+    });
+
+    // Standing tickets
+    Object.entries(this.selectedStandingTickets).forEach(([sectorIdStr, qty]) => {
+      const sectorId = Number(sectorIdStr);
+      if (qty <= 0) return;
+
+      const sector = this.room!.sectors.find(s => {
+        const standing = this.asStandingSector(s);
+        return standing?.id === sectorId;
+      }) as StandingSector | undefined;
+
+      if (!sector) return;
+
+      items.push({
+        eventName: this.room!.name || 'Unbekannt',
+        type: 'STANDING',
+        price: sector.price,
+        sectorId: sector.id,
+        quantity: qty,
+        showId
+      });
+    });
+
+    this.ticketService.reserveTickets(showId, items).subscribe({
+      next: (res) => {
+        this.notification.success('Reservation was a success!', 'Tickets reserved');
+        this.router.navigate(['/orders']);
+      },
+      error: err => {
+        this.notification.error(this.errorFormatter.format(err), 'Reservation failed', {
+          enableHtml: true,
+          timeOut: 8000,
+        });
+      }
+    });
   }
 }

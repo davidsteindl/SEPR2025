@@ -1,7 +1,7 @@
-<div *ngIf="order && order.tickets; else loading">
+<div *ngIf="group && group.tickets; else loading">
   <div class="mt-4 container">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>Order #{{ order.id }} - Details</h2>
+      <h2>Order #{{ group.id }} - Details</h2>
       <button class="btn btn-secondary" [routerLink]="['/orders']">
         ← Back to My Orders
       </button>
@@ -9,10 +9,9 @@
     <hr>
 
     <section class="order-meta">
-      <p><strong>Date:</strong> {{ order.showDate | date: 'shortDate' }}</p>
-      <p><strong>Show:</strong> {{ order.showName }}</p>
-      <p><strong>Location:</strong> {{ order.locationName }}</p>
-      <p><strong>Total Price:</strong> {{ order.totalPrice | currency }}</p>
+      <p><strong>Date:</strong> {{ group.showDate | date: 'shortDate' }}</p>
+      <p><strong>Show:</strong> {{ group.showName }}</p>
+      <p><strong>Location:</strong> {{ group.locationName }}</p>
     </section>
 
     <section class="ticket-table mt-3">
@@ -27,7 +26,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let ticket of order.tickets; let i = index">
+        <tr *ngFor="let ticket of group.tickets; let i = index">
           <td>{{ i + 1 }}</td>
           <td>
             <ng-container *ngIf="ticket.rowNumber && ticket.seatLabel; else standing">
@@ -37,15 +36,38 @@
           </td>
           <td>{{ ticket.status }}</td>
           <td>{{ ticket.price | currency }}</td>
-          <td>
-            <button class="pdf-button" (click)="downloadPdf(ticket.id)">Download PDF</button>
-          </td>
+          <td><span class="text-muted">Unavailable</span></td>
         </tr>
         </tbody>
       </table>
     </section>
   </div>
 </div>
+
+<h4 class="mt-5">Order history</h4>
+<table class="table w-100" style="table-layout: fixed; border-collapse: collapse;">
+  <thead class="table-light">
+  <tr>
+    <th>Order</th>
+    <th>Date</th>
+    <th>Download</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let order of sortedOrders; let i = index">
+    <td>{{ getOrderLabel(order, i) }}</td>
+    <td>{{ order.createdAt | date:'shortDate' }}</td>
+    <td>
+      <button class="pdf-button" (click)="exportAnyInvoice(order)">
+        {{ order.orderType === 'ORDER'
+        ? 'Download invoice'
+        : 'Download cancellation invoice' }}
+      </button>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
 
 <ng-template #loading>
   <p>Loading past order details...</p>

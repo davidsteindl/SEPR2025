@@ -92,17 +92,32 @@
         </div>
       </div>
 
-      <!-- Address -->
-      <div class="mb-3">
-        <label class="form-label">Apartment, suite, etc.</label>
-        <input
-          type="text"
-          formControlName="address"
-          class="form-control"
-          [class.is-invalid]="paymentForm.get('address')?.invalid && paymentForm.get('address')?.touched"
-        />
-        <div class="invalid-feedback">
-          Address is required.
+      <!-- Street and House Number -->
+      <div class="row">
+        <div class="col-8 mb-3">
+          <label class="form-label">Street</label>
+          <input
+            type="text"
+            formControlName="street"
+            class="form-control"
+            [class.is-invalid]="paymentForm.get('street')?.invalid && paymentForm.get('street')?.touched"
+          />
+          <div class="invalid-feedback">
+            Street is required.
+          </div>
+        </div>
+
+        <div class="col-4 mb-3">
+          <label class="form-label">House number</label>
+          <input
+            type="text"
+            formControlName="housenumber"
+            class="form-control"
+            [class.is-invalid]="paymentForm.get('housenumber')?.invalid && paymentForm.get('housenumber')?.touched"
+          />
+          <div class="invalid-feedback">
+            House number is required.
+          </div>
         </div>
       </div>
 

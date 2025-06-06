@@ -440,6 +440,7 @@ public class TicketServiceImpl implements TicketService {
         List<Ticket> remainingTickets = original.getTickets()
             .stream()
             .filter(t -> !ticketIds.contains(t.getId()))
+            .filter(t -> t.getStatus() == TicketStatus.BOUGHT)
             .toList();
 
         if (!remainingTickets.isEmpty()) {
@@ -506,8 +507,8 @@ public class TicketServiceImpl implements TicketService {
         ticketRepository.saveAll(tickets);
         finalizeOrder(newOrder, tickets);
         return newOrder;
-
     }
+
 
     @Override
     public void createTicketHold(CreateHoldDto createHoldDto) {

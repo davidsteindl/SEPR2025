@@ -14,9 +14,6 @@
     <li class="nav-item">
       <a class="nav-link" [class.active]="activeTab === 'past'" (click)="setTab('past')">Past</a>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" [class.active]="activeTab === 'refunded'" (click)="setTab('refunded')">Refunded</a>
-    </li>
   </ul>
 
   <!-- Loading spinner -->
@@ -28,15 +25,14 @@
   <div *ngIf="activeTab === 'upcoming'" class="tab-box pt-3">
     <div *ngIf="upcomingOrders?.content?.length > 0; else noUpcoming">
       <div class="list-group">
-        <div *ngFor="let order of upcomingOrders.content" class="order-card">
-          <strong>Order #{{ order.id }}  </strong><br>
-          Show: {{ order.showName }} <br>
-          Date: {{ order.showDate | date: 'short' }} <br>
-          Location: {{ order.locationName }} <br>
+        <div *ngFor="let group of upcomingOrders.content" class="order-card">
+          <strong>Order #{{ group.id }}</strong><br>
+          Show: {{ group.showName }} <br>
+          Date: {{ group.showDate | date: 'short' }} <br>
+          Location: {{ group.locationName }} <br>
 
           <div class="order-buttons">
-            <button class="view-button" [routerLink]="['/orders/purchased', order.id]">View full order</button>
-            <button class="pdf-button" (click)="exportInvoice(order.id)">Download invoice</button>
+            <button class="view-button" [routerLink]="['/orders/purchased', group.id]">View full order</button>
           </div>
         </div>
       </div>
@@ -61,14 +57,14 @@
   <div *ngIf="activeTab === 'reservations'" class="tab-box pt-3">
     <div *ngIf="reservations?.content?.length > 0; else noReservations">
       <div class="list-group">
-        <div *ngFor="let order of reservations.content" class="order-card">
-          <strong>Order #{{ order.id }}  </strong><br>
-          Show: {{ order.showName }} <br>
-          Date: {{ order.showDate | date: 'short' }} <br>
-          Location: {{ order.locationName }} <br>
+        <div *ngFor="let group of reservations.content" class="order-card">
+          <strong>Order #{{ group.id }}</strong><br>
+          Show: {{ group.showName }} <br>
+          Date: {{ group.showDate | date: 'short' }} <br>
+          Location: {{ group.locationName }} <br>
 
           <div class="order-buttons">
-            <button class="view-button" [routerLink]="['/orders/reserved', order.id]">View full order</button>
+            <button class="view-button" [routerLink]="['/orders/reserved', group.id]">View full order</button>
           </div>
         </div>
       </div>
@@ -93,15 +89,14 @@
   <div *ngIf="activeTab === 'past'" class="tab-box pt-3">
     <div *ngIf="pastOrders?.content?.length > 0; else noPast">
       <div class="list-group">
-        <div *ngFor="let order of pastOrders.content" class="order-card">
-          <strong>Past Order #{{ order.id }}  </strong><br>
-          Show: {{ order.showName }} <br>
-          Date: {{ order.showDate | date: 'short' }} <br>
-          Location: {{ order.locationName }} <br>
+        <div *ngFor="let group of pastOrders.content" class="order-card">
+          <strong>Order #{{ group.id }}</strong><br>
+          Show: {{ group.showName }} <br>
+          Date: {{ group.showDate | date: 'short' }} <br>
+          Location: {{ group.locationName }} <br>
 
           <div class="order-buttons">
-            <button class="view-button" [routerLink]="['/orders/past', order.id]">View full order</button>
-            <button class="pdf-button" (click)="exportInvoice(order.id)">Download invoice</button>
+            <button class="view-button" [routerLink]="['/orders/past', group.id]">View full order</button>
           </div>
         </div>
       </div>
@@ -122,37 +117,5 @@
     </ng-template>
   </div>
 
-  <!-- Refund Orders -->
-  <div *ngIf="activeTab === 'refunded'" class="tab-box pt-3">
-    <div *ngIf="refundedOrders?.content?.length > 0; else noRefunded">
-      <div class="list-group">
-        <div *ngFor="let order of refundedOrders.content" class="order-card">
-          <strong>Order #{{ order.id }}</strong><br>
-          Show: {{ order.showName }} <br>
-          Date: {{ order.showDate | date: 'short' }} <br>
-          Location: {{ order.locationName }} <br>
-
-          <div class="order-buttons">
-            <button class="view-button" [routerLink]="['/orders/refunded', order.id]">View full order</button>
-            <button class="pdf-button" (click)="exportCancelInvoicePdf(order.id)">Download cancellation invoice</button>
-          </div>
-        </div>
-      </div>
-      <ul class="pagination justify-content-center mt-3">
-        <li class="page-item" [class.disabled]="refundedPage === 0">
-          <a class="page-link" (click)="loadOrders('refunded', refundedPage - 1)">Previous</a>
-        </li>
-        <li class="page-item disabled">
-          <span class="page-link">Page {{ refundedPage + 1 }} of {{ refundedOrders?.totalPages }}</span>
-        </li>
-        <li class="page-item" [class.disabled]="refundedPage >= (refundedOrders?.totalPages || 1) - 1">
-          <a class="page-link" (click)="loadOrders('refunded', refundedPage + 1)">Next</a>
-        </li>
-      </ul>
-    </div>
-    <ng-template #noRefunded>
-      <div class="text-center text-muted">No refunded orders found.</div>
-    </ng-template>
-  </div>
 
 </div>

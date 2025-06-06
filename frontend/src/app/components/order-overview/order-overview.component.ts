@@ -1,11 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {Page} from "../../dtos/page";
-import { OrderDto } from 'src/app/dtos/order';
-import {OrderService} from "../../services/order.service";
+import {OrderGroupDto} from 'src/app/dtos/order';
 import {DatePipe} from "@angular/common";
 import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {PdfExportService} from "../../services/pdf-export.service";
+import {TicketService} from "../../services/ticket.service";
 
 
 @Component({
@@ -20,13 +20,13 @@ import {PdfExportService} from "../../services/pdf-export.service";
   styleUrls: ['./order-overview.component.scss']
 })
 export class OrderOverviewComponent implements OnInit {
-  activeTab: 'upcoming' | 'reservations' | 'past' | 'refunded' = 'upcoming';
+  activeTab: 'upcoming' | 'reservations' | 'past'  = 'upcoming';
 
 
-  upcomingOrders?: Page<OrderDto>;
-  reservations?: Page<OrderDto>;
-  pastOrders?: Page<OrderDto>;
-  refundedOrders?: Page<OrderDto>;
+  upcomingOrders?: Page<OrderGroupDto>
+  reservations?: Page<OrderGroupDto>
+  pastOrders?: Page<OrderGroupDto>
+  refundedOrders?: Page<OrderGroupDto>
 
   upcomingPage = 0;
   reservationsPage = 0;
@@ -37,13 +37,13 @@ export class OrderOverviewComponent implements OnInit {
 
   loading = false;
 
-  constructor(private orderService: OrderService, private router: Router,  private route: ActivatedRoute,
+  constructor(private ticketService: TicketService, private router: Router,  private route: ActivatedRoute,
               private pdfService: PdfExportService ) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const tab = params['tab'];
-      if (tab === 'upcoming' || tab === 'reservations' || tab === 'past' || tab === 'refunded') {
+      if (tab === 'upcoming' || tab === 'reservations' || tab === 'past') {
         this.activeTab = tab;
       } else {
         this.activeTab = 'upcoming';
@@ -52,7 +52,7 @@ export class OrderOverviewComponent implements OnInit {
       this.loadOrders(this.activeTab);
     });
   }
-  setTab(tab: 'upcoming' | 'reservations' | 'past' | 'refunded') {
+  setTab(tab: 'upcoming' | 'reservations' | 'past') {
     this.activeTab = tab;
 
     this.router.navigate([], {
@@ -64,7 +64,6 @@ export class OrderOverviewComponent implements OnInit {
       'upcoming': this.upcomingOrders,
       'reservations': this.reservations,
       'past': this.pastOrders,
-      'refunded': this.refundedOrders
     }[tab];
 
     if (!alreadyLoaded) {
@@ -72,11 +71,13 @@ export class OrderOverviewComponent implements OnInit {
     }
   }
 
-  loadOrders(type: 'upcoming' | 'reservations' | 'past' | 'refunded', page = 0) {
-
+  loadOrders(type: 'upcoming' | 'reservations' | 'past', page = 0) {
     this.loading = true;
 
-    this.orderService.getOrders(type, page, this.pageSize).subscribe({
+    const isReservation = type === 'reservations';
+    const past = type === 'past';
+
+    this.ticketService.getOrderGroupsPaged(isReservation, past, page, this.pageSize).subscribe({
       next: (res) => {
         switch (type) {
           case 'upcoming':
@@ -90,10 +91,6 @@ export class OrderOverviewComponent implements OnInit {
           case 'past':
             this.pastOrders = res;
             this.pastPage = res.number;
-            break;
-          case 'refunded':
-            this.refundedOrders = res;
-            this.refundedPage = res.number;
             break;
         }
         this.loading = false;

@@ -2,28 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaymentItem } from '../dtos/payment-item';
-import { OrderDto }  from '../dtos/order';
-import { TicketDto } from '../dtos/ticket';
+import {OrderDto, OrderGroupDetailDto, OrderGroupDto} from '../dtos/order';
+import { TicketDto, TicketRequestDto, ReservationDto } from '../dtos/ticket';
 import { Globals } from '../global/globals';
-
-// Backend DTOs
-interface TicketTargetSeatedDto {
-  type: 'seated';
-  sectorId: number;
-  seatId: number;
-}
-interface TicketTargetStandingDto {
-  type: 'standing';
-  sectorId: number;
-  quantity: number;
-}
-
-interface TicketRequestDto {
-  showId: number;
-  targets: (TicketTargetSeatedDto | TicketTargetStandingDto)[];
-}
-
-
+import {Page} from "../dtos/page";
 
 @Injectable({ providedIn: 'root' })
 export class TicketService {
@@ -32,7 +14,22 @@ export class TicketService {
 
   constructor(private http: HttpClient, private globals: Globals) {}
 
-  buyTickets(showId: number, items: PaymentItem[]): Observable<OrderDto> {
+  buyTickets(
+    showId: number,
+    items: PaymentItem[],
+    paymentForm: {
+      cardNumber: string;
+      expirationDate: string;
+      securityCode: string;
+      firstName: string;
+      lastName: string;
+      street: string;
+      housenumber: string;
+      postalCode: string;
+      city: string;
+      country: string;
+    }
+  ): Observable<OrderDto> {
     const targets = items.map(i => {
       if (i.type === 'SEATED') {
         return {
@@ -49,9 +46,41 @@ export class TicketService {
       }
     });
 
-    const payload: TicketRequestDto = { showId, targets };
+    const payload: TicketRequestDto = {
+      showId,
+      targets,
+      ...paymentForm
+    };
+
     return this.http.post<OrderDto>(`${this.base}/buy`, payload);
   }
+
+  reserveTickets(showId: number, items: PaymentItem[]): Observable<ReservationDto> {
+    const targets = items.map(i => {
+      if (i.type === 'SEATED') {
+        return {
+          type: 'seated' as const,
+          seatId: i.seatId!,
+          sectorId: i.sectorId
+        };
+      } else {
+        return {
+          type: 'standing' as const,
+          sectorId: i.sectorId,
+          quantity: i.quantity!
+        };
+      }
+    });
+
+    const payload: TicketRequestDto = {
+      showId,
+      targets
+    };
+
+    return this.http.post<ReservationDto>(`${this.base}/reserve`, payload);
+  }
+
+
 
   refundTickets(ticketIds: number[]): Observable<TicketDto[]> {
     return this.http.post<TicketDto[]>(
@@ -72,6 +101,21 @@ export class TicketService {
       `${this.globals.backendUri}/tickets/cancel-reservations`,
       ticketIds
     );
+  }
+
+  getOrderGroupsPaged(
+    isReservation: boolean,
+    past: boolean,
+    page: number = 0,
+    size: number = 10
+  ): Observable<Page<OrderGroupDto>> {
+    return this.http.get<Page<OrderGroupDto>>(
+      `${this.globals.backendUri}/tickets/order-groups?isReservation=${isReservation}&past=${past}&page=${page}&size=${size}`
+    );
+  }
+
+  getOrderGroupDetails(groupId: number): Observable<OrderGroupDetailDto> {
+    return this.http.get<OrderGroupDetailDto>(`${this.globals.backendUri}/tickets/order-groups/${groupId}`);
   }
 
 }
