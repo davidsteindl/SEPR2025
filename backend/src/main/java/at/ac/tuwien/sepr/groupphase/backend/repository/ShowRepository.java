@@ -35,6 +35,17 @@ public interface ShowRepository extends JpaRepository<Show, Long>, JpaSpecificat
     @Query("SELECT s FROM Show s LEFT JOIN FETCH s.artists WHERE s.id = :id")
     Optional<Show> findByIdWithArtists(@Param("id") Long id);
 
+    @Query("""
+            SELECT s FROM Show s
+            LEFT JOIN FETCH s.artists
+            LEFT JOIN FETCH s.room r
+            LEFT JOIN FETCH r.seats
+            LEFT JOIN FETCH r.sectors
+            LEFT JOIN FETCH s.event
+            WHERE s.id = :id
+        """)
+    Optional<Show> findDetailedById(@Param("id") Long id);
+
     List<Show> findByEventOrderByDateAsc(Event event);
 
     @EntityGraph(attributePaths = {"artists"})
