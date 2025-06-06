@@ -10,6 +10,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.EventServiceImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
 import org.junit.jupiter.api.AfterEach;
@@ -45,6 +46,9 @@ public class EventServiceTest {
     @Autowired
     private EventLocationRepository eventLocationRepository;
 
+    @Autowired
+    private TicketRepository ticketRepository;
+
     private EventServiceImpl eventService;
 
     private EventLocation testLocation;
@@ -71,7 +75,8 @@ public class EventServiceTest {
         eventMapper = mock(EventMapper.class);
         showMapper = mock(ShowMapper.class);
         EventValidator eventValidator = new EventValidator(eventRepository, eventLocationRepository, showRepository);
-        eventService = new EventServiceImpl(eventRepository, eventLocationRepository, showRepository, eventMapper, showMapper, eventValidator);
+        eventService =
+            new EventServiceImpl(eventRepository, eventLocationRepository, showRepository, ticketRepository, eventMapper, showMapper, eventValidator);
 
         testLocation = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Test Location")
