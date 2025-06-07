@@ -33,6 +33,13 @@ public class Message {
     @OneToMany()
     private List<Image> images;
 
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
+    }
 
     public Long getId() {
         return id;
