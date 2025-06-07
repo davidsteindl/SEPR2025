@@ -1,4 +1,5 @@
 export enum SectorType {
   SEATED = 'SEATED',
-  STANDING = 'STANDING'
+  STANDING = 'STANDING',
+  STAGE = 'STAGE'
 }

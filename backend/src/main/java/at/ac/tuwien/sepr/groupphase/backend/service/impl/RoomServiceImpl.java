@@ -252,13 +252,21 @@ public class RoomServiceImpl implements RoomService {
             } else if (sec instanceof StageSector stage) {
                 StageSectorDto dto = new StageSectorDto();
                 dto.setId(stage.getId());
-                dto.setPrice(stage.getPrice());
+                if (stage.getPrice() != null) {
+                    dto.setPrice(stage.getPrice());
+                } else {
+                    dto.setPrice(0);
+                }
                 usageSectors.add(dto);
 
             } else {
                 SectorDto dto = new SectorDto();
                 dto.setId(sec.getId());
-                dto.setPrice(sec.getPrice());
+                if (sec.getPrice() != null) {
+                    dto.setPrice(sec.getPrice());
+                } else {
+                    dto.setPrice(0);
+                }
                 usageSectors.add(dto);
             }
         }

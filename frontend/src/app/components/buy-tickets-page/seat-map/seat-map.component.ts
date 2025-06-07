@@ -15,6 +15,7 @@ import { NgbModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { Room } from 'src/app/dtos/room';
 import { Sector } from 'src/app/dtos/sector';
 import { Seat } from 'src/app/dtos/seat';
+import { SectorType } from 'src/app/dtos/sector-type';
 import { PaymentItem } from 'src/app/dtos/payment-item';
 
 @Component({
@@ -41,6 +42,7 @@ export class SeatMapComponent implements OnInit, OnChanges {
 
   seatedSectors: Sector[] = [];
   standingSectors: Sector[] = [];
+  stageSectors: Sector[] = [];
 
 
   standingRects: Array<{
@@ -111,8 +113,20 @@ export class SeatMapComponent implements OnInit, OnChanges {
   private splitSectors(): void {
     this.seatedSectors = [];
     this.standingSectors = [];
+    this.stageSectors = [];
 
+    // ensure we have seat data
+    if (!this.room.seats) {
+      return;
+    }
     for (const sec of this.room.sectors) {
+      // populate seats for each sector from flat list
+      sec.seats = this.room.seats.filter(s => s.sectorId === sec.id);
+      // classify sector types
+      if (sec.type === SectorType.STAGE) {
+        this.stageSectors.push(sec);
+        continue;
+      }
       if (sec.capacity != null && sec.capacity !== undefined) {
         this.standingSectors.push(sec);
       } else {
