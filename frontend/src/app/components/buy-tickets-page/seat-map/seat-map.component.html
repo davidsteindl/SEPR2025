@@ -3,7 +3,6 @@
   [style.gridTemplateColumns]="gridTemplateColumns"
   [style.gridTemplateRows]="gridTemplateRows"
 >
-
   <!-- Stage sectors: render as square unavailable seats -->
   <ng-container *ngFor="let sec of stageSectors">
     <ng-container *ngFor="let seat of sec.seats">
@@ -20,7 +19,6 @@
   <!-- Seated sectors -->
   <ng-container *ngFor="let sec of seatedSectors">
     <ng-container *ngFor="let seat of sec.seats">
-
       <div
         class="grid-cell"
         [ngClass]="{
@@ -30,13 +28,10 @@
         [style.gridRowStart]="seat.rowNumber"
         [style.gridColumnStart]="seat.columnNumber"
       >
-
         <ng-container *ngIf="!seat.deleted">
-
           <ng-container *ngIf="seat.available === false; else availSeatTpl">
             <div class="seat-circle unavailable"></div>
           </ng-container>
-
 
           <ng-template #availSeatTpl>
             <div
@@ -50,6 +45,7 @@
               [popoverContext]="{ seat: seat, sector: sec }"
               triggers="manual"
               container="body"
+              [autoClose]="'outside'"
               (click)="openSeatPopover(seat, sec, seatPop)"
             >
               <!-- If seat is already selected -> checkmark icon on top -->
@@ -64,7 +60,6 @@
     </ng-container>
   </ng-container>
 
-
   <ng-container *ngFor="let rect of standingRects">
     <div
       class="grid-cell standing-rect"
@@ -76,13 +71,14 @@
       #standingPop="ngbPopover"
       ngbPopover
       [popoverClass]="'standing-popover'"
+      [popoverTitle]="'Standing Sector Details'"
       [ngbPopover]="standingPopoverTpl"
       [popoverContext]="{ sector: rect.sector }"
       triggers="manual"
       container="body"
+      [autoClose]="'outside'"
       (click)="openStandingPopover(rect.sector, standingPop)"
     >
-
       <i
         class="bi bi-check-circle-fill selected-icon"
         *ngIf="isStandingSelected(rect.sector)"

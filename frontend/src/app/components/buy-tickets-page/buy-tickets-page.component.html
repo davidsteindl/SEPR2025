@@ -3,13 +3,14 @@
   *ngIf="!loadingShow && !loadingRoom; else loadingTpl"
 >
   <!-- Seat Map -->
-  <div class="flex-grow-1 seat-map-container">
+  <div class="flex-grow-1 seat-map-container mb-3">
     <h3 class="mb-3">
       {{ show.name }}
       <small class="text-muted">– {{ show.date | date : "medium" }}</small>
     </h3>
 
     <app-seat-map
+    
       [room]="room"
       [showId]="showId"
       [eventName]="show.name"
@@ -32,7 +33,7 @@
     </div>
 
     <div class="sidebar-footer p-3 border-top">
-      <button class="btn btn-outline-secondary w-100 mb-2" (click)="onReserveTickets()">
+      <button class="btn btn-secondary w-100 mb-2" (click)="onReserveTickets()">
         Reserve Tickets
       </button>
       <button class="btn btn-success w-100" (click)="onBuyTickets()">
