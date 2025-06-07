@@ -3,7 +3,6 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.DetailedMessageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.MessageInquiryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.SimpleMessageDto;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Image;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Message;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
@@ -37,9 +36,6 @@ public interface MessageMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "images", source = "multipartFiles") // Mappe MultipartFiles zu Images
     Message toMessage(MessageInquiryDto messageDto, List<MultipartFile> multipartFiles);
-
-    @IterableMapping(qualifiedByName = "toImage")
-    List<Image> mapMultipartFilesToImages(List<MultipartFile> multipartFiles);
 
 
 }
