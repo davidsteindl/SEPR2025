@@ -113,10 +113,10 @@ public class OrderDataGenerator {
         generateOrderGroups(20, REFUND, REFUNDED, pastShows, users, sectors, random);
 
 
-        LOGGER.debug("Generating 1000 BOUGHT Orders on Future-Shows");
-        generateOrderGroups(1000, ORDER, BOUGHT, futureShows, users, sectors, random);
-        LOGGER.debug("Generating 250 RESERVATION Orders on Future-Shows");
-        generateOrderGroups(250, RESERVATION, RESERVED, futureShows, users, sectors, random);
+        LOGGER.debug("Generating 100 BOUGHT Orders on Future-Shows");
+        generateOrderGroups(100, ORDER, BOUGHT, futureShows, users, sectors, random);
+        LOGGER.debug("Generating 25 RESERVATION Orders on Future-Shows");
+        generateOrderGroups(25, RESERVATION, RESERVED, futureShows, users, sectors, random);
 
 
         long alreadyRefunded = ticketRepository.countByStatus(REFUNDED);
