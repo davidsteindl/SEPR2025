@@ -36,7 +36,7 @@ export class SeatMapComponent implements OnInit, OnChanges {
   @ViewChild('seatPopoverTpl', { static: true }) seatPopoverTpl!: TemplateRef<any>;
   @ViewChild('standingPopoverTpl', { static: true }) standingPopoverTpl!: TemplateRef<any>;
 
-  // map for sectorId -> random color string 
+  // map for sectorId -> random color string
   sectorColorMap: { [sectorId: number]: string } = {};
 
 
@@ -101,7 +101,7 @@ export class SeatMapComponent implements OnInit, OnChanges {
   }
 
   private computeSectorColors(): void {
-  
+
     // Generate random colors for each sector
     this.sectorColorMap = {};
     for (const sec of this.room.sectors) {
