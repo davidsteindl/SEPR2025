@@ -1,9 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.DetailedMessageDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.ImageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.MessageInquiryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.SimpleMessageDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ImageMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.MessageMapper;
+import at.ac.tuwien.sepr.groupphase.backend.service.ImageService;
 import at.ac.tuwien.sepr.groupphase.backend.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -31,11 +34,15 @@ public class MessageEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final MessageService messageService;
     private final MessageMapper messageMapper;
+    private final ImageService imageService;
+    private final ImageMapper imageMapper;
 
     @Autowired
-    public MessageEndpoint(MessageService messageService, MessageMapper messageMapper) {
+    public MessageEndpoint(MessageService messageService, MessageMapper messageMapper, ImageService imageService, ImageMapper imageMapper) {
         this.messageService = messageService;
         this.messageMapper = messageMapper;
+        this.imageService = imageService;
+        this.imageMapper = imageMapper;
     }
 
     @Secured("ROLE_USER")
@@ -65,4 +72,13 @@ public class MessageEndpoint {
         return messageMapper.messageToDetailedMessageDto(
             messageService.publishMessage(messageMapper.toMessage(messageDto, files)));
     }
+
+    @Secured("ROLE_USER")
+    @GetMapping(value = "/{id}/image/{imageId}")
+    @Operation(summary = "Get a specific image", security = @SecurityRequirement(name = "apiKey"))
+    public ImageDto findImage(@PathVariable(name = "id") Long id, @PathVariable(name = "imageId") Long imageId) {
+        LOGGER.info("GET /api/v1/message/{}/image/{}", id, imageId);
+        return imageMapper.toImageDto(imageService.findById(id));
+    }
+
 }
