@@ -57,7 +57,9 @@ export class ReservedOrderDetailComponent implements OnInit {
 
   buySelected(): void {
     const items = this.toPaymentItems();
+    const reservedIds = this.getSelectedIds();
     this.cartService.setItems(items);
+    this.cartService.setReservedTicketIds(reservedIds);
     this.router.navigate(['/checkout']);
   }
 
