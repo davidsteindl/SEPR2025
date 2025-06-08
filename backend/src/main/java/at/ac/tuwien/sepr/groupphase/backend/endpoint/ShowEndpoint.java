@@ -48,7 +48,7 @@ public class ShowEndpoint {
     }
 
     @GetMapping("/{id}")
-    @Secured("ROLE_ADMIN")
+    @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get show by id", security = @SecurityRequirement(name = "apiKey"))
     public ShowDetailDto getShowById(@PathVariable("id") Long id) {
