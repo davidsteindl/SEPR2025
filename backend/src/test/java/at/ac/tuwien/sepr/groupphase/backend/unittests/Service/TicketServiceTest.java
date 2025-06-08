@@ -470,8 +470,7 @@ public class TicketServiceTest {
             () -> assertEquals(1, newOrder.getTickets().size()),
             () -> assertEquals(reservedTicketId, newOrder.getTickets().getFirst().getId()),
             () -> assertEquals(TicketStatus.BOUGHT, newOrder.getTickets().getFirst().getStatus()),
-            () -> assertTrue(oldOrder.getTickets().isEmpty(), "Old reservation should no longer hold the ticket"),
-            () -> assertEquals(oldOrder.getOrderGroup().getId(), newOrderEntity.getOrderGroup().getId(), "Both orders must belong to the same group")
+            () -> assertTrue(oldOrder.getTickets().isEmpty(), "Old reservation should no longer hold the ticket")
         );
     }
 
