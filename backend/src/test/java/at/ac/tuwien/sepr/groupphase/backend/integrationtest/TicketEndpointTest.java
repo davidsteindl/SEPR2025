@@ -169,12 +169,9 @@ public class TicketEndpointTest implements TestData {
         TicketTargetStandingDto target = new TicketTargetStandingDto();
         target.setSectorId(sector.getId());
         target.setQuantity(1);
-
         reserveRequest.setTargets(List.of(target));
 
-
         String jwt = jwtTokenizer.getAuthToken("user@email.com", List.of("ROLE_USER"));
-
 
         MvcResult reserveResult = mockMvc.perform(post("/api/v1/tickets/reserve")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -183,12 +180,24 @@ public class TicketEndpointTest implements TestData {
             .andReturn();
 
         JsonNode reservation = objectMapper.readTree(reserveResult.getResponse().getContentAsString());
-        Long reservationId = reservation.get("id").asLong();
         Long ticketId = reservation.get("tickets").get(0).get("id").asLong();
 
-        MvcResult result = mockMvc.perform(post("/api/v1/tickets/reservations/" + reservationId + "/buy")
+        TicketRequestDto buyRequest = new TicketRequestDto();
+        buyRequest.setReservedTicketIds(List.of(ticketId));
+        buyRequest.setFirstName(firstName);
+        buyRequest.setLastName(lastName);
+        buyRequest.setStreet(street);
+        buyRequest.setHousenumber(houseNumber);
+        buyRequest.setCity(city);
+        buyRequest.setCountry(country);
+        buyRequest.setPostalCode(postalCode);;
+        buyRequest.setCardNumber("4242424242424242");
+        buyRequest.setExpirationDate("12/30");
+        buyRequest.setSecurityCode("123");
+
+        MvcResult result = mockMvc.perform(post("/api/v1/tickets/reservations/buy")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(List.of(ticketId)))
+                .content(objectMapper.writeValueAsString(buyRequest))
                 .header("Authorization", jwt))
             .andReturn();
 
@@ -201,6 +210,7 @@ public class TicketEndpointTest implements TestData {
             () -> assertEquals(1, response.getTickets().size(), "One reserved ticket should be bought")
         );
     }
+
 
     @Test
     @Transactional
