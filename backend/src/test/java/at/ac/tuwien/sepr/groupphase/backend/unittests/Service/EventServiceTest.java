@@ -18,6 +18,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -368,7 +369,8 @@ public class EventServiceTest {
         List<Object[]> mockResults = new ArrayList<>();
         mockResults.add(row);
 
-        when(ticketRepository.findTopTenEventsByCategoryOrderByTicketCountDesc(category, LocalDateTime.now().plusDays(30), topTen))
+        ArgumentCaptor<LocalDateTime> captor = ArgumentCaptor.forClass(LocalDateTime.class);
+        when(ticketRepository.findTopTenEventsByCategoryOrderByTicketCountDesc(eq(category), captor.capture(), eq(topTen)))
             .thenReturn(mockResults);
 
         List<EventTopTenDto> result = eventService.getTopTenEventsByCategory(category.name());
@@ -394,7 +396,8 @@ public class EventServiceTest {
         List<Object[]> mockResults = new ArrayList<>();
         mockResults.add(row);
 
-        when(ticketRepository.findTopTenEventsOrderByTicketCountDesc(LocalDateTime.now().plusDays(30), topTen))
+        ArgumentCaptor<LocalDateTime> captor = ArgumentCaptor.forClass(LocalDateTime.class);
+        when(ticketRepository.findTopTenEventsOrderByTicketCountDesc(captor.capture(), eq(topTen)))
             .thenReturn(mockResults);
 
         List<EventTopTenDto> result = eventService.getTopTenEventsByCategory("all");
