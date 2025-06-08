@@ -65,15 +65,13 @@ public class TicketEndpoint {
         return ticketService.reserveTickets(ticketRequestDto);
     }
 
-    @PostMapping("/reservations/{reservationId}/buy")
+    @PostMapping("/reservations/buy")
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Purchase previously reserved tickets", security = @SecurityRequirement(name = "apiKey"))
-    public OrderDto buyReservedTickets(
-        @PathVariable("reservationId") Long reservationId,
-        @RequestBody List<Long> ticketIds) {
-        LOGGER.info("POST /api/v1/tickets/reservations/{}/buy with tickets {}", reservationId, ticketIds);
-        return ticketService.buyReservedTickets(ticketIds);
+    @Operation(summary = "Purchase previously reserved tickets with checkout data", security = @SecurityRequirement(name = "apiKey"))
+    public OrderDto buyReservedTickets(@RequestBody TicketRequestDto request) throws ValidationException {
+        LOGGER.info("POST /api/v1/tickets/reservations/buy with ticket IDs {}", request.getReservedTicketIds());
+        return ticketService.buyReservedTickets(request);
     }
 
     @PostMapping("/cancel-reservations")

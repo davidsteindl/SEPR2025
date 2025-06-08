@@ -21,6 +21,7 @@ import java.util.List;
 public class TicketRequestDto {
     private List<TicketTargetDto> targets;
     private Long showId;
+    private List<Long> reservedTicketIds;
 
     private String cardNumber;
     private String expirationDate;
@@ -48,6 +49,14 @@ public class TicketRequestDto {
 
     public void setTargets(List<TicketTargetDto> targets) {
         this.targets = targets;
+    }
+
+    public List<Long> getReservedTicketIds() {
+        return reservedTicketIds;
+    }
+
+    public void setReservedTicketIds(List<Long> reservedTicketIds) {
+        this.reservedTicketIds = reservedTicketIds;
     }
 
     public String getCardNumber() {

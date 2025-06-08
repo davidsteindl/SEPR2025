@@ -358,10 +358,25 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public OrderDto buyReservedTickets(List<Long> ticketIds) {
-        LOGGER.debug("Buy reserved tickets request: {}", ticketIds);
+    public OrderDto buyReservedTickets(TicketRequestDto request) throws ValidationException {
+        LOGGER.debug("Buy reserved tickets with checkout: {}", request);
+
+        ticketValidator.validateCheckoutPaymentData(request);
+        ticketValidator.validateCheckoutAddress(request);
+
+        List<Long> ticketIds = request.getReservedTicketIds();
         List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
         ticketValidator.validateForBuyReservedTickets(ticketIds, tickets);
+
+        Order newOrder = initOrderWithAdresse(authFacade.getCurrentUserId(), OrderType.ORDER, request);
+
+        OrderGroup newGroup = new OrderGroup();
+        newGroup.setUserId(authFacade.getCurrentUserId());
+        newOrder.setOrderGroup(newGroup);
+        newGroup.getOrders().add(newOrder);
+
+        orderGroupRepository.save(newGroup);
+        orderRepository.save(newOrder);
 
         Order oldReservation = tickets.getFirst()
             .getOrders()
@@ -369,18 +384,26 @@ public class TicketServiceImpl implements TicketService {
             .filter(o -> o.getOrderType() == OrderType.RESERVATION)
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("Ticket is not part of a reservation order"));
-        Order newOrder = processTicketTransfer(
-            tickets,
-            oldReservation,
-            OrderType.ORDER,
-            TicketStatus.BOUGHT
-        );
 
-        var saved = ticketRepository.findAllById(ticketIds);
-        var dto = buildOrderDto(newOrder, saved);
-        dto.setTotalPrice(calculateTotalPrice(saved));
+        for (Ticket ticket : tickets) {
+            ticket.getOrders().remove(oldReservation);
+            oldReservation.getTickets().remove(ticket);
+
+            ticket.getOrders().add(newOrder);
+            ticket.setStatus(TicketStatus.BOUGHT);
+            newOrder.getTickets().add(ticket);
+        }
+
+        ticketRepository.saveAll(tickets);
+        orderRepository.save(oldReservation);
+        orderRepository.save(newOrder);
+
+        OrderDto dto = buildOrderDto(newOrder, tickets);
+        dto.setTotalPrice(calculateTotalPrice(tickets));
         return dto;
     }
+
+
 
     @Override
     @Transactional
