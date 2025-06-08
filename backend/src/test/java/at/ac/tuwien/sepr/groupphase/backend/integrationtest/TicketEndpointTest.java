@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 
 import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
-import at.ac.tuwien.sepr.groupphase.backend.config.properties.SecurityProperties;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
@@ -190,7 +189,7 @@ public class TicketEndpointTest implements TestData {
         buyRequest.setHousenumber(houseNumber);
         buyRequest.setCity(city);
         buyRequest.setCountry(country);
-        buyRequest.setPostalCode(postalCode);;
+        buyRequest.setPostalCode(postalCode);
         buyRequest.setCardNumber("4242424242424242");
         buyRequest.setExpirationDate("12/30");
         buyRequest.setSecurityCode("123");
