@@ -6,6 +6,8 @@ import { Show } from 'src/app/dtos/show';
 import { Room } from 'src/app/dtos/room';
 import { PaymentItem } from 'src/app/dtos/payment-item';
 import { CartService } from 'src/app/services/cart.service';
+import { TicketService } from 'src/app/services/ticket.service';
+import { ToastrService } from 'ngx-toastr';
 import { SeatMapComponent } from "./seat-map/seat-map.component";
 import { TicketListComponent } from "./ticket-list-item/ticket-list.component";
 import { CommonModule } from '@angular/common';
@@ -18,9 +20,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./buy-tickets-page.component.scss']
 })
 export class BuyTicketsPageComponent implements OnInit, OnDestroy {
-onReserveTickets() {
-throw new Error('Method not implemented.');
-}
+
   showId!: number;
   show!: Show;
   room!: Room;
@@ -34,6 +34,8 @@ throw new Error('Method not implemented.');
     private route: ActivatedRoute,
     private showService: ShowService,
     private cartService: CartService,
+    private ticketService: TicketService,
+    private toastr: ToastrService,
     private router: Router
   ) {}
 
@@ -148,5 +150,24 @@ throw new Error('Method not implemented.');
 
   onBuyTickets() {
     this.router.navigate(['/checkout']);
+  }
+
+  onReserveTickets(): void {
+    const items = this.cartService.getItems();
+    if (!items || items.length === 0) {
+      this.toastr.warning('Your cart is empty. Please select tickets first.');
+      return;
+    }
+    this.ticketService.reserveTickets(this.showId, items).subscribe({
+      next: () => {
+        this.toastr.success('Tickets reserved successfully!');
+        this.cartService.clear();
+        this.router.navigate(['/orders'], { queryParams: { tab: 'reservations' } });
+      },
+      error: err => {
+        const msg = err.error?.message ?? err.message ?? 'Unknown error';
+        this.toastr.error(`Failed to reserve tickets: ${msg}`);
+      }
+    });
   }
 }
