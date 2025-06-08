@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
@@ -18,19 +19,22 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @Query("""
         SELECT t.show.event, COUNT(t.id) as ticketCount
         FROM Ticket t
-        WHERE t.status = 'BOUGHT'
+        WHERE t.status = 'BOUGHT' AND t.show.event.dateTime BETWEEN CURRENT_TIMESTAMP AND :endDate
         GROUP BY t.show.event
         ORDER BY ticketCount DESC
         """)
-    List<Object[]> findTopTenEventsOrderByTicketCountDesc(Pageable pageable);
+    List<Object[]> findTopTenEventsOrderByTicketCountDesc(@Param("endDate") LocalDateTime endDate, Pageable pageable);
 
 
     @Query("""
         SELECT t.show.event, COUNT(t.id) as ticketCount
         FROM Ticket t
-        WHERE t.status = 'BOUGHT' AND t.show.event.category = :category
+        WHERE t.status = 'BOUGHT'
+                AND t.show.event.category = :category
+                AND t.show.event.dateTime BETWEEN CURRENT_TIMESTAMP AND :endDate
         GROUP BY t.show.event
         ORDER BY ticketCount DESC
         """)
-    List<Object[]> findTopTenEventsByCategoryOrderByTicketCountDesc(@Param("category") Event.EventCategory category, Pageable pageable);
+    List<Object[]> findTopTenEventsByCategoryOrderByTicketCountDesc(@Param("category") Event.EventCategory category, @Param("endDate") LocalDateTime endDate,
+                                                                    Pageable pageable);
 }
