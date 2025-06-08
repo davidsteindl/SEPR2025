@@ -29,7 +29,7 @@
         <tr *ngFor="let ticket of group.tickets; let i = index">
           <td>{{ i + 1 }}</td>
           <td>
-            <ng-container *ngIf="ticket.rowNumber && ticket.seatLabel; else standing">
+            <ng-container *ngIf="ticket.seatId; else standing">
               {{ ticket.rowNumber }}{{ ticket.seatLabel }}
             </ng-container>
             <ng-template #standing>Standing</ng-template>

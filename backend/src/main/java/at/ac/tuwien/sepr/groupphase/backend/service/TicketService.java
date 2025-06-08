@@ -81,13 +81,14 @@ public interface TicketService {
      * Successfully purchased tickets transition to BOUGHT. A new order object
      * will be created for the purchased tickets.</p>
      *
-     * @param ticketIds the subset of ticket‐IDs within the reservation to purchase.
+     * @param request a {@link TicketRequestDto} containing the IDs of the reserved tickets
+     *                to purchase, as well as full billing and payment information
      * @return an {@link OrderDto} representing the new Order of purchased tickets.
      * @throws ReservationNotFoundException if the reservationId does not exist.
      * @throws ReservationExpiredException if the reservation has already expired.
      * @throws IllegalArgumentException if any ticketId is not part of the given reservation.
      */
-    OrderDto buyReservedTickets(List<Long> ticketIds);
+    OrderDto buyReservedTickets(TicketRequestDto request) throws ValidationException;
 
 
 

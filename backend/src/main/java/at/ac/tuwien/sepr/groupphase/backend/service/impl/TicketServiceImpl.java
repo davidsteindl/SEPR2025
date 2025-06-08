@@ -358,10 +358,25 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public OrderDto buyReservedTickets(List<Long> ticketIds) {
-        LOGGER.debug("Buy reserved tickets request: {}", ticketIds);
+    public OrderDto buyReservedTickets(TicketRequestDto request) throws ValidationException {
+        LOGGER.debug("Buy reserved tickets with checkout: {}", request);
+
+        ticketValidator.validateCheckoutPaymentData(request);
+        ticketValidator.validateCheckoutAddress(request);
+
+        List<Long> ticketIds = request.getReservedTicketIds();
         List<Ticket> tickets = ticketRepository.findAllById(ticketIds);
         ticketValidator.validateForBuyReservedTickets(ticketIds, tickets);
+
+        Order newOrder = initOrderWithAdresse(authFacade.getCurrentUserId(), OrderType.ORDER, request);
+
+        OrderGroup newGroup = new OrderGroup();
+        newGroup.setUserId(authFacade.getCurrentUserId());
+        newOrder.setOrderGroup(newGroup);
+        newGroup.getOrders().add(newOrder);
+
+        orderGroupRepository.save(newGroup);
+        orderRepository.save(newOrder);
 
         Order oldReservation = tickets.getFirst()
             .getOrders()
@@ -369,18 +384,26 @@ public class TicketServiceImpl implements TicketService {
             .filter(o -> o.getOrderType() == OrderType.RESERVATION)
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("Ticket is not part of a reservation order"));
-        Order newOrder = processTicketTransfer(
-            tickets,
-            oldReservation,
-            OrderType.ORDER,
-            TicketStatus.BOUGHT
-        );
 
-        var saved = ticketRepository.findAllById(ticketIds);
-        var dto = buildOrderDto(newOrder, saved);
-        dto.setTotalPrice(calculateTotalPrice(saved));
+        for (Ticket ticket : tickets) {
+            ticket.getOrders().remove(oldReservation);
+            oldReservation.getTickets().remove(ticket);
+
+            ticket.getOrders().add(newOrder);
+            ticket.setStatus(TicketStatus.BOUGHT);
+            newOrder.getTickets().add(ticket);
+        }
+
+        ticketRepository.saveAll(tickets);
+        orderRepository.save(oldReservation);
+        orderRepository.save(newOrder);
+
+        OrderDto dto = buildOrderDto(newOrder, tickets);
+        dto.setTotalPrice(calculateTotalPrice(tickets));
         return dto;
     }
+
+
 
     @Override
     @Transactional
@@ -587,7 +610,7 @@ public class TicketServiceImpl implements TicketService {
         List<TicketDto> tickets = group.getOrders().stream()
             .flatMap(order -> order.getTickets().stream())
             .distinct()
-            .map(ticketMapper::toDto)
+            .map(this::mapTicketWithSeatDetails)
             .toList();
         dto.setTickets(tickets);
 
@@ -598,6 +621,44 @@ public class TicketServiceImpl implements TicketService {
         dto.setOrders(sortedOrders);
 
         return dto;
+    }
+
+    /**
+     * Maps a {@link Ticket} entity to a {@link TicketDto}, including additional seat details
+     * such as the row number and column letter (seat label), if a seat is assigned.
+     *
+     * <p>This method extends the basic mapping by using the seat's {@code rowNumber}
+     * and converting the {@code columnNumber} into a letter (A-Z, AA, AB, etc.) for user-friendly display.
+     *
+     * @param ticket the {@link Ticket} entity to be mapped
+     * @return a fully populated {@link TicketDto} including row and seat label (if applicable)
+     */
+    private TicketDto mapTicketWithSeatDetails(Ticket ticket) {
+        TicketDto dto = ticketMapper.toDto(ticket);
+        if (ticket.getSeat() != null) {
+            int row = ticket.getSeat().getRowNumber();
+            int col = ticket.getSeat().getColumnNumber();
+            dto.setRowNumber(row);
+            dto.setSeatLabel(convertColumnNumberToLetter(col));
+        }
+        return dto;
+    }
+
+    /**
+     * Converts a 1-based numeric column index to its corresponding alphabetical representation,
+     * similar to Excel columns (e.g. 1 → A, 2 → B, ..., 27 → AA).
+     *
+     * @param number the column number to convert (1-based)
+     * @return a string representing the column in letter format
+     */
+    private String convertColumnNumberToLetter(int number) {
+        StringBuilder sb = new StringBuilder();
+        while (number > 0) {
+            number--;
+            sb.insert(0, (char) ('A' + (number % 26)));
+            number /= 26;
+        }
+        return sb.toString();
     }
 
 }

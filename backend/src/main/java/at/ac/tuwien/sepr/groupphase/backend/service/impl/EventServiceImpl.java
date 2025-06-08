@@ -130,7 +130,7 @@ public class EventServiceImpl implements EventService {
         Pageable topTen = PageRequest.of(0, 10);
         List<Object[]> topTenEvents;
         if (category.equalsIgnoreCase("all")) {
-            topTenEvents = ticketRepository.findTopTenEventsOrderByTicketCountDesc(topTen);
+            topTenEvents = ticketRepository.findTopTenEventsOrderByTicketCountDesc(LocalDateTime.now().plusDays(30), topTen);
         } else {
             try {
                 Event.EventCategory.valueOf(category);
@@ -138,7 +138,7 @@ public class EventServiceImpl implements EventService {
                 throw new ValidationException("Invalid category: " + category, List.of("Invalid category: " + category));
             }
             Event.EventCategory eventCategory = Event.EventCategory.valueOf(category.toUpperCase());
-            topTenEvents = ticketRepository.findTopTenEventsByCategoryOrderByTicketCountDesc(eventCategory, topTen);
+            topTenEvents = ticketRepository.findTopTenEventsByCategoryOrderByTicketCountDesc(eventCategory, LocalDateTime.now().plusDays(30), topTen);
         }
 
         List<EventTopTenDto> eventTopTenDtos = new ArrayList<>();

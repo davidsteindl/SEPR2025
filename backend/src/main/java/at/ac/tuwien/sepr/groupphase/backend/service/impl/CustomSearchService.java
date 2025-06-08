@@ -184,17 +184,18 @@ public class CustomSearchService implements SearchService {
             dto.setRoomName(show.getRoom().getName());
 
             var sectorPrices = show.getRoom().getSectors().stream()
-                .map(sector -> BigDecimal.valueOf(sector.getPrice()))
+                .map(Sector::getPrice)
+                .filter(Objects::nonNull)
+                .map(BigDecimal::valueOf)
                 .toList();
 
             BigDecimal min = sectorPrices.stream()
                 .min(Comparator.naturalOrder())
-                .orElse(null);
+                .orElse(BigDecimal.ZERO);
 
             BigDecimal max = sectorPrices.stream()
                 .max(Comparator.naturalOrder())
-                .orElse(null);
-
+                .orElse(BigDecimal.ZERO);
 
             dto.setMinPrice(min);
             dto.setMaxPrice(max);

@@ -57,7 +57,9 @@ export class ReservedOrderDetailComponent implements OnInit {
 
   buySelected(): void {
     const items = this.toPaymentItems();
+    const reservedIds = this.getSelectedIds();
     this.cartService.setItems(items);
+    this.cartService.setReservedTicketIds(reservedIds);
     this.router.navigate(['/checkout']);
   }
 
@@ -72,8 +74,6 @@ export class ReservedOrderDetailComponent implements OnInit {
         price: t.price,
         sectorId: t.sectorId,
         seatId: t.seatId ?? undefined,
-        rowNumber: t.rowNumber ?? undefined,
-        columnNumber: t.seatLabel ? parseInt(t.seatLabel) || undefined : undefined,
         quantity: t.seatId ? undefined : 1,
         showId: t.showId
       }));
@@ -85,6 +85,7 @@ export class ReservedOrderDetailComponent implements OnInit {
       return;
     }
     this.ticketService.cancelReservations(ticketIds).subscribe(() => {
+      ticketIds.forEach(id => delete this.selected[id]);
       this.ngOnInit();
     });
   }

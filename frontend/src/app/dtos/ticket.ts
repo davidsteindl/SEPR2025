@@ -15,8 +15,8 @@ export interface TicketDto {
   seatId: number | null;
   sectorId: number;
   status: TicketStatus;
-  rowNumber: number;
-  seatLabel: string;
+  rowNumber?: number;
+  seatLabel?: string;
 }
 
 export interface TicketTargetSeatedDto {
@@ -32,8 +32,9 @@ export interface TicketTargetStandingDto {
 }
 
 export interface TicketRequestDto {
-  showId: number;
-  targets: (TicketTargetSeatedDto | TicketTargetStandingDto)[];
+  showId?: number;
+  targets?: (TicketTargetSeatedDto | TicketTargetStandingDto)[];
+  reservedTicketIds?: number[];
 
   cardNumber?: string;
   expirationDate?: string;
