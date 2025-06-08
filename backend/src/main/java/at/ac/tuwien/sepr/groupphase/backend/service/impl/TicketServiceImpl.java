@@ -638,7 +638,7 @@ public class TicketServiceImpl implements TicketService {
         if (ticket.getSeat() != null) {
             int row = ticket.getSeat().getRowNumber();
             int col = ticket.getSeat().getColumnNumber();
-            dto.setRowNumber(String.valueOf(row));
+            dto.setRowNumber(row);
             dto.setSeatLabel(convertColumnNumberToLetter(col));
         }
         return dto;
