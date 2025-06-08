@@ -31,7 +31,7 @@ public class TicketDto {
     private Long seatId;
     private Long sectorId;
     private TicketStatus status;
-    private int rowNumber;
+    private String rowNumber;
     private String seatLabel;
 
     public Long getId() {
@@ -90,11 +90,11 @@ public class TicketDto {
         this.status = status;
     }
 
-    public int getRowNumber() {
+    public String getRowNumber() {
         return rowNumber;
     }
 
-    public void setRowNumber(int rowNumber) {
+    public void setRowNumber(String rowNumber) {
         this.rowNumber = rowNumber;
     }
 
