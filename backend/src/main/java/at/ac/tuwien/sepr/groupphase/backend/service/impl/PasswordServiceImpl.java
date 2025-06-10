@@ -33,7 +33,6 @@ public class PasswordServiceImpl implements PasswordService {
     private final UserValidator userValidator;
     private final PasswordEncoder passwordEncoder;
     MailService mailService;
-    OneTimeTokenService oneTimeTokenService;
     UserService userService;
     OtTokenRepository otTokenRepository;
 
@@ -130,7 +129,8 @@ public class PasswordServiceImpl implements PasswordService {
      * @param relativePath the Path for the function which will be triggered
      * @return the Link for the email
      */
-    private String createOttLink(String email, String relativePath) {
+    @Override
+    public String createOttLink(String email, String relativePath) {
         LOGGER.debug("creating One-Time-Token Link");
         ApplicationUser user = userService.findApplicationUserByEmail(email);
         if (user == null || user.getId() == null) {
@@ -147,7 +147,7 @@ public class PasswordServiceImpl implements PasswordService {
         ott.setConsumed(false);
         otTokenRepository.save(ott);
 
-        return "http://localhost:4200/" + relativePath + "?token=" + token;
+        return "http://localhost:4200/" + relativePath + "/" + token;
     }
 
 

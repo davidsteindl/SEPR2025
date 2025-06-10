@@ -58,7 +58,7 @@ public class ApplicationUser {
     @Column(nullable = false, length = 100)
     private int loginTries;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private boolean isActivated;
 
     public Long getId() {

@@ -11,6 +11,8 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
+import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
+import at.ac.tuwien.sepr.groupphase.backend.service.PasswordService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
 import jakarta.transaction.Transactional;
@@ -38,14 +40,17 @@ public class CustomUserDetailService implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenizer jwtTokenizer;
     private final UserValidator userValidator;
+    MailService mailService;
+    PasswordService passwordService;
 
     @Autowired
     public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-            JwtTokenizer jwtTokenizer, UserValidator userValidator) {
+            JwtTokenizer jwtTokenizer, UserValidator userValidator, MailService mailService, PasswordService passwordService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenizer = jwtTokenizer;
         this.userValidator = userValidator;
+        this.mailService = mailService;
     }
 
     @Override
@@ -152,6 +157,10 @@ public class CustomUserDetailService implements UserService {
             List<String> validationErrors = new ArrayList<>();
             validationErrors.add("Email is already in use");
             throw new ValidationException("Validation of user for registration failed", validationErrors);
+        }
+
+        if (!user.isActivated()) {
+            this.mailService.sendAccountActivationEmail(user.getEmail(), passwordService.createOttLink(user.getEmail(), "account-activation"));
         }
 
         userRepository.save(user);

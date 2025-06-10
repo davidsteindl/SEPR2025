@@ -27,4 +27,12 @@ public interface PasswordService {
      */
     void changePassword(PasswordChangeDto passwordChangeDto) throws NotFoundException, ValidationException, IllegalArgumentException;
 
+    /**
+     * Method to create a One-Time-Token Link for the email.
+     *
+     * @param email for the receiver
+     * @param relativePath where to direct the user
+     * @return the Link
+     */
+    String createOttLink(String email, String relativePath);
 }
