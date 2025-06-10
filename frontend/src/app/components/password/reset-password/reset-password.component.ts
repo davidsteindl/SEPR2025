@@ -7,6 +7,8 @@ import {AuthService} from "../../../services/auth.service";
 import {RegisterUser} from "../../../dtos/register-user";
 import {PasswordChange} from "../../../dtos/password-change";
 import {ToastrService} from "ngx-toastr";
+import { Location } from '@angular/common';
+
 
 @Component({
   selector: 'app-reset-password',
@@ -22,12 +24,15 @@ export class ResetPasswordComponent implements OnInit{
   passwordResetForm: FormGroup;
   submitted = false;
   isSubmitting = false;
+  token = '';
 
   constructor(private route: ActivatedRoute,
               private formBuilder: UntypedFormBuilder,
               private authService: AuthService,
               private router: Router,
-              private notification: ToastrService) {
+              private notification: ToastrService,
+              private location: Location) {
+    this.location = location;
     this.passwordResetForm = this.formBuilder.group({
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(8)]]
@@ -36,13 +41,15 @@ export class ResetPasswordComponent implements OnInit{
 
   changePassword(){
 
-    const token = this.route.snapshot.queryParamMap.get('token');
-    console.log('Token from URL:', token);
+    const fullPath = this.location.path();
+    console.log('fullPath from Location:', fullPath);
+    this.token = fullPath.substring(fullPath.lastIndexOf('/') + 1);
+    console.log('Token extracted manually:', this.token);
 
     const changePasswordRequest: PasswordChange = {
       password: this.passwordResetForm.controls.password.value,
       confirmPassword: this.passwordResetForm.controls.confirmPassword.value,
-      otToken: token
+      otToken: this.token
     }
     console.log(changePasswordRequest);
 

@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import {NgIf} from "@angular/common";
+import {Location, NgIf} from "@angular/common";
 import {FormGroup, ReactiveFormsModule, UntypedFormBuilder, Validators} from "@angular/forms";
 import {PasswordChange} from "../../../dtos/password-change";
 import {ActivatedRoute, Router} from "@angular/router";
 import {AuthService} from "../../../services/auth.service";
 import {ToastrService} from "ngx-toastr";
+
 
 @Component({
   selector: 'app-account-activation',
@@ -20,12 +21,15 @@ export class AccountActivationComponent {
   accountActivationForm: FormGroup;
   submitted = false;
   isSubmitting = false;
+  token = '';
 
   constructor(private route: ActivatedRoute,
               private formBuilder: UntypedFormBuilder,
               private authService: AuthService,
               private router: Router,
-              private notification: ToastrService) {
+              private notification: ToastrService,
+              private location: Location) {
+    this.location = location;
     this.accountActivationForm = this.formBuilder.group({
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(8)]]
@@ -34,13 +38,15 @@ export class AccountActivationComponent {
 
   changePassword(){
 
-    const token = this.route.snapshot.queryParamMap.get('token');
-    console.log('Token from URL:', token);
+    const fullPath = this.location.path();
+    console.log('fullPath from Location:', fullPath);
+    this.token = fullPath.substring(fullPath.lastIndexOf('/') + 1);
+    console.log('Token extracted manually:', this.token);
 
     const activateAccountRequest: PasswordChange = {
       password: this.accountActivationForm.controls.password.value,
       confirmPassword: this.accountActivationForm.controls.confirmPassword.value,
-      otToken: token
+      otToken: this.token
     }
     console.log(activateAccountRequest);
 
