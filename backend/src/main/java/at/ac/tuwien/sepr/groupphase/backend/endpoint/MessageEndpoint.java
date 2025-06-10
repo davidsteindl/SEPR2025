@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.DetailedMessageDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.ImageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.MessageInquiryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.SimpleMessageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ImageMapper;
@@ -14,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -76,9 +77,12 @@ public class MessageEndpoint {
     @Secured("ROLE_USER")
     @GetMapping(value = "/{id}/image/{imageId}")
     @Operation(summary = "Get a specific image", security = @SecurityRequirement(name = "apiKey"))
-    public ImageDto findImage(@PathVariable(name = "id") Long id, @PathVariable(name = "imageId") Long imageId) {
+    public ResponseEntity<byte[]> findImage(@PathVariable(name = "id") Long id, @PathVariable(name = "imageId") Long imageId) {
         LOGGER.info("GET /api/v1/message/{}/image/{}", id, imageId);
-        return imageMapper.toImageDto(imageService.findById(id));
+        var image = imageService.findById(imageId);
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(image.getImageType()))
+            .body(image.getImage());
     }
 
 }
