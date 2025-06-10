@@ -13,6 +13,7 @@ import java.util.Optional;
 @Repository
 public interface OrderGroupRepository extends JpaRepository<OrderGroup, Long> {
 
+    /*
     @Query("""
             SELECT DISTINCT og FROM OrderGroup og
             JOIN og.orders o
@@ -39,6 +40,17 @@ public interface OrderGroupRepository extends JpaRepository<OrderGroup, Long> {
         @Param("past") boolean past,
         Pageable pageable
     );
+
+     */
+
+    @Query("SELECT og FROM OrderGroup og WHERE 1 = 0")
+    Page<OrderGroup> findByCategory(
+        @Param("userId")      Long userId,
+        @Param("isReservation") boolean isReservation,
+        @Param("past")         boolean past,
+        Pageable pageable
+    );
+
 
     @Query("""
             SELECT og FROM OrderGroup og
