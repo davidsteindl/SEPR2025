@@ -1,1 +1,72 @@
-<p>account-activation works!</p>
+<div class="pt-5">
+  <div class="row">
+    <div class="col-md-6 mx-auto">
+      <span class="anchor" id="formLogin"></span>
+
+      <div class="card rounded-0">
+        <div class="card-header">
+          <h3 class="mb-0">Account activation</h3>
+        </div>
+
+        <div class="card-body">
+          <form class="form" [formGroup]="accountActivationForm" (ngSubmit)="changePassword()">
+
+            <p> To activate your account please set a password and confirm it. The password must be at least 8 characters long.</p>
+
+            <div class="form-group">
+              <label for="inputPassword">New Password</label>
+              <input type="password" name="password" formControlName="password" class="form-control" id="inputPassword"
+                     aria-describedby="passwordHelp" placeholder="Enter new password">
+              <div *ngIf="submitted && accountActivationForm.controls.password.errors" class="error">
+                <small class="form-text text-warning" *ngIf="accountActivationForm.controls.password.errors.required">Your
+                  password
+                  is
+                  required!
+                </small>
+                <small class="form-text text-warning" *ngIf="accountActivationForm.controls.password.errors.minlength">Your
+                  password
+                  must be at least 8 characters long!
+                </small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="inputConfirmPassword">Confirm New Password</label>
+              <input type="password" name="confirmPassword" formControlName="confirmPassword" class="form-control" id="inputConfirmPassword"
+                     aria-describedby="confirmPasswordHelp" placeholder="Confirm your Password">
+              <div *ngIf="submitted && accountActivationForm.controls.confirmPassword.errors" class="error">
+                <small class="form-text text-warning" *ngIf="accountActivationForm.controls.confirmPassword.errors.required">Your
+                  confirm-password
+                  is
+                  required!
+                </small>
+                <small class="form-text text-warning" *ngIf="accountActivationForm.controls.confirmPassword.errors.minlength">Your
+                  confirm-password
+                  must be at least 8 characters long!
+                </small>
+              </div>
+            </div>
+
+            <div style="display: flex;" class="mt-2">
+              <button
+                type="submit"
+                class="btn btn-success float-right"
+                [disabled]="accountActivationForm.invalid || isSubmitting">
+                Set Password
+              </button>
+
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
