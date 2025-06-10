@@ -68,7 +68,21 @@
               <div class="mb-3">
                 <label class="col-form-label text-md-end text-muted col-md-2">Image</label>
                 <span>&nbsp;</span>
-                <img [src]="newsImage()" alt="News Image" class="img-fluid" style="max-width: 200px; max-height: 200px;">
+                <img *ngFor="let image of currentMessage.images" [src]="newsImage(image.id)"
+                     alt="News Image" class="img-fluid" style="max-width: 200px; max-height: 200px;" >
+              </div>
+            </div>
+
+            <div *ngIf="isAdmin()" class="row mb-2">
+              <label for="newsImage" class="col-form-label text-md-end text-muted col-md-2">Image</label>
+              <div class="col-md-10">
+                <input
+                  multiple
+                  type="file" accept="image/*"
+                  class="form-control"
+                  id="newsImage"
+                  name="newsImage"
+                  (change)="onFileSelected($event)" />
               </div>
             </div>
 
