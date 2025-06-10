@@ -35,6 +35,9 @@ public class UserRegisterDto {
     @NotNull(message = "Sex must not be null")
     private Sex sex;
 
+    @NotNull(message = "Admin must no be null")
+    private Boolean isAdmin;
+
 
     public String getFirstName() {
         return firstName;
@@ -98,6 +101,10 @@ public class UserRegisterDto {
 
     public void setSex(Sex sex) {
         this.sex = sex;
+    }
+
+    public Boolean getAdmin() {
+        return isAdmin;
     }
 
     @Override

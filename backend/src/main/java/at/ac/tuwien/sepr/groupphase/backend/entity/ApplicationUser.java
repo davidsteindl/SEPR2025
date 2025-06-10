@@ -53,7 +53,7 @@ public class ApplicationUser {
     private boolean locked;
 
     @Column(nullable = false, length = 100)
-    private boolean admin;
+    private boolean isAdmin;
 
     @Column(nullable = false, length = 100)
     private int loginTries;
@@ -163,11 +163,11 @@ public class ApplicationUser {
     }
 
     public Boolean isAdmin() {
-        return admin;
+        return isAdmin;
     }
 
     public void setAdmin(Boolean isAdmin) {
-        this.admin = isAdmin;
+        this.isAdmin = isAdmin;
     }
 
     public int getLoginTries() {
@@ -186,7 +186,7 @@ public class ApplicationUser {
 
         ApplicationUser that = (ApplicationUser) o;
         return locked == that.locked
-            && admin == that.admin
+            && isAdmin == that.isAdmin
             && loginTries == that.loginTries
             && id.equals(that.id)
             && firstName.equals(that.firstName)
@@ -216,7 +216,7 @@ public class ApplicationUser {
         result = 31 * result + Objects.hashCode(street);
         result = 31 * result + Objects.hashCode(postalCode);
         result = 31 * result + Boolean.hashCode(locked);
-        result = 31 * result + Boolean.hashCode(admin);
+        result = 31 * result + Boolean.hashCode(isAdmin);
         result = 31 * result + loginTries;
         return result;
     }
@@ -231,7 +231,7 @@ public class ApplicationUser {
             + ", sex=" + sex
             + ", email='" + email + '\''
             + ", locked=" + locked
-            + ", admin=" + admin
+            + ", admin=" + isAdmin
             + ", loginTries=" + loginTries
             + '}';
     }
