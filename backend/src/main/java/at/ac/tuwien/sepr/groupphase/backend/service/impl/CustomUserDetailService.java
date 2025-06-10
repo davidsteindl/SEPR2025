@@ -156,7 +156,7 @@ public class CustomUserDetailService implements UserService {
             .withPassword(passwordEncoder.encode(userRegisterDto.getPassword()))
             .withSex(userRegisterDto.getSex())
             .withLoginTries(0)
-            .isAdmin(false)
+            .isAdmin(userRegisterDto.getIsAdmin())
             .isLocked(false)
             .isActivated(userRegisterDto.getIsActivated())
             .build();
