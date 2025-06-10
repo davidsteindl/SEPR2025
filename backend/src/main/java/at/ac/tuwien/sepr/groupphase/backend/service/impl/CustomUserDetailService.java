@@ -12,7 +12,6 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
-import at.ac.tuwien.sepr.groupphase.backend.service.PasswordService;
 import at.ac.tuwien.sepr.groupphase.backend.service.TokenLinkService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
@@ -27,11 +26,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import static at.ac.tuwien.sepr.groupphase.backend.config.SecurityConstants.MAX_LOGIN_TRIES;
+
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static at.ac.tuwien.sepr.groupphase.backend.config.SecurityConstants.MAX_LOGIN_TRIES;
 
 @Service
 public class CustomUserDetailService implements UserService {
@@ -46,7 +47,7 @@ public class CustomUserDetailService implements UserService {
 
     @Autowired
     public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-            JwtTokenizer jwtTokenizer, UserValidator userValidator, MailService mailService, TokenLinkService tokenLinkService) {
+                                   JwtTokenizer jwtTokenizer, UserValidator userValidator, MailService mailService, TokenLinkService tokenLinkService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenizer = jwtTokenizer;
@@ -68,7 +69,7 @@ public class CustomUserDetailService implements UserService {
             }
 
             return new User(applicationUser.getEmail(), applicationUser.getPassword(), true, true, true,
-                    !applicationUser.isLocked(), grantedAuthorities);
+                !applicationUser.isLocked(), grantedAuthorities);
         } catch (NotFoundException e) {
             throw new UsernameNotFoundException(e.getMessage(), e);
         }
@@ -106,8 +107,8 @@ public class CustomUserDetailService implements UserService {
 
         if (user.isLocked()) {
             throw new LoginAttemptException(
-                    "Your account is locked due to too many failed login attempts, please contact an administrator",
-                    user.getLoginTries());
+                "Your account is locked due to too many failed login attempts, please contact an administrator",
+                user.getLoginTries());
         }
 
         int currentTry = user.getLoginTries() + 1;
@@ -118,20 +119,25 @@ public class CustomUserDetailService implements UserService {
                 user.setLocked(true);
                 userRepository.save(user);
                 throw new LoginAttemptException(
-                        "Your account is locked due to too many failed login attempts, please contact an administrator",
-                        user.getLoginTries());
+                    "Your account is locked due to too many failed login attempts, please contact an administrator",
+                    user.getLoginTries());
             }
             userRepository.save(user);
             throw new LoginAttemptException("Username or password is incorrect", user.getLoginTries());
+        }
+
+        if (!user.isActivated()) {
+            throw new LoginAttemptException(
+                "Your account is not yet activated, please look at your emails", user.getLoginTries());
         }
         user.setLoginTries(0);
         userRepository.save(user);
 
         List<String> roles = loadUserByUsername(user.getEmail())
-                .getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
+            .getAuthorities()
+            .stream()
+            .map(GrantedAuthority::getAuthority)
+            .toList();
 
         return jwtTokenizer.getAuthToken(user.getId().toString(), roles);
     }

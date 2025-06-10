@@ -54,6 +54,7 @@ public class UserDataGenerator {
                     .withSex(sex)
                     .isLocked(false)
                     .isAdmin(true)
+                    .isActivated(true)
                     .withLoginTries(0)
                     .build();
                 userRepository.save(admin);
@@ -77,6 +78,7 @@ public class UserDataGenerator {
                     .isLocked(false)
                     .isAdmin(false)
                     .withLoginTries(0)
+                    .isActivated(true)
                     .build();
                 userRepository.save(customer);
             }
