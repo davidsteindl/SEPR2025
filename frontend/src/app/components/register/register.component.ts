@@ -64,8 +64,12 @@ export class RegisterComponent {
         email: this.registerForm.controls.email.value,
         termsAccepted: this.registerForm.controls.termsAccepted.value,
         sex: this.registerForm.controls.sex.value,
-        isAdmin: this.registerForm.controls.isAdmin.value
+        isAdmin: this.registerForm.controls.isAdmin.value,
+        isActivated: true
       };
+      if (this.isAdmin()) {
+        registerUser.isActivated = false;
+      }
       this.firstName = this.registerForm.controls.firstName.value;
       this.lastName = this.registerForm.controls.lastName.value;
       this.regUser(registerUser);
