@@ -10,6 +10,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.OtTokenRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
 import at.ac.tuwien.sepr.groupphase.backend.service.PasswordService;
+import at.ac.tuwien.sepr.groupphase.backend.service.TokenLinkService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
 import org.slf4j.Logger;
@@ -35,15 +36,18 @@ public class PasswordServiceImpl implements PasswordService {
     MailService mailService;
     UserService userService;
     OtTokenRepository otTokenRepository;
+    TokenLinkService tokenLinkService;
 
-    public PasswordServiceImpl(MailService mailService, UserService userService, PasswordEncoder passwordEncoder,
-                               OtTokenRepository otTokenRepository, UserRepository userRepository, UserValidator userValidator) {
+    public PasswordServiceImpl(MailService mailService, PasswordEncoder passwordEncoder, UserService userService,
+                               OtTokenRepository otTokenRepository, UserRepository userRepository, UserValidator userValidator,
+                               TokenLinkService tokenLinkService) {
         this.mailService = mailService;
         this.passwordEncoder = passwordEncoder;
-        this.userService = userService;
         this.otTokenRepository = otTokenRepository;
+        this.userService = userService;
         this.userRepository = userRepository;
         this.userValidator = userValidator;
+        this.tokenLinkService = tokenLinkService;
     }
 
     @Override
@@ -57,10 +61,11 @@ public class PasswordServiceImpl implements PasswordService {
 
             email = passwordResetDto.getEmail();
         }
+
         if (userService.findApplicationUserByEmail(email) == null) {
             throw new NotFoundException(email);
         }
-        mailService.sendPasswordResetEmail(email, createOttLink(email, "reset-password"));
+        mailService.sendPasswordResetEmail(email, tokenLinkService.createOttLink(email, "reset-password"));
     }
 
     @Override
@@ -122,33 +127,7 @@ public class PasswordServiceImpl implements PasswordService {
         userRepository.save(user);
     }
 
-    /**
-     * Method to create the One-Time-Token Link for the User to click on in the email.
-     *
-     * @param email the email-address of the receiving person
-     * @param relativePath the Path for the function which will be triggered
-     * @return the Link for the email
-     */
-    @Override
-    public String createOttLink(String email, String relativePath) {
-        LOGGER.debug("creating One-Time-Token Link");
-        ApplicationUser user = userService.findApplicationUserByEmail(email);
-        if (user == null || user.getId() == null) {
-            throw new NotFoundException("email not found");
-        }
 
-        String token = UUID.randomUUID().toString();
-        LocalDateTime validUntil = LocalDateTime.now().plusMinutes(5);
-
-        PasswordOtt ott = new PasswordOtt();
-        ott.setUserId(user.getId());
-        ott.setOtToken(token);
-        ott.setValidUntil(validUntil);
-        ott.setConsumed(false);
-        otTokenRepository.save(ott);
-
-        return "http://localhost:4200/" + relativePath + "/" + token;
-    }
 
 
 }
