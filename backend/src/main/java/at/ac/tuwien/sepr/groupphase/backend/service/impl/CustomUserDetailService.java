@@ -152,6 +152,7 @@ public class CustomUserDetailService implements UserService {
             .withLoginTries(0)
             .isAdmin(false)
             .isLocked(false)
+            .isActivated(userRegisterDto.getIsActivated())
             .build();
 
 
@@ -161,11 +162,11 @@ public class CustomUserDetailService implements UserService {
             throw new ValidationException("Validation of user for registration failed", validationErrors);
         }
 
+        userRepository.save(user);
+
         if (!user.isActivated()) {
             this.mailService.sendAccountActivationEmail(user.getEmail(), tokenLinkService.createOttLink(user.getEmail(), "account-activation"));
         }
-
-        userRepository.save(user);
     }
 
     public List<LockedUserDto> getLockedUsers() {

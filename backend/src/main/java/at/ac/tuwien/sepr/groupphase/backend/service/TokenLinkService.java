@@ -10,4 +10,5 @@ public interface TokenLinkService {
      * @return the Link for the email
      */
     String createOttLink(String email, String relativePath);
+
 }

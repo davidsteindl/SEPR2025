@@ -51,4 +51,5 @@ public class TokenLinkServiceImpl implements TokenLinkService {
 
         return "http://localhost:4200/" + relativePath + "/" + token;
     }
+
 }

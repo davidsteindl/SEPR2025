@@ -34,9 +34,11 @@ public class UserRegisterDto {
     @NotNull(message = "Sex must not be null")
     private Sex sex;
 
-    @NotNull(message = "Admin must no be null")
+    @NotNull(message = "Admin must not be null")
     private Boolean isAdmin;
 
+    @NotNull(message = "isActivated must not be null")
+    private Boolean isActivated;
 
     public String getFirstName() {
         return firstName;
@@ -110,7 +112,13 @@ public class UserRegisterDto {
         isAdmin = admin;
     }
 
+    public Boolean getIsActivated() {
+        return isActivated;
+    }
 
+    public void setIsActivated(Boolean activated) {
+        isActivated = activated;
+    }
 
     @Override
     public boolean equals(Object o) {
