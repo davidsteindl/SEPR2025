@@ -77,6 +77,7 @@ public class PasswordServiceImpl implements PasswordService {
         }
         updateUser(user, passwordChangeDto);
         otTokenRepository.markConsumed(passwordChangeDto.getOtToken());
+        userRepository.activateUser(passwordChangeDto.getUserId());
     }
 
     /**
