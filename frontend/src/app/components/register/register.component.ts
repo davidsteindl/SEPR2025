@@ -16,7 +16,6 @@ import {TermsandconditionsComponent} from "../termsandconditions/termsandconditi
   imports: [
     NgIf,
     ReactiveFormsModule,
-    RouterLink,
     TermsandconditionsComponent
   ],
   styleUrls: ['./register.component.scss']
@@ -33,7 +32,7 @@ export class RegisterComponent {
   lastName = '';
   buttonDisabled = false;
 
-  constructor(private formBuilder: UntypedFormBuilder, private authService: AuthService, private router: Router, private notification: ToastrService) {
+  constructor(private formBuilder: UntypedFormBuilder, protected authService: AuthService, private router: Router, private notification: ToastrService) {
     this.registerForm = this.formBuilder.group({
       firstName: ['', [Validators.required, Validators.maxLength(100)]],
       lastName: ['', [Validators.required, Validators.maxLength(100)]],
@@ -42,7 +41,8 @@ export class RegisterComponent {
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(8)]],
       termsAccepted: [false, Validators.requiredTrue],
-      sex: ['', Validators.required]
+      sex: ['', Validators.required],
+      isAdmin: [false]
     });
 
   }
@@ -63,7 +63,8 @@ export class RegisterComponent {
         dateOfBirth: this.registerForm.controls.dateOfBirth.value,
         email: this.registerForm.controls.email.value,
         termsAccepted: this.registerForm.controls.termsAccepted.value,
-        sex: this.registerForm.controls.sex.value
+        sex: this.registerForm.controls.sex.value,
+        isAdmin: this.registerForm.controls.isAdmin.value
       };
       this.firstName = this.registerForm.controls.firstName.value;
       this.lastName = this.registerForm.controls.lastName.value;
@@ -98,5 +99,23 @@ export class RegisterComponent {
         }
       }
     });
+  }
+
+  /**
+  * Returns true if the authenticated user is an admin
+  */
+  isAdmin(): boolean {
+    return this.authService.getUserRole() === 'ADMIN';
+  }
+
+  /**
+   * Sends the User to either the login Page or if an Admin is creating a new user, back to the admin panel
+   */
+  goToPage() {
+    if(this.isAdmin()) {
+      this.router.navigate(['/admin']);
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 }

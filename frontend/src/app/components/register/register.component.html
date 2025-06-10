@@ -141,9 +141,23 @@
               </small>
             </div>
 
+            <div *ngIf="authService.isLoggedIn() && isAdmin()">
+            <label for="isAdmin">
+              Create User as Admin?
+            </label>
+            <input
+              type="checkbox"
+              name="isAdmin"
+              formControlName="isAdmin"
+              id="isAdmin"
+              style="margin: 10px"
+            />
+            </div>
+
+
             <br>
             <button type="submit" [disabled]="registerForm.invalid || buttonDisabled" class="btn btn-success float-right">Register</button>
-            <button type="button" style="margin-left: 10px;" routerLink="/login"
+            <button type="button" style="margin-left: 10px;" (click)="goToPage()"
                     class="btn btn-secondary float-right ">Back</button>
 
           </form>
