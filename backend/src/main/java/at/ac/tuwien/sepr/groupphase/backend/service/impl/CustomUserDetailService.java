@@ -158,7 +158,7 @@ public class CustomUserDetailService implements UserService {
             .withLoginTries(0)
             .isAdmin(userRegisterDto.getIsAdmin())
             .isLocked(false)
-            .isActivated(userRegisterDto.getIsActivated())
+            .withIsActivated(userRegisterDto.getIsActivated())
             .build();
 
 
