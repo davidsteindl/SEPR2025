@@ -308,7 +308,7 @@ public class ApplicationUser {
             return this;
         }
 
-        public ApplicationUserBuilder isActivated(Boolean activated) {
+        public ApplicationUserBuilder withIsActivated(Boolean activated) {
             this.isActivated = activated;
             return this;
         }

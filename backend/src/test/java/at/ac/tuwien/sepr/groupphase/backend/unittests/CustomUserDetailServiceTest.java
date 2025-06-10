@@ -61,6 +61,7 @@ class CustomUserDetailServiceTest {
             .withDateOfBirth(LocalDate.of(1980, 1, 1))
             .isLocked(false)
             .isAdmin(false)
+            .withIsActivated(true)
             .withLoginTries(0)
             .build();
 
@@ -176,6 +177,7 @@ class CustomUserDetailServiceTest {
             .withLastName("One")
             .withEmail("a@one.com")
             .isLocked(true)
+            .withIsActivated(true)
             .build();
         ApplicationUser u2 = ApplicationUser.ApplicationUserBuilder.aUser()
             .withId(2L)
@@ -183,6 +185,7 @@ class CustomUserDetailServiceTest {
             .withLastName("Two")
             .withEmail("b@two.com")
             .isLocked(true)
+            .withIsActivated(true)
             .build();
 
         when(userRepository.findAllByLockedTrue()).thenReturn(List.of(u1, u2));
@@ -258,6 +261,7 @@ class CustomUserDetailServiceTest {
             .withPassword("abc12345")
             .withConfirmPassword("abc12345")
             .withTermsAccepted(true)
+            .withIsActivated(true)
             .build();
 
         when(passwordEncoder.encode("abc12345")).thenReturn("encodedPassword");

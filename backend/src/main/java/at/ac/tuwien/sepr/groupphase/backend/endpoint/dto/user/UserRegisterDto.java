@@ -168,6 +168,7 @@ public class UserRegisterDto {
         private boolean termsAccepted;
         private Sex sex;
         private boolean isAdmin;
+        private boolean isActivated;
 
 
         private UserRegisterDtoBuilder() {
@@ -217,6 +218,13 @@ public class UserRegisterDto {
             return this;
         }
 
+        public UserRegisterDto.UserRegisterDtoBuilder withIsActivated(boolean isActivated) {
+            this.isActivated = isActivated;
+            return this;
+        }
+
+
+
         public UserRegisterDto.UserRegisterDtoBuilder withSex(Sex sex) {
             this.sex = sex;
             return this;
@@ -233,6 +241,7 @@ public class UserRegisterDto {
             userRegisterDto.setTermsAccepted(termsAccepted);
             userRegisterDto.setSex(sex);
             userRegisterDto.setIsAdmin(isAdmin);
+            userRegisterDto.setIsActivated(isActivated);
             return userRegisterDto;
         }
     }
