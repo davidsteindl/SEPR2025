@@ -110,6 +110,8 @@ public class UserRegisterDto {
         isAdmin = admin;
     }
 
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

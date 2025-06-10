@@ -58,6 +58,9 @@ public class ApplicationUser {
     @Column(nullable = false, length = 100)
     private int loginTries;
 
+    @Column(nullable = true)
+    private boolean isActivated;
+
     public Long getId() {
         return id;
     }
@@ -178,6 +181,15 @@ public class ApplicationUser {
         this.loginTries = loginTries;
     }
 
+
+    public boolean isActivated() {
+        return isActivated;
+    }
+
+    public void setActivated(boolean activated) {
+        isActivated = activated;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -252,6 +264,7 @@ public class ApplicationUser {
         private boolean isLocked;
         private boolean isAdmin;
         private int loginTries;
+        private boolean isActivated;
 
         private ApplicationUserBuilder() {
         }
@@ -292,6 +305,11 @@ public class ApplicationUser {
 
         public ApplicationUserBuilder withEmail(String email) {
             this.email = email;
+            return this;
+        }
+
+        public ApplicationUserBuilder isActivated(Boolean activated) {
+            this.isActivated = activated;
             return this;
         }
 
@@ -351,6 +369,7 @@ public class ApplicationUser {
             user.setLocked(isLocked);
             user.setAdmin(isAdmin);
             user.setLoginTries(loginTries);
+            user.setActivated(isActivated);
             return user;
         }
     }
