@@ -38,13 +38,13 @@ import java.util.Set;
 public class EventDataGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventDataGenerator.class);
-    private static final int NUMBER_OF_FUTURE_EVENTS = 200;
-    private static final int NUMBER_OF_PAST_EVENTS = 50;
-    private static final int NUMBER_OF_FUTURE_SHOWS = 500;
-    private static final int NUMBER_OF_PAST_SHOWS = 50;
-    private static final int NUMBER_OF_ARTISTS = 100;
+    private static final int NUMBER_OF_FUTURE_EVENTS = 20;
+    private static final int NUMBER_OF_PAST_EVENTS = 5;
+    private static final int NUMBER_OF_FUTURE_SHOWS = 50;
+    private static final int NUMBER_OF_PAST_SHOWS = 5;
+    private static final int NUMBER_OF_ARTISTS = 10;
     private static final int MIN_SHOWS_PER_ARTIST = 1;
-    private static final int MAX_SHOWS_PER_ARTIST = 20;
+    private static final int MAX_SHOWS_PER_ARTIST = 2;
 
     private final EventRepository eventRepository;
     private final ShowRepository showRepository;
