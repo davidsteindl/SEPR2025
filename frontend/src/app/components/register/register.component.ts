@@ -86,10 +86,11 @@ export class RegisterComponent {
       next: () => {
         this.notification.success(`User ${this.firstName} ${this.lastName}
            successfully created.`);
-        this.router.navigate(['/login']);
+        this.goToPage();
       },
       error: error => {
         console.log(`Could not register because ${error.error.errors}`);
+        console.log(registerUser);
         this.error = true;
         if (typeof error.error === 'object') {
           this.notification.error(`Validation of user failed because ${error.error.errors}`);
