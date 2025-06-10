@@ -81,7 +81,7 @@ public class UserDataGenerator {
                 userRepository.save(customer);
             }
 
-            LOGGER.debug("Finished generating 50 admins and 1000 customers");
+            LOGGER.debug("Finished generating 5 admins and 10 customers");
         }
     }
 }

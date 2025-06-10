@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -103,8 +102,12 @@ public class UserRegisterDto {
         this.sex = sex;
     }
 
-    public Boolean getAdmin() {
+    public Boolean getIsAdmin() {
         return isAdmin;
+    }
+
+    public void setIsAdmin(Boolean admin) {
+        isAdmin = admin;
     }
 
     @Override
@@ -122,12 +125,13 @@ public class UserRegisterDto {
             && Objects.equals(lastName, userRegisterDto.lastName)
             && Objects.equals(dateOfBirth, userRegisterDto.dateOfBirth)
             && Objects.equals(termsAccepted, userRegisterDto.termsAccepted)
-            && Objects.equals(sex, userRegisterDto.sex);
+            && Objects.equals(sex, userRegisterDto.sex)
+            && Objects.equals(isAdmin, userRegisterDto.isAdmin);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, lastName, dateOfBirth, email, password, sex, confirmPassword, termsAccepted);
+        return Objects.hash(firstName, lastName, dateOfBirth, email, password, sex, confirmPassword, termsAccepted, isAdmin);
     }
 
     @Override
@@ -139,6 +143,7 @@ public class UserRegisterDto {
             + "email='" + email + '\''
             + ", password='" + password + '\''
             + ", sex='" + sex + '\''
+            + ", admin='" + isAdmin + '\''
             + '}';
     }
 
@@ -152,6 +157,7 @@ public class UserRegisterDto {
         private String confirmPassword;
         private boolean termsAccepted;
         private Sex sex;
+        private boolean isAdmin;
 
 
         private UserRegisterDtoBuilder() {
@@ -196,6 +202,11 @@ public class UserRegisterDto {
             return this;
         }
 
+        public UserRegisterDto.UserRegisterDtoBuilder withIsAdmin(boolean isAdmin) {
+            this.isAdmin = isAdmin;
+            return this;
+        }
+
         public UserRegisterDto.UserRegisterDtoBuilder withSex(Sex sex) {
             this.sex = sex;
             return this;
@@ -211,6 +222,7 @@ public class UserRegisterDto {
             userRegisterDto.setConfirmPassword(confirmPassword);
             userRegisterDto.setTermsAccepted(termsAccepted);
             userRegisterDto.setSex(sex);
+            userRegisterDto.setIsAdmin(isAdmin);
             return userRegisterDto;
         }
     }
