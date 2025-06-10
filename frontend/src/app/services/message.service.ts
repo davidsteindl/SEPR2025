@@ -53,5 +53,15 @@ export class MessageService {
 
   }
 
+  /**
+   * Gets Image Blob
+   *
+   * @param messageId of message to load
+   * @param imageId of image to load
+   */
+  getImageBlob(messageId: number, imageId: number): Observable<Blob> {
+    return this.httpClient.get(this.messageBaseUri + `/${messageId}/image/${imageId}`, { responseType: 'blob' });
+  }
+
 
 }
