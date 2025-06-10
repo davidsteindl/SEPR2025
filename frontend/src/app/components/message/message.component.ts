@@ -1,12 +1,14 @@
-import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild, ViewChildren} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, TemplateRef} from '@angular/core';
 import {MessageService} from '../../services/message.service';
-import {Message} from '../../dtos/message';
-import {Event, EventTopTenDto} from '../../dtos/event';
+import {Message, MessageCreate} from '../../dtos/message';
+import {EventTopTenDto} from '../../dtos/event';
 import {NgbModal, NgbPaginationConfig} from '@ng-bootstrap/ng-bootstrap';
-import {UntypedFormBuilder, NgForm} from '@angular/forms';
+import {UntypedFormBuilder} from '@angular/forms';
 import {AuthService} from '../../services/auth.service';
 import {EventService} from "../../services/event.service";
 import {eventCategory} from "../../dtos/eventCategory";
+import {Globals} from "../../global/globals";
+import {DomSanitizer, SafeResourceUrl} from "@angular/platform-browser";
 
 @Component({
   selector: 'app-message',
@@ -18,10 +20,11 @@ export class MessageComponent implements OnInit {
 
   error = false;
   errorMessage = '';
-  // After first submission attempt, form validation will start
   submitted = false;
 
   currentMessage: Message;
+  currentImages: Map<number, Blob>;
+  newsImages: File[] | undefined;
 
   private message: Message[];
 
@@ -36,7 +39,9 @@ export class MessageComponent implements OnInit {
               private formBuilder: UntypedFormBuilder,
               private cd: ChangeDetectorRef,
               private authService: AuthService,
-              private modalService: NgbModal) {
+              private modalService: NgbModal,
+              private globals: Globals,
+              private sanitizer: DomSanitizer,) {
   }
 
   ngOnInit() {
@@ -61,6 +66,14 @@ export class MessageComponent implements OnInit {
     this.messageService.getMessageById(id).subscribe({
       next: res => {
         this.currentMessage = res;
+        this.currentImages = new Map();
+        for(const {id} of this.currentMessage.images){
+          this.messageService.getImageBlob(this.currentMessage.id, id).subscribe({
+            next: blob => {
+              this.currentImages.set(id, blob);
+            }
+          });
+        }
         this.modalService.open(messageAddModal, {ariaLabelledBy: 'modal-basic-title'});
       },
       error: err => {
@@ -79,10 +92,12 @@ export class MessageComponent implements OnInit {
 
     if (form.valid) {
       this.currentMessage.publishedAt = new Date().toISOString();
-      this.createMessage(this.currentMessage);
+      this.createMessage({...this.currentMessage, images: this.newsImages});
       this.clearForm();
     }
   }
+
+
 
   getMessage(): Message[] {
     return this.message;
@@ -100,7 +115,7 @@ export class MessageComponent implements OnInit {
    *
    * @param message the message which should be created
    */
-  private createMessage(message: Message) {
+  private createMessage(message: MessageCreate) {
     this.messageService.createMessage(message).subscribe({
         next: () => {
           this.loadMessage();
@@ -127,11 +142,19 @@ export class MessageComponent implements OnInit {
   }
 
 
-  newsImage(): string {
-   /* if(this.message){
-      return baseUri + '/' + this.message.id + '/image'
-    }*/
-    return ''
+  newsImage(imageId: number): SafeResourceUrl {
+    const url = URL.createObjectURL(this.currentImages.get(imageId));
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+
+  onFileSelected(event: Event) {
+    const fileInput = event.target as HTMLInputElement;
+    if (fileInput.files) {
+      this.newsImages = [];
+      for (const file of fileInput.files) {
+        this.newsImages.push(file);
+      }
+    }
   }
 
   private defaultServiceErrorHandling(error: any) {
