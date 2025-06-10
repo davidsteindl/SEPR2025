@@ -1,0 +1,107 @@
+/* The container that holds everything as a CSS Grid */
+.seat-map-grid {
+  display: grid;
+  gap: 0.6rem;
+  user-select: none;
+  overflow: auto;
+    background: #fff;
+    padding: 1.5rem;
+    /* Remove any height/flex properties that force stretching */
+    width: max-content;
+    height: max-content;
+    margin: 0 auto;
+}
+
+/* Every “grid-cell” occupies exactly one cell in the grid by default.
+   We only modify grid-row / grid-column via inline styles. */
+.grid-cell {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+/* Override fixed size for spanning standing sectors */
+.grid-cell.standing-rect {
+  width: auto;
+  height: auto;
+}
+/* Invisible placeholder for deleted seats */
+.deleted-cell {
+  background-color: transparent;
+  pointer-events: none;
+}
+
+/* Generic seat circle styling */
+.seat-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.1s ease-in-out;
+}
+.seat-circle:hover {
+  transform: scale(1.08);
+}
+
+/* Gray‐out if unavailable */
+.gray-seat .seat-circle,
+.unavailable {
+  background: #888 !important;
+  cursor: not-allowed;
+}
+
+/* Big rectangle for standing sector */
+.standing-rect {
+  cursor: pointer;
+  transition: transform 0.1s ease-in-out;
+  width: 100%;
+    height: 100%;
+}
+.standing-rect:hover {
+  transform: scale(1.03);
+}
+
+/* Check icon if selected */
+.selected-icon {
+  position: absolute;
+  top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    color: #28a745;
+    /* Bootstrap green */
+  z-index: 10;
+}
+
+/* Popover tweaks */
+.seat-popover .popover-body,
+.standing-popover .popover-body {
+  padding: 0;
+}
+.seat-popover .popover-header,
+.standing-popover .popover-header {
+  font-size: 0.9rem;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #ddd;
+}
+
+/* If the parent uses flex, ensure the component root is also flex and fills height */
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center; // horizontal centering
+    justify-content: center; // vertical centering
+  height: 100%;
+  min-height: 0;
+}
+
+/* Stage sector seats: square, grey, non-clickable */
+.stage-seat {
+  width: 100%;
+  height: 100%;
+  border-radius: 0 !important;
+  background: #888 !important;
+  cursor: default;
+  pointer-events: none;
+}

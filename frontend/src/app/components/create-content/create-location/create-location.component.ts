@@ -1,5 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-import {FormsModule} from '@angular/forms';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {FormsModule, NgForm} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {LocationService} from '../../../services/location.service';
 import {Location} from "../../../dtos/location";
@@ -13,12 +13,14 @@ import {Router} from '@angular/router';
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
   ],
   templateUrl: './create-location.component.html',
   styleUrl: './create-location.component.scss'
 })
 export class CreateLocationComponent implements OnInit {
+  @ViewChild('locationForm') form!: NgForm;
+
   location: CreateLocation = {
     name: '',
     type: null,
@@ -26,7 +28,8 @@ export class CreateLocationComponent implements OnInit {
     city: '',
     street: '',
     postalCode: ''
-  };
+  }
+  private initialLocation!: CreateLocation;
 
   constructor(
     private locationService: LocationService,
@@ -40,6 +43,7 @@ export class CreateLocationComponent implements OnInit {
     this.locationService.getCountries().subscribe((countries) => {
       this.countries = countries;
     });
+    this.initialLocation = JSON.parse(JSON.stringify(this.location));
   }
 
   createdLocation: Location = null;
@@ -66,6 +70,8 @@ export class CreateLocationComponent implements OnInit {
           });
           this.router.navigate(['/admin']);
         }
+        this.form.resetForm();
+        this.initialLocation= JSON.parse(JSON.stringify(this.location));
       },
       error: (err) => {
         console.error('Error while creating location:', err);
@@ -75,6 +81,31 @@ export class CreateLocationComponent implements OnInit {
         });
       }
     });
+  }
+
+  showConfirm: boolean = false;
+
+  private isUnchanged(): boolean {
+    return (
+      JSON.stringify(this.initialLocation) === JSON.stringify(this.location)
+    );
+  }
+
+  onBackClick(): void {
+    if (this.isUnchanged()) {
+      this.router.navigate(['/admin']);
+    } else {
+      this.showConfirm = true;
+    }
+  }
+
+  stay(): void {
+    this.showConfirm = false;
+  }
+
+  exit(): void {
+    this.showConfirm = false;
+    this.router.navigate(['/admin']);
   }
 }
 

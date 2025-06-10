@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import java.lang.invoke.MethodHandles;
 
+import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
 
 @RestController
@@ -49,7 +51,7 @@ public class RoomEndpoint {
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Edit a Room Layout", security = @SecurityRequirement(name = "apiKey"))
-    public RoomDetailDto editRoom(@PathVariable("id") Long id, @RequestBody @Valid RoomDetailDto roomDetailDto) {
+    public RoomDetailDto editRoom(@PathVariable("id") Long id, @RequestBody @Valid RoomDetailDto roomDetailDto) throws ValidationException {
         LOGGER.info("PUT /api/v1/rooms/{}", id);
         return roomservice.updateRoom(id, roomDetailDto);
     }

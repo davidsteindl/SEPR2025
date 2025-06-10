@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.util.MinMaxTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -34,6 +35,17 @@ public interface ShowRepository extends JpaRepository<Show, Long>, JpaSpecificat
     @Query("SELECT s FROM Show s LEFT JOIN FETCH s.artists WHERE s.id = :id")
     Optional<Show> findByIdWithArtists(@Param("id") Long id);
 
+    @Query("""
+            SELECT s FROM Show s
+            LEFT JOIN FETCH s.artists
+            LEFT JOIN FETCH s.room r
+            LEFT JOIN FETCH r.seats
+            LEFT JOIN FETCH r.sectors
+            LEFT JOIN FETCH s.event
+            WHERE s.id = :id
+        """)
+    Optional<Show> findDetailedById(@Param("id") Long id);
+
     List<Show> findByEventOrderByDateAsc(Event event);
 
     @EntityGraph(attributePaths = {"artists"})
@@ -46,13 +58,10 @@ public interface ShowRepository extends JpaRepository<Show, Long>, JpaSpecificat
     Page<Show> findAllByEvent_Location_IdOrderByDateAsc(Long locationId, Pageable pageable);
 
 
-    @Query("""
-        select s
-          from Show s
-          join fetch s.room r
-          join fetch r.sectors sec
-         where s.id = :id
-            """)
+    @EntityGraph(attributePaths = {"room.seats", "room.sectors"})
+    @Query("SELECT s FROM Show s WHERE s.id = :id")
     Optional<Show> findByIdWithRoomAndSectors(@Param("id") Long id);
 
+    @EntityGraph(attributePaths = {"room.sectors", "event"})
+    Page<Show> findAll(Specification<Show> spec, Pageable pageable);
 }

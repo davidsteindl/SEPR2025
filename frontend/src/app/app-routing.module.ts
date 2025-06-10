@@ -32,11 +32,12 @@ import {
 import {
   ReservedOrderDetailComponent
 } from "./components/order-detail/reserved-order-detail/reserved-order-detail.component";
-import {
-  RefundedOrderDetailComponent
-} from "./components/order-detail/refunded-order-detail/refunded-order-detail.component";
 import {PastOrderDetailComponent} from "./components/order-detail/past-order-detail/past-order-detail.component";
 import {EditEventComponent} from "./components/edit-event/edit-event.component";
+import {TicketComponent} from "./components/ticket/ticket.component";
+import { PasswordComponent } from './components/password/password.component';
+import {ResetPasswordComponent} from "./components/password/reset-password/reset-password.component";
+import { BuyTicketsPageComponent } from './components/buy-tickets-page/buy-tickets-page.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -45,13 +46,13 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent},
   { path: 'termsandconditions', component: TermsandconditionsComponent},
   { path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent },
-  { path: 'checkout', component: PaymentFormComponent },
+  { path: 'checkout', component: PaymentFormComponent, canActivate: [AuthGuard] },
   { path: 'user', component: UserComponent, canActivate: [AuthGuard]},
   { path: 'user-edit', component: UserEditComponent, canActivate: [AuthGuard]},
   { path: 'search', component: SearchComponent, canActivate: [AuthGuard]},
   { path: 'create-event', component: CreateEventComponent, canActivate: [AdminGuard] },
-  {path: 'update-events', component: UpdateEventsComponent, canActivate: [AdminGuard] },
-  { path: 'events/:id/edit',  component: EditEventComponent },
+  { path: 'update-events', component: UpdateEventsComponent, canActivate: [AdminGuard] },
+  { path: 'events/:id/edit',  component: EditEventComponent, canActivate: [AdminGuard] },
   { path: 'create-artist', component: CreateArtistComponent, canActivate: [AdminGuard] },
   { path: 'create-show', component: CreateShowComponent, canActivate: [AdminGuard] },
   { path: 'create-location', component: CreateLocationComponent, canActivate: [AdminGuard] },
@@ -63,15 +64,17 @@ const routes: Routes = [
   { path: 'rooms/:id/edit', component: RoomEditComponent, canActivate: [AdminGuard] },
   { path: 'locations/:id/shows', component: LocationShowsComponent, canActivate: [AuthGuard] },
   { path: 'orders', component: OrderOverviewComponent, canActivate: [AuthGuard] },
-  { path: 'shows/:id/room-usage', component: RoomUsageComponent, canActivate: [AuthGuard] },
+  { path: 'shows/:id/room-usage', component: BuyTicketsPageComponent, canActivate: [AuthGuard] },
   { path: 'orders/purchased/:id', component: PurchasedOrderDetailComponent, canActivate: [AuthGuard] },
   { path: 'orders/reserved/:id', component: ReservedOrderDetailComponent, canActivate: [AuthGuard] },
-  { path: 'orders/refunded/:id', component: RefundedOrderDetailComponent, canActivate: [AuthGuard] },
   { path: 'orders/past/:id', component: PastOrderDetailComponent, canActivate: [AuthGuard] },
+  { path: 'ticket/:id/:randomTicketCode', component: TicketComponent, canActivate: [AdminGuard] },
+  { path: 'forgot-password', component: PasswordComponent},
+  { path: 'reset-password', component: ResetPasswordComponent},
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, {useHash: true})],
+  imports: [RouterModule.forRoot(routes, {useHash: false})],
   exports: [RouterModule]
 })
 export class AppRoutingModule {

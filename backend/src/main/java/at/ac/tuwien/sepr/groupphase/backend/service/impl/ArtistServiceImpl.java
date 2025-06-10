@@ -32,20 +32,20 @@ public class ArtistServiceImpl implements ArtistService {
 
     @Override
     public Artist getArtistById(Long id) {
-        LOGGER.info("Find artist with id {}", id);
+        LOGGER.debug("Find artist with id {}", id);
         return artistRepository.findByIdWithShows(id).orElse(null);
     }
 
     @Override
     public List<Artist> getAllArtists() {
-        LOGGER.info("Get all artists");
+        LOGGER.debug("Get all artists");
         return artistRepository.findAllWithShows();
     }
 
     @Override
     @Transactional
     public Artist createArtist(Artist artist) throws ValidationException {
-        LOGGER.info("Saving artist with name '{}'", artist.getStagename());
+        LOGGER.debug("Saving artist with name '{}'", artist.getStagename());
 
         Set<Show> existingShows = new HashSet<>();
         if (artist.getShows() != null) {

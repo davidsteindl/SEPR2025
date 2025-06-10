@@ -20,24 +20,28 @@
     </li>
   </ul>
 
-  <div *ngIf="currentActiveTab === 'artist'" class="tab-box">
-    <div class="row">
-      <div class="form-group col-md-6">
-        <label for="firstname">First name</label>
-        <input id="firstname" [(ngModel)]="firstname" class="form-control"/>
+  <div *ngIf="currentActiveTab === 'artist'">
+    <div class="tab-box">
+      <div class="row">
+        <div class="form-group col-md-6">
+          <label for="firstname">First name</label>
+          <input id="firstname" [(ngModel)]="firstname" class="form-control"/>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="lastname">Last name</label>
+          <input id="lastname" [(ngModel)]="lastname" class="form-control"/>
+        </div>
       </div>
-      <div class="form-group col-md-6">
-        <label for="lastname">Last name</label>
-        <input id="lastname" [(ngModel)]="lastname" class="form-control"/>
+      <div class="form-group">
+        <label for="stagename">Stage name</label>
+        <input id="stagename" [(ngModel)]="stagename" class="form-control"/>
       </div>
-    </div>
-    <div class="form-group">
-      <label for="stagename">Stage name</label>
-      <input id="stagename" [(ngModel)]="stagename" class="form-control"/>
-    </div>
 
-    <div class="text-center">
-      <button type="button" class="btn btn-primary mt-3" (click)="search()">Search</button>
+      <div class="text-center">
+        <button type="button" class="btn btn-primary mt-3" (click)="search()"
+                [disabled]="!firstname.trim() && !lastname.trim() && !stagename.trim()">Search
+        </button>
+      </div>
     </div>
 
     <div *ngIf="artistLoading" class="text-center my-3">
@@ -58,7 +62,7 @@
         </li>
       </ul>
 
-      <ul class="pagination justify-content-center">
+      <ul class="pagination justify-content-center" style="margin-top: 1rem">
         <li class="page-item" [class.disabled]="artistCurrentPage === 0">
           <a class="page-link" style="cursor: pointer;" (click)="searchArtists(artistCurrentPage - 1)">Previous</a>
         </li>
@@ -77,40 +81,50 @@
     </div>
   </div>
 
-  <div *ngIf="currentActiveTab === 'location'" class="tab-box">
-    <div class="row">
-      <div class="form.group col-md-6">
-        <label for="eventLocationName"> Location name</label>
-        <input id="eventLocationName" [(ngModel)]="eventLocationName" class="form-control"/>
+  <div *ngIf="currentActiveTab === 'location'">
+    <div class="tab-box">
+      <div class="row">
+        <div class="form.group col-md-6">
+          <label for="eventLocationName"> Location name</label>
+          <input id="eventLocationName" [(ngModel)]="eventLocationName" class="form-control"/>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="eventLocationStreet">Street</label>
+          <input id="eventLocationStreet" [(ngModel)]="eventLocationStreet" class="form-control"/>
+        </div>
       </div>
-      <div class="form-group col-md-6">
-        <label for="eventLocationStreet">Street</label>
-        <input id="eventLocationStreet" [(ngModel)]="eventLocationStreet" class="form-control"/>
+      <div class="row">
+        <div class="form-group col-md-6">
+          <label for="eventLocationCity">City</label>
+          <input id="eventLocationCity" [(ngModel)]="eventLocationCity" class="form-control"/>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="eventLocationCountry">Country</label>
+          <input id="eventLocationCountry" [(ngModel)]="eventLocationCountry" class="form-control"/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-md-6">
+          <label for="eventLocatioPostalCode">City´s Postal Code</label>
+          <input id="eventLocationPostalCode" [(ngModel)]="eventLocationPostalCode" class="form-control"/>
+        </div>
+        <div class="text-center">
+          <button type="button" class="btn btn-primary mt-3" (click)="search()" [disabled]="
+                !eventLocationName.trim() &&
+                !eventLocationStreet.trim() &&
+                !eventLocationCity.trim() &&
+                !eventLocationCountry.trim() &&
+                !eventLocationPostalCode.trim()">Search
+          </button>
+        </div>
       </div>
     </div>
-    <div class="row">
-      <div class="form-group col-md-6">
-        <label for="eventLocationCity">City</label>
-        <input id="eventLocationCity" [(ngModel)]="eventLocationCity" class="form-control"/>
-      </div>
-      <div class="form-group col-md-6">
-        <label for="eventLocationCountry">Country</label>
-        <input id="eventLocationCountry" [(ngModel)]="eventLocationCountry" class="form-control"/>
-      </div>
-    </div>
-    <div class="row">
-      <div class="form-group col-md-6">
-        <label for="eventLocatioPostalCode">City´s Postal Code</label>
-        <input id="eventLocationPostalCode" [(ngModel)]="eventLocationPostalCode" class="form-control"/>
-      </div>
-      <div class="text-center">
-        <button type="button" class="btn btn-primary mt-3" (click)="search()">Search</button>
-      </div>
 
-      <div *ngIf="eventLocationLoading" class="text-center my-3">
-        Searching…
-      </div>
-      <div class="mt-4" *ngIf="!eventLocationLoading && eventLocationTriggered">
+    <div *ngIf="eventLocationLoading" class="text-center my-3">
+      Searching…
+    </div>
+    <div class="mt-4" *ngIf="!eventLocationLoading && eventLocationTriggered">
+      <ng-container *ngIf="eventLocationPage?.content?.length > 0; else noEventLocations">
         <h5 class="text-primary">Results:</h5>
         <table class="table table-bordered">
           <thead>
@@ -139,66 +153,82 @@
           </tr>
           </tbody>
         </table>
-          <ul class="pagination justify-content-center">
-            <li class="page-item" [class.disabled]="eventLocationCurrentPage === 0">
-              <a class="page-link" style="cursor: pointer;" (click)="searchLocations(eventLocationCurrentPage - 1)">Previous</a>
-            </li>
-            <li class="page-item disabled">
+        <ul class="pagination justify-content-center" style="margin-top: 1rem">
+          <li class="page-item" [class.disabled]="eventLocationCurrentPage === 0">
+            <a class="page-link" style="cursor: pointer;"
+               (click)="searchLocations(eventLocationCurrentPage - 1)">Previous</a>
+          </li>
+          <li class="page-item disabled">
               <span class="page-link">Page {{ eventLocationCurrentPage + 1 }}
                 of {{ eventLocationPage?.totalPages }}</span>
-            </li>
-            <li class="page-item"
-                [class.disabled]="eventLocationCurrentPage >= (eventLocationPage?.totalPages || 1) - 1">
-              <a class="page-link" style="cursor: pointer;"
-                 (click)="searchLocations(eventLocationCurrentPage + 1)">Next</a>
-            </li>
-          </ul>
-          <div *ngIf="eventLocationPage?.content.length === 0" class="text-center text-muted">
-            No locations found.
-          </div>
-      </div>
+          </li>
+          <li class="page-item"
+              [class.disabled]="eventLocationCurrentPage >= (eventLocationPage?.totalPages || 1) - 1">
+            <a class="page-link" style="cursor: pointer;"
+               (click)="searchLocations(eventLocationCurrentPage + 1)">Next</a>
+          </li>
+        </ul>
+      </ng-container>
 
+      <ng-template #noEventLocations>
+        <div class="text-center text-muted" style="font-weight: bold">
+          No event locations found.
+        </div>
+      </ng-template>
     </div>
   </div>
 
-  <div *ngIf="currentActiveTab === 'event'" class="tab-box">
-    <div class="row">
-      <div class="form-group col-md-6">
-        <label for="eventName">Event name</label>
-        <input id="eventName" [(ngModel)]="eventName" class="form-control"/>
+  <div *ngIf="currentActiveTab === 'event'">
+    <div class="tab-box">
+      <div class="row">
+        <div class="form-group col-md-6">
+          <label for="eventName">Event name</label>
+          <input id="eventName" [(ngModel)]="eventName" class="form-control"/>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="eventCategory">Event category</label>
+          <select id="eventCategory" [(ngModel)]="eventCategory" class="form-control">
+            <option [ngValue]="null"></option>
+            <option *ngFor="let cat of eventCategories" [value]="cat">
+              {{ cat }}
+            </option>
+          </select>
+        </div>
       </div>
-      <div class="form-group col-md-6">
-        <label for="eventCategory">Event category</label>
-        <select id="eventCategory" [(ngModel)]="eventCategory" class="form-control">
-          <option [ngValue]="null"></option>
-          <option *ngFor="let cat of eventCategories" [value]="cat">
-            {{ cat }}
-          </option>
-        </select>
-      </div>
-    </div>
 
-    <div class="row">
-      <div class="form-group col-md-4">
-        <label for="eventDuration">Duration:</label>
-        <input type="number" id="eventDuration" [(ngModel)]="eventDuration" class="form-control" min="10"
-               max="10000"
-               placeholder="10min–10000min" title="Duration in minutes" (blur)="validateDuration()"/>
+      <div class="row">
+        <div class="form-group col-md-4">
+          <label for="eventDuration">Duration</label>
+          <input type="number" id="eventDuration"
+                 [(ngModel)]="eventDuration"
+                 class="form-control" min="10"
+                 max="10000"
+                 placeholder="10min–10000min"
+                 title="Duration in minutes"
+                 (blur)="validateDuration()"
+                 (keydown)="preventNonNumericInput($event)"/>
+        </div>
+        <div class="form-group col-md-8">
+          <label for="eventDescription">Description</label>
+          <input id="eventDescription" [(ngModel)]="eventDescription" class="form-control"/>
+        </div>
       </div>
-      <div class="form-group col-md-8">
-        <label for="eventDescription">Description:</label>
-        <input id="eventDescription" [(ngModel)]="eventDescription" class="form-control"/>
-      </div>
-    </div>
 
-    <div class="text-center">
-      <button type="button" class="btn btn-primary mt-3" (click)="search()">Search</button>
+      <div class="text-center">
+        <button type="button" class="btn btn-primary mt-3" (click)="search()" [disabled]="
+        !eventName.trim() &&
+        !eventCategory &&
+        !eventDuration &&
+        !eventDescription.trim()">Search
+        </button>
+      </div>
     </div>
 
     <div *ngIf="eventLoading" class="text-center my-3">
       Searching…
     </div>
     <div class="mt-4" *ngIf="!eventLoading && eventTriggered">
+      <ng-container *ngIf="eventPage?.content?.length > 0; else noEvents">
       <h5 class="text-primary">Results:</h5>
       <table class="table table-bordered">
         <thead>
@@ -225,7 +255,7 @@
         </tr>
         </tbody>
       </table>
-      <ul class="pagination justify-content-center">
+      <ul class="pagination justify-content-center" style="margin-top: 1rem">
         <li class="page-item" [class.disabled]="eventCurrentPage === 0">
           <a class="page-link" style="cursor: pointer;" (click)="searchEvents(eventCurrentPage - 1)">Previous</a>
         </li>
@@ -239,49 +269,63 @@
              (click)="searchEvents(eventCurrentPage + 1)">Next</a>
         </li>
       </ul>
-      <div *ngIf="eventPage?.content.length === 0" class="text-center text-muted">
-        No events found.
-      </div>
+      </ng-container>
+
+      <ng-template #noEvents>
+        <div class="text-center text-muted" style="font-weight: bold">
+          No events found.
+        </div>
+      </ng-template>
     </div>
   </div>
 
-  <div *ngIf="currentActiveTab === 'show'" class="tab-box">
-    <div class="row">
-      <div class="form-group col-md-6">
-        <label for="eventName">Event name</label>
-        <input id="eventName" [(ngModel)]="showEventName" name="eventName" class="form-control"/>
+  <div *ngIf="currentActiveTab === 'show'">
+    <div class="tab-box">
+      <div class="row">
+        <div class="form-group col-md-6">
+          <label for="eventName">Event name</label>
+          <input id="eventName" [(ngModel)]="showEventName" name="eventName" class="form-control"/>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="roomName">Room name</label>
+          <input id="roomName" [(ngModel)]="showRoomName" name="roomName" class="form-control"/>
+        </div>
       </div>
-      <div class="form-group col-md-6">
-        <label for="roomName">Room name</label>
-        <input id="roomName" [(ngModel)]="showRoomName" name="roomName" class="form-control"/>
-      </div>
-    </div>
 
-    <div class="row">
-      <div class="form-group col-md-6">
-        <label for="startDate">Start date</label>
-        <input id="startDate" type="datetime-local" [(ngModel)]="showStartDate" name="startDate"
-               class="form-control"/>
+      <div class="row">
+        <div class="form-group col-md-6">
+          <label for="startDate">Start date</label>
+          <input id="startDate" type="datetime-local" [(ngModel)]="showStartDate" name="startDate"
+                 class="form-control"/>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="endDate">End date</label>
+          <input id="endDate" type="datetime-local" [(ngModel)]="showEndDate" name="endDate" class="form-control"/>
+        </div>
       </div>
-      <div class="form-group col-md-6">
-        <label for="endDate">End date</label>
-        <input id="endDate" type="datetime-local" [(ngModel)]="showEndDate" name="endDate" class="form-control"/>
-      </div>
-    </div>
 
-    <div class="row">
-      <div class="form-group col-md-6">
-        <label for="minPrice">Min price (€)</label>
-        <input id="minPrice" type="number" [(ngModel)]="showMinPrice" name="minPrice" class="form-control"/>
+      <div class="row">
+        <div class="form-group col-md-6">
+          <label for="minPrice">Min price (€)</label>
+          <input id="minPrice" type="number" [(ngModel)]="showMinPrice" name="minPrice" class="form-control"/>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="maxPrice">Max price (€)</label>
+          <input id="maxPrice" type="number" [(ngModel)]="showMaxPrice" name="maxPrice" class="form-control"/>
+        </div>
       </div>
-      <div class="form-group col-md-6">
-        <label for="maxPrice">Max price (€)</label>
-        <input id="maxPrice" type="number" [(ngModel)]="showMaxPrice" name="maxPrice" class="form-control"/>
-      </div>
-    </div>
 
-    <div class="text-center">
-      <button type="button" class="btn btn-primary mt-3" (click)="search()">Search</button>
+      <div class="text-center">
+        <button type="button" class="btn btn-primary mt-3" (click)="search()" [disabled]="
+        !showName.trim() &&
+        !showEventName.trim() &&
+        !showRoomName.trim() &&
+        !showStartDate &&
+        !showEndDate &&
+        (showMinPrice === null) &&
+        (showMaxPrice === null)">Search
+        </button>
+      </div>
     </div>
 
     <div *ngIf="showLoading" class="text-center my-3">
@@ -326,7 +370,7 @@
           </tbody>
         </table>
 
-        <ul class="pagination justify-content-center">
+        <ul class="pagination justify-content-center" style="margin-top: 1rem">
           <li class="page-item" [class.disabled]="showCurrentPage === 0">
             <a class="page-link" style="cursor: pointer;" (click)="searchShows(showCurrentPage - 1)">Previous</a>
           </li>

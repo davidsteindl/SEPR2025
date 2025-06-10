@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
+
 import java.util.Objects;
 
 public class SeatDto {
@@ -20,6 +21,10 @@ public class SeatDto {
 
     private boolean deleted;
 
+    private Long sectorId;
+
+    @Positive(message = "Room ID must be positive")
+    private Long roomId;
 
     public Long getId() {
         return id;
@@ -53,10 +58,20 @@ public class SeatDto {
         this.deleted = deleted;
     }
 
+    public Long getSectorId() {
+        return sectorId;
+    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, rowNumber, columnNumber, deleted);
+    public void setSectorId(Long sectorId) {
+        this.sectorId = sectorId;
+    }
+
+    public Long getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(Long roomId) {
+        this.roomId = roomId;
     }
 
     @Override
@@ -67,11 +82,18 @@ public class SeatDto {
         if (!(o instanceof SeatDto)) {
             return false;
         }
-        SeatDto that = (SeatDto) o;
-        return rowNumber == that.rowNumber
-            && columnNumber == that.columnNumber
-            && deleted == that.deleted
-            && Objects.equals(id, that.id);
+        SeatDto seatDto = (SeatDto) o;
+        return rowNumber == seatDto.rowNumber
+            && columnNumber == seatDto.columnNumber
+            && deleted == seatDto.deleted
+            && Objects.equals(id, seatDto.id)
+            && Objects.equals(sectorId, seatDto.sectorId)
+            && Objects.equals(roomId, seatDto.roomId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, rowNumber, columnNumber, deleted, sectorId, roomId);
     }
 
     @Override
@@ -81,6 +103,8 @@ public class SeatDto {
             + ", rowNumber=" + rowNumber
             + ", columnNumber=" + columnNumber
             + ", deleted=" + deleted
+            + ", sectorId=" + sectorId
+            + ", roomId=" + roomId
             + '}';
     }
 
@@ -89,6 +113,8 @@ public class SeatDto {
         private int rowNumber;
         private int columnNumber;
         private boolean deleted;
+        private Long sectorId;
+        private Long roomId;
 
         public static SeatDtoBuilder aSeatDto() {
             return new SeatDtoBuilder();
@@ -114,12 +140,24 @@ public class SeatDto {
             return this;
         }
 
+        public SeatDtoBuilder sectorId(Long sectorId) {
+            this.sectorId = sectorId;
+            return this;
+        }
+
+        public SeatDtoBuilder roomId(Long roomId) {
+            this.roomId = roomId;
+            return this;
+        }
+
         public SeatDto build() {
             SeatDto dto = new SeatDto();
             dto.setId(id);
             dto.setRowNumber(rowNumber);
             dto.setColumnNumber(columnNumber);
             dto.setDeleted(deleted);
+            dto.setSectorId(sectorId);
+            dto.setRoomId(roomId);
             return dto;
         }
     }

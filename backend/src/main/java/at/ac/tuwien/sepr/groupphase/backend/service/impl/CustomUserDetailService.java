@@ -174,6 +174,7 @@ public class CustomUserDetailService implements UserService {
 
     @Override
     public void unlockUser(Long id) {
+        LOGGER.debug("unlock user {}", id);
         ApplicationUser user = userRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("User not found"));
         user.setLocked(false);
@@ -185,6 +186,7 @@ public class CustomUserDetailService implements UserService {
     @Transactional
     @Override
     public void delete(Long id) {
+        LOGGER.debug("Delete user {}", id);
         if (!userRepository.existsById(id)) {
             throw new NotFoundException("User not found");
         }
@@ -195,6 +197,7 @@ public class CustomUserDetailService implements UserService {
     @Transactional
     @Override
     public void update(Long id, UserUpdateDto userToUpdate) throws ValidationException {
+        LOGGER.debug("Update user {}", id);
         var userInDatabase = userRepository.findById(id);
 
         if (userInDatabase.isEmpty()) {

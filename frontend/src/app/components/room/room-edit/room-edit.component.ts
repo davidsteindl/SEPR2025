@@ -249,7 +249,9 @@ export class RoomEditComponent implements OnInit {
             id: null,
             rowNumber: i,
             columnNumber: j,
-            deleted: false
+            deleted: false,
+            sectorId: newSector.id,  // assign new sector id (null initially)
+            roomId: null             // room assigned later
           };
           newSector.rows.push(seat);
         }

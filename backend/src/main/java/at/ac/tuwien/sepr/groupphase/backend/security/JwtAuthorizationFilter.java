@@ -5,9 +5,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.util.List;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,11 +20,21 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+
 @Service
 @Order(Ordered.LOWEST_PRECEDENCE - 1)
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final List<String> WHITELIST = List.of(
+        "/api/v1/authentication/resetPassword",
+        "/api/v1/authentication/changePassword",
+        "/api/v1/authentication/register",
+        "/h2-console"
+    );
     private final SecurityProperties securityProperties;
 
     public JwtAuthorizationFilter(SecurityProperties securityProperties) {
@@ -38,8 +45,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws IOException, ServletException {
         try {
-            if (request.getRequestURI().equals("/api/v1/authentication/register")) {
-                chain.doFilter(request, response);  // Request geht ohne JWT-Überprüfung durch
+
+            String path = request.getServletPath();
+            if (WHITELIST.stream().anyMatch(path::startsWith)) {
+                chain.doFilter(request, response);
                 return;
             }
 

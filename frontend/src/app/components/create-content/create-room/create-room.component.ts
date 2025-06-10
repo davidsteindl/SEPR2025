@@ -1,12 +1,8 @@
-import {Component, OnInit} from '@angular/core';
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {FormsModule, NgForm, ReactiveFormsModule} from "@angular/forms";
 import {NgForOf, NgIf} from "@angular/common";
-import {CreateShow} from "../../../dtos/create-show";
 import {CreateRoom} from "../../../dtos/create-room";
-import {Event} from "../../../dtos/event";
 import {Location} from "../../../dtos/location";
-import {EventCategory} from "../create-event/create-event.component";
-import {EventService} from "../../../services/event.service";
 import {LocationService} from "../../../services/location.service";
 import {ToastrService} from "ngx-toastr";
 import {ErrorFormatterService} from "../../../services/error-formatter.service";
@@ -20,12 +16,13 @@ import {Room} from "../../../dtos/room";
     FormsModule,
     ReactiveFormsModule,
     NgIf,
-    NgForOf
+    NgForOf,
   ],
   templateUrl: './create-room.component.html',
   styleUrl: './create-room.component.scss'
 })
 export class CreateRoomComponent implements OnInit {
+  @ViewChild('roomForm') form!: NgForm;
 
   room: CreateRoom = {
     name: '',
@@ -34,6 +31,8 @@ export class CreateRoomComponent implements OnInit {
     seatsPerRow: 3,
     eventLocationId: null,
   };
+  private initialRoom!: CreateRoom;
+
   nameOfRoom: string;
   locations: Location[] = [];
 
@@ -59,6 +58,7 @@ export class CreateRoomComponent implements OnInit {
         });
       }
     });
+    this.initialRoom = JSON.parse(JSON.stringify(this.room));
   }
 
 
@@ -74,11 +74,13 @@ export class CreateRoomComponent implements OnInit {
           seatsPerRow: 3,
           eventLocationId: null,
         };
-          this.notification.success(`Room ${this.nameOfRoom} created successfully!`, 'Success', {
-            enableHtml: true,
-            timeOut: 8000,
-          });
-          this.router.navigate(['/rooms', room.id, 'overview']);
+        this.form.resetForm();
+        this.initialRoom = JSON.parse(JSON.stringify(this.room));
+        this.notification.success(`Room ${this.nameOfRoom} created successfully!`, 'Success', {
+          enableHtml: true,
+          timeOut: 8000,
+        });
+        this.router.navigate(['/rooms', room.id, 'overview']);
       },
       error: (err) => {
         console.error('Error creating room:', err);
@@ -88,5 +90,28 @@ export class CreateRoomComponent implements OnInit {
         });
       }
     });
+  }
+
+  showConfirm: boolean = false;
+
+  private isUnchanged(): boolean {
+    return JSON.stringify(this.initialRoom) === JSON.stringify(this.room);
+  }
+
+  onBackClick(): void {
+    if (this.isUnchanged()) {
+      this.router.navigate(['/admin']);
+    } else {
+      this.showConfirm = true;
+    }
+  }
+
+  stay(): void {
+    this.showConfirm = false;
+  }
+
+  exit(): void {
+    this.showConfirm = false;
+    this.router.navigate(['/admin']);
   }
 }

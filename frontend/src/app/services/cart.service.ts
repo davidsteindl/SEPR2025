@@ -8,6 +8,7 @@ import { PaymentItem } from '../dtos/payment-item';
 export class CartService {
   private _items = new BehaviorSubject<PaymentItem[]>([]);
   readonly items$ = this._items.asObservable();
+  private reservedTicketIds: number[] | null = null;
 
   setItems(items: PaymentItem[]) {
     this._items.next(items);
@@ -20,5 +21,17 @@ export class CartService {
 
   clear() {
     this._items.next([]);
+  }
+
+  setReservedTicketIds(ids: number[]): void {
+    this.reservedTicketIds = ids;
+  }
+
+  getReservedTicketIds(): number[] | null {
+    return this.reservedTicketIds;
+  }
+
+  clearReservedTicketIds(): void {
+    this.reservedTicketIds = null;
   }
 }

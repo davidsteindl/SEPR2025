@@ -14,6 +14,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.EventService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final EventLocationRepository eventLocationRepository;
     private final ShowRepository showRepository;
+    private final TicketRepository ticketRepository;
     private final EventMapper eventMapper;
     private final ShowMapper showMapper;
     private final EventValidator eventValidator;
@@ -44,11 +46,13 @@ public class EventServiceImpl implements EventService {
     public EventServiceImpl(EventRepository eventRepository,
                             EventLocationRepository eventLocationRepository,
                             ShowRepository showRepository,
+                            TicketRepository ticketRepository,
                             EventMapper eventMapper,
                             ShowMapper showMapper, EventValidator eventValidator) {
         this.eventRepository = eventRepository;
         this.eventLocationRepository = eventLocationRepository;
         this.showRepository = showRepository;
+        this.ticketRepository = ticketRepository;
         this.eventMapper = eventMapper;
         this.showMapper = showMapper;
         this.eventValidator = eventValidator;
@@ -56,19 +60,19 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Event getEventById(Long id) {
-        LOGGER.info("Find event with id {}", id);
+        LOGGER.debug("Find event with id {}", id);
         return eventRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<Event> getAllEvents() {
-        LOGGER.info("Get all events");
+        LOGGER.debug("Get all events");
         return eventRepository.findAll();
     }
 
     @Override
     public Event createEvent(Event event) throws ValidationException {
-        LOGGER.info("Save event {}", event);
+        LOGGER.debug("Save event {}", event);
 
         eventValidator.validateForCreate(event);
         if (event.getLocation() != null) {
@@ -83,7 +87,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Event updateEvent(Long id, Event event) throws ValidationException {
-        LOGGER.info("Update event {} with data {}", id, event);
+        LOGGER.debug("Update event {} with data {}", id, event);
 
         eventValidator.validateForUpdate(id, event);
 
@@ -104,14 +108,14 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Page<EventDetailDto> getEventsByArtist(Long artistId, Pageable pageable) {
-        LOGGER.info("Fetching events for artistId={} with pageable={}", artistId, pageable);
+        LOGGER.debug("Fetching events for artistId={} with pageable={}", artistId, pageable);
         return showRepository.findEventsByArtistId(artistId, pageable)
             .map(eventMapper::eventToEventDetailDto);
     }
 
     @Override
     public Page<ShowDetailDto> getPaginatedShowsForEvent(Long eventId, Pageable pageable) {
-        LOGGER.info("Fetching paginated shows for eventId={} with pageable={}", eventId, pageable);
+        LOGGER.debug("Fetching paginated shows for eventId={} with pageable={}", eventId, pageable);
 
         Event event = eventRepository.findById(eventId)
             .orElseThrow(() -> new IllegalArgumentException("Event not found with id: " + eventId));
@@ -122,36 +126,20 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventTopTenDto> getTopTenEventsByCategory(String category) throws ValidationException {
-        LOGGER.info("Fetching top ten events for category={}", category);
+        LOGGER.debug("Fetching top ten events for category={}", category);
         Pageable topTen = PageRequest.of(0, 10);
         List<Object[]> topTenEvents;
         if (category.equalsIgnoreCase("all")) {
-            // Vorbereiteter Code für später, wenn TicketRepository implementiert ist
-            //topTenEvents = ticketRepository.findTopTenEventsOrderByTicketCountDesc(topTen);
+            topTenEvents = ticketRepository.findTopTenEventsOrderByTicketCountDesc(LocalDateTime.now().plusDays(30), topTen);
         } else {
             try {
                 Event.EventCategory.valueOf(category);
             } catch (IllegalArgumentException e) {
                 throw new ValidationException("Invalid category: " + category, List.of("Invalid category: " + category));
             }
-            // Vorbereiteter Code für später, wenn TicketRepository implementiert ist
-            //topTenEvents = ticketRepository.findTopTenEventsByCategoryOrderByTicketCountDesc(topTen, category);
+            Event.EventCategory eventCategory = Event.EventCategory.valueOf(category.toUpperCase());
+            topTenEvents = ticketRepository.findTopTenEventsByCategoryOrderByTicketCountDesc(eventCategory, LocalDateTime.now().plusDays(30), topTen);
         }
-
-        // Da es keine Tickets gibt, wird hier eine Dummy-Liste für die zurückgegebenen Events erstellt
-        List<Event> events = category.equalsIgnoreCase("all")
-            ? eventRepository.findAll()
-            : eventRepository.findAllByCategory(Event.EventCategory.valueOf(category));
-
-        topTenEvents = events.stream()
-            .map(event -> new Object[] {
-                event,
-                100L * event.getName().length()
-            })
-            .sorted((a, b) -> Long.compare((Long) b[1], (Long) a[1]))
-            .limit(10)
-            .toList();
-        // Ende der Dummy-Listen Erstellung
 
         List<EventTopTenDto> eventTopTenDtos = new ArrayList<>();
 
@@ -176,7 +164,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventCategoryDto> getAllEventCategories() {
-        LOGGER.info("Fetching all event categories");
+        LOGGER.debug("Fetching all event categories");
         return Arrays.stream(Event.EventCategory.values())
             .map(cat -> EventCategoryDto.EventCategoryDtoBuilder
                 .anEventCategoryDto()

@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PaymentItem } from "../../dtos/payment-item";
 import { CartService } from 'src/app/services/cart.service';
-import { TEST_PAYMENT_ITEMS } from './test-payment-data'; // Import test data
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { TicketService } from 'src/app/services/ticket.service';
 import { OrderDto } from 'src/app/dtos/order';
+import { TicketRequestDto } from 'src/app/dtos/ticket';
+import {UserService} from "../../services/user.service";
+import {User} from "../../dtos/user";
 
 @Component({
   selector: 'app-payment-form',
@@ -22,13 +24,15 @@ export class PaymentFormComponent implements OnInit {
 
   paymentForm!: FormGroup;
   loading = false;
+  private readonly FORM_STORAGE_KEY = 'paymentFormData';
 
   constructor(
     private fb: FormBuilder,
     private cart: CartService,
     private ticketService: TicketService,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
@@ -64,7 +68,8 @@ export class PaymentFormComponent implements OnInit {
       country: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      address: ['', Validators.required],
+      street: ['', Validators.required],
+      housenumber: ['', Validators.required],
       postalCode: [
         '',
         [
@@ -73,6 +78,15 @@ export class PaymentFormComponent implements OnInit {
         ],
       ],
       city: ['', Validators.required],
+    });
+
+    const saved = localStorage.getItem(this.FORM_STORAGE_KEY);
+    if (saved) {
+      this.paymentForm.patchValue(JSON.parse(saved));
+    }
+
+    this.paymentForm.valueChanges.subscribe(val => {
+      localStorage.setItem(this.FORM_STORAGE_KEY, JSON.stringify(val));
     });
   }
 
@@ -90,23 +104,78 @@ export class PaymentFormComponent implements OnInit {
     }
 
     this.loading = true;
-    this.ticketService.buyTickets(this.items[0].showId, this.items)
-      .subscribe({
-        next: (order: OrderDto) => {
-          const dt = new Date(order.createdAt);
-          this.toastr.success(
-            `Order #${order.id} placed on ${dt.toLocaleString()}`,
-            'Payment Complete'
-          );
-          this.router.navigate(['/orders']);
-        },
-        error: (err) => {
-          this.toastr.error(
-            err?.message ?? 'Something went wrong.',
-            'Payment Failed'
-          );
+
+    const reservedTicketIds = this.cart.getReservedTicketIds();
+
+    if (reservedTicketIds && reservedTicketIds.length > 0) {
+      const payload: TicketRequestDto = {
+        ...this.paymentForm.value,
+        showId: this.items[0].showId,
+        reservedTicketIds
+      };
+
+      this.ticketService.buyReservedTickets(payload)
+        .subscribe(this.buildHandler())
+        .add(() => (this.loading = false));
+
+    } else {
+      this.ticketService.buyTickets(this.items[0].showId, this.items, this.paymentForm.value)
+        .subscribe(this.buildHandler())
+        .add(() => (this.loading = false));
+    }
+  }
+
+  private buildHandler() {
+    return {
+      next: (order: OrderDto) => {
+        const dt = new Date(order.createdAt);
+        this.toastr.success(
+          `Order #${order.id} placed on ${dt.toLocaleString()}`,
+          'Payment Complete'
+        );
+        localStorage.removeItem(this.FORM_STORAGE_KEY);
+        this.cart.clearReservedTicketIds?.();
+        this.cart.clear();
+        this.router.navigate(['/orders']);
+      },
+      error: (err: any) => {
+        const backendErrors = err?.error;
+
+        if (backendErrors?.errors && Array.isArray(backendErrors.errors)) {
+          backendErrors.errors.forEach((e: string) => {
+            this.toastr.error(e, 'Validation Error');
+          });
+        } else if (backendErrors?.message) {
+          this.toastr.error(backendErrors.message, 'Payment Failed');
+        } else {
+          this.toastr.error('Error occurred', 'Error');
         }
-      })
-      .add(() => (this.loading = false));
+
+        console.error('Backend error:', err);
+      }
+    };
+  }
+
+
+  copyAddressFromProfile(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (!checked) return;
+
+    this.userService.getCurrentUser().subscribe({
+      next: (user: User) => {
+        this.paymentForm.patchValue({
+          firstName: user.firstName || '',
+          lastName: user.lastName || '',
+          street: user.street || '',
+          housenumber: user.housenumber || '',
+          postalCode: user.postalCode || '',
+          city: user.city || '',
+          country: user.country || ''
+        });
+      },
+      error: () => {
+        this.toastr.error('Could not load address from profile', 'Error');
+      }
+    });
   }
 }

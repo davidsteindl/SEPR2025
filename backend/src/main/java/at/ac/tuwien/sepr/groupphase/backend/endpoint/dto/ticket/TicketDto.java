@@ -26,13 +26,13 @@ import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
 public class TicketDto {
     private Long id;
     private String showName;
+    private Long showId;
     private int price;
     private Long seatId;
     private Long sectorId;
     private TicketStatus status;
     private int rowNumber;
     private String seatLabel;
-
 
     public Long getId() {
         return id;
@@ -48,6 +48,14 @@ public class TicketDto {
 
     public void setShowName(String showName) {
         this.showName = showName;
+    }
+
+    public Long getShowId() {
+        return showId;
+    }
+
+    public void setShowId(Long showId) {
+        this.showId = showId;
     }
 
     public int getPrice() {

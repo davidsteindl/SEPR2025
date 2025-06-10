@@ -27,7 +27,6 @@ public class UserRegisterDto {
     private LocalDate dateOfBirth;
 
     @NotNull(message = "Email must not be null")
-    @Email
     private String email;
 
     @NotNull(message =  "TermsAccepted must not be null")

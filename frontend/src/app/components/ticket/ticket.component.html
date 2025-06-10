@@ -1,0 +1,8 @@
+<div *ngIf="ticketPdfUrl; else loading">
+  <iframe [src]="ticketPdfUrl" style="width:100%; height:85vh; border:none;">
+  </iframe>
+</div>
+
+<ng-template #loading>
+  <p>Lade Ticket PDF...</p>
+</ng-template>

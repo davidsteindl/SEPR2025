@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {OrderDto} from "../../../dtos/order";
-import {ActivatedRoute, RouterLink} from "@angular/router";
+import {OrderGroupDetailDto} from "../../../dtos/order";
+import {ActivatedRoute} from "@angular/router";
 import {TicketService} from "../../../services/ticket.service";
 import {OrderService} from "../../../services/order.service";
 import {CurrencyPipe, DatePipe, NgForOf, NgIf} from "@angular/common";
@@ -15,7 +15,6 @@ import { PaymentItem } from 'src/app/dtos/payment-item';
   imports: [
     CurrencyPipe,
     FormsModule,
-    RouterLink,
     DatePipe,
     NgIf,
     NgForOf
@@ -25,11 +24,12 @@ import { PaymentItem } from 'src/app/dtos/payment-item';
   styleUrl: './reserved-order-detail.component.scss'
 })
 export class ReservedOrderDetailComponent implements OnInit {
-  order: OrderDto | null = null;
+  group: OrderGroupDetailDto | null = null;
   selected: { [ticketId: number]: boolean } = {};
   isLoading = true;
   showConfirmModal = false;
   confirmAction: 'buy' | 'cancel' | null = null;
+  tabFromParent: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -40,51 +40,53 @@ export class ReservedOrderDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const orderId = Number(this.route.snapshot.paramMap.get('id'));
-    this.loadOrder(orderId);
-  }
-
-  loadOrder(orderId: number): void {
-    this.orderService.getOrderWithTickets(orderId).subscribe({
-      next: order => {
-        this.order = order;
+    this.tabFromParent = this.route.snapshot.queryParamMap.get('tab');
+    const groupId = Number(this.route.snapshot.paramMap.get('id'));
+    this.ticketService.getOrderGroupDetails(groupId).subscribe({
+      next: (res) => {
+        this.group = res;
         this.isLoading = false;
       },
-      error: err => {
-        console.error('Failed to load order', err);
+      error: (err) => {
+        console.error('Failed to load order group', err);
         this.isLoading = false;
       }
     });
   }
 
+
   buySelected(): void {
     const items = this.toPaymentItems();
+    const reservedIds = this.getSelectedIds();
     this.cartService.setItems(items);
+    this.cartService.setReservedTicketIds(reservedIds);
     this.router.navigate(['/checkout']);
   }
 
   toPaymentItems(): PaymentItem[] {
-    if (!this.order) return [];
+    if (!this.group) return [];
 
-    return this.order.tickets
+    return this.group.tickets
       .filter(t => this.selected[t.id])
       .map(t => ({
-        eventName: this.order!.showName,
+        eventName: this.group!.showName,
         type: t.seatId ? 'SEATED' : 'STANDING',
         price: t.price,
         sectorId: t.sectorId,
         seatId: t.seatId ?? undefined,
-        rowNumber: t.rowNumber ?? undefined,
-        columnNumber: t.seatLabel ? parseInt(t.seatLabel) || undefined : undefined,
         quantity: t.seatId ? undefined : 1,
-        showId: undefined
+        showId: t.showId
       }));
   }
 
   cancelSelected(): void {
     const ticketIds = this.getSelectedIds();
+    if (ticketIds.length === 0) {
+      return;
+    }
     this.ticketService.cancelReservations(ticketIds).subscribe(() => {
-      this.loadOrder(this.order!.id);
+      ticketIds.forEach(id => delete this.selected[id]);
+      this.ngOnInit();
     });
   }
 
@@ -119,6 +121,12 @@ export class ReservedOrderDetailComponent implements OnInit {
   cancelConfirm(): void {
     this.showConfirmModal = false;
     this.confirmAction = null;
+  }
+
+  goBack(): void {
+    this.router.navigate(['/orders'], {
+      queryParams: this.tabFromParent ? { tab: this.tabFromParent } : {}
+    });
   }
 
 }

@@ -1,40 +1,75 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { OrderDto } from '../../../dtos/order';
-import { OrderService } from '../../../services/order.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {OrderDto, OrderGroupDetailDto} from '../../../dtos/order';
 import { CurrencyPipe, DatePipe, NgIf, NgForOf } from '@angular/common';
+import {TicketService} from "../../../services/ticket.service";
+import {PdfExportService} from "../../../services/pdf-export.service";
 
 @Component({
   selector: 'app-past-order-detail',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, RouterLink, NgIf, NgForOf],
+  imports: [CurrencyPipe, DatePipe, NgIf, NgForOf],
   templateUrl: './past-order-detail.component.html',
   styleUrl: './past-order-detail.component.scss'
 })
 export class PastOrderDetailComponent implements OnInit {
-  order: OrderDto | null = null;
+  group: OrderGroupDetailDto | null = null;
   isLoading = true;
+  tabFromParent: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
-    private orderService: OrderService
+    private ticketService: TicketService,
+    private pdfService: PdfExportService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    const orderId = Number(this.route.snapshot.paramMap.get('id'));
-    this.orderService.getOrderWithTickets(orderId).subscribe({
-      next: order => {
-        this.order = order;
+    const groupId = Number(this.route.snapshot.paramMap.get('id'));
+    this.ticketService.getOrderGroupDetails(groupId).subscribe({
+      next: res => {
+        this.group = res;
         this.isLoading = false;
       },
       error: err => {
-        console.error('Failed to load past order', err);
+        console.error('Failed to load past order group', err);
         this.isLoading = false;
-      }
+      },
     });
   }
 
+  get sortedOrders(): OrderDto[] {
+    return [...(this.group?.orders ?? [])].sort((a, b) =>
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+  }
+
+  getOrderLabel(order: OrderDto, index: number): string {
+    switch (order.orderType) {
+      case 'ORDER': return `Order ${index + 1}`;
+      case 'REFUND': return `Refund ${index + 1}`;
+      default: return `Order`;
+    }
+  }
+
+
   downloadPdf(ticketId: number): void {
     console.log(`Download PDF for ticket ${ticketId}`);
+  }
+
+  exportAnyInvoice(order: OrderDto): void {
+    const isCancellation = order.orderType !== 'ORDER';
+
+    if (isCancellation) {
+      this.pdfService.exportCancelInvoicePdf(order.id);
+    } else {
+      this.pdfService.exportInvoicePdf(order.id);
+    }
+  }
+
+  goBack(): void {
+    this.router.navigate(['/orders'], {
+      queryParams: this.tabFromParent ? { tab: this.tabFromParent } : {}
+    });
   }
 }

@@ -5,6 +5,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.*;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.*;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ShowServiceImpl;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,12 +25,18 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 public class ShowServiceTest {
 
-    @Autowired private ShowRepository showRepository;
-    @Autowired private EventRepository eventRepository;
-    @Autowired private ArtistRepository artistRepository;
-    @Autowired private EventLocationRepository eventLocationRepository;
-    @Autowired private RoomRepository roomRepository;
-    @Autowired private ShowValidator showValidator;
+    @Autowired
+    private ShowRepository showRepository;
+    @Autowired
+    private EventRepository eventRepository;
+    @Autowired
+    private ArtistRepository artistRepository;
+    @Autowired
+    private EventLocationRepository eventLocationRepository;
+    @Autowired
+    private RoomRepository roomRepository;
+    @Autowired
+    private ShowValidator showValidator;
 
     private ShowServiceImpl showService;
 
@@ -54,8 +61,8 @@ public class ShowServiceTest {
         eventLocationRepository.save(location);
 
         testRoom = Room.RoomBuilder.aRoom()
-            .name("Main Room")
-            .eventLocation(location)
+            .withName("Main Room")
+            .withEventLocation(location)
             .build();
         roomRepository.save(testRoom);
 
@@ -119,13 +126,8 @@ public class ShowServiceTest {
     }
 
     @Test
-    public void testGetShowById_nonExisting_returnsNull() {
-        Show result = showService.getShowById(999L);
-
-        assertAll(
-            () -> assertNull(result),
-            () -> assertEquals(0, showRepository.findAll().size())
-        );
+    public void testGetShowById_nonExisting_throwsEntityNotFoundException() {
+        assertThrows(EntityNotFoundException.class, () -> showService.getShowById(999L));
     }
 
     @Test
@@ -388,16 +390,16 @@ public class ShowServiceTest {
         );
     }
 
-
     @Test
     @Transactional
     public void testCreateShow_startBeforeAndEndAfterExisting_exceedsDuration_throwsValidationException() throws ValidationException {
         testEvent.setDuration(200);
         eventRepository.save(testEvent);
 
-        LocalDateTime eventStart   = testEvent.getDateTime();
+
+        LocalDateTime eventStart = testEvent.getDateTime();
         LocalDateTime existingDate = eventStart.plusMinutes(60);
-        LocalDateTime secondDate   = eventStart.plusMinutes(60 - 30);
+        LocalDateTime secondDate = eventStart.minusMinutes(30);
 
         Show existing = Show.ShowBuilder.aShow()
             .withName("Anchor")
@@ -410,7 +412,7 @@ public class ShowServiceTest {
 
         Show tooEarlyAndLong = Show.ShowBuilder.aShow()
             .withName("Too Early")
-            .withDuration(120)
+            .withDuration(300)
             .withDate(secondDate)
             .withEvent(testEvent)
             .withArtists(Set.of(testArtist))

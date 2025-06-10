@@ -1,0 +1,30 @@
+<div class="ticket-list p-2">
+  <div *ngIf="items.length === 0" class="text-center text-white py-4">
+    No tickets selected.
+  </div>
+
+  <div
+    *ngFor="let item of items"
+    class="ticket-item d-flex align-items-center mb-2 p-2 border rounded"
+  >
+    <div class="flex-grow-1">
+      <p class="mb-1"><strong>Sector:</strong> {{ item.sectorId }}</p>
+      <ng-container *ngIf="item.type === 'SEATED'; else standingTpl">
+        <p class="mb-1">
+          <strong>Row:</strong> {{ item.rowNumber }} <strong>Seat:</strong>
+          {{ item.columnNumber }}
+        </p>
+      </ng-container>
+      <ng-template #standingTpl>
+        <p class="mb-1"><strong>Quantity:</strong> {{ item.quantity }}</p>
+      </ng-template>
+      <p class="mb-0">
+        <strong>Price:</strong> €
+        {{ computeTotalPrice(item) | number : "1.2-2" }}
+      </p>
+    </div>
+    <button class="btn btn-sm btn-outline-danger ms-2" (click)="onRemove(item)">
+      <i class="bi bi-trash"></i>
+    </button>
+  </div>
+</div>

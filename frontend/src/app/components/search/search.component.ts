@@ -83,8 +83,8 @@ export class SearchComponent implements OnInit {
   showRoomName: string = '';
   showStartDate?: string;
   showEndDate?: string;
-  showMinPrice?: number;
-  showMaxPrice?: number;
+  showMinPrice: number | null = null;
+  showMaxPrice: number | null = null;
 
   showPage?: Page<ShowSearchResult>;
   showLoading = false;
@@ -237,6 +237,7 @@ export class SearchComponent implements OnInit {
     });
   }
 
+
   searchShows(page: number = 0): void {
     const dto: ShowSearch = {
       page,
@@ -270,5 +271,10 @@ export class SearchComponent implements OnInit {
       }
     });
   }
-
+  preventNonNumericInput(event: KeyboardEvent): void {
+    const invalidChars = ['e', 'E', '+', '-', '.'];
+    if (invalidChars.includes(event.key)) {
+      event.preventDefault();
+    }
+  }
 }

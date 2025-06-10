@@ -1,5 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-import {FormsModule} from '@angular/forms';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {FormsModule, NgForm} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {ShowService} from '../../../services/show.service';
 import {EventService} from '../../../services/event.service';
@@ -9,7 +9,7 @@ import {Event} from '../../../dtos/event';
 import {Artist} from '../../../dtos/artist';
 import {ToastrService} from 'ngx-toastr';
 import {ErrorFormatterService} from '../../../services/error-formatter.service';
-import {Router} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import {Room} from "../../../dtos/room";
 import {RoomService} from "../../../services/room.service";
 
@@ -18,12 +18,14 @@ import {RoomService} from "../../../services/room.service";
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
   ],
   templateUrl: './create-show.component.html',
   styleUrl: './create-show.component.scss'
 })
 export class CreateShowComponent implements OnInit {
+  @ViewChild('showForm') form!: NgForm;
+
   show: CreateShow = {
     name: '',
     duration: 60,
@@ -32,6 +34,8 @@ export class CreateShowComponent implements OnInit {
     artistIds: [],
     roomId: null
   };
+
+  private initialShow!: CreateShow;
 
   events: Event[] = [];
   artists: Artist[] = [];
@@ -59,6 +63,7 @@ export class CreateShowComponent implements OnInit {
           enableHtml: true,
           timeOut: 8000,
         });
+
       }
     });
 
@@ -85,6 +90,7 @@ export class CreateShowComponent implements OnInit {
         });
       }
     });
+    this.initialShow = JSON.parse(JSON.stringify(this.show));
   }
 
   isArtistSelected(artistId: number): boolean {
@@ -113,6 +119,8 @@ export class CreateShowComponent implements OnInit {
           artistIds: [],
           roomId: null
         };
+        this.form.resetForm();
+        this.initialShow = JSON.parse(JSON.stringify(this.show));
         if (createdShow) {
           this.notification.success(`Show ${createdShow.name} created successfully!`, 'Success', {
             enableHtml: true,
@@ -129,5 +137,49 @@ export class CreateShowComponent implements OnInit {
         });
       }
     });
+  }
+
+  preventNonNumericInput(event: KeyboardEvent): void {
+    const invalidChars = ['e', 'E', '+', '-', '.'];
+    if (invalidChars.includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
+  validateDuration(): void {
+    if (this.show.duration == null) {
+      return;
+    }
+
+    if (this.show.duration < 10) {
+      this.show.duration = 10;
+    } else if (this.show.duration > 600) {
+      this.show.duration = 600;
+    }
+  }
+
+  showConfirm: boolean = false;
+
+  private isUnchanged(): boolean {
+    return (
+      JSON.stringify(this.initialShow) === JSON.stringify(this.show)
+    );
+  }
+
+  onBackClick(): void {
+    if (this.isUnchanged()) {
+      this.router.navigate(['/admin']);
+    } else {
+      this.showConfirm = true;
+    }
+  }
+
+  stay(): void {
+    this.showConfirm = false;
+  }
+
+  exit(): void {
+    this.showConfirm = false;
+    this.router.navigate(['/admin']);
   }
 }

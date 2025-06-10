@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,11 +46,12 @@ public class EventRepositoryTest {
 
         eventLocationRepository.save(eventLocation);
 
+        LocalDateTime futureDate = LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.MINUTES);
         Event event = Event.EventBuilder.anEvent()
             .withName("Test Event")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("A wonderful classical evening.")
-            .withDateTime(LocalDateTime.now())
+            .withDateTime(futureDate)
             .withDuration(120)
             .withLocation(eventLocation)
             .build();
@@ -136,7 +138,7 @@ public class EventRepositoryTest {
             .withName("Jazz Fest")
             .withCategory(Event.EventCategory.JAZZ)
             .withDescription("Smooth jazz all night long.")
-            .withDateTime(LocalDateTime.now())
+            .withDateTime(LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.MINUTES))
             .withDuration(120)
             .withLocation(location)
             .build();

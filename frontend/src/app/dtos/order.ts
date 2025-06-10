@@ -1,4 +1,4 @@
-import { TicketDto, TicketStatus } from './ticket';
+import { TicketDto} from './ticket';
 
 export type PaymentType    = 'CREDIT_CARD';
 export type OrderType      = 'ORDER' | 'RESERVATION' | 'REFUND';
@@ -15,3 +15,21 @@ export interface OrderDto {
   showDate: string;
   locationName: string;
 }
+
+export interface OrderGroupDto {
+  id: number;
+  showName: string;
+  showDate: string;
+  locationName: string;
+  orders: OrderDto[];
+}
+
+export interface OrderGroupDetailDto {
+  id: number;
+  showName: string;
+  showDate: string;
+  locationName: string;
+  orders: OrderDto[];
+  tickets: TicketDto[];
+}
+

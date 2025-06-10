@@ -1,15 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
-import java.util.Objects;
-
-import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
-import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,26 +8,20 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+
+import java.util.Objects;
 
 @Entity
-@Table(name = "sectors")
 @Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "sector_type", discriminatorType = DiscriminatorType.STRING)
-public abstract class Sector {
+public class Sector {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "sector_type", insertable = false, updatable = false)
-    @Enumerated(EnumType.STRING)
-    private SectorType type;
+    private Integer price;
 
-    @Column(nullable = false)
-    private int price;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
 
@@ -48,15 +33,7 @@ public abstract class Sector {
         this.id = id;
     }
 
-    public SectorType getType() {
-        return type;
-    }
-
-    protected void setType(SectorType type) {
-        this.type = type;
-    }
-
-    public int getPrice() {
+    public Integer getPrice() {
         return price;
     }
 
@@ -72,9 +49,8 @@ public abstract class Sector {
         this.room = room;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, type, price, room);
+    public boolean isBookable() {
+        return true;
     }
 
     @Override
@@ -82,23 +58,54 @@ public abstract class Sector {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Sector)) {
+        if (!(o instanceof Sector sector)) {
             return false;
         }
-        Sector that = (Sector) o;
-        return price == that.price
-               && Objects.equals(id, that.id)
-               && type == that.type
-               && Objects.equals(room, that.room);
+        return price == sector.price
+            && Objects.equals(id, sector.id)
+            && Objects.equals(room, sector.room);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, price, room);
     }
 
     @Override
     public String toString() {
         return "Sector{"
-               + "id=" + id
-               + ", type=" + type
-               + ", price=" + price
-               + ", roomId=" + (room != null ? room.getId() : null)
-               + '}';
+            + "id=" + id
+            + ", price=" + price
+            + ", room ID=" + (room != null ? room.getId() : "null")
+            + '}';
+    }
+
+    public static final class SectorBuilder {
+        private Integer price;
+        private Room room;
+
+        private SectorBuilder() {
+        }
+
+        public static SectorBuilder aSector() {
+            return new SectorBuilder();
+        }
+
+        public SectorBuilder withPrice(Integer price) {
+            this.price = price;
+            return this;
+        }
+
+        public SectorBuilder withRoom(Room room) {
+            this.room = room;
+            return this;
+        }
+
+        public Sector build() {
+            Sector sector = new Sector();
+            sector.setPrice(price);
+            sector.setRoom(room);
+            return sector;
+        }
     }
 }

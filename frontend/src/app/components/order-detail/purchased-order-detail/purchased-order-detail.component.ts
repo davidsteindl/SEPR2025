@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import {ActivatedRoute, RouterLink} from '@angular/router';
-import { OrderService } from 'src/app/services/order.service';
-import { OrderDto } from 'src/app/dtos/order';
+import {ActivatedRoute, Router} from '@angular/router';
+import {OrderDto, OrderGroupDetailDto} from 'src/app/dtos/order';
 import {FormsModule} from "@angular/forms";
 import {CurrencyPipe, DatePipe, NgForOf, NgIf} from "@angular/common";
 import { TicketService } from 'src/app/services/ticket.service';
 import {PdfExportService} from "../../../services/pdf-export.service";
+import {ToastrService} from "ngx-toastr";
 
 
 @Component({
@@ -17,54 +17,48 @@ import {PdfExportService} from "../../../services/pdf-export.service";
     CurrencyPipe,
     DatePipe,
     NgIf,
-    NgForOf,
-    RouterLink
+    NgForOf
   ],
   styleUrls: ['./purchased-order-detail.component.scss']
 })
 export class PurchasedOrderDetailComponent implements OnInit {
-  order: OrderDto | null = null;
+  group: OrderGroupDetailDto | null = null;
   selected: { [ticketId: number]: boolean } = {};
   isLoading = true;
   showConfirmModal = false;
+  tabFromParent: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
-    private orderService: OrderService,
     private ticketService: TicketService,
-    private pdfService: PdfExportService
+    private pdfService: PdfExportService,
+    private toastr: ToastrService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    const orderId = Number(this.route.snapshot.paramMap.get('id'));
-    this.loadOrder(orderId);
-  }
-
-  loadOrder(orderId: number): void {
-    this.orderService.getOrderWithTickets(orderId).subscribe({
-      next: order => {
-        this.order = order;
+    const groupId = Number(this.route.snapshot.paramMap.get('id'));
+    this.ticketService.getOrderGroupDetails(groupId).subscribe({
+      next: res => {
+        this.group = res;
         this.isLoading = false;
       },
       error: err => {
-        console.error('Failed to load order with tickets', err);
+        console.error('Failed to load order group', err);
         this.isLoading = false;
       }
     });
   }
-
 
   refundSelected(): void {
     const ticketIds = this.getSelectedTicketIds();
     if (ticketIds.length === 0) return;
 
     this.ticketService.refundTickets(ticketIds).subscribe({
-      next: refundedTickets => {
+      next: refunded => {
         this.selected = {};
-        refundedTickets.forEach(ref => {
-          const t = this.order!.tickets.find(t => t.id === ref.id);
-          if (t) t.status = ref.status;
-        });
+        this.ngOnInit();
+        this.toastr.success('Tickets successfully refunded!', 'Refund Complete');
       },
       error: err => {
         console.error('Refund failed', err);
@@ -72,6 +66,7 @@ export class PurchasedOrderDetailComponent implements OnInit {
       }
     });
   }
+
 
   openRefundConfirm(): void {
     if (this.hasSelection()) {
@@ -98,9 +93,48 @@ export class PurchasedOrderDetailComponent implements OnInit {
     return Object.values(this.selected).some(v => v);
   }
 
-  exportTicket(ticketId: number): void {
+  get tickets() {
+    return this.group?.tickets ?? [];
+  }
 
+  get orders() {
+    return [...(this.group?.orders ?? [])].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+  }
+
+  get sortedOrders(): OrderDto[] {
+    return [...(this.group?.orders ?? [])].sort((a, b) =>
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+  }
+
+  getOrderLabel(order: OrderDto, index: number): string {
+    switch (order.orderType) {
+      case 'ORDER': return `Order ${index + 1}`;
+      case 'REFUND': return `Refund ${index + 1}`;
+      default: return `Order`;
+    }
+  }
+
+  exportTicket(ticketId: number): void {
     this.pdfService.exportTicketPdf(ticketId);
+  }
+
+  exportAnyInvoice(order: OrderDto): void {
+    const isCancellation = order.orderType !== 'ORDER';
+
+    if (isCancellation) {
+      this.pdfService.exportCancelInvoicePdf(order.id);
+    } else {
+      this.pdfService.exportInvoicePdf(order.id);
+    }
+  }
+
+  goBack(): void {
+    this.router.navigate(['/orders'], {
+      queryParams: this.tabFromParent ? { tab: this.tabFromParent } : {}
+    });
   }
 
 }

@@ -32,25 +32,25 @@ public class EventLocationServiceImpl implements EventLocationService {
 
     @Override
     public EventLocation getEventLocationById(Long eventId) {
-        LOGGER.info("Find event location with id {}", eventId);
+        LOGGER.debug("Find event location with id {}", eventId);
         return eventLocationRepository.findById(eventId).orElse(null);
     }
 
     @Override
     public List<EventLocation> getAllEventLocations() {
-        LOGGER.info("Get all event locations");
+        LOGGER.debug("Get all event locations");
         return eventLocationRepository.findAll();
     }
 
     @Override
     public EventLocation createEventLocation(EventLocation eventLocation) {
-        LOGGER.info("Save event location {}", eventLocation);
+        LOGGER.debug("Save event location {}", eventLocation);
         return eventLocationRepository.save(eventLocation);
     }
 
     @Override
     public Page<ShowDetailDto> getShowsForEventLocation(Long eventLocationId, Pageable pageable) {
-        LOGGER.info("Fetching paginated shows for locationId={} pageable={}", eventLocationId, pageable);
+        LOGGER.debug("Fetching paginated shows for locationId={} pageable={}", eventLocationId, pageable);
 
         eventLocationRepository.findById(eventLocationId)
             .orElseThrow(() -> new IllegalArgumentException("Location not found with id: " + eventLocationId));

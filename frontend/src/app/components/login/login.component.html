@@ -9,9 +9,6 @@
 
 <div *ngIf="!validationErrors.length && error" class="alert alert-warning alert-dismissible fade show" role="alert">
   {{ errorMessage.detail }}
-  <p *ngIf="errorMessage.status === 401">
-    You have <strong>{{ remainingAttempts }}</strong> attempts remaining.
-  </p>
   <button type="button" class="btn-close" aria-label="Close" (click)="vanishError()"></button>
 </div>
 
@@ -30,11 +27,11 @@
           <form class="form" [formGroup]="loginForm" (ngSubmit)="loginUser()">
 
             <div class="form-group">
-              <label for="inputUsername">Username</label>
-              <input type="text" name="username" formControlName="username" class="form-control" id="inputUsername"
-                aria-describedby="usernameHelp" placeholder="Enter username">
-              <div *ngIf="submitted && loginForm.controls.username.errors" class="error">
-                <small class="form-text text-warning" *ngIf="loginForm.controls.username.errors.required">Your username
+              <label for="inputEmail">Email</label>
+              <input type="text" name="email" formControlName="email" class="form-control" id="inputEmail"
+                aria-describedby="emailHelp" placeholder="Enter email">
+              <div *ngIf="submitted && loginForm.controls.email.errors" class="error">
+                <small class="form-text text-warning" *ngIf="loginForm.controls.email.errors.required">Your email
                   is
                   required!
                 </small>
@@ -58,7 +55,9 @@
 
             <div style="display: flex;" class="mt-2">
               <button type="button" (click)="loginUser()" class="btn btn-success float-right ">Login</button>
-              <p style="margin: 10px;"> Forgot password? </p>
+              <p>
+                <button routerLink="/forgot-password" class="btn btn-link">Forgot password?</button>
+              </p>
             </div>
 
             <p> If you don't have an account:

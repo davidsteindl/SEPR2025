@@ -49,7 +49,20 @@
         </div>
       </div>
 
-      <h3 class="mt-4">Billing address</h3>
+      <div class="d-flex justify-content-between align-items-center mt-4 mb-2">
+        <h3 class="mb-0">Billing address</h3>
+        <div class="form-check m-0">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="copyFromProfile"
+            (change)="copyAddressFromProfile($event)"
+          />
+          <label class="form-check-label" for="copyFromProfile">
+            Use same as profile address
+          </label>
+        </div>
+      </div>
       <!-- Country -->
       <div class="mb-3">
         <label class="form-label">Country / Region</label>
@@ -92,17 +105,32 @@
         </div>
       </div>
 
-      <!-- Address -->
-      <div class="mb-3">
-        <label class="form-label">Apartment, suite, etc.</label>
-        <input
-          type="text"
-          formControlName="address"
-          class="form-control"
-          [class.is-invalid]="paymentForm.get('address')?.invalid && paymentForm.get('address')?.touched"
-        />
-        <div class="invalid-feedback">
-          Address is required.
+      <!-- Street and House Number -->
+      <div class="row">
+        <div class="col-8 mb-3">
+          <label class="form-label">Street</label>
+          <input
+            type="text"
+            formControlName="street"
+            class="form-control"
+            [class.is-invalid]="paymentForm.get('street')?.invalid && paymentForm.get('street')?.touched"
+          />
+          <div class="invalid-feedback">
+            Street is required.
+          </div>
+        </div>
+
+        <div class="col-4 mb-3">
+          <label class="form-label">House number</label>
+          <input
+            type="text"
+            formControlName="housenumber"
+            class="form-control"
+            [class.is-invalid]="paymentForm.get('housenumber')?.invalid && paymentForm.get('housenumber')?.touched"
+          />
+          <div class="invalid-feedback">
+            House number is required.
+          </div>
         </div>
       </div>
 
