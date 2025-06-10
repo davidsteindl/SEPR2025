@@ -23,7 +23,7 @@ public class UserValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
-        "^[^ ]+@[^ ]+.[^ ]+$"
+        "^[^@ ]+@[^@ ]+\\.[^@ ]+$"
     );
 
     public UserValidator() {
@@ -49,7 +49,7 @@ public class UserValidator {
             validationErrors.add("The Birthdate must be in the past");
         }
 
-        if (userRegisterDto.getDateOfBirth() == null || userRegisterDto.getDateOfBirth().isAfter(LocalDate.parse("2007-05-15"))) {
+        if (userRegisterDto.getDateOfBirth() == null || userRegisterDto.getDateOfBirth().isAfter(LocalDate.now().minusYears(18))) {
             validationErrors.add("You must be at least 18 years old to use the Service");
         }
 
