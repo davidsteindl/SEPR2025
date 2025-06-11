@@ -2,6 +2,8 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 
 import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
+import at.ac.tuwien.sepr.groupphase.backend.service.PasswordService;
+import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
@@ -48,6 +50,32 @@ public class MailServiceImpl implements MailService {
             """.formatted(link, link, link);
 
         sendMail(email, "Reset password for your TicketLine-Account", htmlContent);
+    }
+
+    @Async
+    @Override
+    public void sendAccountActivationEmail(String email, String link) {
+        LOGGER.info("sending email for Account-Activation ...");
+        String htmlContent = """
+                <html>
+                    <body>
+                        <p>Dear Customer,</p>
+                        <p>an Account was created for you. Please activate it by setting a password for your account.</p>
+
+                        <a href="%s" style="display: inline-block; padding: 10px 20px; font-size: 16px;
+                            color: white; background-color: #007bff; text-decoration: none; border-radius: 5px;">
+                            Activate your Account
+                        </a>
+
+                        <p>If the button doesn't work, you can also click this link: <br>
+                        <a href="%s">%s</a></p>
+
+                        <p>Best regards,<br/>Your TicketLine Team</p>
+                    </body>
+                </html>
+            """.formatted(link, link, link);
+
+        sendMail(email, "Account Activation for your TicketLine-Account", htmlContent);
     }
 
     @Override

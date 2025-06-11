@@ -53,10 +53,13 @@ public class ApplicationUser {
     private boolean locked;
 
     @Column(nullable = false, length = 100)
-    private boolean admin;
+    private boolean isAdmin;
 
     @Column(nullable = false, length = 100)
     private int loginTries;
+
+    @Column(nullable = false)
+    private boolean isActivated;
 
     public Long getId() {
         return id;
@@ -163,11 +166,11 @@ public class ApplicationUser {
     }
 
     public Boolean isAdmin() {
-        return admin;
+        return isAdmin;
     }
 
     public void setAdmin(Boolean isAdmin) {
-        this.admin = isAdmin;
+        this.isAdmin = isAdmin;
     }
 
     public int getLoginTries() {
@@ -178,6 +181,15 @@ public class ApplicationUser {
         this.loginTries = loginTries;
     }
 
+
+    public boolean isActivated() {
+        return isActivated;
+    }
+
+    public void setActivated(boolean activated) {
+        isActivated = activated;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
@@ -186,7 +198,7 @@ public class ApplicationUser {
 
         ApplicationUser that = (ApplicationUser) o;
         return locked == that.locked
-            && admin == that.admin
+            && isAdmin == that.isAdmin
             && loginTries == that.loginTries
             && id.equals(that.id)
             && firstName.equals(that.firstName)
@@ -216,7 +228,7 @@ public class ApplicationUser {
         result = 31 * result + Objects.hashCode(street);
         result = 31 * result + Objects.hashCode(postalCode);
         result = 31 * result + Boolean.hashCode(locked);
-        result = 31 * result + Boolean.hashCode(admin);
+        result = 31 * result + Boolean.hashCode(isAdmin);
         result = 31 * result + loginTries;
         return result;
     }
@@ -231,7 +243,7 @@ public class ApplicationUser {
             + ", sex=" + sex
             + ", email='" + email + '\''
             + ", locked=" + locked
-            + ", admin=" + admin
+            + ", admin=" + isAdmin
             + ", loginTries=" + loginTries
             + '}';
     }
@@ -252,6 +264,7 @@ public class ApplicationUser {
         private boolean isLocked;
         private boolean isAdmin;
         private int loginTries;
+        private boolean isActivated;
 
         private ApplicationUserBuilder() {
         }
@@ -292,6 +305,11 @@ public class ApplicationUser {
 
         public ApplicationUserBuilder withEmail(String email) {
             this.email = email;
+            return this;
+        }
+
+        public ApplicationUserBuilder withIsActivated(Boolean activated) {
+            this.isActivated = activated;
             return this;
         }
 
@@ -351,6 +369,7 @@ public class ApplicationUser {
             user.setLocked(isLocked);
             user.setAdmin(isAdmin);
             user.setLoginTries(loginTries);
+            user.setActivated(isActivated);
             return user;
         }
     }

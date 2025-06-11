@@ -16,6 +16,14 @@ public interface MailService {
     void sendPasswordResetEmail(String email, String passwordResetLink);
 
     /**
+     * Function to send an account activation email.
+     *
+     * @param email the receiver email
+     * @param link the link for the user to activate his/her account
+     */
+    void sendAccountActivationEmail(String email, String link);
+
+    /**
      * Function to send an email.
      *
      * @param to the receiver address

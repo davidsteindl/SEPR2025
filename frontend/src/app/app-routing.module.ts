@@ -25,7 +25,6 @@ import {RoomEditComponent} from './components/room/room-edit/room-edit.component
 import {LocationShowsComponent} from "./components/location-shows/location-shows.component";
 import {PaymentFormComponent} from './components/payment-form/payment-form.component';
 import {OrderOverviewComponent} from "./components/order-overview/order-overview.component";
-import {RoomUsageComponent} from "./components/room/room-usage/room-usage.component";
 import {
   PurchasedOrderDetailComponent
 } from "./components/order-detail/purchased-order-detail/purchased-order-detail.component";
@@ -38,6 +37,7 @@ import {TicketComponent} from "./components/ticket/ticket.component";
 import { PasswordComponent } from './components/password/password.component';
 import {ResetPasswordComponent} from "./components/password/reset-password/reset-password.component";
 import { BuyTicketsPageComponent } from './components/buy-tickets-page/buy-tickets-page.component';
+import {AccountActivationComponent} from "./components/password/account-activation/account-activation.component";
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -71,6 +71,8 @@ const routes: Routes = [
   { path: 'ticket/:id/:randomTicketCode', component: TicketComponent, canActivate: [AdminGuard] },
   { path: 'forgot-password', component: PasswordComponent},
   { path: 'reset-password', component: ResetPasswordComponent},
+  { path: 'account-activation/:token', component: AccountActivationComponent},
+
 ];
 
 @NgModule({
