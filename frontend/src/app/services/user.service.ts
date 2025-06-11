@@ -86,6 +86,14 @@ export class UserService {
     return this.httpClient.get<LockedUser[]>(`${this.userBaseUri}/locked`);
   }
 
+  /**
+   * Loads all users from the backend.
+   */
+  getAllUsers(): Observable<User[]> {
+    console.log("getting all users")
+    return this.httpClient.get<User[]>(`${this.userBaseUri}/users`);
+  }
+
 
   /**
    * Unlocks a user by ID.
@@ -93,6 +101,14 @@ export class UserService {
   unlockUser(id: number): Observable<void> {
     console.log('Unlock User with id ' + id);
     return this.httpClient.put<void>(`${this.userBaseUri}/${id}/unlock`, null);
+  }
+
+  /**
+   * Blocks a user by ID.
+   */
+  blockUser(id: number): Observable<void> {
+    console.log('Unlock User with id ' + id);
+    return this.httpClient.put<void>(`${this.userBaseUri}/${id}/block`, null);
   }
 
 

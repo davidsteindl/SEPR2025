@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { UserService } from 'src/app/services/user.service';
 import { LockedUser } from 'src/app/dtos/locked-user';
 import { AuthService } from 'src/app/services/auth.service';
+import {User} from "../../dtos/user";
 
 @Component({
   selector: 'app-manage-accounts',
@@ -15,6 +16,7 @@ export class ManageAccountsComponent implements OnInit {
   error = false;
   errorMessage = '';
   lockedUsers: LockedUser[] = [];
+  users: User[] = [];
 
   constructor(
     private userService: UserService,
@@ -46,11 +48,34 @@ export class ManageAccountsComponent implements OnInit {
   }
 
   /**
+   * Fetches the list of all users
+   */
+  private loadAllUsers() {
+    this.userService.getAllUsers().subscribe({
+      next: users => {
+        this.users = users;
+        console.log(this.users);
+      },
+      error: err => this.defaultServiceErrorHandling(err)
+    });
+  }
+
+  /**
    * Unlocks the specified user and refreshes the list
    */
   onUnlock(id: number) {
     this.userService.unlockUser(id).subscribe({
-      next: () => this.loadLockedUsers(),
+      next: () => this.loadAllUsers(),
+      error: err => this.defaultServiceErrorHandling(err)
+    });
+  }
+
+  /**
+   * Blocks the specified user and refreshes the list
+   */
+  block(id: number) {
+    this.userService.blockUser(id).subscribe({
+      next: () => this.loadAllUsers(),
       error: err => this.defaultServiceErrorHandling(err)
     });
   }
