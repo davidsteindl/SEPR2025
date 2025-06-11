@@ -5,14 +5,16 @@ public class LockedUserDto {
     private String firstName;
     private String lastName;
     private String email;
+    private Boolean isLocked;
 
     public LockedUserDto() {}
 
-    public LockedUserDto(Long id, String firstName, String lastName, String email) {
+    public LockedUserDto(Long id, String firstName, String lastName, String email, Boolean isLocked) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.isLocked = isLocked;
     }
 
     public Long getId() {
@@ -47,12 +49,21 @@ public class LockedUserDto {
         this.email = email;
     }
 
+    public Boolean getIsLocked() {
+        return isLocked;
+    }
+
+    public void setIsLocked(Boolean locked) {
+        isLocked = locked;
+    }
+
     // Builder
     public static final class LockedUserDtoBuilder {
         private Long id;
         private String firstName;
         private String lastName;
         private String email;
+        private Boolean isLocked;
 
         private LockedUserDtoBuilder() {}
 
@@ -80,8 +91,14 @@ public class LockedUserDto {
             return this;
         }
 
+        public LockedUserDtoBuilder withIsLocked(Boolean isLocked) {
+            this.isLocked = isLocked;
+            return this;
+        }
+
+
         public LockedUserDto build() {
-            return new LockedUserDto(id, firstName, lastName, email);
+            return new LockedUserDto(id, firstName, lastName, email, isLocked);
         }
     }
 }

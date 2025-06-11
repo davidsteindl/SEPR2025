@@ -175,6 +175,7 @@ public class CustomUserDetailService implements UserService {
         }
     }
 
+    @Override
     public List<LockedUserDto> getLockedUsers() {
         LOGGER.debug("Fetching locked users");
         List<ApplicationUser> lockedUsers = userRepository.findAllByLockedTrue();
@@ -185,6 +186,23 @@ public class CustomUserDetailService implements UserService {
                 .withFirstName(user.getFirstName())
                 .withLastName(user.getLastName())
                 .withEmail(user.getEmail())
+                .build()
+            )
+            .toList();
+    }
+
+    @Override
+    public List<LockedUserDto> getAllUsers() {
+        LOGGER.debug("Fetching all users");
+        List<ApplicationUser> allUsers = userRepository.findAll();
+
+        return allUsers.stream()
+            .map(user -> LockedUserDto.LockedUserDtoBuilder.aLockedUserDto()
+                .withId(user.getId())
+                .withFirstName(user.getFirstName())
+                .withLastName(user.getLastName())
+                .withEmail(user.getEmail())
+                .withIsLocked(user.isLocked())
                 .build()
             )
             .toList();

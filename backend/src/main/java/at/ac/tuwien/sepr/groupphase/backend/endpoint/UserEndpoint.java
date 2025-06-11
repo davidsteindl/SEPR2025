@@ -53,6 +53,14 @@ public class UserEndpoint {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/getAll")
+    @Secured("ROLE_ADMIN")
+    public List<LockedUserDto> getAllUsers(@PathVariable("id") Long id) {
+        LOGGER.info("getAllUsers()");
+        return userService.getAllUsers();
+    }
+
+
     @GetMapping("/me")
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)

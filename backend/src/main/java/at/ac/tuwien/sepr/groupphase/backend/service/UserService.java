@@ -71,6 +71,14 @@ public interface UserService extends UserDetailsService {
     List<LockedUserDto> getLockedUsers();
 
     /**
+     * Returns all users, only administrators
+     * should be able to access this method.
+     *
+     * @return all users
+     */
+    List<LockedUserDto> getAllUsers();
+
+    /**
      * Unlocks the user account with the given ID by setting its 'locked' status to false.
      *
      * @param id the ID of the user to unlock
