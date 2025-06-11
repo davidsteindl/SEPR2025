@@ -91,7 +91,7 @@ export class UserService {
    */
   getAllUsers(): Observable<User[]> {
     console.log("getting all users")
-    return this.httpClient.get<User[]>(`${this.userBaseUri}/users`);
+    return this.httpClient.get<User[]>(`${this.userBaseUri}/getAll`);
   }
 
 

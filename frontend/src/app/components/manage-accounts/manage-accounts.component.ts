@@ -24,7 +24,7 @@ export class ManageAccountsComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.loadLockedUsers();
+    this.loadAllUsers();
   }
 
   /**

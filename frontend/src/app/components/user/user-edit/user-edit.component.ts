@@ -26,7 +26,7 @@ export class UserEditComponent implements OnInit {
   email : string = '';
 
   user: User = {
-    id: '',
+    id: null,
     firstName: '',
     lastName: '',
     dateOfBirth: new Date(),
@@ -68,7 +68,7 @@ export class UserEditComponent implements OnInit {
   ngOnInit(): void {
 
     this.user = {
-      id: '',
+      id: null,
       dateOfBirth: new Date(),
       sex: Sex.female,
       email: "",
