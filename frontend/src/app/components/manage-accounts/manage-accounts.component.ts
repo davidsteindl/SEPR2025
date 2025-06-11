@@ -4,6 +4,7 @@ import { UserService } from 'src/app/services/user.service';
 import { LockedUser } from 'src/app/dtos/locked-user';
 import { AuthService } from 'src/app/services/auth.service';
 import {User} from "../../dtos/user";
+import {ToastrService} from "ngx-toastr";
 
 @Component({
   selector: 'app-manage-accounts',
@@ -20,7 +21,8 @@ export class ManageAccountsComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private notification: ToastrService
   ) { }
 
   ngOnInit() {
@@ -65,7 +67,10 @@ export class ManageAccountsComponent implements OnInit {
    */
   onUnlock(id: number) {
     this.userService.unlockUser(id).subscribe({
-      next: () => this.loadAllUsers(),
+      next: () => {
+        this.loadAllUsers()
+        this.notification.success(`User was unlocked.`);
+      },
       error: err => this.defaultServiceErrorHandling(err)
     });
   }
@@ -75,7 +80,23 @@ export class ManageAccountsComponent implements OnInit {
    */
   block(id: number) {
     this.userService.blockUser(id).subscribe({
-      next: () => this.loadAllUsers(),
+      next: () => {
+        this.loadAllUsers()
+        this.notification.success(`User was blocked.`);
+      },
+      error: err => this.defaultServiceErrorHandling(err)
+    });
+  }
+
+  /**
+   * Sends a Password-Reset to the user and refreshes the list
+   */
+  resetPassword(id: number) {
+    this.userService.resetPassword(id).subscribe({
+      next: () => {
+        this.loadAllUsers()
+        this.notification.success(`Password-Reset was sent.`);
+      },
       error: err => this.defaultServiceErrorHandling(err)
     });
   }

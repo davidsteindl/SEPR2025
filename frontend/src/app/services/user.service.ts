@@ -111,5 +111,13 @@ export class UserService {
     return this.httpClient.put<void>(`${this.userBaseUri}/${id}/block`, null);
   }
 
+  /**
+   * Sends a password-reset to the user.
+   */
+  resetPassword(id: number): Observable<void> {
+    console.log('Unlock User with id ' + id);
+    return this.httpClient.put<void>(`${this.userBaseUri}/${id}/resetPassword`, null);
+  }
+
 
 }
