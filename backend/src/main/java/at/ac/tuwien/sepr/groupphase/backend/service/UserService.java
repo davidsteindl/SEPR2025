@@ -86,6 +86,20 @@ public interface UserService extends UserDetailsService {
     void unlockUser(Long id);
 
     /**
+     * Blocks the user account with the given ID by setting its 'locked' status to true.
+     *
+     * @param id the ID of the user to block
+     */
+    void blockUser(Long id);
+
+    /**
+     * Sends a password reset to the user-email.
+     *
+     * @param id the ID of the user to block
+     */
+    void resetPassword(Long id);
+
+    /**
      * Delete user.
      *
      * @param id of user to delete
