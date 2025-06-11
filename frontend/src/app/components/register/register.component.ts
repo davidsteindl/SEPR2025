@@ -118,7 +118,7 @@ export class RegisterComponent {
    */
   goToPage() {
     if(this.isAdmin()) {
-      this.router.navigate(['/admin']);
+      this.router.navigate(['/manage-accounts']);
     } else {
       this.router.navigate(['/login']);
     }

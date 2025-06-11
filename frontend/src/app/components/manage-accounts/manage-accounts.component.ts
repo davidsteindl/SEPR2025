@@ -5,11 +5,12 @@ import { LockedUser } from 'src/app/dtos/locked-user';
 import { AuthService } from 'src/app/services/auth.service';
 import {User} from "../../dtos/user";
 import {ToastrService} from "ngx-toastr";
+import {Router, RouterLink} from "@angular/router";
 
 @Component({
   selector: 'app-manage-accounts',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './manage-accounts.component.html',
   styleUrls: ['./manage-accounts.component.css'],
 })
@@ -22,7 +23,8 @@ export class ManageAccountsComponent implements OnInit {
   constructor(
     private userService: UserService,
     private authService: AuthService,
-    private notification: ToastrService
+    private notification: ToastrService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -106,6 +108,10 @@ export class ManageAccountsComponent implements OnInit {
    */
   vanishError() {
     this.error = false;
+  }
+
+  onBackClick() {
+    this.router.navigate(['/admin']);
   }
 
   /**

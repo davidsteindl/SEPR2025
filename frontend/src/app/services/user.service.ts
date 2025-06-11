@@ -115,7 +115,7 @@ export class UserService {
    * Sends a password-reset to the user.
    */
   resetPassword(id: number): Observable<void> {
-    console.log('Unlock User with id ' + id);
+    console.log('Sends a password-reset to user with id resetPassword' + id);
     return this.httpClient.put<void>(`${this.userBaseUri}/${id}/resetPassword`, null);
   }
 
