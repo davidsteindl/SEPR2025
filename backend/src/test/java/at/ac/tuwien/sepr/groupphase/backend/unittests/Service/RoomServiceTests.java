@@ -413,11 +413,10 @@ public class RoomServiceTests {
         // get default sector
         SectorDto defaultSector = room.getSectors().stream()
             .filter(Objects::nonNull)
-            .map(s -> (SectorDto) s)
             .findFirst()
             .orElseThrow();
 
-        // relace default sector with standing sector
+        // replace default sector with standing sector
         StandingSectorDto standing = new StandingSectorDto();
         standing.setId(defaultSector.getId());
         standing.setPrice(15);
@@ -432,11 +431,18 @@ public class RoomServiceTests {
             .sectors(List.of(standing))
             .build());
 
-        StandingSector sectorEntity = roomRepository.findById(room.getId()).orElseThrow()
+        // flush to ensure correct DB state before reading again
+        roomRepository.flush();
+
+        // Reload and get the correct sector type
+        Sector reloadedSector = roomRepository.findById(room.getId()).orElseThrow()
             .getSectors().stream()
-            .map(s -> (StandingSector) s)
+            .filter(s -> s instanceof StandingSector)
             .findFirst()
             .orElseThrow();
+
+        assertInstanceOf(StandingSector.class, reloadedSector, "Sector must be StandingSector");
+        StandingSector sectorEntity = (StandingSector) reloadedSector;
 
         Show show = Show.ShowBuilder.aShow()
             .withName("Test Show")
@@ -773,5 +779,32 @@ public class RoomServiceTests {
 
         assertThrows(ValidationException.class,
             () -> roomService.updateRoom(original.getId(), update));
+    }
+
+    @Test
+    public void testUpdateRoom_addAdditionalStandingSector_resultsInTwoSectors() throws ValidationException {
+        RoomDetailDto original = roomService.createRoom(createRoomDto);
+
+        SectorDto defaultSector = original.getSectors().stream()
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElseThrow();
+
+        StandingSectorDto additional = new StandingSectorDto();
+        additional.setPrice(30);
+        additional.setCapacity(50);
+
+        RoomDetailDto updated = roomService.updateRoom(original.getId(), RoomDetailDto.RoomDetailDtoBuilder
+            .aRoomDetailDto()
+            .id(original.getId())
+            .name(original.getName())
+            .eventLocationId(original.getEventLocationId())
+            .seats(original.getSeats())
+            .sectors(List.of(defaultSector, additional))
+            .build());
+
+        assertEquals(2, updated.getSectors().size(), "There should be two sectors now (default + standing)");
+        assertTrue(updated.getSectors().stream().anyMatch(s -> s instanceof StandingSectorDto),
+            "One of the sectors should be a StandingSector");
     }
 }
