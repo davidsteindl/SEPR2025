@@ -47,7 +47,9 @@ public class SimpleMessageService implements MessageService {
     public Message publishMessage(Message message) {
         LOGGER.debug("Publish new message {}", message);
         message.setPublishedAt(LocalDateTime.now());
-        imageRepository.saveAll(message.getImages());
+        if (message.getImages() != null && !message.getImages().isEmpty()) {
+            imageRepository.saveAll(message.getImages());
+        }
         return messageRepository.save(message);
     }
 
