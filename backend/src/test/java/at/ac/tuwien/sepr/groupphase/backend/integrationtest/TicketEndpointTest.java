@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -304,7 +303,6 @@ public class TicketEndpointTest implements TestData {
     }
 
     @Test
-    @Disabled
     @Transactional
     public void getOrderGroupsByCategory_shouldReturnOneGroup_whenValidReservationExists() throws Exception {
         TicketRequestDto reserveRequest = new TicketRequestDto();

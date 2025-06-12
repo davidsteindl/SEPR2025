@@ -566,7 +566,17 @@ public class TicketServiceImpl implements TicketService {
     @Transactional
     public Page<OrderGroupDto> getOrderGroupsByCategory(boolean isReservation, boolean past, Pageable pageable) {
         Long userId = authFacade.getCurrentUserId();
-        Page<OrderGroup> groups = orderGroupRepository.findByCategory(userId, isReservation, past, pageable);
+        Page<OrderGroup> groups;
+
+        if (isReservation) {
+            groups = orderGroupRepository.findReservations(userId, OrderType.RESERVATION, pageable);
+        } else {
+            List<OrderType> types = List.of(OrderType.ORDER, OrderType.REFUND);
+            groups = past
+                ? orderGroupRepository.findPaidOrRefundedPast(userId, types, pageable)
+                : orderGroupRepository.findPaidOrRefundedUpcoming(userId, types, pageable);
+        }
+
         return groups.map(group -> {
             OrderGroupDto dto = new OrderGroupDto();
             dto.setId(group.getId());
@@ -582,6 +592,7 @@ public class TicketServiceImpl implements TicketService {
             dto.setOrders(group.getOrders().stream()
                 .map(orderMapper::toDto)
                 .collect(Collectors.toList()));
+
             return dto;
         });
     }
