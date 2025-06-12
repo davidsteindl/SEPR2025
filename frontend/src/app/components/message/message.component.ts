@@ -23,7 +23,7 @@ export class MessageComponent implements OnInit {
   submitted = false;
 
   currentMessage: Message;
-  currentImages: Map<number, Blob>;
+  currentImages: Map<number, SafeResourceUrl>;
   newsImages: File[] | undefined;
 
   private message: Message[];
@@ -70,7 +70,9 @@ export class MessageComponent implements OnInit {
         for(const {id} of this.currentMessage.images){
           this.messageService.getImageBlob(this.currentMessage.id, id).subscribe({
             next: blob => {
-              this.currentImages.set(id, blob);
+              const url = URL.createObjectURL(blob);
+              const ressource = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+              this.currentImages.set(id, ressource);
             }
           });
         }
@@ -143,8 +145,7 @@ export class MessageComponent implements OnInit {
 
 
   newsImage(imageId: number): SafeResourceUrl {
-    const url = URL.createObjectURL(this.currentImages.get(imageId));
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    return this.currentImages.get(imageId);
   }
 
   onFileSelected(event: Event) {
@@ -161,7 +162,7 @@ export class MessageComponent implements OnInit {
     console.log(error);
     this.error = true;
     if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
+      this.errorMessage = error.error.error ?? error.error.title;
     } else {
       this.errorMessage = error.error;
     }
