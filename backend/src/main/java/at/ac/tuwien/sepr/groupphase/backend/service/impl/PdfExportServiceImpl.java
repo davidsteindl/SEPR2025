@@ -226,10 +226,10 @@ public class PdfExportServiceImpl implements PdfExportService {
             table.addCell(new Cell().add(new Paragraph(ticket.getShow().getDate().format(formatter))));
             table.addCell(new Cell().add(new Paragraph(ticket.getShow().getEvent().getName())));
             table.addCell(new Cell().add(new Paragraph("1")));
-            var seatchoice = ticket.getSector().getRoom().getName() + ","
+            var seatchoice = "Room: " + ticket.getSector().getRoom().getName() + ", Sector: "
                 + ticket.getSector().getId();
             if (ticket.getSeat() != null) {
-                seatchoice = seatchoice + "," + ticket.getSeat().getRowNumber() + ","
+                seatchoice = seatchoice + ", Row: " + ticket.getSeat().getRowNumber() + ", Seat: "
                     + ticket.getSeat().getColumnNumber();
             }
             table.addCell(new Cell().add(new Paragraph(seatchoice)));
@@ -346,10 +346,10 @@ public class PdfExportServiceImpl implements PdfExportService {
             table.addCell(new Cell().add(new Paragraph(ticket.getShow().getDate().format(formatter))));
             table.addCell(new Cell().add(new Paragraph(ticket.getShow().getEvent().getName())));
             table.addCell(new Cell().add(new Paragraph("1")));
-            var seatchoice = ticket.getSector().getRoom().getName() + ","
+            var seatchoice = "Room: " + ticket.getSector().getRoom().getName() + ", Sector: "
                 + ticket.getSector().getId();
             if (ticket.getSeat() != null) {
-                seatchoice = seatchoice + "," + ticket.getSeat().getRowNumber() + ","
+                seatchoice = seatchoice + ", Row: " + ticket.getSeat().getRowNumber() + ", Seat: "
                     + ticket.getSeat().getColumnNumber();
             }
             table.addCell(new Cell().add(new Paragraph(seatchoice)));
