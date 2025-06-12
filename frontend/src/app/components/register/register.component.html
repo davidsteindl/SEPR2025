@@ -4,18 +4,28 @@
       <span class="anchor" id="formRegister"></span>
 
       <div class="card rounded-0">
-        <div class="card-header">
-          <h3 class="mb-0">Register</h3>
+        <div class="card-header bg-light">
+          <div class="d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">
+              {{ isAdmin() ? 'Create User' : 'Register' }}
+            </h3>
+            <button *ngIf="isAdmin()"
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    (click)="onBackClick()">
+              ← Back to Admin Page
+            </button>
+          </div>
         </div>
 
         <div class="card-body">
-          <form class="form" [formGroup]="registerForm" (ngSubmit)="registerUser()">
+          <form [formGroup]="registerForm" (ngSubmit)="registerUser()" novalidate>
 
             <div style="display: flex; align-items: center; justify-content: space-between;">
               <div class="form-group">
                 <label for="firstName">First Name</label>
                 <input type="text" name="firstName" formControlName="firstName" class="form-control" id="firstName"
-                       aria-describedby="firstNameHelp" placeholder="Enter firstName">
+                       aria-describedby="firstNameHelp" placeholder="Enter first name">
                 <div *ngIf="submitted && registerForm.controls.firstName.errors" class="error">
                   <small class="form-text text-warning" *ngIf="registerForm.controls.firstName.errors.required">Your
                     Firstname
@@ -28,7 +38,7 @@
               <div class="form-group">
                 <label for="lastName">Last Name</label>
                 <input type="text" name="lastName" formControlName="lastName" class="form-control" id="lastName"
-                       aria-describedby="lastNameHelp" placeholder="Enter lastName">
+                       aria-describedby="lastNameHelp" placeholder="Enter last name">
                 <div *ngIf="submitted && registerForm.controls.lastName.errors" class="error">
                   <small class="form-text text-warning" *ngIf="registerForm.controls.lastName.errors.required">Your
                     Lastname
@@ -76,7 +86,7 @@
             <div class="form-group">
               <label for="email">Email</label>
               <input type="text" name="email" formControlName="email" class="form-control" id="email"
-                     placeholder= "Enter Email" aria-describedby="emailHelp">
+                     placeholder="Enter email" aria-describedby="emailHelp">
               <div *ngIf="submitted && registerForm.controls.email.errors" class="error">
                 <small class="form-text text-warning" *ngIf="registerForm.controls.email.errors.required">Your email
                   is
@@ -88,7 +98,7 @@
             <div class="form-group">
               <label for="password">Password (min 8 chars)</label>
               <input type="password" name="password" formControlName="password" class="form-control" id="password"
-                     placeholder="Enter Password">
+                     placeholder="Enter password">
               <div *ngIf="submitted && registerForm.controls.password.errors" class="error">
                 <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.required">Your
                   password
@@ -103,9 +113,9 @@
             </div>
 
             <div class="form-group">
-              <label for="confirmPassword">Repeat Password  (min 8 chars)</label>
+              <label for="confirmPassword">Repeat Password (min 8 chars)</label>
               <input type="password" name="confirmPassword" formControlName="confirmPassword" class="form-control"
-                     placeholder= "Enter confirmPassword" id="confirmPassword">
+                     placeholder="Repeat password" id="confirmPassword">
               <div *ngIf="submitted && registerForm.controls.confirmPassword.errors" class="error">
                 <small class="form-text text-warning" *ngIf="registerForm.controls.confirmPassword.errors.required">Your
                   password
@@ -142,28 +152,51 @@
             </div>
 
             <div *ngIf="authService.isLoggedIn() && isAdmin()">
-            <label for="isAdmin">
-              Create User as Admin?
-            </label>
-            <input
-              type="checkbox"
-              name="isAdmin"
-              formControlName="isAdmin"
-              id="isAdmin"
-              style="margin: 10px"
-            />
+              <label for="isAdmin">
+                Create User as Admin?
+              </label>
+              <input
+                type="checkbox"
+                name="isAdmin"
+                formControlName="isAdmin"
+                id="isAdmin"
+                style="margin: 10px"
+              />
             </div>
 
 
             <br>
-            <button type="submit" [disabled]="registerForm.invalid || buttonDisabled" class="btn btn-success float-right">Register</button>
-            <button type="button" style="margin-left: 10px;" (click)="goToPage()"
-                    class="btn btn-secondary float-right ">Back</button>
-
+            <div class="text-center mt-4">
+              <button type="submit"
+                      class="btn btn-success"
+                      [disabled]="registerForm.invalid || buttonDisabled">
+                {{ isAdmin() ? 'Create User' : 'Register' }}
+              </button>
+            </div>
           </form>
-          <app-termsandservice
-            id="termsandservice">
-          </app-termsandservice>
+          <div *ngIf="showConfirm">
+            <div class="modal-backdrop fade show"></div>
+            <div class="modal fade show d-block" tabindex="-1">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header justify-content-center border-0">
+                    <h5 class="modal-title text-center">Confirm Exit</h5>
+                  </div>
+                  <div class="modal-body text-center py-2">
+                    <p>If you exit this page, your changes will not be saved.</p>
+                  </div>
+                  <div class="modal-footer justify-content-center border-0">
+                    <button type="button" class="btn btn-success me-2" (click)="stay()">Stay on Page</button>
+                    <button type="button" class="btn btn-danger" (click)="exit()">Exit Page</button>
+                  </div>
+
+                  <app-termsandservice
+                    id="termsandservice">
+                  </app-termsandservice>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
