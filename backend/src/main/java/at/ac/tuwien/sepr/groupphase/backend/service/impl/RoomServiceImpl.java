@@ -162,6 +162,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Transactional
     public RoomDetailDto getRoomById(Long id) {
         LOGGER.debug("Retrieving a room with details: {}", id);
         Room room = roomRepository.findById(id).orElseThrow(EntityNotFoundException::new);
@@ -416,6 +417,7 @@ public class RoomServiceImpl implements RoomService {
         // Otherwise, reuse the existing StandingSector
         if (raw != null && !(raw instanceof StandingSector)) {
             sectorRepository.delete(raw);
+            room.getSectors().remove(raw);
             sec = new StandingSector();
             room.addSector(sec);
         } else if (raw == null) {
