@@ -3,12 +3,12 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.DetailedMessageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.MessageInquiryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.SimpleMessageDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ImageMapper;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.MessageMapper;
 import at.ac.tuwien.sepr.groupphase.backend.service.ImageService;
 import at.ac.tuwien.sepr.groupphase.backend.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,14 +36,12 @@ public class MessageEndpoint {
     private final MessageService messageService;
     private final MessageMapper messageMapper;
     private final ImageService imageService;
-    private final ImageMapper imageMapper;
 
     @Autowired
-    public MessageEndpoint(MessageService messageService, MessageMapper messageMapper, ImageService imageService, ImageMapper imageMapper) {
+    public MessageEndpoint(MessageService messageService, MessageMapper messageMapper, ImageService imageService) {
         this.messageService = messageService;
         this.messageMapper = messageMapper;
         this.imageService = imageService;
-        this.imageMapper = imageMapper;
     }
 
     @Secured("ROLE_USER")
@@ -66,7 +64,7 @@ public class MessageEndpoint {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     @Operation(summary = "Publish a new message", security = @SecurityRequirement(name = "apiKey"))
-    public DetailedMessageDto create(@RequestPart(value = "message") MessageInquiryDto messageDto,
+    public DetailedMessageDto create(@RequestPart(value = "message") @Valid MessageInquiryDto messageDto,
         @RequestPart(value = "images", required = false) List<MultipartFile> files) {
 
         LOGGER.info("POST /api/v1/messages body: {}", messageDto);
