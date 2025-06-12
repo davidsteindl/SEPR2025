@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
@@ -12,6 +13,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
+import at.ac.tuwien.sepr.groupphase.backend.service.PasswordService;
 import at.ac.tuwien.sepr.groupphase.backend.service.TokenLinkService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
@@ -40,6 +42,7 @@ public class CustomUserDetailService implements UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordService passwordService;
     private final JwtTokenizer jwtTokenizer;
     private final UserValidator userValidator;
     MailService mailService;
@@ -47,13 +50,15 @@ public class CustomUserDetailService implements UserService {
 
     @Autowired
     public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                                   JwtTokenizer jwtTokenizer, UserValidator userValidator, MailService mailService, TokenLinkService tokenLinkService) {
+                                   JwtTokenizer jwtTokenizer, UserValidator userValidator, MailService mailService,
+                                   TokenLinkService tokenLinkService, PasswordService passwordService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenizer = jwtTokenizer;
         this.userValidator = userValidator;
         this.mailService = mailService;
         this.tokenLinkService = tokenLinkService;
+        this.passwordService = passwordService;
     }
 
     @Override
@@ -175,6 +180,7 @@ public class CustomUserDetailService implements UserService {
         }
     }
 
+    @Override
     public List<LockedUserDto> getLockedUsers() {
         LOGGER.debug("Fetching locked users");
         List<ApplicationUser> lockedUsers = userRepository.findAllByLockedTrue();
@@ -191,6 +197,23 @@ public class CustomUserDetailService implements UserService {
     }
 
     @Override
+    public List<LockedUserDto> getAllUsers() {
+        LOGGER.debug("Fetching all users");
+        List<ApplicationUser> allUsers = userRepository.findAll();
+
+        return allUsers.stream()
+            .map(user -> LockedUserDto.LockedUserDtoBuilder.aLockedUserDto()
+                .withId(user.getId())
+                .withFirstName(user.getFirstName())
+                .withLastName(user.getLastName())
+                .withEmail(user.getEmail())
+                .withIsLocked(user.isLocked())
+                .build()
+            )
+            .toList();
+    }
+
+    @Override
     public void unlockUser(Long id) {
         LOGGER.debug("unlock user {}", id);
         ApplicationUser user = userRepository.findById(id)
@@ -200,6 +223,25 @@ public class CustomUserDetailService implements UserService {
         userRepository.save(user);
     }
 
+    @Override
+    public void blockUser(Long id) {
+        LOGGER.debug("block user {}", id);
+        ApplicationUser user = userRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("User not found"));
+        user.setLocked(true);
+        user.setLoginTries(0);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void resetPassword(Long id) {
+        LOGGER.debug("password Reset user {}", id);
+        ApplicationUser user = userRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("User not found"));
+        PasswordResetDto passwordResetDto = new PasswordResetDto();
+        passwordResetDto.setEmail(user.getEmail());
+        passwordService.requestResetPassword(passwordResetDto);
+    }
 
     @Transactional
     @Override

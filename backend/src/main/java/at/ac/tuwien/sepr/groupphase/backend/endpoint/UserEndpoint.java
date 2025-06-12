@@ -1,11 +1,13 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.UserMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.service.PasswordService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -33,6 +35,7 @@ public class UserEndpoint {
     private final UserService userService;
     private final UserMapper userMapper;
 
+
     public UserEndpoint(UserService userService, UserMapper userMapper) {
         this.userService = userService;
         this.userMapper = userMapper;
@@ -45,13 +48,38 @@ public class UserEndpoint {
         return userService.getLockedUsers();
     }
 
+    @GetMapping("/getAll")
+    @Secured("ROLE_ADMIN")
+    public List<LockedUserDto> getAllUsers() {
+        LOGGER.info("getAllUsers()");
+        return userService.getAllUsers();
+    }
+
     @PutMapping("/{id}/unlock")
     @Secured("ROLE_ADMIN")
     public ResponseEntity<Void> unlockUser(@PathVariable("id") Long id) {
-        LOGGER.info("getLockedUsers()");
+        LOGGER.info("unlock user {}", id);
         userService.unlockUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}/block")
+    @Secured("ROLE_ADMIN")
+    public ResponseEntity<Void> blockUser(@PathVariable("id") Long id) {
+        LOGGER.info("block user {}", id);
+        userService.blockUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/resetPassword")
+    @Secured("ROLE_ADMIN")
+    public ResponseEntity<Void> resetPassword(@PathVariable("id") Long id) {
+        LOGGER.info("reset password for user {}", id);
+        userService.resetPassword(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
 
     @GetMapping("/me")
     @Secured("ROLE_USER")

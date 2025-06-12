@@ -70,7 +70,7 @@ const routes: Routes = [
   { path: 'orders/past/:id', component: PastOrderDetailComponent, canActivate: [AuthGuard] },
   { path: 'ticket/:id/:randomTicketCode', component: TicketComponent, canActivate: [AdminGuard] },
   { path: 'forgot-password', component: PasswordComponent},
-  { path: 'reset-password', component: ResetPasswordComponent},
+  { path: 'reset-password/:token', component: ResetPasswordComponent},
   { path: 'account-activation/:token', component: AccountActivationComponent},
 
 ];

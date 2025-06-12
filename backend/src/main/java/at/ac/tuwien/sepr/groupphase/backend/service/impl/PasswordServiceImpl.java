@@ -34,17 +34,15 @@ public class PasswordServiceImpl implements PasswordService {
     private final UserValidator userValidator;
     private final PasswordEncoder passwordEncoder;
     MailService mailService;
-    UserService userService;
     OtTokenRepository otTokenRepository;
     TokenLinkService tokenLinkService;
 
-    public PasswordServiceImpl(MailService mailService, PasswordEncoder passwordEncoder, UserService userService,
+    public PasswordServiceImpl(MailService mailService, PasswordEncoder passwordEncoder,
                                OtTokenRepository otTokenRepository, UserRepository userRepository, UserValidator userValidator,
                                TokenLinkService tokenLinkService) {
         this.mailService = mailService;
         this.passwordEncoder = passwordEncoder;
         this.otTokenRepository = otTokenRepository;
-        this.userService = userService;
         this.userRepository = userRepository;
         this.userValidator = userValidator;
         this.tokenLinkService = tokenLinkService;
@@ -53,7 +51,7 @@ public class PasswordServiceImpl implements PasswordService {
     @Override
     public void requestResetPassword(PasswordResetDto passwordResetDto) throws NotFoundException, IllegalArgumentException {
         LOGGER.debug("Password Reset starting");
-        String email = "";
+        String email;
 
         if (passwordResetDto.getEmail() == null) {
             throw new IllegalArgumentException("no email provided");
@@ -62,8 +60,9 @@ public class PasswordServiceImpl implements PasswordService {
             email = passwordResetDto.getEmail();
         }
 
-        if (userService.findApplicationUserByEmail(email) == null) {
-            throw new NotFoundException(email);
+        ApplicationUser user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new NotFoundException("no user found with that email " + email);
         }
         mailService.sendPasswordResetEmail(email, tokenLinkService.createOttLink(email, "reset-password"));
     }
@@ -75,11 +74,9 @@ public class PasswordServiceImpl implements PasswordService {
 
         userValidator.validateForPasswordChange(passwordChangeDto);
 
-        ApplicationUser user = userService.findUserById(passwordChangeDto.getUserId());
-        if (user == null) {
-            throw new NotFoundException("No User found");
-        }
-        updateUser(user, passwordChangeDto);
+        ApplicationUser user2 = userRepository.findById(passwordChangeDto.getUserId())
+            .orElseThrow(() -> new NotFoundException("User not found"));
+        updateUser(user2, passwordChangeDto);
         otTokenRepository.markConsumed(passwordChangeDto.getOtToken());
         userRepository.activateUser(passwordChangeDto.getUserId());
     }

@@ -1,7 +1,7 @@
 import {Sex} from './sex';
 
 export interface User {
-  id: string;
+  id: number;
   firstName: string;
   lastName: string;
   dateOfBirth: Date;
@@ -12,6 +12,7 @@ export interface User {
   city?: string;
   street?: string;
   postalCode?: string;
+  isLocked?: boolean;
 }
 
 export interface UserEdit {

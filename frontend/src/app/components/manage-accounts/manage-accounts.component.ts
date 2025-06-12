@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { UserService } from 'src/app/services/user.service';
 import { LockedUser } from 'src/app/dtos/locked-user';
 import { AuthService } from 'src/app/services/auth.service';
+import {User} from "../../dtos/user";
+import {ToastrService} from "ngx-toastr";
+import {Router, RouterLink} from "@angular/router";
 
 @Component({
   selector: 'app-manage-accounts',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './manage-accounts.component.html',
   styleUrls: ['./manage-accounts.component.css'],
 })
@@ -15,14 +18,17 @@ export class ManageAccountsComponent implements OnInit {
   error = false;
   errorMessage = '';
   lockedUsers: LockedUser[] = [];
+  users: User[] = [];
 
   constructor(
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private notification: ToastrService,
+    private router: Router
   ) { }
 
   ngOnInit() {
-    this.loadLockedUsers();
+    this.loadAllUsers();
   }
 
   /**
@@ -46,11 +52,53 @@ export class ManageAccountsComponent implements OnInit {
   }
 
   /**
+   * Fetches the list of all users
+   */
+  private loadAllUsers() {
+    this.userService.getAllUsers().subscribe({
+      next: users => {
+        this.users = users;
+        console.log(this.users);
+      },
+      error: err => this.defaultServiceErrorHandling(err)
+    });
+  }
+
+  /**
    * Unlocks the specified user and refreshes the list
    */
   onUnlock(id: number) {
     this.userService.unlockUser(id).subscribe({
-      next: () => this.loadLockedUsers(),
+      next: () => {
+        this.loadAllUsers()
+        this.notification.success(`User was unlocked.`);
+      },
+      error: err => this.defaultServiceErrorHandling(err)
+    });
+  }
+
+  /**
+   * Blocks the specified user and refreshes the list
+   */
+  block(id: number) {
+    this.userService.blockUser(id).subscribe({
+      next: () => {
+        this.loadAllUsers()
+        this.notification.success(`User was blocked.`);
+      },
+      error: err => this.defaultServiceErrorHandling(err)
+    });
+  }
+
+  /**
+   * Sends a Password-Reset to the user and refreshes the list
+   */
+  resetPassword(id: number) {
+    this.userService.resetPassword(id).subscribe({
+      next: () => {
+        this.loadAllUsers()
+        this.notification.success(`Password-Reset was sent.`);
+      },
       error: err => this.defaultServiceErrorHandling(err)
     });
   }
@@ -60,6 +108,10 @@ export class ManageAccountsComponent implements OnInit {
    */
   vanishError() {
     this.error = false;
+  }
+
+  onBackClick() {
+    this.router.navigate(['/admin']);
   }
 
   /**
