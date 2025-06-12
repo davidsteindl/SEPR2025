@@ -38,41 +38,124 @@ import { PasswordComponent } from './components/password/password.component';
 import {ResetPasswordComponent} from "./components/password/reset-password/reset-password.component";
 import { BuyTicketsPageComponent } from './components/buy-tickets-page/buy-tickets-page.component';
 import {AccountActivationComponent} from "./components/password/account-activation/account-activation.component";
-
+import { EditRoomPageComponent } from "./components/edit-room-page/edit-room-page.component";
 const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'manage-accounts', component: ManageAccountsComponent, canActivate: [AdminGuard]},
-  { path: 'register', component: RegisterComponent},
-  { path: 'termsandconditions', component: TermsandconditionsComponent},
-  { path: 'message', canActivate: mapToCanActivate([AuthGuard]), component: MessageComponent },
-  { path: 'checkout', component: PaymentFormComponent, canActivate: [AuthGuard] },
-  { path: 'user', component: UserComponent, canActivate: [AuthGuard]},
-  { path: 'user-edit', component: UserEditComponent, canActivate: [AuthGuard]},
-  { path: 'search', component: SearchComponent, canActivate: [AuthGuard]},
-  { path: 'create-event', component: CreateEventComponent, canActivate: [AdminGuard] },
-  { path: 'update-events', component: UpdateEventsComponent, canActivate: [AdminGuard] },
-  { path: 'events/:id/edit',  component: EditEventComponent, canActivate: [AdminGuard] },
-  { path: 'create-artist', component: CreateArtistComponent, canActivate: [AdminGuard] },
-  { path: 'create-show', component: CreateShowComponent, canActivate: [AdminGuard] },
-  { path: 'create-location', component: CreateLocationComponent, canActivate: [AdminGuard] },
-  { path: 'create-room', component: CreateRoomComponent, canActivate: [AdminGuard] },
-  { path: 'admin', component: AdminComponent, canActivate: [AdminGuard]},
-  { path: 'artists/:id/events', component: ArtistEventsComponent, canActivate: [AuthGuard] },
-  { path: 'events/:id/overview', component: EventOverviewComponent, canActivate: [AuthGuard] },
-  { path: 'rooms/:id/overview', component: RoomComponent, canActivate: [AdminGuard] },
-  { path: 'rooms/:id/edit', component: RoomEditComponent, canActivate: [AdminGuard] },
-  { path: 'locations/:id/shows', component: LocationShowsComponent, canActivate: [AuthGuard] },
-  { path: 'orders', component: OrderOverviewComponent, canActivate: [AuthGuard] },
-  { path: 'shows/:id/room-usage', component: BuyTicketsPageComponent, canActivate: [AuthGuard] },
-  { path: 'orders/purchased/:id', component: PurchasedOrderDetailComponent, canActivate: [AuthGuard] },
-  { path: 'orders/reserved/:id', component: ReservedOrderDetailComponent, canActivate: [AuthGuard] },
-  { path: 'orders/past/:id', component: PastOrderDetailComponent, canActivate: [AuthGuard] },
-  { path: 'ticket/:id/:randomTicketCode', component: TicketComponent, canActivate: [AdminGuard] },
-  { path: 'forgot-password', component: PasswordComponent},
-  { path: 'reset-password/:token', component: ResetPasswordComponent},
-  { path: 'account-activation/:token', component: AccountActivationComponent},
-
+  { path: "", component: HomeComponent },
+  { path: "login", component: LoginComponent },
+  {
+    path: "manage-accounts",
+    component: ManageAccountsComponent,
+    canActivate: [AdminGuard],
+  },
+  { path: "register", component: RegisterComponent },
+  { path: "termsandconditions", component: TermsandconditionsComponent },
+  {
+    path: "message",
+    canActivate: mapToCanActivate([AuthGuard]),
+    component: MessageComponent,
+  },
+  {
+    path: "checkout",
+    component: PaymentFormComponent,
+    canActivate: [AuthGuard],
+  },
+  { path: "user", component: UserComponent, canActivate: [AuthGuard] },
+  { path: "user-edit", component: UserEditComponent, canActivate: [AuthGuard] },
+  { path: "search", component: SearchComponent, canActivate: [AuthGuard] },
+  {
+    path: "create-event",
+    component: CreateEventComponent,
+    canActivate: [AdminGuard],
+  },
+  {
+    path: "update-events",
+    component: UpdateEventsComponent,
+    canActivate: [AdminGuard],
+  },
+  {
+    path: "events/:id/edit",
+    component: EditEventComponent,
+    canActivate: [AdminGuard],
+  },
+  {
+    path: "create-artist",
+    component: CreateArtistComponent,
+    canActivate: [AdminGuard],
+  },
+  {
+    path: "create-show",
+    component: CreateShowComponent,
+    canActivate: [AdminGuard],
+  },
+  {
+    path: "create-location",
+    component: CreateLocationComponent,
+    canActivate: [AdminGuard],
+  },
+  {
+    path: "create-room",
+    component: CreateRoomComponent,
+    canActivate: [AdminGuard],
+  },
+  { path: "admin", component: AdminComponent, canActivate: [AdminGuard] },
+  {
+    path: "artists/:id/events",
+    component: ArtistEventsComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: "events/:id/overview",
+    component: EventOverviewComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: "rooms/:id/overview",
+    component: EditRoomPageComponent,
+    canActivate: [AdminGuard],
+  },
+  {
+    path: "rooms/:id/edit",
+    component: RoomEditComponent,
+    canActivate: [AdminGuard],
+  },
+  {
+    path: "locations/:id/shows",
+    component: LocationShowsComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: "orders",
+    component: OrderOverviewComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: "shows/:id/room-usage",
+    component: BuyTicketsPageComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: "orders/purchased/:id",
+    component: PurchasedOrderDetailComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: "orders/reserved/:id",
+    component: ReservedOrderDetailComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: "orders/past/:id",
+    component: PastOrderDetailComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: "ticket/:id/:randomTicketCode",
+    component: TicketComponent,
+    canActivate: [AdminGuard],
+  },
+  { path: "forgot-password", component: PasswordComponent },
+  { path: "reset-password/:token", component: ResetPasswordComponent },
+  { path: "account-activation/:token", component: AccountActivationComponent },
 ];
 
 @NgModule({
