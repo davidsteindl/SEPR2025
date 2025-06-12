@@ -1,143 +1,121 @@
 <div class="mt-4 container">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Create Room</h2>
+    <h2>Create new room</h2>
     <button class="btn btn-outline-secondary" (click)="onBackClick()">
-      ← Back to Admin Page
+      ← Back to Admin
     </button>
   </div>
-  <hr>
+  <p class="text-muted mb-4">
+    You will be able to customize the layout after this
+  </p>
 
-  <form #roomForm="ngForm" class="tab-box" (ngSubmit)="createRoom()" novalidate>
+  <form #roomForm="ngForm" (ngSubmit)="createRoom()" novalidate class="tab-box">
 
-    <div class="form-group">
-      <label for="roomName">Name <span class="text-danger">*</span></label>
+    <!-- NAME -->
+    <div class="form-group mb-4">
+      <label for="roomName">Room name <span class="text-danger">*</span></label>
       <input
         id="roomName"
-        [(ngModel)]="room.name"
+        type="text"
+        class="form-control"
         name="roomName"
-        required
-        class="form-control"
-        #roomName="ngModel"/>
-      <div *ngIf="roomName.invalid && roomName.touched" class="text-danger">
-        Show name is required.
+        [(ngModel)]="room.name"
+        #roomName="ngModel"
+        required maxlength="50"
+      />
+      <div *ngIf="roomName.touched && roomName.invalid" class="text-danger">
+        <div *ngIf="roomName.errors?.required">Name is required.</div>
+        <div *ngIf="roomName.errors?.maxlength">Max 50 characters.</div>
       </div>
     </div>
 
-    <div class="form-group mt-3">
-      <label for="amountSectors"> Number of sectors: <span class="text-danger">*</span></label>
+    <!-- ROWS -->
+    <div class="form-group mb-3">
+      <label for="rows">Rows <span class="text-danger">*</span></label>
       <input
-        id="amountSectors"
+        id="rows"
         type="number"
-        [(ngModel)]="room.numberOfSectors"
-        name="amountSectors"
-        required
-        min="1"
-        max="10"
         class="form-control"
-        #amountSectors="ngModel"/>
-      <div *ngIf="amountSectors.touched">
-        <div *ngIf="amountSectors.errors?.required" class="text-danger">
-          Amount of sectors is required.
-        </div>
-        <div *ngIf="seatsPerRow.errors?.min" class="text-danger">
-          Amount of sectors must be a positive number.
-        </div>
+        name="rows"
+        [(ngModel)]="room.rows"
+        #rows="ngModel"
+        required min="1" max="100"
+      />
+      <div *ngIf="rows.touched && rows.invalid" class="text-danger">
+        <div *ngIf="rows.errors?.required">Rows is required.</div>
+        <div *ngIf="rows.errors?.min">Must be at least 1 row.</div>
       </div>
     </div>
 
-    <div class="form-group mt-3">
-      <label for="rowsPerSector">Rows per sector: <span class="text-danger">*</span></label>
+    <!-- COLUMNS -->
+    <div class="form-group mb-3">
+      <label for="columns">Columns <span class="text-danger">*</span></label>
       <input
-        id="rowsPerSector"
+        id="columns"
         type="number"
-        [(ngModel)]="room.rowsPerSector"
-        name="rowsPerSector"
-        required
-        min="1"
-        max="10"
         class="form-control"
-        #rowsPerSector="ngModel"/>
-      <div *ngIf="rowsPerSector.touched">
-        <div *ngIf="rowsPerSector.errors?.required" class="text-danger">
-          Amount of rows per sector is required.
-        </div>
-        <div *ngIf="seatsPerRow.errors?.min" class="text-danger">
-          Amount of rows per sector must be a positive number.
-        </div>
+        name="columns"
+        [(ngModel)]="room.columns"
+        #columns="ngModel"
+        required min="1" max="100"
+      />
+      <div *ngIf="columns.touched && columns.invalid" class="text-danger">
+        <div *ngIf="columns.errors?.required">Columns is required.</div>
+        <div *ngIf="columns.errors?.min">Must be at least 1 column.</div>
       </div>
     </div>
 
-    <div class="form-group mt-3">
-      <label for="seatsPerRow">Seats per row <span class="text-danger">*</span></label>
-      <input
-        id="seatsPerRow"
-        type="number"
-        [(ngModel)]="room.seatsPerRow"
-        name="seatsPerRow"
-        required
-        min="1"
-        max="100"
-        class="form-control"
-        #seatsPerRow="ngModel"/>
-      <div *ngIf="seatsPerRow.touched">
-        <div *ngIf="seatsPerRow.errors?.required" class="text-danger">
-          Amount of seats per row is required.
-        </div>
-        <div *ngIf="seatsPerRow.errors?.min" class="text-danger">
-          Amount of seats per row must be a positive number.
-        </div>
-      </div>
-    </div>
-
-    <div class="form-group mt-3">
-      <label for="eventLocation">Location <span class="text-danger">*</span></label>
+    <!-- LOCATION -->
+    <div class="form-group mb-3">
+      <label for="eventLocation">Event location <span class="text-danger">*</span></label>
       <select
         id="eventLocation"
-        [(ngModel)]="room.eventLocationId"
-        name="eventLocation"
-        required
         class="form-control"
-        #eventLocation="ngModel">
+        name="eventLocation"
+        [(ngModel)]="room.eventLocationId"
+        #eventLocation="ngModel"
+        required
+      >
         <option [ngValue]="null" disabled>Select Location</option>
-        <option *ngFor="let location of locations" [ngValue]="location.id">{{ location?.name }}</option>
+        <option *ngFor="let loc of locations" [ngValue]="loc.id">{{loc.name}}</option>
       </select>
-      <div *ngIf="eventLocation.invalid && eventLocation.touched" class="text-danger">
+      <div *ngIf="eventLocation.touched && eventLocation.invalid" class="text-danger">
         Location is required.
       </div>
     </div>
 
-    <br>
 
-    <div class="mt-4 text-center">
-      <button type="submit" class=" btn btn-success me-2" [disabled]="roomForm.invalid">Create Room</button>
+
+    <!-- SUBMIT -->
+    <div class="text-center">
+      <button
+        type="submit"
+        class="btn btn-success w-100"
+        [disabled]="roomForm.invalid"
+      >
+        Create Room
+      </button>
     </div>
   </form>
 
+  <!-- CONFIRM-EXIT MODAL (unchanged) -->
   <div *ngIf="showConfirm">
     <div class="modal-backdrop fade show"></div>
-
     <div class="modal fade show d-block" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header justify-content-center border-0">
-            <h5 class="modal-title text-center fw-bold mb-0">
-              Confirm Exit
-            </h5>
+            <h5 class="modal-title">Confirm Exit</h5>
           </div>
-          <div class="modal-body text-center py-2">
-            <p class="mb-1">
-              If you exit this page, your changes will not be saved.
-            </p>
+          <div class="modal-body text-center">
+            <p>If you exit this page, your changes will not be saved.</p>
           </div>
-          <div class="modal-footer justify-content-center pt-1 pb-2 border-0">
-            <button type="button" class="btn btn-success me-2" (click)="stay()">Stay on Page</button>
-            <button type="button" class="btn btn-danger" (click)="exit()">Exit Page</button>
+          <div class="modal-footer justify-content-center border-0">
+            <button class="btn btn-success me-2" (click)="stay()">Stay</button>
+            <button class="btn btn-danger" (click)="exit()">Exit</button>
           </div>
-
         </div>
       </div>
     </div>
   </div>
-
 </div>
-
