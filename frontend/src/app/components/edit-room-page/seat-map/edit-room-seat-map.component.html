@@ -1,0 +1,95 @@
+<!-- edit-room-seat-map.component.html -->
+<div
+  class="seat-map-grid"
+  [style.gridTemplateColumns]="gridTemplateColumns"
+  [style.gridTemplateRows]="gridTemplateRows"
+>
+  <!-- Stage sectors as gray squares -->
+  <ng-container *ngFor="let sec of stageSectors">
+    <ng-container *ngFor="let seat of getSeatsForSector(sec.id)">
+      <div
+        class="grid-cell"
+        [style.gridRowStart]="seat.rowNumber"
+        [style.gridColumnStart]="seat.columnNumber"
+      >
+        <div class="seat-circle unavailable stage-seat"></div>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <!-- Seated & Standing sectors (each seat individually) -->
+  <ng-container *ngFor="let seat of room.seats">
+    <div
+      class="grid-cell"
+      [style.gridRowStart]="seat.rowNumber"
+      [style.gridColumnStart]="seat.columnNumber"
+    >
+      <ng-container
+        *ngIf="getSectorType(seat.sectorId) === 'STAGE'; else normalSeat"
+      >
+        <div
+          class="seat-circle unavailable stage-seat"
+          [ngbPopover]="popoverTpl"
+          #pop="ngbPopover"
+          [popoverContext]="{ seat: seat }"
+          triggers="manual"
+          container="body"
+          [autoClose]="'outside'"
+          (click)="openPopover(seat, pop)"
+        ></div>
+      </ng-container>
+      <ng-template #normalSeat>
+        <div
+          [ngClass]="{
+            'seat-circle': getSectorType(seat.sectorId) !== 'STANDING',
+            'standing-rect': getSectorType(seat.sectorId) === 'STANDING',
+            'deleted-seat': seat.deleted
+          }"
+          [ngStyle]="{
+            'background-color': seat.deleted
+              ? '#fff'
+              : seat.sectorId
+              ? sectorColorMap[seat.sectorId]
+              : '#ccc'
+          }"
+          [ngbPopover]="popoverTpl"
+          #pop="ngbPopover"
+          [popoverContext]="{ seat: seat }"
+          triggers="manual"
+          container="body"
+          [autoClose]="'outside'"
+          (click)="openPopover(seat, pop)"
+        ></div>
+      </ng-template>
+    </div>
+  </ng-container>
+</div>
+
+<ng-template #popoverTpl let-seat="seat" let-pop="popover">
+  <div class="p-2">
+    <div class="mb-2">
+      <label class="form-label">Sector</label>
+      <select class="form-select" [(ngModel)]="selectedSectorIdMap[seat.id]">
+        <option [ngValue]="null">Unassigned</option>
+        <option *ngFor="let sec of allSectors" [ngValue]="sec.id">
+          {{ sec.type }} #{{ sec.id }}
+        </option>
+      </select>
+    </div>
+    <div class="d-flex justify-content-between">
+      <button
+        class="btn btn-sm btn-danger"
+        (click)="deleteSeat(seat, pop)"
+        *ngIf="!seat.deleted"
+      >
+        Delete
+      </button>
+      <button
+        class="btn btn-sm btn-success"
+        (click)="assignSeat(seat, selectedSectorIdMap[seat.id], pop)"
+      >
+        {{ seat.deleted ? "Create Seat" : "Assign" }}
+      </button>
+    </div>
+  </div>
+</ng-template>

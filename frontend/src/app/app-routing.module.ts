@@ -19,9 +19,7 @@ import {CreateLocationComponent} from './components/create-content/create-locati
 import {AdminComponent} from './components/admin/admin.component';
 import {ArtistEventsComponent} from './components/artist-events/artist-events.component';
 import {EventOverviewComponent} from "./components/event-overview/event-overview.component";
-import {CreateRoomComponent} from './components/create-content/create-room/create-room.component';
-import {RoomComponent} from "./components/room/room.component";
-import {RoomEditComponent} from './components/room/room-edit/room-edit.component';
+import { CreateRoomComponent } from "./components/create-content/create-room/create-room.component";
 import {LocationShowsComponent} from "./components/location-shows/location-shows.component";
 import {PaymentFormComponent} from './components/payment-form/payment-form.component';
 import {OrderOverviewComponent} from "./components/order-overview/order-overview.component";
@@ -111,11 +109,6 @@ const routes: Routes = [
   {
     path: "rooms/:id/overview",
     component: EditRoomPageComponent,
-    canActivate: [AdminGuard],
-  },
-  {
-    path: "rooms/:id/edit",
-    component: RoomEditComponent,
     canActivate: [AdminGuard],
   },
   {

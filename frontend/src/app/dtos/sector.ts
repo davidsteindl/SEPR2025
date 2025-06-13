@@ -10,3 +10,5 @@ export abstract class Sector {
   seats: Seat[];
   capacity?: number;
 }
+
+export { SectorType };

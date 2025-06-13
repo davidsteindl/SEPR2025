@@ -1,20 +1,17 @@
-import { Injectable } from '@angular/core';
-import {Globals} from '../global/globals';
-import {HttpClient} from "@angular/common/http";
-import {CreateRoom} from "../dtos/create-room";
-import { Observable } from 'rxjs';
-import {Room} from "../dtos/room";
-
+import { Injectable } from "@angular/core";
+import { Globals } from "../global/globals";
+import { HttpClient } from "@angular/common/http";
+import { CreateRoom } from "../dtos/create-room";
+import { Observable } from "rxjs";
+import { Room } from "../dtos/room";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class RoomService {
+  private roomBaseUri: string = this.globals.backendUri + "/rooms";
 
-  private roomBaseUri: string = this.globals.backendUri + '/rooms';
-
-  constructor(private httpClient: HttpClient, private globals: Globals) {
-  }
+  constructor(private httpClient: HttpClient, private globals: Globals) {}
 
   /**
    * Creates a new room
@@ -22,7 +19,7 @@ export class RoomService {
    * @param room to create
    */
   create(room: CreateRoom): Observable<Room> {
-    console.log('Create room with name: ' + room.name);
+    console.log("Create room with name: " + room.name);
     return this.httpClient.post<Room>(this.roomBaseUri, room);
   }
 
@@ -32,7 +29,7 @@ export class RoomService {
    * @param room to create
    */
   edit(room: Room): Observable<Room> {
-    console.log('Edit room with name: ' + room.name);
+    console.log("Edit room with name: " + room.name);
     return this.httpClient.put<Room>(`${this.roomBaseUri}/${room.id}`, room);
   }
 
