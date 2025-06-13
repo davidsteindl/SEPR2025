@@ -19,7 +19,7 @@
     <strong>Address:</strong> {{ location?.postalCode }} {{ location?.city }}, {{ location?.street }}
   </p>
   <p>
-    <strong>Category:</strong> {{ event.category }}
+    <strong>Category:</strong> {{ event.category | lowercase | titlecase }}
   </p>
 
   <p><strong>Description:</strong></p>
