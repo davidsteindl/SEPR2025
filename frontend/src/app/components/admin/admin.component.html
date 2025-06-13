@@ -5,32 +5,12 @@
 
     <section class="card user-management">
       <h3 class="card__title">User Management</h3>
-      <ul class="um-list">
-        <li class="um-list__item">
-          <button class="um-btn" routerLink="/register">
-            <i class="fas fa-user-plus um-btn__icon"></i>
-            <span>Create User</span>
-          </button>
-        </li>
-        <li class="um-list__item">
-          <button class="um-btn" routerLink="/manage-accounts">
-            <i class="fas fa-undo um-btn__icon"></i>
-            <span>Revoke Block</span>
-          </button>
-        </li>
-        <li class="um-list__item">
-          <button class="um-btn">
-            <i class="fas fa-ban um-btn__icon"></i>
-            <span>Block User</span>
-          </button>
-        </li>
-        <li class="um-list__item">
-          <button class="um-btn">
-            <i class="fas fa-lock um-btn__icon"></i>
-            <span>Reset Passwords</span>
-          </button>
-        </li>
-      </ul>
+      <div class="user-management__body">
+        <button class="um-btn" routerLink="/manage-accounts">
+          <i class="fas fa-users-cog um-btn__icon"></i>
+          <span class="um-btn__text">Manage Accounts</span>
+        </button>
+      </div>
     </section>
 
     <section class="card content-creation">

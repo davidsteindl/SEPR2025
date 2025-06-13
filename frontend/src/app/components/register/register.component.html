@@ -9,11 +9,11 @@
             <h3 class="mb-0">
               {{ isAdmin() ? 'Create User' : 'Register' }}
             </h3>
-            <button *ngIf="isAdmin()"
+            <button
                     type="button"
                     class="btn btn-outline-secondary"
                     (click)="onBackClick()">
-              ← Back to Admin Page
+              ← {{ isAdmin() ? 'Back to Admin Page' : 'Back to Login Page' }}
             </button>
           </div>
         </div>
