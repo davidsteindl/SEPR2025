@@ -189,7 +189,7 @@ public class PdfExportServiceImpl implements PdfExportService {
 
         document.add(new Paragraph(adresspronom));
 
-        document.add(new Paragraph(user.getFirstName() + " " + user.getLastName()));
+        document.add(new Paragraph(order.getFirstName() + " " + order.getLastName()));
 
         if (order.getStreet() != null && order.getHousenumber() != null && order.getPostalCode() != null
             && order.getCity() != null && order.getCountry() != null) {
