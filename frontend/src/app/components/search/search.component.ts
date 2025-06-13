@@ -245,8 +245,8 @@ export class SearchComponent implements OnInit {
       name: this.showName?.trim() || undefined,
       eventName: this.showEventName?.trim() || undefined,
       roomName: this.showRoomName?.trim() || undefined,
-      startDate: this.showStartDate ? new Date(this.showStartDate).toISOString() : undefined,
-      endDate: this.showEndDate ? new Date(this.showEndDate).toISOString() : undefined,
+      startDate: this.showStartDate || undefined,
+      endDate: this.showEndDate || undefined,
       minPrice: this.showMinPrice,
       maxPrice: this.showMaxPrice
     };
