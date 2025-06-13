@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {OrderDto, OrderGroupDetailDto} from 'src/app/dtos/order';
 import {FormsModule} from "@angular/forms";
-import {CurrencyPipe, DatePipe, NgForOf, NgIf} from "@angular/common";
+import {CurrencyPipe, DatePipe, LowerCasePipe, NgForOf, NgIf, TitleCasePipe} from "@angular/common";
 import { TicketService } from 'src/app/services/ticket.service';
 import {PdfExportService} from "../../../services/pdf-export.service";
 import {ToastrService} from "ngx-toastr";
@@ -17,7 +17,9 @@ import {ToastrService} from "ngx-toastr";
     CurrencyPipe,
     DatePipe,
     NgIf,
-    NgForOf
+    NgForOf,
+    LowerCasePipe,
+    TitleCasePipe
   ],
   styleUrls: ['./purchased-order-detail.component.scss']
 })

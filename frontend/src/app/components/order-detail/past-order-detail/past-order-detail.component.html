@@ -9,7 +9,7 @@
     <hr>
 
     <section class="order-meta">
-      <p><strong>Date:</strong> {{ group.showDate | date: 'shortDate' }}</p>
+      <p><strong>Date:</strong> {{ group.showDate | date: 'short' }}</p>
       <p><strong>Show:</strong> {{ group.showName }}</p>
       <p><strong>Location:</strong> {{ group.locationName }}</p>
     </section>
@@ -34,7 +34,7 @@
             </ng-container>
             <ng-template #standing>Standing</ng-template>
           </td>
-          <td>{{ ticket.status }}</td>
+          <td>{{ ticket.status | lowercase | titlecase  }}</td>
           <td>{{ ticket.price | currency }}</td>
           <td><span class="text-muted">Unavailable</span></td>
         </tr>

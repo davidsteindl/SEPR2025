@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {OrderDto, OrderGroupDetailDto} from '../../../dtos/order';
-import { CurrencyPipe, DatePipe, NgIf, NgForOf } from '@angular/common';
+import {CurrencyPipe, DatePipe, NgIf, NgForOf, TitleCasePipe, LowerCasePipe} from '@angular/common';
 import {TicketService} from "../../../services/ticket.service";
 import {PdfExportService} from "../../../services/pdf-export.service";
 
 @Component({
   selector: 'app-past-order-detail',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, NgIf, NgForOf],
+  imports: [CurrencyPipe, DatePipe, NgIf, NgForOf, TitleCasePipe, LowerCasePipe],
   templateUrl: './past-order-detail.component.html',
   styleUrl: './past-order-detail.component.scss'
 })
