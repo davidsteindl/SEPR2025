@@ -21,12 +21,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.annotation.security.DeclareRoles;
@@ -40,7 +42,6 @@ import java.util.List;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 /**
@@ -160,10 +161,10 @@ public class SecurityTest implements TestData {
     public void givenAdminLoggedIn_whenPost_then201() throws Exception {
         MessageInquiryDto messageInquiryDto = messageMapper.messageToMessageInquiryDto(message);
         String body = objectMapper.writeValueAsString(messageInquiryDto);
+        MockMultipartFile multipartFile = new MockMultipartFile("message", null, "application/json", body.getBytes());
 
-        MvcResult mvcResult = this.mockMvc.perform(post(MESSAGE_BASE_URI)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(body)
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.multipart(MESSAGE_BASE_URI)
+            .file(multipartFile)
             .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
@@ -177,10 +178,10 @@ public class SecurityTest implements TestData {
         message.setPublishedAt(null);
         MessageInquiryDto messageInquiryDto = messageMapper.messageToMessageInquiryDto(message);
         String body = objectMapper.writeValueAsString(messageInquiryDto);
+        MockMultipartFile multipartFile = new MockMultipartFile("message", null, "application/json", body.getBytes());
 
-        MvcResult mvcResult = this.mockMvc.perform(post(MESSAGE_BASE_URI)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(body))
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.multipart(MESSAGE_BASE_URI)
+            .file(multipartFile))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -193,10 +194,10 @@ public class SecurityTest implements TestData {
         message.setPublishedAt(null);
         MessageInquiryDto messageInquiryDto = messageMapper.messageToMessageInquiryDto(message);
         String body = objectMapper.writeValueAsString(messageInquiryDto);
+        MockMultipartFile multipartFile = new MockMultipartFile("message", null, "application/json", body.getBytes());
 
-        MvcResult mvcResult = this.mockMvc.perform(post(MESSAGE_BASE_URI)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(body)
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.multipart(MESSAGE_BASE_URI)
+            .file(multipartFile)
             .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES)))
             .andDo(print())
             .andReturn();

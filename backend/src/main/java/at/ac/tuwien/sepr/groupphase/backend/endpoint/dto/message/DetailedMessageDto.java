@@ -1,14 +1,25 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 public class DetailedMessageDto extends SimpleMessageDto {
+
+    private List<ImageDto> images;
 
     private String text;
 
     public String getText() {
         return text;
+    }
+
+    public List<ImageDto> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ImageDto> images) {
+        this.images = images;
     }
 
     public void setText(String text) {
