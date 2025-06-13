@@ -5,7 +5,7 @@ import { Event } from '../../dtos/event';
 import { Show } from '../../dtos/show';
 import { LocationService } from '../../services/location.service';
 import { Location } from '../../dtos/location';
-import {DatePipe, NgForOf, NgIf} from "@angular/common";
+import {DatePipe, LowerCasePipe, NgForOf, NgIf, TitleCasePipe} from "@angular/common";
 import { ArtistService } from '../../services/artist.service';
 import { Artist } from '../../dtos/artist';
 import {ToastrService} from "ngx-toastr";
@@ -19,7 +19,9 @@ import {ErrorFormatterService} from "../../services/error-formatter.service";
     NgIf,
     NgForOf,
     DatePipe,
-    RouterLink
+    RouterLink,
+    LowerCasePipe,
+    TitleCasePipe
   ]
 })
 export class EventOverviewComponent implements OnInit {
