@@ -37,7 +37,7 @@
             </ng-container>
             <ng-template #standing>Standing</ng-template>
           </td>
-          <td>{{ ticket.status }}</td>
+          <td>{{ ticket.status | lowercase | titlecase }}</td>
           <td>{{ ticket.price | currency }}</td>
           <td>
             <button
