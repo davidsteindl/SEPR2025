@@ -70,13 +70,7 @@ export class PaymentFormComponent implements OnInit {
       lastName: ['', Validators.required],
       street: ['', Validators.required],
       housenumber: ['', Validators.required],
-      postalCode: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(/^\d{4,10}$/),
-        ],
-      ],
+      postalCode: ['', Validators.required],
       city: ['', Validators.required],
     });
 
