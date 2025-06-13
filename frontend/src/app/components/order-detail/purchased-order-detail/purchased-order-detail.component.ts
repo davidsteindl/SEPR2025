@@ -110,10 +110,33 @@ export class PurchasedOrderDetailComponent implements OnInit {
   }
 
   getOrderLabel(order: OrderDto, index: number): string {
-    switch (order.orderType) {
-      case 'ORDER': return `Order ${index + 1}`;
-      case 'REFUND': return `Refund ${index + 1}`;
-      default: return `Order`;
+    const orders = this.sortedOrders;
+
+    let orderCount = 0;
+    let refundCount = 0;
+
+    for (let i = 0; i <= index; i++) {
+      if (orders[i].orderType === 'ORDER') {
+        orderCount++;
+      } else if (orders[i].orderType === 'REFUND') {
+        refundCount++;
+      }
+    }
+
+    const isLast = index === orders.length - 1;
+
+    if (order.orderType === 'ORDER') {
+      if (orderCount === 1) {
+        return 'Original Order';
+      } else if (isLast) {
+        return 'Current Order';
+      } else {
+        return `Updated Order #${orderCount - 1}`;
+      }
+    } else if (order.orderType === 'REFUND') {
+      return `Refund #${refundCount}`;
+    } else {
+      return 'Order';
     }
   }
 
