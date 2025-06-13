@@ -95,13 +95,19 @@ public class RoomServiceImpl implements RoomService {
             .build();
         Room savedRoom = roomRepository.save(room);
 
+        //Adds default sector for seats
+        Sector defaultSector = new Sector();
+        defaultSector.setPrice(1);
+        defaultSector.setRoom(savedRoom);
+        savedRoom.addSector(defaultSector);
+
         for (int i = 0; i < dto.getRows(); i++) {
             for (int j = 0; j < dto.getColumns(); j++) {
                 Seat seat = Seat.SeatBuilder.aSeat()
                     .withRowNumber(i + 1)
                     .withColumnNumber(j + 1)
                     .withDeleted(false)
-                    .withSector(null)
+                    .withSector(defaultSector)
                     .withRoom(savedRoom)
                     .build();
                 savedRoom.addSeat(seat);
@@ -156,6 +162,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Transactional
     public RoomDetailDto getRoomById(Long id) {
         LOGGER.debug("Retrieving a room with details: {}", id);
         Room room = roomRepository.findById(id).orElseThrow(EntityNotFoundException::new);
@@ -221,6 +228,7 @@ public class RoomServiceImpl implements RoomService {
                 // only seats that belong to a normal sector are bookable
                 boolean isBookable = seat.getSector() != null && seat.getSector().isBookable();
                 boolean isAvailable = isBookable
+                    && !seat.isDeleted()
                     && !occupiedSeatIds.contains(seat.getId())
                     && !heldSeatIds.contains(seat.getId());
 
@@ -399,7 +407,26 @@ public class RoomServiceImpl implements RoomService {
         if (dto.getId() != null && !existing.containsKey(dto.getId())) {
             throw new EntityNotFoundException("SeatedSector not found with id " + dto.getId());
         }
-        StandingSector sec = (StandingSector) existing.getOrDefault(dto.getId(), new StandingSector());
+        Sector raw = dto.getId() != null ? existing.get(dto.getId()) : null;
+
+        StandingSector sec;
+
+        // Ensure the sector is of type StandingSector:
+        // If an existing sector has a different type, delete and replace it
+        // If no sector exists, create a new one
+        // Otherwise, reuse the existing StandingSector
+        if (raw != null && !(raw instanceof StandingSector)) {
+            sectorRepository.delete(raw);
+            room.getSectors().remove(raw);
+            sec = new StandingSector();
+            room.addSector(sec);
+        } else if (raw == null) {
+            sec = new StandingSector();
+            room.addSector(sec);
+        } else {
+            sec = (StandingSector) raw;
+        }
+
         sec.setPrice(dto.getPrice());
         sec.setCapacity(dto.getCapacity());
         sec.setRoom(room);
