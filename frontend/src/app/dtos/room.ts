@@ -9,4 +9,5 @@ export interface Room {
   seats: Seat[];
   sectors: Sector[];
   name: string;
+  eventLocationId: number;
 }
