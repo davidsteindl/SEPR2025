@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Message;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ImageRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.MessageRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.MessageService;
 import org.slf4j.Logger;
@@ -18,9 +19,11 @@ public class SimpleMessageService implements MessageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final MessageRepository messageRepository;
+    private final ImageRepository imageRepository;
 
-    public SimpleMessageService(MessageRepository messageRepository) {
+    public SimpleMessageService(MessageRepository messageRepository, ImageRepository imageRepository) {
         this.messageRepository = messageRepository;
+        this.imageRepository = imageRepository;
     }
 
     @Override
@@ -44,6 +47,9 @@ public class SimpleMessageService implements MessageService {
     public Message publishMessage(Message message) {
         LOGGER.debug("Publish new message {}", message);
         message.setPublishedAt(LocalDateTime.now());
+        if (message.getImages() != null && !message.getImages().isEmpty()) {
+            imageRepository.saveAll(message.getImages());
+        }
         return messageRepository.save(message);
     }
 
