@@ -21,6 +21,7 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
@@ -29,6 +30,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Pageable;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
@@ -197,20 +199,16 @@ public class CustomUserDetailService implements UserService {
     }
 
     @Override
-    public List<LockedUserDto> getAllUsers() {
-        LOGGER.debug("Fetching all users");
-        List<ApplicationUser> allUsers = userRepository.findAll();
-
-        return allUsers.stream()
+    public Page<LockedUserDto> getAllUsersPaginated(Pageable pageable) {
+        LOGGER.debug("Fetching all users paginated");
+        return userRepository.findAll(pageable)
             .map(user -> LockedUserDto.LockedUserDtoBuilder.aLockedUserDto()
                 .withId(user.getId())
                 .withFirstName(user.getFirstName())
                 .withLastName(user.getLastName())
                 .withEmail(user.getEmail())
                 .withIsLocked(user.isLocked())
-                .build()
-            )
-            .toList();
+                .build());
     }
 
     @Override

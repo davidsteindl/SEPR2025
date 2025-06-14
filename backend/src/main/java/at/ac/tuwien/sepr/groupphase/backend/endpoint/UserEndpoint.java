@@ -1,18 +1,19 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.UserMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
-import at.ac.tuwien.sepr.groupphase.backend.service.PasswordService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -23,8 +24,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
@@ -48,11 +51,14 @@ public class UserEndpoint {
         return userService.getLockedUsers();
     }
 
-    @GetMapping("/getAll")
+    @GetMapping("/paginated")
     @Secured("ROLE_ADMIN")
-    public List<LockedUserDto> getAllUsers() {
-        LOGGER.info("getAllUsers()");
-        return userService.getAllUsers();
+    public Page<LockedUserDto> getAllUsersPaginated(@RequestParam(name = "page", defaultValue = "0") int page,
+                                                    @RequestParam(name = "size", defaultValue = "10") int size
+    ) {
+        LOGGER.info("getAllUsers paginated page={} size={}", page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        return userService.getAllUsersPaginated(pageable);
     }
 
     @PutMapping("/{id}/unlock")
@@ -78,7 +84,6 @@ public class UserEndpoint {
         userService.resetPassword(id);
         return ResponseEntity.noContent().build();
     }
-
 
 
     @GetMapping("/me")

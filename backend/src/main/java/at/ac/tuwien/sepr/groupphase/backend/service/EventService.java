@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventCategoryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventTopTenDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.UpdateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
@@ -27,6 +28,14 @@ public interface EventService {
      * @return a list of all events
      */
     List<Event> getAllEvents();
+
+    /**
+     * Returns all events paginated.
+     *
+     * @return a page of all events
+     */
+    Page<UpdateEventDto> getAllPaginatedEvents(Pageable pageable);
+
 
     /**
      * Saves the given event.

@@ -6,11 +6,13 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import org.springframework.data.domain.Page;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface UserService extends UserDetailsService {
@@ -74,9 +76,9 @@ public interface UserService extends UserDetailsService {
      * Returns all users, only administrators
      * should be able to access this method.
      *
-     * @return all users
+     * @return a page of all users
      */
-    List<LockedUserDto> getAllUsers();
+    Page<LockedUserDto> getAllUsersPaginated(Pageable pageable);
 
     /**
      * Unlocks the user account with the given ID by setting its 'locked' status to false.
