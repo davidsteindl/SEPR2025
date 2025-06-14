@@ -51,7 +51,7 @@ public class UserEndpoint {
         return userService.getLockedUsers();
     }
 
-    @GetMapping("/getAll")
+    @GetMapping("/paginated")
     @Secured("ROLE_ADMIN")
     public Page<LockedUserDto> getAllUsersPaginated(@RequestParam(name = "page", defaultValue = "0") int page,
                                                     @RequestParam(name = "size", defaultValue = "10") int size
