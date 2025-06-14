@@ -71,6 +71,19 @@ public class EventEndpoint {
     @GetMapping
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get all events paginated", security = @SecurityRequirement(name = "apiKey"))
+    public Page<UpdateEventDto> getAllPaginatedEvents(
+        @RequestParam(name = "page", defaultValue = "0") int page,
+        @RequestParam(name = "size", defaultValue = "10") int size
+    ) {
+        LOGGER.info("GET /api/v1/events?page={}&size={}", page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        return eventService.getAllPaginatedEvents(pageable);
+    }
+
+    @GetMapping
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get all events", security = @SecurityRequirement(name = "apiKey"))
     public List<EventDetailDto> getAllEvents() {
         LOGGER.info("GET /api/v1/events");
