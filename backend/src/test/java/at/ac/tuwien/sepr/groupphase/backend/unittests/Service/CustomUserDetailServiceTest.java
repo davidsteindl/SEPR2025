@@ -1,6 +1,7 @@
-package at.ac.tuwien.sepr.groupphase.backend.unittests;
+package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
@@ -17,6 +18,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDate;
@@ -195,7 +200,7 @@ class CustomUserDetailServiceTest {
         assertAll(
             () -> assertEquals(2, dtos.size()),
             () -> {
-                var d1 = dtos.get(0);
+                var d1 = dtos.getFirst();
                 assertAll(
                     () -> assertEquals(1L, d1.getId()),
                     () -> assertEquals("A", d1.getFirstName()),
@@ -225,6 +230,61 @@ class CustomUserDetailServiceTest {
 
         assertTrue(dtos.isEmpty());
         verify(userRepository).findAllByLockedTrue();
+    }
+
+    @Test
+    void getAllUsersPaginated_nonEmptyPage_returnsPageOfDtos() {
+        Pageable pageable = PageRequest.of(0, 2);
+        ApplicationUser u1 = testUser;
+        ApplicationUser u2 = ApplicationUser.ApplicationUserBuilder.aUser()
+            .withId(2L)
+            .withEmail("second@example.com")
+            .withFirstName("Second")
+            .withLastName("User")
+            .withLoginTries(0)
+            .isLocked(false)
+            .withIsActivated(true)
+            .build();
+        Page<ApplicationUser> userPage = new PageImpl<>(List.of(u1, u2), pageable, 2);
+        when(userRepository.findAll(pageable)).thenReturn(userPage);
+
+        Page<LockedUserDto> dtos = userDetailService.getAllUsersPaginated(pageable);
+
+        assertAll(
+            () -> assertEquals(2, dtos.getTotalElements()),
+            () -> {
+                LockedUserDto first = dtos.getContent().getFirst();
+                assertEquals(u1.getId(), first.getId());
+                assertEquals(u1.getFirstName(), first.getFirstName());
+                assertEquals(u1.getLastName(), first.getLastName());
+                assertEquals(u1.getEmail(), first.getEmail());
+                assertEquals(u1.isLocked(), first.getIsLocked());
+            },
+            () -> {
+                LockedUserDto second = dtos.getContent().get(1);
+                assertEquals(u2.getId(), second.getId());
+                assertEquals(u2.getFirstName(), second.getFirstName());
+                assertEquals(u2.getLastName(), second.getLastName());
+                assertEquals(u2.getEmail(), second.getEmail());
+                assertEquals(u2.isLocked(), second.getIsLocked());
+            }
+        );
+        verify(userRepository).findAll(pageable);
+    }
+
+    @Test
+    void getAllUsersPaginated_emptyPage_returnsEmptyPage() {
+        Pageable pageable = PageRequest.of(0, 1);
+        Page<ApplicationUser> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+        when(userRepository.findAll(pageable)).thenReturn(emptyPage);
+
+        Page<LockedUserDto> dtos = userDetailService.getAllUsersPaginated(pageable);
+
+        assertAll(
+            () -> assertTrue(dtos.isEmpty()),
+            () -> assertEquals(0, dtos.getTotalElements())
+        );
+        verify(userRepository).findAll(pageable);
     }
 
     @Test
