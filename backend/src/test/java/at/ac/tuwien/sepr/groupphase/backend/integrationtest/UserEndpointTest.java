@@ -22,11 +22,15 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -74,6 +78,34 @@ public class UserEndpointTest implements TestData {
     public void getCurrentUser_withoutAuth_shouldFail() throws Exception {
         MvcResult result = mockMvc.perform(get(USER_BASE_URI + "/me")).andReturn();
         assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
+    }
+
+    @Test
+    public void getAllUsersPaginated_asAdmin_shouldReturnPagedLockedUserDtos() throws Exception {
+        MvcResult result = mockMvc.perform(get(USER_BASE_URI + "/paginated")
+                .param("page", "0")
+                .param("size", "1")
+                .header(securityProperties.getAuthHeader(),
+                    jwtTokenizer.getAuthToken(String.valueOf(testUser.getId()), ADMIN_ROLES)))
+            .andReturn();
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        String content = result.getResponse().getContentAsString();
+        assertAll(
+            () -> assertTrue(content.contains("\"content\""), "Field 'content' must be present"),
+            () -> assertTrue(content.contains("\"totalElements\":"), "Field 'totalElements' must be present"),
+            () -> assertTrue(content.contains(testUser.getEmail()), "User must be present in the response")
+        );
+    }
+
+    @Test
+    public void getAllUsersPaginated_asUser_shouldFailWith403() throws Exception {
+        mockMvc.perform(get(USER_BASE_URI + "/paginated")
+                .param("page", "0")
+                .param("size", "1")
+                .header(securityProperties.getAuthHeader(),
+                    jwtTokenizer.getAuthToken(String.valueOf(testUser.getId()), USER_ROLES)))
+            .andExpect(status().isForbidden());
     }
 
     @Test

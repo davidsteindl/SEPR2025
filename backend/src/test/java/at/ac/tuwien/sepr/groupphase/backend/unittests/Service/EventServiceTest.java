@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventTopTenDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.UpdateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
@@ -164,9 +165,73 @@ public class EventServiceTest {
 
         assertAll(
             () -> assertEquals(1, events.size()),
-            () -> assertEquals("Test Event", events.get(0).getName()),
-            () -> assertEquals(testLocation.getId(), events.get(0).getLocation().getId())
+            () -> assertEquals("Test Event", events.getFirst().getName()),
+            () -> assertEquals(testLocation.getId(), events.getFirst().getLocation().getId())
         );
+    }
+
+    @Test
+    public void testGetAllPaginatedEvents_returnsPagedUpdateEventDtos() {
+        Event another = Event.EventBuilder.anEvent()
+            .withName("Second Event")
+            .withCategory(Event.EventCategory.CLASSICAL)
+            .withDateTime(LocalDateTime.now().plusDays(2))
+            .withDuration(60)
+            .withDescription("Second")
+            .withLocation(testLocation)
+            .build();
+        eventRepository.save(another);
+
+        UpdateEventDto dto1 = new UpdateEventDto();
+        dto1.setName(event.getName());
+        dto1.setCategory(event.getCategory().name());
+        dto1.setDescription(event.getDescription());
+        dto1.setDateTime(event.getDateTime());
+        dto1.setDuration(event.getDuration());
+        dto1.setLocationId(testLocation.getId());
+
+        UpdateEventDto dto2 = new UpdateEventDto();
+        dto2.setName(another.getName());
+        dto2.setCategory(another.getCategory().name());
+        dto2.setDescription(another.getDescription());
+        dto2.setDateTime(another.getDateTime());
+        dto2.setDuration(another.getDuration());
+        dto2.setLocationId(testLocation.getId());
+
+        when(eventMapper.eventToUpdateEventDto(event)).thenReturn(dto1);
+        when(eventMapper.eventToUpdateEventDto(another)).thenReturn(dto2);
+
+        Pageable pageable = PageRequest.of(0, 2);
+        Page<UpdateEventDto> page = eventService.getAllPaginatedEvents(pageable);
+
+        assertAll(
+            () -> assertEquals(2, page.getTotalElements()),
+            () -> assertTrue(
+                page.getContent().stream().anyMatch(d -> d.getName().equals("Test Event")),
+                "First Dto should have the name of the first event"
+            ),
+            () -> assertTrue(
+                page.getContent().stream().anyMatch(d -> d.getName().equals("Second Event")),
+                "Second Dto should have the name of the second event"
+            )
+        );
+
+        verify(eventMapper).eventToUpdateEventDto(event);
+        verify(eventMapper).eventToUpdateEventDto(another);
+    }
+
+    @Test
+    public void testGetAllPaginatedEvents_empty_returnsEmptyPage() {
+        eventRepository.deleteAll();
+
+        Pageable pageable = PageRequest.of(0, 1);
+        Page<UpdateEventDto> page = eventService.getAllPaginatedEvents(pageable);
+
+        assertAll(
+            () -> assertEquals(0, page.getTotalElements()),
+            () -> assertTrue(page.getContent().isEmpty())
+        );
+        verifyNoInteractions(eventMapper);
     }
 
     @Test
@@ -378,8 +443,8 @@ public class EventServiceTest {
         assertAll(
             () -> assertNotNull(result),
             () -> assertEquals(1, result.size()),
-            () -> assertEquals("Event One", result.get(0).getName()),
-            () -> assertEquals(5L, result.get(0).getTicketsSold())
+            () -> assertEquals("Event One", result.getFirst().getName()),
+            () -> assertEquals(5L, result.getFirst().getTicketsSold())
         );
     }
 
@@ -405,8 +470,8 @@ public class EventServiceTest {
         assertAll(
             () -> assertNotNull(result),
             () -> assertEquals(1, result.size()),
-            () -> assertEquals("Event Two", result.get(0).getName()),
-            () -> assertEquals(8L, result.get(0).getTicketsSold())
+            () -> assertEquals("Event Two", result.getFirst().getName()),
+            () -> assertEquals(8L, result.getFirst().getTicketsSold())
         );
     }
 

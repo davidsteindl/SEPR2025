@@ -35,12 +35,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -154,6 +154,35 @@ public class EventEndpointTest implements TestData {
 
         List<EventDetailDto> events = List.of(objectMapper.readValue(result.getResponse().getContentAsString(), EventDetailDto[].class));
         assertFalse(events.isEmpty());
+    }
+
+    @Test
+    public void getAllPaginatedEvents_asAdmin_shouldReturnPagedUpdateEventDtos() throws Exception {
+        MvcResult result = mockMvc.perform(get(EVENT_BASE_URI + "/paginated")
+                .param("page", "0")
+                .param("size", "1")
+                .header(securityProperties.getAuthHeader(),
+                    jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andReturn();
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        String content = result.getResponse().getContentAsString();
+        // Response ist ein Page<UpdateEventDto> mit content, totalElements, usw.
+        assertAll(
+            () -> assertTrue(content.contains("\"content\""), "Field 'content' must be present"),
+            () -> assertTrue(content.contains("\"totalElements\":"), "Field 'totalElements' must be present"),
+            () -> assertTrue(content.contains(testEvent.getName()), "Event name must be present in the response")
+        );
+    }
+
+    @Test
+    public void getAllPaginatedEvents_asUser_shouldFailWith403() throws Exception {
+        mockMvc.perform(get(EVENT_BASE_URI + "/paginated" )
+                .param("page", "0")
+                .param("size", "1")
+                .header(securityProperties.getAuthHeader(),
+                    jwtTokenizer.getAuthToken(DEFAULT_USER, USER_ROLES)))
+            .andExpect(status().isForbidden());
     }
 
     @Test
