@@ -68,7 +68,7 @@ public class EventEndpoint {
         return eventMapper.eventToEventDetailDto(eventService.getEventById(id));
     }
 
-    @GetMapping
+    @GetMapping(params = {"/paginated"})
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get all events paginated", security = @SecurityRequirement(name = "apiKey"))
