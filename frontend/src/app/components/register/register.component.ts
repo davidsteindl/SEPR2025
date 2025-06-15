@@ -31,6 +31,8 @@ export class RegisterComponent {
   firstName = '';
   lastName = '';
   buttonDisabled = false;
+  showConfirm = false;
+  private initialFormValue: any;
 
   constructor(private formBuilder: UntypedFormBuilder, protected authService: AuthService, private router: Router, private notification: ToastrService) {
     this.registerForm = this.formBuilder.group({
@@ -107,11 +109,52 @@ export class RegisterComponent {
   }
 
   /**
+   * Saves the initial form value to compare it later with the current form value
+   */
+  ngOnInit() {
+    this.initialFormValue = this.registerForm.getRawValue();
+  }
+
+  /**
   * Returns true if the authenticated user is an admin
   */
   isAdmin(): boolean {
     return this.authService.getUserRole() === 'ADMIN';
   }
+
+  /**
+   * Exits page if no changes were made
+   */
+  onBackClick(): void {
+    if (this.isUnchanged()) {
+      this.goToPage();
+    } else {
+      this.showConfirm = true;
+    }
+  }
+
+  /**
+   * Stays on the page
+   */
+  stay(): void {
+    this.showConfirm = false;
+  }
+
+  /**
+   * Exits the page and navigates to the admin panel
+   */
+  exit(): void {
+    this.showConfirm = false;
+    this.goToPage();
+  }
+
+  /**
+   * Checks if the form has not been changed since the initial load
+   */
+  private isUnchanged(): boolean {
+    return JSON.stringify(this.initialFormValue) === JSON.stringify(this.registerForm.getRawValue());
+  }
+
 
   /**
    * Sends the User to either the login Page or if an Admin is creating a new user, back to the admin panel
