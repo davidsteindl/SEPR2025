@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.SimpleMessageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserDetailDto;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
@@ -80,7 +82,6 @@ public class UserEndpoint {
     }
 
 
-
     @GetMapping("/me")
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
@@ -114,4 +115,11 @@ public class UserEndpoint {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{id}/messages/unseen")
+    @Secured("ROLE_USER")
+    @Operation(summary = "Get all unseen messages for a user", security = @SecurityRequirement(name = "apiKey"))
+    public List<SimpleMessageDto> getUnseenMessages(@PathVariable("id") Long id) {
+        LOGGER.info("getUnseenMessages() for user {}", id);
+        return this.userService.getUnseenMessages(id);
+    }
 }
