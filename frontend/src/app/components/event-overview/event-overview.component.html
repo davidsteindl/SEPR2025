@@ -50,9 +50,16 @@
       </td>
 
       <td>
-        <button class="btn btn-sm btn-primary" [routerLink]="['/shows', show.id, 'room-usage']">
-          Buy / Reserve Tickets
-        </button>
+        <ng-container *ngIf="show.dateObj > now; else notAvailable">
+          <button
+            class="btn btn-sm btn-primary"
+            [routerLink]="['/shows', show.id, 'room-usage']">
+            Buy / Reserve Tickets
+          </button>
+        </ng-container>
+        <ng-template #notAvailable>
+          <span class="text-muted">Not available</span>
+        </ng-template>
       </td>
     </tr>
     </tbody>

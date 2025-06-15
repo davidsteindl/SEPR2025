@@ -26,7 +26,7 @@ import {ErrorFormatterService} from "../../services/error-formatter.service";
 })
 export class EventOverviewComponent implements OnInit {
   event: Event | null = null;
-  shows: Show[] = [];
+  shows: (Show & { dateObj: Date })[] = [];
   location: Location | null = null;
   artistMap: { [showId: number]: Artist[] } = {};
   backLink: any[] = ['/search'];
@@ -34,6 +34,7 @@ export class EventOverviewComponent implements OnInit {
   page = 0;
   pageSize = 5;
   totalPages = 0;
+  now: Date = new Date();
 
 
   constructor(private route: ActivatedRoute,
@@ -88,7 +89,11 @@ export class EventOverviewComponent implements OnInit {
   loadPagedShows(eventId: number): void {
     this.eventService.getPaginatedShowsForEvent(eventId, this.page, this.pageSize).subscribe({
       next: result => {
-        this.shows = result.content;
+        this.shows = result.content.map(show => ({
+          ...show,
+          dateObj: new Date(show.date)
+        }));
+
         this.totalPages = result.totalPages;
 
         this.artistMap = {};
