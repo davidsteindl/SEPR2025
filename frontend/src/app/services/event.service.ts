@@ -41,6 +41,7 @@ export class EventService {
    * Updates an existing event
    *
    * @param event to update
+   * @param id ID of the event to update
    */
   update(id: number, event: UpdateEvent): Observable<Event> {
     return this.httpClient.put<Event>(`${this.eventBaseUri}/${id}`,
