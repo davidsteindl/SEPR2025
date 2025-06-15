@@ -98,6 +98,10 @@
       </ng-template>
     </div>
 
+    <div *ngIf="allMessagesRead" class="alert alert-info alert-dismissible fade show">
+      <strong>Info:</strong> You have read all news.
+    </div>
+
     <div *ngFor="let message of getMessage()" class="row justify-content-center p-2">
       <div class="col-xl-6 col-lg-8">
 
