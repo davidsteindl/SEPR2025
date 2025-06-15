@@ -1,14 +1,18 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.SimpleMessageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserLoginDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.MessageMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Message;
 import at.ac.tuwien.sepr.groupphase.backend.exception.LoginAttemptException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.MessageRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
@@ -24,21 +28,29 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 
-
 @ExtendWith(MockitoExtension.class)
 class CustomUserDetailServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private MessageRepository messageRepository;
+
+    @Mock
+    private MessageMapper messageMapper;
 
     @Mock
     private UserValidator userValidator;
@@ -54,7 +66,6 @@ class CustomUserDetailServiceTest {
 
     private ApplicationUser testUser;
 
-
     @BeforeEach
     void setUp() {
         testUser = ApplicationUser.ApplicationUserBuilder.aUser()
@@ -68,8 +79,8 @@ class CustomUserDetailServiceTest {
             .isAdmin(false)
             .withIsActivated(true)
             .withLoginTries(0)
+            .withViewedMessages(new ArrayList<>())
             .build();
-
     }
 
     @Test
@@ -89,7 +100,6 @@ class CustomUserDetailServiceTest {
     @Test
     void loadUserByUsername_UserNotFound() {
         when(userRepository.findByEmail("unknown@email.com")).thenReturn(null);
-
         assertThrows(UsernameNotFoundException.class, () -> userDetailService.loadUserByUsername("unknown@email.com"));
     }
 
@@ -147,11 +157,9 @@ class CustomUserDetailServiceTest {
         LoginAttemptException exception = assertThrows(LoginAttemptException.class,
             () -> userDetailService.login(loginDto));
 
-        assertAll(
-            () -> assertTrue(testUser.isLocked()),
-            () -> assertEquals("Your account is locked due to too many failed login attempts, please contact an administrator",
-                exception.getMessage())
-        );
+        assertTrue(testUser.isLocked());
+        assertEquals("Your account is locked due to too many failed login attempts, please contact an administrator",
+            exception.getMessage());
         verify(userRepository).save(testUser);
     }
 
@@ -331,7 +339,6 @@ class CustomUserDetailServiceTest {
         verify(userRepository).save(any(ApplicationUser.class));
     }
 
-
     @Test
     void delete_Success() {
         Long id = 3L;
@@ -342,7 +349,6 @@ class CustomUserDetailServiceTest {
         verify(userRepository).deleteById(id);
     }
 
-
     @Test
     void delete_UserNotFound() {
         Long id = 3L;
@@ -351,7 +357,6 @@ class CustomUserDetailServiceTest {
         assertThrows(NotFoundException.class, () -> userDetailService.delete(id));
         verify(userRepository, never()).deleteById(any());
     }
-
 
     @Test
     void update_Success() throws ValidationException {
@@ -386,7 +391,6 @@ class CustomUserDetailServiceTest {
         verify(userRepository).save(testUser);
     }
 
-
     @Test
     void update_UserNotFound() {
         Long id = 9L;
@@ -407,4 +411,89 @@ class CustomUserDetailServiceTest {
         verify(userRepository, never()).save(any());
     }
 
+
+    @Test
+    void getUnseenMessages_returnsCorrectDtos() {
+        Long userId = 1L;
+
+        Message m1 = Message.MessageBuilder.aMessage()
+            .withId(10L)
+            .withTitle("Title1")
+            .withSummary("Summary1")
+            .withText("Text1")
+            .withViewers(new ArrayList<>())
+            .build();
+
+        Message m2 = Message.MessageBuilder.aMessage()
+            .withId(20L)
+            .withTitle("Title2")
+            .withSummary("Summary2")
+            .withText("Text2")
+            .withViewers(new ArrayList<>())
+            .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(messageRepository.findAllUnseenByUserIdOrderByPublishedAtDesc(userId))
+            .thenReturn(List.of(m1, m2));
+
+        when(messageMapper.messageToSimpleMessageDto(m1)).thenReturn(
+            SimpleMessageDto.SimpleMessageDtoBuilder.aSimpleMessageDto()
+                .withId(m1.getId())
+                .withTitle(m1.getTitle())
+                .withSummary(m1.getSummary())
+                .build()
+        );
+
+        when(messageMapper.messageToSimpleMessageDto(m2)).thenReturn(
+            SimpleMessageDto.SimpleMessageDtoBuilder.aSimpleMessageDto()
+                .withId(m2.getId())
+                .withTitle(m2.getTitle())
+                .withSummary(m2.getSummary())
+                .build()
+        );
+
+        List<SimpleMessageDto> dtos = userDetailService.getUnseenMessages(userId);
+
+        assertAll(
+            () -> assertEquals(2, dtos.size()),
+            () -> {
+                SimpleMessageDto d1 = dtos.get(0);
+                assertEquals(10L, d1.getId());
+                assertEquals("Title1", d1.getTitle());
+                assertEquals("Summary1", d1.getSummary());
+            },
+            () -> {
+                SimpleMessageDto d2 = dtos.get(1);
+                assertEquals(20L, d2.getId());
+                assertEquals("Title2", d2.getTitle());
+                assertEquals("Summary2", d2.getSummary());
+            }
+        );
+
+        verify(messageRepository).findAllUnseenByUserIdOrderByPublishedAtDesc(userId);
+        verify(messageMapper).messageToSimpleMessageDto(m1);
+        verify(messageMapper).messageToSimpleMessageDto(m2);
+    }
+
+
+    @Test
+    void markMessagesAsSeen_marksMessagesAndSavesUser() {
+        Long userId = 1L;
+        List<Long> messageIds = List.of(10L, 20L);
+        Message m1 = Message.MessageBuilder.aMessage().withId(10L).withViewers(new ArrayList<>()).build();
+        Message m2 = Message.MessageBuilder.aMessage().withId(20L).withViewers(new ArrayList<>()).build();
+
+        ApplicationUser user = testUser;
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(messageRepository.findAllById(messageIds)).thenReturn(List.of(m1, m2));
+
+        userDetailService.markMessagesAsSeen(userId, messageIds);
+
+        assertTrue(user.getViewedMessages().containsAll(List.of(m1, m2)));
+        assertTrue(m1.getViewers().contains(user));
+        assertTrue(m2.getViewers().contains(user));
+
+        verify(userRepository).save(user);
+    }
 }

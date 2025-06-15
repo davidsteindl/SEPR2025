@@ -1,5 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.SimpleMessageDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
@@ -21,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -119,4 +122,22 @@ public class UserEndpoint {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{id}/news/unseen")
+    @Secured("ROLE_USER")
+    @Operation(summary = "Get all unseen messages for a user", security = @SecurityRequirement(name = "apiKey"))
+    public List<SimpleMessageDto> getUnseenMessages(@PathVariable("id") Long id) {
+        LOGGER.info("getUnseenMessages() for user {}", id);
+        return this.userService.getUnseenMessages(id);
+    }
+
+    @PostMapping("/{userId}/news/markSeen")
+    @Secured("ROLE_USER")
+    @Operation(summary = "Mark messages as seen for a user", security = @SecurityRequirement(name = "apiKey"))
+    public ResponseEntity<Void> markMessagesAsSeen(
+        @PathVariable("userId") Long userId,
+        @RequestBody List<Long> messageIds
+    ) {
+        userService.markMessagesAsSeen(userId, messageIds);
+        return ResponseEntity.noContent().build();
+    }
 }
