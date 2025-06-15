@@ -31,9 +31,14 @@
       <td>{{ s.date | date:'short' }}</td>
       <td>{{ s.duration }} min</td>
       <td class="d-flex justify-content-center gap-2">
-        <button class="btn btn-sm btn-primary" [routerLink]="['/shows', s.id, 'room-usage']">
-          Buy / Reserve Ticket
-        </button>
+        <ng-container *ngIf="s.dateObj > now; else notAvailable">
+          <button class="btn btn-sm btn-primary" [routerLink]="['/shows', s.id, 'room-usage']">
+            Buy / Reserve Ticket
+          </button>
+        </ng-container>
+        <ng-template #notAvailable>
+          <span class="text-muted">Not available</span>
+        </ng-template>
       </td>
     </tr>
     </tbody>
