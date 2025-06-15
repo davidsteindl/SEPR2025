@@ -92,13 +92,13 @@ export class AuthService {
 
   resetPassword(email: string) : Observable<void> {
     console.log("Reset-Password-Request");
-    return this.httpClient.post<void>(this.authBaseUri + '/resetPassword', { email })
+    return this.httpClient.post<void>(this.authBaseUri + '/password-change-requests', { email })
 
   }
 
-  changePassword(changePasswordRequest: PasswordChange): Observable<void> {
-    console.log("Change-Password-Request");
-    return this.httpClient.post<void>(this.authBaseUri + '/changePassword', changePasswordRequest)
+  changePassword(changePasswordRequest: PasswordChange, token: string): Observable<void> {
+    console.log("Change-Password-Request" + token);
+    return this.httpClient.post<void>(`${this.authBaseUri}/password-change-requests/${token}`, changePasswordRequest)
   }
 
 
