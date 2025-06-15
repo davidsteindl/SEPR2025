@@ -20,6 +20,7 @@ public class EventDetailDto {
     @NotBlank(message = "Category must not be blank")
     private String category;
 
+
     @NotBlank(message = "Description must not be blank")
     private String description;
 
@@ -32,6 +33,7 @@ public class EventDetailDto {
 
     @NotNull(message = "Location ID must not be null")
     private Long locationId;
+
 
     public Long getId() {
         return id;
@@ -88,6 +90,7 @@ public class EventDetailDto {
     public void setLocationId(Long locationId) {
         this.locationId = locationId;
     }
+
 
     @Override
     public boolean equals(Object o) {

@@ -31,6 +31,8 @@ public class UpdateEventDto {
     @NotNull(message = "Location ID must not be null")
     private Long locationId;
 
+    private String locationName;
+
     public String getName() {
         return name;
     }
@@ -77,6 +79,14 @@ public class UpdateEventDto {
 
     public void setLocationId(Long locationId) {
         this.locationId = locationId;
+    }
+
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 
     @Override
