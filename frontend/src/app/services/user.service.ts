@@ -7,6 +7,7 @@ const baseUri = environment.backendUrl + '/users';
 import { Injectable } from '@angular/core';
 import { LockedUser } from '../dtos/locked-user';
 import { Globals } from '../global/globals';
+import {Page} from "../dtos/page";
 
 @Injectable({
   providedIn: 'root'
@@ -87,11 +88,11 @@ export class UserService {
   }
 
   /**
-   * Loads all users from the backend.
+   * Loads all users from the backend paginated.
    */
-  getAllUsers(): Observable<User[]> {
-    console.log("getting all users")
-    return this.httpClient.get<User[]>(`${this.userBaseUri}/getAll`);
+  getAllUsersPaginated(page = 0, size = 10): Observable<Page<User>> {
+    const params = `?page=${page}&size=${size}`;
+    return this.httpClient.get<Page<User>>( `${this.userBaseUri}/paginated${params}` );
   }
 
 

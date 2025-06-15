@@ -279,6 +279,7 @@ export class SearchComponent implements OnInit {
       }
     });
   }
+
   preventNonNumericInput(event: KeyboardEvent): void {
     const invalidChars = ['e', 'E', '+', '-', '.'];
     if (invalidChars.includes(event.key)) {

@@ -4,11 +4,9 @@ import { RouterLink } from '@angular/router';
 import { NgForOf } from '@angular/common';
 import { EventService } from '../../services/event.service';
 import { Event } from '../../dtos/event';
-import { LocationService } from '../../services/location.service';
-import { Location } from '../../dtos/location';
 import { ToastrService } from 'ngx-toastr';
 import { ErrorFormatterService } from '../../services/error-formatter.service';
-
+import {Page} from "../../dtos/page";
 @Component({
   selector: 'app-update-events',
   standalone: true,
@@ -21,61 +19,46 @@ import { ErrorFormatterService } from '../../services/error-formatter.service';
   styleUrls: ['./update-events.component.scss']
 })
 export class UpdateEventsComponent implements OnInit {
-  events: Event[] = [];
-  loading = false;
-  // Map von locationId -> locationName
-  locationMap: Record<number, string> = {};
+  error = false;
+  errorMessage = '';
+
+  eventsPage?: Page<Event>;
+  eventsCurrentPage = 0;
+  eventsPageSize = 10;
+  eventsLoading = false;
+  eventsTriggered = false;
 
   constructor(
     private eventService: EventService,
-    private locationService: LocationService,
     private notification: ToastrService,
     private errorFormatter: ErrorFormatterService
   ) { }
 
   ngOnInit(): void {
-    this.loadLocationsAndEvents();
+    this.loadAllEvents();
   }
 
-  private loadLocationsAndEvents(): void {
-    this.loading = true;
+  loadAllEvents(page: number = 0): void {
+    this.eventsLoading = true;
+    this.eventsTriggered = true;
+    this.error = false;
 
-    this.locationService.getAll().subscribe({
-      next: (locs: Location[]) => {
-        locs.forEach(loc => {
-          this.locationMap[loc.id] = loc.name;
-        });
-
-        this.eventService.getAll().subscribe({
-          next: evs => {
-            const now = new Date();
-
-            this.events = evs.filter(ev => {
-              const eventStart = new Date(ev.dateTime);
-              return eventStart >= now;
-            });
-
-            this.loading = false;
-          },
-          error: err => {
-            console.error('Error loading events:', err);
-            this.notification.error(
-              this.errorFormatter.format(err),
-              'Error while fetching events',
-              { enableHtml: true, timeOut: 8000 }
-            );
-            this.loading = false;
-          }
-        });
+    this.eventService.getPaginatedEvents(page, this.eventsPageSize).subscribe({
+      next: pageResult => {
+        this.eventsPage = pageResult;
+        this.eventsCurrentPage = page;
+        this.eventsLoading = false;
       },
       error: err => {
-        console.error('Error loading locations:', err);
+        this.eventsPage = undefined;
+        this.eventsLoading = false;
+        this.eventsTriggered = false;
+        console.error('Error loading events:', err);
         this.notification.error(
           this.errorFormatter.format(err),
-          'Error while fetching locations',
+          'Error while fetching events',
           { enableHtml: true, timeOut: 8000 }
         );
-        this.loading = false;
       }
     });
   }

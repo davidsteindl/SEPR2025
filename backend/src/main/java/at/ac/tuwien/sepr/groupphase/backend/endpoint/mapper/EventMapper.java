@@ -31,6 +31,8 @@ public interface EventMapper {
     @Mapping(target = "location", source = "locationId", qualifiedByName = "mapLocationIdToEventLocation")
     Event updateEventDtoToEvent(UpdateEventDto updateEventDto);
 
+    @Mapping(target = "id",           source = "id")
+    @Mapping(target = "locationName", source = "location.name")
     @Mapping(target = "locationId", source = "location.id")
     UpdateEventDto eventToUpdateEventDto(Event event);
 
