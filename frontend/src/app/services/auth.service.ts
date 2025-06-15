@@ -104,5 +104,14 @@ export class AuthService {
     return this.httpClient.post<void>(`${this.authBaseUri}/password-change-requests/${token}`, changePasswordRequest, { headers })
   }
 
-
+  /**
+   * Returns the user ID from the current JWT token
+   */
+  getUserId(): number {
+    if (this.getToken() != null) {
+      const decoded: any = jwtDecode(this.getToken());
+      return Number(decoded.sub);
+    }
+    return null;
+  }
 }

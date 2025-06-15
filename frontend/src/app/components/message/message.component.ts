@@ -67,7 +67,7 @@ export class MessageComponent implements OnInit {
       next: res => {
         this.currentMessage = res;
         this.currentImages = new Map();
-        for(const {id} of this.currentMessage.images){
+        for (const {id} of this.currentMessage.images) {
           this.messageService.getImageBlob(this.currentMessage.id, id).subscribe({
             next: blob => {
               const url = URL.createObjectURL(blob);
@@ -100,7 +100,6 @@ export class MessageComponent implements OnInit {
   }
 
 
-
   getMessage(): Message[] {
     return this.message;
   }
@@ -129,13 +128,20 @@ export class MessageComponent implements OnInit {
     );
   }
 
-  /**
-   * Loads the specified page of message from the backend
-   */
   private loadMessage() {
-    this.messageService.getMessage().subscribe({
-      next: (message: Message[]) => {
-        this.message = message;
+    const userId = this.authService.getUserId();
+    this.messageService.getUnseenMessages(userId).subscribe({
+      next: (messages: Message[]) => {
+        this.message = messages;
+
+        if (messages.length > 0) {
+          const messageIds = messages.map(m => m.id);
+          this.messageService.markMessagesAsSeen(userId, messageIds).subscribe({
+            next: () => console.log('Messages marked as seen!'),
+            error: err => this.defaultServiceErrorHandling(err)
+          });
+        }
+
       },
       error: error => {
         this.defaultServiceErrorHandling(error);
@@ -188,7 +194,7 @@ export class MessageComponent implements OnInit {
     this.eventService.getTopTen(this.selectedCategory).subscribe({
       next: (events: EventTopTenDto[]) => {
         this.topTenEvents = events;
-        if (events){
+        if (events) {
           console.log(events)
         }
       },
