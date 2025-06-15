@@ -64,4 +64,18 @@ export class MessageService {
   }
 
 
+  /**
+   * Loads all UNSEEN messages for the current user
+   */
+  getUnseenMessages(userId: number): Observable<Message[]> {
+    return this.httpClient.get<Message[]>(this.globals.backendUri + `/users/${userId}/news/unseen`);
+  }
+
+  /**
+   * Marks a list of message IDs as seen for the current user
+   */
+  markMessagesAsSeen(userId: number, messageIds: number[]): Observable<void> {
+    return this.httpClient.post<void>(this.globals.backendUri + `/users/${userId}/news/markSeen`, messageIds);
+  }
+
 }

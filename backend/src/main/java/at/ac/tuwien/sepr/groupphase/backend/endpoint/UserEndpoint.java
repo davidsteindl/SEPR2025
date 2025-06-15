@@ -128,7 +128,7 @@ public class UserEndpoint {
     @Secured("ROLE_USER")
     @Operation(summary = "Mark messages as seen for a user", security = @SecurityRequirement(name = "apiKey"))
     public ResponseEntity<Void> markMessagesAsSeen(
-        @PathVariable Long userId,
+        @PathVariable("userId") Long userId,
         @RequestBody List<Long> messageIds
     ) {
         userService.markMessagesAsSeen(userId, messageIds);
