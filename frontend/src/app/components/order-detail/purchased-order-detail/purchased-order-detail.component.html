@@ -2,7 +2,7 @@
 <div class="mt-4 container">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2>Order #{{ group.id }}</h2>
-      <button class="btn btn-secondary" (click)="goBack()">
+      <button class="btn btn-outline-secondary" (click)="goBack()">
         ← Back to My Orders
       </button>
     </div>
@@ -37,7 +37,7 @@
             </ng-container>
             <ng-template #standing>Standing</ng-template>
           </td>
-          <td>{{ ticket.status }}</td>
+          <td>{{ ticket.status | lowercase | titlecase }}</td>
           <td>{{ ticket.price | currency }}</td>
           <td>
             <button

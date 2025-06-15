@@ -10,7 +10,7 @@
     </h3>
 
     <app-seat-map
-    
+
       [room]="room"
       [showId]="showId"
       [eventName]="show.name"
@@ -33,7 +33,7 @@
     </div>
 
     <div class="sidebar-footer p-3 border-top">
-      <button class="btn btn-secondary w-100 mb-2" (click)="onReserveTickets()">
+      <button class="btn btn-secondary w-100 mb-2" (click)="openReservationConfirm()">
         Reserve Tickets
       </button>
       <button class="btn btn-success w-100" (click)="onBuyTickets()">
@@ -53,3 +53,21 @@
     </div>
   </div>
 </ng-template>
+
+<div *ngIf="showConfirmModal" class="custom-modal-backdrop">
+  <div class="custom-modal">
+    <div class="custom-modal-header">
+      <h5>Reserve Tickets</h5>
+      <button class="close-btn" (click)="cancelReservation()">×</button>
+    </div>
+    <div class="custom-modal-body">
+      <p>Please note: You must pick up your reserved tickets at least 30 minutes before the show starts.
+        Otherwise, the reservation will expire automatically.</p>
+    </div>
+    <div class="custom-modal-footer">
+      <button class="btn btn-success" (click)="confirmReservation()">Yes, reserve tickets</button>
+      <button class="btn btn-danger" (click)="cancelReservation()">Cancel</button>
+    </div>
+  </div>
+</div>
+
