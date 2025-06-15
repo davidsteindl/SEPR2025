@@ -125,4 +125,12 @@ public interface UserService extends UserDetailsService {
      * @return list of unseen messages
      */
     List<SimpleMessageDto> getUnseenMessages(Long userId);
+
+    /**
+     * Marks the given messages as seen for the user.
+     *
+     * @param userId     the id of the user
+     * @param messageIds the ids of the messages to mark as seen
+     */
+    void markMessagesAsSeen(Long userId, List<Long> messageIds);
 }
