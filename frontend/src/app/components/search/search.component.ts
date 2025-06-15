@@ -86,11 +86,12 @@ export class SearchComponent implements OnInit {
   showMinPrice: number | null = null;
   showMaxPrice: number | null = null;
 
-  showPage?: Page<ShowSearchResult>;
+  showPage?: Page<ShowSearchResult & { dateObj: Date }>;
   showLoading = false;
   showTriggered = false;
   showCurrentPage = 0;
   showPageSize = 10;
+  now: Date = new Date();
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -256,7 +257,14 @@ export class SearchComponent implements OnInit {
 
     this.showService.searchShows(dto).subscribe({
       next: (pageResult) => {
-        this.showPage = pageResult;
+        this.showPage = {
+          ...pageResult,
+          content: pageResult.content.map(s => ({
+            ...s,
+            dateObj: new Date(s.date)
+          }))
+        };
+
         this.showCurrentPage = pageResult.number;
         this.showLoading = false;
       },
