@@ -1,5 +1,6 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef} from '@angular/core';
 import {MessageService} from '../../services/message.service';
+import {UserService} from "../../services/user.service";
 import {Message, MessageCreate} from '../../dtos/message';
 import {EventTopTenDto} from '../../dtos/event';
 import {NgbModal, NgbPaginationConfig} from '@ng-bootstrap/ng-bootstrap';
@@ -32,8 +33,11 @@ export class MessageComponent implements OnInit {
   categories: eventCategory[];
   topTenEvents: EventTopTenDto[];
 
+  allMessagesRead = false;
+  showAllMessages = false;
 
   constructor(private messageService: MessageService,
+              private userService: UserService,
               private eventService: EventService,
               private ngbPaginationConfig: NgbPaginationConfig,
               private formBuilder: UntypedFormBuilder,
@@ -67,7 +71,7 @@ export class MessageComponent implements OnInit {
       next: res => {
         this.currentMessage = res;
         this.currentImages = new Map();
-        for(const {id} of this.currentMessage.images){
+        for (const {id} of this.currentMessage.images) {
           this.messageService.getImageBlob(this.currentMessage.id, id).subscribe({
             next: blob => {
               const url = URL.createObjectURL(blob);
@@ -100,7 +104,6 @@ export class MessageComponent implements OnInit {
   }
 
 
-
   getMessage(): Message[] {
     return this.message;
   }
@@ -129,18 +132,34 @@ export class MessageComponent implements OnInit {
     );
   }
 
-  /**
-   * Loads the specified page of message from the backend
-   */
   private loadMessage() {
-    this.messageService.getMessage().subscribe({
-      next: (message: Message[]) => {
-        this.message = message;
-      },
-      error: error => {
-        this.defaultServiceErrorHandling(error);
-      }
-    });
+    const userId = this.authService.getUserId();
+    if (this.showAllMessages) {
+      this.messageService.getMessage().subscribe({
+        next: (messages) => {
+          this.message = messages;
+          this.allMessagesRead = false;
+        },
+        error: error => this.defaultServiceErrorHandling(error)
+      });
+    } else {
+      this.userService.getUnseenMessages(userId).subscribe({
+        next: (messages) => {
+          this.message = messages;
+          this.allMessagesRead = messages.length === 0;
+          if (messages.length > 0) {
+            const messageIds = messages.map(m => m.id);
+            this.userService.markMessagesAsSeen(userId, messageIds).subscribe();
+          }
+        },
+        error: error => this.defaultServiceErrorHandling(error)
+      });
+    }
+  }
+
+  toggleShowAllMessages() {
+    this.showAllMessages = !this.showAllMessages;
+    this.loadMessage();
   }
 
 
@@ -188,7 +207,7 @@ export class MessageComponent implements OnInit {
     this.eventService.getTopTen(this.selectedCategory).subscribe({
       next: (events: EventTopTenDto[]) => {
         this.topTenEvents = events;
-        if (events){
+        if (events) {
           console.log(events)
         }
       },

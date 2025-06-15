@@ -14,7 +14,7 @@ public interface TestData {
         LocalDateTime.of(2019, 11, 13, 12, 15, 0, 0);
 
     String BASE_URI = "/api/v1";
-    String MESSAGE_BASE_URI = BASE_URI + "/messages";
+    String MESSAGE_BASE_URI = BASE_URI + "/news";
 
     String ADMIN_USER = "1";
     List<String> ADMIN_ROLES = new ArrayList<>() {

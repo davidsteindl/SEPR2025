@@ -1,13 +1,15 @@
 import {HttpClient} from '@angular/common/http';
 import {map, Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
-import {User, UserEdit } from '../dtos/user';
+import {User, UserEdit} from '../dtos/user';
 import {formatIsoDate} from "../utils/date-helper";
+
 const baseUri = environment.backendUrl + '/users';
-import { Injectable } from '@angular/core';
-import { LockedUser } from '../dtos/locked-user';
-import { Globals } from '../global/globals';
+import {Injectable} from '@angular/core';
+import {LockedUser} from '../dtos/locked-user';
+import {Globals} from '../global/globals';
 import {Page} from "../dtos/page";
+import {Message} from "../dtos/message";
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +35,7 @@ export class UserService {
    *  Get current user.
    */
   getCurrentUser(): Observable<User> {
-    console.log(' current User ' );
+    console.log(' current User ');
     return this.httpClient.get<User>(`${this.userBaseUri}/me`);
   }
 
@@ -58,7 +60,7 @@ export class UserService {
    *
    * @return Observable, to confirm that deleting was successful.
    */
-  deleteUser( ): Observable<void> {
+  deleteUser(): Observable<void> {
     return this.httpClient.delete<void>(
       `${this.userBaseUri}/me`);
   }
@@ -92,7 +94,7 @@ export class UserService {
    */
   getAllUsersPaginated(page = 0, size = 10): Observable<Page<User>> {
     const params = `?page=${page}&size=${size}`;
-    return this.httpClient.get<Page<User>>( `${this.userBaseUri}/paginated${params}` );
+    return this.httpClient.get<Page<User>>(`${this.userBaseUri}/paginated${params}`);
   }
 
 
@@ -120,5 +122,17 @@ export class UserService {
     return this.httpClient.put<void>(`${this.userBaseUri}/${id}/resetPassword`, null);
   }
 
+  /**
+   * Loads all UNSEEN messages for the current user
+   */
+  getUnseenMessages(userId: number): Observable<Message[]> {
+    return this.httpClient.get<Message[]>(`${this.userBaseUri}/${userId}/news/unseen`);
+  }
 
+  /**
+   * Marks a list of message IDs as seen for the current user
+   */
+  markMessagesAsSeen(userId: number, messageIds: number[]): Observable<void> {
+    return this.httpClient.post<void>(`${this.userBaseUri}/${userId}/news/markSeen`, messageIds);
+  }
 }
