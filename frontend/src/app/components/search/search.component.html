@@ -171,7 +171,7 @@
       </ng-container>
 
       <ng-template #noEventLocations>
-        <div class="text-center text-muted" style="font-weight: bold">
+        <div class="text-center text-muted" style="font-weight: bold" *ngIf="!eventLocationLoading && eventLocationTriggered && eventLocationPage?.content?.length === 0">
           No event locations found.
         </div>
       </ng-template>
@@ -272,7 +272,7 @@
       </ng-container>
 
       <ng-template #noEvents>
-        <div class="text-center text-muted" style="font-weight: bold">
+        <div class="text-center text-muted" style="font-weight: bold" *ngIf="!eventLoading && eventTriggered && eventPage?.content?.length === 0">
           No events found.
         </div>
       </ng-template>
