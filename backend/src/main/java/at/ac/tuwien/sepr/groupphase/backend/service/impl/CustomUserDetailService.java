@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.MessageMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Message;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.LoginAttemptException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
@@ -305,5 +306,20 @@ public class CustomUserDetailService implements UserService {
             .stream()
             .map(messageMapper::messageToSimpleMessageDto)
             .toList();
+    }
+
+    @Transactional
+    public void markMessagesAsSeen(Long userId, List<Long> messageIds) {
+        ApplicationUser user = findUserById(userId);
+
+        List<Message> messages = messageRepository.findAllById(messageIds);
+
+        for (Message message : messages) {
+            if (!user.getViewedMessages().contains(message)) {
+                user.getViewedMessages().add(message);
+            }
+        }
+
+        userRepository.save(user);
     }
 }
