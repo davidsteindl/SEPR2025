@@ -141,7 +141,7 @@ export class EditEventComponent implements OnInit {
 
   onBackClick(): void {
     if (this.isUnchanged()) {
-      this.router.navigate(['/updat-events']);
+      this.router.navigate(['/update-events']);
     } else {
       this.showConfirm = true;
     }
