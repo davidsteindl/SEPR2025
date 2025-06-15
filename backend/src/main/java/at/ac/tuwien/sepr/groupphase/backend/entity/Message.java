@@ -191,6 +191,8 @@ public class Message {
             message.setImages(images);
             if (viewers != null) {
                 message.setViewers(viewers);
+            } else {
+                message.setViewers(new ArrayList<>());
             }
             return message;
         }

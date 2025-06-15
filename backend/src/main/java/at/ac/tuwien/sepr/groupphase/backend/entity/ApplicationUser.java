@@ -11,6 +11,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -72,7 +73,7 @@ public class ApplicationUser {
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "message_id")
     )
-    private List<Message> viewedMessages;
+    private List<Message> viewedMessages = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -388,7 +389,13 @@ public class ApplicationUser {
             user.setLoginTries(loginTries);
             user.setActivated(isActivated);
             user.setCity(city);
-            user.setViewedMessages(viewedMessages);
+
+            if (viewedMessages != null) {
+                user.setViewedMessages(viewedMessages);
+            } else {
+                user.setViewedMessages(new ArrayList<>());
+            }
+
             return user;
         }
     }

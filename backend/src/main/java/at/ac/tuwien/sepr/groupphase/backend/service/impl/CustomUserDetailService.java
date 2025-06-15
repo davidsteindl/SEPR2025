@@ -35,6 +35,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.Pageable;
+
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -313,6 +314,7 @@ public class CustomUserDetailService implements UserService {
     }
 
     @Transactional
+    @Override
     public void markMessagesAsSeen(Long userId, List<Long> messageIds) {
         ApplicationUser user = findUserById(userId);
 
@@ -321,6 +323,9 @@ public class CustomUserDetailService implements UserService {
         for (Message message : messages) {
             if (!user.getViewedMessages().contains(message)) {
                 user.getViewedMessages().add(message);
+            }
+            if (!message.getViewers().contains(user)) {
+                message.getViewers().add(user);
             }
         }
 
