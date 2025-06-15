@@ -63,6 +63,15 @@ export class EventService {
   }
 
   /**
+   * Retrieves all events paginated
+   */
+  getPaginatedEvents(page = 0, size = 10): Observable<Page<Event>> {
+    return this.httpClient.get<Page<Event>>(
+      `${this.eventBaseUri}/paginated?page=${page}&size=${size}`
+    );
+  }
+
+  /**
    * Retrieves the event with the given ID
    *
    * @param id ID of the event to retrieve

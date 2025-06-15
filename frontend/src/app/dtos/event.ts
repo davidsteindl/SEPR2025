@@ -8,6 +8,7 @@ export interface Event {
   dateTime: string;
   soldTickets: number;
   locationId: number;
+  locationName: string;
   category: string;
 }
 
