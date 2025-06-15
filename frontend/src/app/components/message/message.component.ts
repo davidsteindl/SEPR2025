@@ -33,7 +33,7 @@ export class MessageComponent implements OnInit {
   topTenEvents: EventTopTenDto[];
 
   allMessagesRead = false;
-
+  showAllMessages = false;
 
   constructor(private messageService: MessageService,
               private eventService: EventService,
@@ -132,24 +132,32 @@ export class MessageComponent implements OnInit {
 
   private loadMessage() {
     const userId = this.authService.getUserId();
-    this.messageService.getUnseenMessages(userId).subscribe({
-      next: (messages: Message[]) => {
-        this.message = messages;
-        this.allMessagesRead = messages.length === 0;
-        
-        if (messages.length > 0) {
-          const messageIds = messages.map(m => m.id);
-          this.messageService.markMessagesAsSeen(userId, messageIds).subscribe({
-            next: () => console.log('Messages marked as seen!'),
-            error: err => this.defaultServiceErrorHandling(err)
-          });
-        }
+    if (this.showAllMessages) {
+      this.messageService.getMessage().subscribe({
+        next: (messages) => {
+          this.message = messages;
+          this.allMessagesRead = false;
+        },
+        error: error => this.defaultServiceErrorHandling(error)
+      });
+    } else {
+      this.messageService.getUnseenMessages(userId).subscribe({
+        next: (messages) => {
+          this.message = messages;
+          this.allMessagesRead = messages.length === 0;
+          if (messages.length > 0) {
+            const messageIds = messages.map(m => m.id);
+            this.messageService.markMessagesAsSeen(userId, messageIds).subscribe();
+          }
+        },
+        error: error => this.defaultServiceErrorHandling(error)
+      });
+    }
+  }
 
-      },
-      error: error => {
-        this.defaultServiceErrorHandling(error);
-      }
-    });
+  toggleShowAllMessages() {
+    this.showAllMessages = !this.showAllMessages;
+    this.loadMessage();
   }
 
 
