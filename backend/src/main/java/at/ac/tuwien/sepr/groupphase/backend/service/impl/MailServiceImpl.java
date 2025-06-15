@@ -84,7 +84,7 @@ public class MailServiceImpl implements MailService {
     }
 
     @Override
-    public void sendMail(String to, String subject, String text ) {
+    public void sendMail(String to, String subject, String text) {
         LOGGER.info("Sending Html-mail to {}", to);
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
