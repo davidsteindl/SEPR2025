@@ -11,6 +11,7 @@ import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,9 @@ public class TokenLinkServiceImpl implements TokenLinkService {
 
     private final UserRepository userRepository;
     OtTokenRepository otTokenRepository;
+
+    @Value("${frontend.base-url}")
+    private String frontendBaseUrl;
 
     public TokenLinkServiceImpl(OtTokenRepository otTokenRepository, UserRepository userRepository) {
 
@@ -49,7 +53,7 @@ public class TokenLinkServiceImpl implements TokenLinkService {
         ott.setConsumed(false);
         otTokenRepository.save(ott);
 
-        return "http://localhost:4200/" + relativePath + "/" + token;
+        return frontendBaseUrl + "/" + relativePath + "/" + token;
     }
 
 }

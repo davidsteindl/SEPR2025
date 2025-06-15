@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -64,7 +65,11 @@ public class PasswordServiceImpl implements PasswordService {
         if (user == null) {
             throw new NotFoundException("no user found with that email " + email);
         }
-        mailService.sendPasswordResetEmail(email, tokenLinkService.createOttLink(email, "reset-password"));
+        LocalDateTime dateTime = LocalDateTime.now().plusMinutes(5);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
+
+        String formatted = dateTime.format(formatter);
+        mailService.sendPasswordResetEmail(email, tokenLinkService.createOttLink(email, "reset-password"), formatted);
     }
 
     @Override
