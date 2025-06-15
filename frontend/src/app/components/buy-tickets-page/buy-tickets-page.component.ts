@@ -29,6 +29,7 @@ export class BuyTicketsPageComponent implements OnInit, OnDestroy {
 
   cartSub!: Subscription;
   currentItems: PaymentItem[] = [];
+  showConfirmModal = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -149,6 +150,11 @@ export class BuyTicketsPageComponent implements OnInit, OnDestroy {
   }
 
   onBuyTickets() {
+    const items = this.cartService.getItems();
+    if (!items || items.length === 0) {
+      this.toastr.warning('Your cart is empty. Please select tickets first.');
+      return;
+    }
     this.router.navigate(['/checkout']);
   }
 
@@ -169,5 +175,18 @@ export class BuyTicketsPageComponent implements OnInit, OnDestroy {
         this.toastr.error(`Failed to reserve tickets: ${msg}`);
       }
     });
+  }
+
+  openReservationConfirm(): void {
+    this.showConfirmModal = true;
+  }
+
+  confirmReservation(): void {
+    this.onReserveTickets();
+    this.showConfirmModal = false;
+  }
+
+  cancelReservation(): void {
+    this.showConfirmModal = false;
   }
 }
