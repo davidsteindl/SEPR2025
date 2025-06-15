@@ -10,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -34,13 +35,8 @@ public class Message {
     @OneToMany(fetch = FetchType.EAGER)
     private List<Image> images;
 
-    public List<Image> getImages() {
-        return images;
-    }
-
-    public void setImages(List<Image> images) {
-        this.images = images;
-    }
+    @ManyToMany(mappedBy = "viewedMessages")
+    private List<ApplicationUser> viewers;
 
     public Long getId() {
         return id;
@@ -82,6 +78,22 @@ public class Message {
         this.text = text;
     }
 
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
+    }
+
+    public List<ApplicationUser> getViewers() {
+        return viewers;
+    }
+
+    public void setViewers(List<ApplicationUser> viewers) {
+        this.viewers = viewers;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -94,12 +106,14 @@ public class Message {
             && Objects.equals(publishedAt, message.publishedAt)
             && Objects.equals(title, message.title)
             && Objects.equals(summary, message.summary)
-            && Objects.equals(text, message.text);
+            && Objects.equals(text, message.text)
+            && Objects.equals(images, message.images)
+            && Objects.equals(viewers, message.viewers);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, publishedAt, title, summary, text);
+        return Objects.hash(id, publishedAt, title, summary, text, images, viewers);
     }
 
     @Override
@@ -110,9 +124,10 @@ public class Message {
             + ", title='" + title + '\''
             + ", summary='" + summary + '\''
             + ", text='" + text + '\''
+            + ", images=" + images
+            + ", viewers=" + viewers
             + '}';
     }
-
 
     public static final class MessageBuilder {
         private Long id;
@@ -120,6 +135,8 @@ public class Message {
         private String title;
         private String summary;
         private String text;
+        private List<Image> images;
+        private List<ApplicationUser> viewers;
 
         private MessageBuilder() {
         }
@@ -153,6 +170,16 @@ public class Message {
             return this;
         }
 
+        public MessageBuilder withImages(List<Image> images) {
+            this.images = images;
+            return this;
+        }
+
+        public MessageBuilder withViewers(List<ApplicationUser> viewers) {
+            this.viewers = viewers;
+            return this;
+        }
+
         public Message build() {
             Message message = new Message();
             message.setId(id);
@@ -160,6 +187,8 @@ public class Message {
             message.setTitle(title);
             message.setSummary(summary);
             message.setText(text);
+            message.setImages(images);
+            message.setViewers(viewers);
             return message;
         }
     }
