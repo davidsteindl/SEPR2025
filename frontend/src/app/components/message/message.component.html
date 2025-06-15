@@ -68,7 +68,7 @@
               <label>Image</label>
               <div>
                 <img *ngFor="let image of currentMessage.images" [src]="newsImage(image.id)"
-                     alt="News Image" class="img-fluid" style="max-width: 100%; max-height: 400px;" >
+                     alt="News Image" class="img-fluid" style="max-width: 100%; max-height: 400px;">
               </div>
             </div>
 
@@ -81,7 +81,7 @@
                   class="form-control"
                   id="newsImage"
                   name="newsImage"
-                  (change)="onFileSelected($event)" />
+                  (change)="onFileSelected($event)"/>
               </div>
             </div>
 
@@ -98,44 +98,48 @@
       </ng-template>
     </div>
 
-    <div class="col-xl-3 col-lg-4 p-2" *ngFor="let message of getMessage()">
+    <div *ngFor="let message of getMessage()" class="row justify-content-center p-2">
+      <div class="col-xl-6 col-lg-8">
 
-      <div class="card">
+        <div class="card">
 
-        <div class="card-body">
-          <h5 class="card-title">{{ message.title }}</h5>
-          <h6 class="card-subtitle mb-2 text-muted">{{ message.publishedAt | date }}</h6>
-          <p class="card-text">{{ message.summary }}</p>
-          <button (click)="openExistingMessageModal(message.id, messageAddModal)" type="button" class="btn btn-success">
-            Details
-          </button>
-        </div>
+          <div class="card-body">
+            <h5 class="card-title">{{ message.title }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">{{ message.publishedAt | date }}</h6>
+            <p class="card-text">{{ message.summary }}</p>
+            <button (click)="openExistingMessageModal(message.id, messageAddModal)" type="button"
+                    class="btn btn-success">
+              Details
+            </button>
+          </div>
 
-        <div [ngClass]="['modal', 'fade', 'message-modal-'+message.id]" tabindex="-1" role="dialog"
-             aria-labelledby="Message details modal"
-             aria-hidden="true">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">{{ message.title }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <p class="lead"><span class="font-italic">{{ message.publishedAt | date }}</span> {{ message.summary }}
-                </p>
-                <p class="mt-2"> {{ message.text }} </p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <div [ngClass]="['modal', 'fade', 'message-modal-'+message.id]" tabindex="-1" role="dialog"
+               aria-labelledby="Message details modal"
+               aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">{{ message.title }}</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p class="lead"><span
+                    class="font-italic">{{ message.publishedAt | date }}</span> {{ message.summary }}
+                  </p>
+                  <p class="mt-2"> {{ message.text }} </p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
               </div>
             </div>
           </div>
+
         </div>
 
       </div>
-
     </div>
 
 
