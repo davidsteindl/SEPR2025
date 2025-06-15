@@ -96,7 +96,7 @@ export class EditEventComponent implements OnInit {
       next: () => {
         this.notification.success('Event updated successfully');
         this.initialEvent = JSON.parse(JSON.stringify(this.event));
-        this.router.navigate([`/admin`]);
+        this.router.navigate([`/update-events`]);
       },
       error: (err) => {
         this.notification.error(
@@ -141,7 +141,7 @@ export class EditEventComponent implements OnInit {
 
   onBackClick(): void {
     if (this.isUnchanged()) {
-      this.router.navigate(['/admin']);
+      this.router.navigate(['/updat-events']);
     } else {
       this.showConfirm = true;
     }
