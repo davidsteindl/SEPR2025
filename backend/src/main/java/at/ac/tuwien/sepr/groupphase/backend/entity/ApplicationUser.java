@@ -389,13 +389,7 @@ public class ApplicationUser {
             user.setLoginTries(loginTries);
             user.setActivated(isActivated);
             user.setCity(city);
-
-            if (viewedMessages != null) {
-                user.setViewedMessages(viewedMessages);
-            } else {
-                user.setViewedMessages(new ArrayList<>());
-            }
-
+            user.setViewedMessages(Objects.requireNonNullElseGet(viewedMessages, ArrayList::new));
             return user;
         }
     }

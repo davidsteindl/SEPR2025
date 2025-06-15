@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -63,6 +64,7 @@ public class MessageEndpointTest implements TestData {
         .withSummary(TEST_NEWS_SUMMARY)
         .withText(TEST_NEWS_TEXT)
         .withPublishedAt(TEST_NEWS_PUBLISHED_AT)
+        .withImages(new ArrayList<>())
         .build();
 
     @BeforeEach
@@ -73,13 +75,14 @@ public class MessageEndpointTest implements TestData {
             .withSummary(TEST_NEWS_SUMMARY)
             .withText(TEST_NEWS_TEXT)
             .withPublishedAt(TEST_NEWS_PUBLISHED_AT)
+            .withImages(new ArrayList<>())
             .build();
     }
 
     @Test
     public void givenNothing_whenFindAll_thenEmptyList() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MESSAGE_BASE_URI)
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -99,7 +102,7 @@ public class MessageEndpointTest implements TestData {
         messageRepository.save(message);
 
         MvcResult mvcResult = this.mockMvc.perform(get(MESSAGE_BASE_URI)
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -125,7 +128,7 @@ public class MessageEndpointTest implements TestData {
         messageRepository.save(message);
 
         MvcResult mvcResult = this.mockMvc.perform(get(MESSAGE_BASE_URI + "/{id}", message.getId())
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -138,7 +141,17 @@ public class MessageEndpointTest implements TestData {
         DetailedMessageDto detailedMessageDto = objectMapper.readValue(response.getContentAsString(),
             DetailedMessageDto.class);
 
-        assertEquals(message, messageMapper.detailedMessageDtoToMessage(detailedMessageDto));
+        Message actual = messageMapper.detailedMessageDtoToMessage(detailedMessageDto);
+
+        assertAll(
+            () -> assertEquals(message.getId(), actual.getId()),
+            () -> assertEquals(message.getPublishedAt(), actual.getPublishedAt()),
+            () -> assertEquals(message.getTitle(), actual.getTitle()),
+            () -> assertEquals(message.getSummary(), actual.getSummary()),
+            () -> assertEquals(message.getText(), actual.getText()),
+            () -> assertIterableEquals(message.getImages(), actual.getImages()),
+            () -> assertIterableEquals(message.getViewers(), actual.getViewers())
+        );
     }
 
     @Test
@@ -146,7 +159,7 @@ public class MessageEndpointTest implements TestData {
         messageRepository.save(message);
 
         MvcResult mvcResult = this.mockMvc.perform(get(MESSAGE_BASE_URI + "/{id}", -1)
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -161,8 +174,8 @@ public class MessageEndpointTest implements TestData {
         MockMultipartFile multipartFile = new MockMultipartFile("message", null, "application/json", body.getBytes());
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.multipart(MESSAGE_BASE_URI)
-            .file(multipartFile)
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+                .file(multipartFile)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -192,8 +205,8 @@ public class MessageEndpointTest implements TestData {
         MockMultipartFile multipartFile = new MockMultipartFile("message", null, "application/json", body.getBytes());
 
         MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.multipart(MESSAGE_BASE_URI)
-            .file(multipartFile)
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+                .file(multipartFile)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -240,7 +253,6 @@ public class MessageEndpointTest implements TestData {
         return date.getYear() == today.getYear() && date.getDayOfYear() == today.getDayOfYear() &&
             date.getHour() == today.getHour();
     }
-
 
 
 }

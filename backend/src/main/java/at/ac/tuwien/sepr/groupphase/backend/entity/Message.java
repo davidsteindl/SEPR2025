@@ -34,7 +34,7 @@ public class Message {
     private String text;
 
     @OneToMany(fetch = FetchType.EAGER)
-    private List<Image> images;
+    private List<Image> images = new ArrayList<>();
 
     @ManyToMany(mappedBy = "viewedMessages")
     private List<ApplicationUser> viewers = new ArrayList<>();
@@ -188,12 +188,8 @@ public class Message {
             message.setTitle(title);
             message.setSummary(summary);
             message.setText(text);
-            message.setImages(images);
-            if (viewers != null) {
-                message.setViewers(viewers);
-            } else {
-                message.setViewers(new ArrayList<>());
-            }
+            message.setImages(Objects.requireNonNullElseGet(images, ArrayList::new));
+            message.setViewers(Objects.requireNonNullElseGet(viewers, ArrayList::new));
             return message;
         }
     }
