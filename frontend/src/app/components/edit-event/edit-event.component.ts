@@ -96,7 +96,7 @@ export class EditEventComponent implements OnInit {
       next: () => {
         this.notification.success('Event updated successfully');
         this.initialEvent = JSON.parse(JSON.stringify(this.event));
-        this.router.navigate([`admin`]);
+        this.router.navigate([`/admin`]);
       },
       error: (err) => {
         this.notification.error(
