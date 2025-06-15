@@ -32,6 +32,8 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.Pageable;
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -178,7 +180,11 @@ public class CustomUserDetailService implements UserService {
         userRepository.save(user);
 
         if (!user.isActivated()) {
-            this.mailService.sendAccountActivationEmail(user.getEmail(), tokenLinkService.createOttLink(user.getEmail(), "account-activation"));
+            LocalDateTime dateTime = LocalDateTime.now().plusMinutes(5);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
+
+            String formatted = dateTime.format(formatter);
+            this.mailService.sendAccountActivationEmail(user.getEmail(), tokenLinkService.createOttLink(user.getEmail(), "account-activation"), formatted);
         }
     }
 

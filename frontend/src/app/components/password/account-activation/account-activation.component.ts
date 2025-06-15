@@ -50,7 +50,7 @@ export class AccountActivationComponent {
     }
     console.log(activateAccountRequest);
 
-    this.authService.changePassword(activateAccountRequest).subscribe({
+    this.authService.changePassword(activateAccountRequest, this.token).subscribe({
       next: () => {
         this.notification.success(`Account successfully activated`);
         console.log('Account successfully activated');

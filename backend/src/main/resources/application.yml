@@ -84,3 +84,7 @@ spring:
     timeout-per-shutdown-phase: 30s
 server:
   shutdown: graceful
+
+---
+frontend:
+  base-url: http://localhost:4200
