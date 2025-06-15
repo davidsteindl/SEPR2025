@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {Message, MessageCreate} from '../dtos/message';
 import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
@@ -9,7 +9,7 @@ import {Globals} from '../global/globals';
 })
 export class MessageService {
 
-  private messageBaseUri: string = this.globals.backendUri + '/messages';
+  private messageBaseUri: string = this.globals.backendUri + '/news';
 
   constructor(private httpClient: HttpClient, private globals: Globals) {
   }
@@ -41,7 +41,7 @@ export class MessageService {
 
 
     const formData = new FormData();
-    formData.append('message', new Blob([JSON.stringify({ ...message, images: undefined})], { type: 'application/json' }));
+    formData.append('message', new Blob([JSON.stringify({...message, images: undefined})], {type: 'application/json'}));
     if (message.images) {
       for (const image of message.images) {
         formData.append('images', image, image.name);
@@ -60,22 +60,6 @@ export class MessageService {
    * @param imageId of image to load
    */
   getImageBlob(messageId: number, imageId: number): Observable<Blob> {
-    return this.httpClient.get(this.messageBaseUri + `/${messageId}/image/${imageId}`, { responseType: 'blob' });
+    return this.httpClient.get(this.messageBaseUri + `/${messageId}/image/${imageId}`, {responseType: 'blob'});
   }
-
-
-  /**
-   * Loads all UNSEEN messages for the current user
-   */
-  getUnseenMessages(userId: number): Observable<Message[]> {
-    return this.httpClient.get<Message[]>(this.globals.backendUri + `/users/${userId}/news/unseen`);
-  }
-
-  /**
-   * Marks a list of message IDs as seen for the current user
-   */
-  markMessagesAsSeen(userId: number, messageIds: number[]): Observable<void> {
-    return this.httpClient.post<void>(this.globals.backendUri + `/users/${userId}/news/markSeen`, messageIds);
-  }
-
 }

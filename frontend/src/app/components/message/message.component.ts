@@ -1,5 +1,6 @@
 import {ChangeDetectorRef, Component, OnInit, TemplateRef} from '@angular/core';
 import {MessageService} from '../../services/message.service';
+import {UserService} from "../../services/user.service";
 import {Message, MessageCreate} from '../../dtos/message';
 import {EventTopTenDto} from '../../dtos/event';
 import {NgbModal, NgbPaginationConfig} from '@ng-bootstrap/ng-bootstrap';
@@ -36,6 +37,7 @@ export class MessageComponent implements OnInit {
   showAllMessages = false;
 
   constructor(private messageService: MessageService,
+              private userService: UserService,
               private eventService: EventService,
               private ngbPaginationConfig: NgbPaginationConfig,
               private formBuilder: UntypedFormBuilder,
@@ -141,13 +143,13 @@ export class MessageComponent implements OnInit {
         error: error => this.defaultServiceErrorHandling(error)
       });
     } else {
-      this.messageService.getUnseenMessages(userId).subscribe({
+      this.userService.getUnseenMessages(userId).subscribe({
         next: (messages) => {
           this.message = messages;
           this.allMessagesRead = messages.length === 0;
           if (messages.length > 0) {
             const messageIds = messages.map(m => m.id);
-            this.messageService.markMessagesAsSeen(userId, messageIds).subscribe();
+            this.userService.markMessagesAsSeen(userId, messageIds).subscribe();
           }
         },
         error: error => this.defaultServiceErrorHandling(error)
