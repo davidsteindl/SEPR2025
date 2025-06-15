@@ -7,6 +7,7 @@ import {jwtDecode} from 'jwt-decode';
 import {Globals} from '../global/globals';
 import {RegisterUser} from "../dtos/register-user";
 import {PasswordChange} from "../dtos/password-change";
+import { HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -92,13 +93,15 @@ export class AuthService {
 
   resetPassword(email: string) : Observable<void> {
     console.log("Reset-Password-Request");
-    return this.httpClient.post<void>(this.authBaseUri + '/password-change-requests', { email })
+    const headers = new HttpHeaders({ 'Skip-Auth': 'true' });
+    return this.httpClient.post<void>(this.authBaseUri + '/password-change-requests', { email }, { headers: headers, withCredentials: false })
 
   }
 
   changePassword(changePasswordRequest: PasswordChange, token: string): Observable<void> {
     console.log("Change-Password-Request" + token);
-    return this.httpClient.post<void>(`${this.authBaseUri}/password-change-requests/${token}`, changePasswordRequest)
+    const headers = new HttpHeaders({ 'Skip-Auth': 'true' });
+    return this.httpClient.post<void>(`${this.authBaseUri}/password-change-requests/${token}`, changePasswordRequest, { headers })
   }
 
 
