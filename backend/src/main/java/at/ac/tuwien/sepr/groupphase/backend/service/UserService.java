@@ -1,10 +1,12 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.SimpleMessageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.data.domain.Page;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -111,11 +113,16 @@ public interface UserService extends UserDetailsService {
     /**
      * Update user.
      *
-     * @param id of user
+     * @param id           of user
      * @param userToUpdate updated user details
      */
     void update(Long id, UserUpdateDto userToUpdate) throws ValidationException;
 
-
-
+    /**
+     * Get all messages that the user has not seen yet.
+     *
+     * @param userId the id of the user
+     * @return list of unseen messages
+     */
+    List<SimpleMessageDto> getUnseenMessages(Long userId);
 }

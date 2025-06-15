@@ -1,15 +1,18 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.SimpleMessageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.MessageMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.LoginAttemptException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.MessageRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
@@ -45,6 +48,8 @@ public class CustomUserDetailService implements UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final UserRepository userRepository;
+    private final MessageRepository messageRepository;
+    private final MessageMapper messageMapper;
     private final PasswordEncoder passwordEncoder;
     private final PasswordService passwordService;
     private final JwtTokenizer jwtTokenizer;
@@ -53,10 +58,13 @@ public class CustomUserDetailService implements UserService {
     TokenLinkService tokenLinkService;
 
     @Autowired
-    public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+    public CustomUserDetailService(UserRepository userRepository, MessageRepository messageRepository, MessageMapper messageMapper,
+                                   PasswordEncoder passwordEncoder,
                                    JwtTokenizer jwtTokenizer, UserValidator userValidator, MailService mailService,
                                    TokenLinkService tokenLinkService, PasswordService passwordService) {
         this.userRepository = userRepository;
+        this.messageRepository = messageRepository;
+        this.messageMapper = messageMapper;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenizer = jwtTokenizer;
         this.userValidator = userValidator;
@@ -290,5 +298,16 @@ public class CustomUserDetailService implements UserService {
         userRepository.save(user);
     }
 
-
+    @Override
+    public List<SimpleMessageDto> getUnseenMessages(Long userId) {
+        LOGGER.debug("Get unseen messages for user {}", userId);
+        ApplicationUser user = findUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+        return messageRepository.findAllUnseenByUserIdOrderByPublishedAtDesc(userId)
+            .stream()
+            .map(messageMapper::messageToSimpleMessageDto)
+            .toList();
+    }
 }

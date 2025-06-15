@@ -1,5 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.SimpleMessageDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
@@ -119,4 +121,11 @@ public class UserEndpoint {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{id}/messages/unseen")
+    @Secured("ROLE_USER")
+    @Operation(summary = "Get all unseen messages for a user", security = @SecurityRequirement(name = "apiKey"))
+    public List<SimpleMessageDto> getUnseenMessages(@PathVariable("id") Long id) {
+        LOGGER.info("getUnseenMessages() for user {}", id);
+        return this.userService.getUnseenMessages(id);
+    }
 }

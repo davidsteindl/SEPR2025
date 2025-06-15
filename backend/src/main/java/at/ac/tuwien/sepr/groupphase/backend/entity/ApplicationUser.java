@@ -244,19 +244,19 @@ public class ApplicationUser {
 
     @Override
     public String toString() {
-        return "ApplicationUser{" +
-            "id=" + id +
-            ", firstName='" + firstName + '\'' +
-            ", lastName='" + lastName + '\'' +
-            ", dateOfBirth=" + dateOfBirth +
-            ", sex=" + sex +
-            ", email='" + email + '\'' +
-            ", locked=" + locked +
-            ", isAdmin=" + isAdmin +
-            ", loginTries=" + loginTries +
-            ", isActivated=" + isActivated +
-            ", viewedMessages=" + viewedMessages +
-            '}';
+        return "ApplicationUser{"
+            + "id=" + id
+            + ", firstName='" + firstName + '\''
+            + ", lastName='" + lastName + '\''
+            + ", dateOfBirth=" + dateOfBirth
+            + ", sex=" + sex
+            + ", email='" + email + '\''
+            + ", locked=" + locked
+            + ", isAdmin=" + isAdmin
+            + ", loginTries=" + loginTries
+            + ", isActivated=" + isActivated
+            + ", viewedMessages=" + viewedMessages
+            + '}';
     }
 
     public static final class ApplicationUserBuilder {
