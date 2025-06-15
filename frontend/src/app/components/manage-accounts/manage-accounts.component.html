@@ -28,7 +28,11 @@
           <th>First Name</th>
           <th>Last Name</th>
           <th>Email</th>
-          <th class="text-center" style="margin-left: 200px;">Action</th>
+          <th>
+          <span style="margin-left: 560px; display: inline-block;">
+          Action
+          </span>
+          </th>
         </tr>
         </thead>
         <tbody>
@@ -69,7 +73,7 @@
     </ng-container>
     <ng-template #noUsers>
       <div class="text-center text-muted" style="font-weight: bold"
-        *ngIf="!usersLoading && usersTriggered && usersPage?.content.length===0">
+           *ngIf="!usersLoading && usersTriggered && usersPage?.content.length===0">
         No users found.
       </div>
     </ng-template>
