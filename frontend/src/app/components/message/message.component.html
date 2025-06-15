@@ -11,6 +11,16 @@
     <h2 class="modal-title"> News </h2>
     <hr>
 
+    <div class="d-flex justify-content-center mb-3">
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        style="padding: 0.5rem 1rem;"
+        (click)="toggleShowAllMessages()">
+        {{ showAllMessages ? 'Show only unread' : 'Show all messages' }}
+      </button>
+    </div>
+
     <div class="row p-2 mb-4">
       <button *ngIf="isAdmin()" type="button" class="btn btn-secondary btn-sm mr-4"
               (click)="openAddModal(messageAddModal)">Add message
