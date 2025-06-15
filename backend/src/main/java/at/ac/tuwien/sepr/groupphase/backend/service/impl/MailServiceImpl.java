@@ -15,6 +15,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 public class MailServiceImpl implements MailService {
@@ -28,7 +30,7 @@ public class MailServiceImpl implements MailService {
 
     @Async
     @Override
-    public void sendPasswordResetEmail(String email, String link) {
+    public void sendPasswordResetEmail(String email, String link, String time) {
         LOGGER.info("sending email for Password-Reset ...");
         String htmlContent = """
                 <html>
@@ -40,21 +42,22 @@ public class MailServiceImpl implements MailService {
                             color: white; background-color: #007bff; text-decoration: none; border-radius: 5px;">
                             Reset Password
                         </a>
-
+                        <p> The token is valid until %s </p>
+                        <br>
                         <p>If the button doesn't work, you can also click this link: <br>
                         <a href="%s">%s</a></p>
 
                         <p>Best regards,<br/>Your TicketLine Team</p>
                     </body>
                 </html>
-            """.formatted(link, link, link);
+            """.formatted(link, time, link, link);
 
         sendMail(email, "Reset password for your TicketLine-Account", htmlContent);
     }
 
     @Async
     @Override
-    public void sendAccountActivationEmail(String email, String link) {
+    public void sendAccountActivationEmail(String email, String link, String time) {
         LOGGER.info("sending email for Account-Activation ...");
         String htmlContent = """
                 <html>
@@ -66,20 +69,22 @@ public class MailServiceImpl implements MailService {
                             color: white; background-color: #007bff; text-decoration: none; border-radius: 5px;">
                             Activate your Account
                         </a>
-
+                        <br>
+                        <p> The token is valid until %s </p>
+                        <br>
                         <p>If the button doesn't work, you can also click this link: <br>
                         <a href="%s">%s</a></p>
 
                         <p>Best regards,<br/>Your TicketLine Team</p>
                     </body>
                 </html>
-            """.formatted(link, link, link);
+           \s""".formatted(link, time,  link, link);
 
         sendMail(email, "Account Activation for your TicketLine-Account", htmlContent);
     }
 
     @Override
-    public void sendMail(String to, String subject, String text) {
+    public void sendMail(String to, String subject, String text ) {
         LOGGER.info("Sending Html-mail to {}", to);
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
