@@ -32,6 +32,8 @@ export class MessageComponent implements OnInit {
   categories: eventCategory[];
   topTenEvents: EventTopTenDto[];
 
+  allMessagesRead = false;
+
 
   constructor(private messageService: MessageService,
               private eventService: EventService,
@@ -133,7 +135,8 @@ export class MessageComponent implements OnInit {
     this.messageService.getUnseenMessages(userId).subscribe({
       next: (messages: Message[]) => {
         this.message = messages;
-
+        this.allMessagesRead = messages.length === 0;
+        
         if (messages.length > 0) {
           const messageIds = messages.map(m => m.id);
           this.messageService.markMessagesAsSeen(userId, messageIds).subscribe({
