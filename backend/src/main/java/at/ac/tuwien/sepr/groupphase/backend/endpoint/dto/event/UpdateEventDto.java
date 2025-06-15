@@ -11,6 +11,9 @@ import java.util.Objects;
 
 public class UpdateEventDto {
 
+    @NotNull(message = "ID must not be null")
+    private Long id;
+
     @NotBlank(message = "Name must not be blank")
     @Size(max = 50, message = "Name must not exceed 50 characters")
     private String name;
@@ -32,6 +35,14 @@ public class UpdateEventDto {
     private Long locationId;
 
     private String locationName;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
