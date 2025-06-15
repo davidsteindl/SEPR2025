@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,7 +37,7 @@ public class Message {
     private List<Image> images;
 
     @ManyToMany(mappedBy = "viewedMessages")
-    private List<ApplicationUser> viewers;
+    private List<ApplicationUser> viewers = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -188,7 +189,9 @@ public class Message {
             message.setSummary(summary);
             message.setText(text);
             message.setImages(images);
-            message.setViewers(viewers);
+            if (viewers != null) {
+                message.setViewers(viewers);
+            }
             return message;
         }
     }
