@@ -138,7 +138,8 @@ export class MessageComponent implements OnInit {
                 seen: !unseenIds.includes(m.id)
               }));
               this.allMessagesRead = unseenIds.length === 0;
-            }
+            },
+            error: error => this.defaultServiceErrorHandling(error)
           });
         },
         error: error => this.defaultServiceErrorHandling(error)
