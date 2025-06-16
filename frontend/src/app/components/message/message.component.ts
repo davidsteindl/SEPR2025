@@ -130,21 +130,33 @@ export class MessageComponent implements OnInit {
     if (this.showAllMessages) {
       this.messageService.getMessage().subscribe({
         next: (messages) => {
-          this.message = messages;
-          this.allMessagesRead = false;
+          this.userService.getUnseenMessages(userId).subscribe({
+            next: (unseen) => {
+              const unseenIds = unseen.map(m => m.id);
+              this.message = messages.map(m => ({
+                ...m,
+                seen: !unseenIds.includes(m.id)
+              }));
+              this.allMessagesRead = unseenIds.length === 0;
+            }
+          });
         },
         error: error => this.defaultServiceErrorHandling(error)
       });
     } else {
       this.userService.getUnseenMessages(userId).subscribe({
         next: (messages) => {
-          this.message = messages;
+          this.message = messages.map(m => ({
+            ...m,
+            seen: false
+          }));
           this.allMessagesRead = messages.length === 0;
         },
         error: error => this.defaultServiceErrorHandling(error)
       });
     }
   }
+
 
   toggleShowAllMessages() {
     this.showAllMessages = !this.showAllMessages;
