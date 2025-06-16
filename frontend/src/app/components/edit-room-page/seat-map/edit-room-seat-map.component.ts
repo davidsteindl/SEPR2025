@@ -54,9 +54,19 @@ export class EditRoomSeatMapComponent implements OnChanges {
   private computeSectorColors() {
     this.sectorColorMap = {};
     (this.room.sectors || []).forEach((sec) => {
-      const hue = Math.floor(Math.random() * 360);
+      // Deterministic color based on sector id
+      const hue = this.hashToHue(sec.id);
       this.sectorColorMap[sec.id] = `hsl(${hue},60%,75%)`;
     });
+  }
+
+  // Simple hash function to map sector id to a hue (0-359)
+  private hashToHue(id: number): number {
+    let hash = id;
+    hash = ((hash >> 16) ^ hash) * 0x45d9f3b;
+    hash = ((hash >> 16) ^ hash) * 0x45d9f3b;
+    hash = (hash >> 16) ^ hash;
+    return Math.abs(hash) % 360;
   }
 
   private splitSectors() {

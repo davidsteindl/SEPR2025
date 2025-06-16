@@ -148,5 +148,9 @@ export class EditRoomPageComponent implements OnInit {
     return this.seatMap?.sectorColorMap || {};
   }
 
+  getSectorColor(id: number): string {
+    return this.seatMap?.sectorColorMap[id] || "#ccc";
+  }
+
   SectorType = SectorType;
 }
