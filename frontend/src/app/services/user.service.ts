@@ -130,9 +130,9 @@ export class UserService {
   }
 
   /**
-   * Marks a list of message IDs as seen for the current user
+   * Marks a message ID as seen for the current user
    */
-  markMessagesAsSeen(userId: number, messageIds: number[]): Observable<void> {
-    return this.httpClient.post<void>(`${this.userBaseUri}/${userId}/news/markSeen`, messageIds);
+  markMessageAsSeen(userId: number, messageId: number): Observable<void> {
+    return this.httpClient.post<void>(`${this.userBaseUri}/${userId}/news/${messageId}/markSeen`, null);
   }
 }

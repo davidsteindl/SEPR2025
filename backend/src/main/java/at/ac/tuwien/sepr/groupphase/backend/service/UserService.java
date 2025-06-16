@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 public interface UserService extends UserDetailsService {
@@ -127,10 +128,10 @@ public interface UserService extends UserDetailsService {
     List<SimpleMessageDto> getUnseenMessages(Long userId);
 
     /**
-     * Marks the given messages as seen for the user.
+     * Marks the given message as seen for the user.
      *
-     * @param userId     the id of the user
-     * @param messageIds the ids of the messages to mark as seen
+     * @param userId    the id of the user
+     * @param messageId the id of the message to mark as seen
      */
-    void markMessagesAsSeen(Long userId, List<Long> messageIds);
+    void markMessageAsSeen(Long userId, Long messageId);
 }

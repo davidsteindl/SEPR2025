@@ -130,14 +130,14 @@ public class UserEndpoint {
         return this.userService.getUnseenMessages(id);
     }
 
-    @PostMapping("/{userId}/news/markSeen")
+    @PostMapping("/{userId}/news/{newsId}/markSeen")
     @Secured("ROLE_USER")
-    @Operation(summary = "Mark messages as seen for a user", security = @SecurityRequirement(name = "apiKey"))
-    public ResponseEntity<Void> markMessagesAsSeen(
+    @Operation(summary = "Mark a message as seen for a user", security = @SecurityRequirement(name = "apiKey"))
+    public ResponseEntity<Void> markMessageAsSeen(
         @PathVariable("userId") Long userId,
-        @RequestBody List<Long> messageIds
+        @PathVariable("newsId") Long newsId
     ) {
-        userService.markMessagesAsSeen(userId, messageIds);
+        userService.markMessageAsSeen(userId, newsId);
         return ResponseEntity.noContent().build();
     }
 }
