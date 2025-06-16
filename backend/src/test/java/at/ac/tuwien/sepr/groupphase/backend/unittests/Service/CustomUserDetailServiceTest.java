@@ -477,22 +477,20 @@ class CustomUserDetailServiceTest {
 
 
     @Test
-    void markMessagesAsSeen_marksMessagesAndSavesUser() {
+    void markMessageAsSeen_marksMessageAndSavesUser() {
         Long userId = 1L;
-        List<Long> messageIds = List.of(10L, 20L);
-        Message m1 = Message.MessageBuilder.aMessage().withId(10L).withViewers(new ArrayList<>()).build();
-        Message m2 = Message.MessageBuilder.aMessage().withId(20L).withViewers(new ArrayList<>()).build();
+        Long messageId = 10L;
+        Message message = Message.MessageBuilder.aMessage().withId(messageId).withViewers(new ArrayList<>()).build();
 
         ApplicationUser user = testUser;
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(messageRepository.findAllById(messageIds)).thenReturn(List.of(m1, m2));
+        when(messageRepository.findById(messageId)).thenReturn(Optional.of(message));
 
-        userDetailService.markMessagesAsSeen(userId, messageIds);
+        userDetailService.markMessageAsSeen(userId, messageId);
 
-        assertTrue(user.getViewedMessages().containsAll(List.of(m1, m2)));
-        assertTrue(m1.getViewers().contains(user));
-        assertTrue(m2.getViewers().contains(user));
+        assertTrue(user.getViewedMessages().contains(message));
+        assertTrue(message.getViewers().contains(user));
 
         verify(userRepository).save(user);
     }

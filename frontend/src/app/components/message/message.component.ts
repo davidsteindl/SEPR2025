@@ -30,8 +30,8 @@ export class MessageComponent implements OnInit {
   private message: Message[];
 
   selectedCategory: string = 'All';
-  categories: eventCategory[];
-  topTenEvents: EventTopTenDto[];
+  categories: eventCategory[] = [];
+  topTenEvents: EventTopTenDto[] = [];
 
   allMessagesRead = false;
   showAllMessages = false;
@@ -45,7 +45,7 @@ export class MessageComponent implements OnInit {
               private authService: AuthService,
               private modalService: NgbModal,
               private globals: Globals,
-              private sanitizer: DomSanitizer,) {
+              private sanitizer: DomSanitizer) {
   }
 
   ngOnInit() {
@@ -54,9 +54,6 @@ export class MessageComponent implements OnInit {
     this.loadTopTen();
   }
 
-  /**
-   * Returns true if the authenticated user is an admin
-   */
   isAdmin(): boolean {
     return this.authService.getUserRole() === 'ADMIN';
   }
@@ -80,6 +77,17 @@ export class MessageComponent implements OnInit {
             }
           });
         }
+
+        const userId = this.authService.getUserId();
+        this.userService.markMessageAsSeen(userId, this.currentMessage.id).subscribe({
+          next: () => {
+            this.loadMessage();
+          },
+          error: err => {
+            this.defaultServiceErrorHandling(err);
+          }
+        });
+
         this.modalService.open(messageAddModal, {ariaLabelledBy: 'modal-basic-title'});
       },
       error: err => {
@@ -88,13 +96,8 @@ export class MessageComponent implements OnInit {
     });
   }
 
-  /**
-   * Starts form validation and builds a message dto for sending a creation request if the form is valid.
-   * If the procedure was successful, the form will be cleared.
-   */
   addMessage(form) {
     this.submitted = true;
-
 
     if (form.valid) {
       this.currentMessage.publishedAt = new Date().toISOString();
@@ -103,33 +106,23 @@ export class MessageComponent implements OnInit {
     }
   }
 
-
   getMessage(): Message[] {
     return this.message;
   }
 
-  /**
-   * Error flag will be deactivated, which clears the error message
-   */
   vanishError() {
     this.error = false;
   }
 
-  /**
-   * Sends message creation request
-   *
-   * @param message the message which should be created
-   */
   private createMessage(message: MessageCreate) {
     this.messageService.createMessage(message).subscribe({
-        next: () => {
-          this.loadMessage();
-        },
-        error: error => {
-          this.defaultServiceErrorHandling(error);
-        }
+      next: () => {
+        this.loadMessage();
+      },
+      error: error => {
+        this.defaultServiceErrorHandling(error);
       }
-    );
+    });
   }
 
   private loadMessage() {
@@ -137,31 +130,39 @@ export class MessageComponent implements OnInit {
     if (this.showAllMessages) {
       this.messageService.getMessage().subscribe({
         next: (messages) => {
-          this.message = messages;
-          this.allMessagesRead = false;
+          this.userService.getUnseenMessages(userId).subscribe({
+            next: (unseen) => {
+              const unseenIds = unseen.map(m => m.id);
+              this.message = messages.map(m => ({
+                ...m,
+                seen: !unseenIds.includes(m.id)
+              }));
+              this.allMessagesRead = unseenIds.length === 0;
+            },
+            error: error => this.defaultServiceErrorHandling(error)
+          });
         },
         error: error => this.defaultServiceErrorHandling(error)
       });
     } else {
       this.userService.getUnseenMessages(userId).subscribe({
         next: (messages) => {
-          this.message = messages;
+          this.message = messages.map(m => ({
+            ...m,
+            seen: false
+          }));
           this.allMessagesRead = messages.length === 0;
-          if (messages.length > 0) {
-            const messageIds = messages.map(m => m.id);
-            this.userService.markMessagesAsSeen(userId, messageIds).subscribe();
-          }
         },
         error: error => this.defaultServiceErrorHandling(error)
       });
     }
   }
 
+
   toggleShowAllMessages() {
     this.showAllMessages = !this.showAllMessages;
     this.loadMessage();
   }
-
 
   newsImage(imageId: number): SafeResourceUrl {
     return this.currentImages.get(imageId);
@@ -208,7 +209,7 @@ export class MessageComponent implements OnInit {
       next: (events: EventTopTenDto[]) => {
         this.topTenEvents = events;
         if (events) {
-          console.log(events)
+          console.log(events);
         }
       },
       error: error => {

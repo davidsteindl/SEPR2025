@@ -5,7 +5,7 @@ export class Message {
   text: string;
   publishedAt: string;
   images?: { id: number }[];
-
+  seen?: boolean;
 }
 
 export class MessageCreate {

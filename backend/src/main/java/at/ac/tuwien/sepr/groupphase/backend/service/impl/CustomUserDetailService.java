@@ -315,18 +315,15 @@ public class CustomUserDetailService implements UserService {
 
     @Transactional
     @Override
-    public void markMessagesAsSeen(Long userId, List<Long> messageIds) {
+    public void markMessageAsSeen(Long userId, Long messageId) {
         ApplicationUser user = findUserById(userId);
+        Message message = messageRepository.findById(messageId).orElseThrow();
 
-        List<Message> messages = messageRepository.findAllById(messageIds);
-
-        for (Message message : messages) {
-            if (!user.getViewedMessages().contains(message)) {
-                user.getViewedMessages().add(message);
-            }
-            if (!message.getViewers().contains(user)) {
-                message.getViewers().add(user);
-            }
+        if (!user.getViewedMessages().contains(message)) {
+            user.getViewedMessages().add(message);
+        }
+        if (!message.getViewers().contains(user)) {
+            message.getViewers().add(user);
         }
 
         userRepository.save(user);
