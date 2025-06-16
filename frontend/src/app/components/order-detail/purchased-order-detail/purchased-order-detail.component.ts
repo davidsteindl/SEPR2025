@@ -95,10 +95,6 @@ export class PurchasedOrderDetailComponent implements OnInit {
     return Object.values(this.selected).some(v => v);
   }
 
-  get tickets() {
-    return this.group?.tickets ?? [];
-  }
-
   get orders() {
     return [...(this.group?.orders ?? [])].sort(
       (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
