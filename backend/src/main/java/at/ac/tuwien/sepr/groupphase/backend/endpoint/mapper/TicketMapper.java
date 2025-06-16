@@ -15,6 +15,8 @@ public interface TicketMapper {
     @Mapping(source = "sector.id",    target = "sectorId")
     @Mapping(source = "seat.id",      target = "seatId", nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.SET_TO_NULL)
     @Mapping(source = "status",       target = "status")
+    @Mapping(source = "seat.rowNumber", target = "rowNumber", nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.SET_TO_NULL)
+    @Mapping(source = "seat.columnNumber", target = "columnNumber", nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.SET_TO_NULL)
     TicketDto toDto(Ticket ticket);
 
 }
