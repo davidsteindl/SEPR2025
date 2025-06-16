@@ -180,15 +180,6 @@ public class PdfExportServiceImpl implements PdfExportService {
         ticketLine.setTextAlignment(TextAlignment.RIGHT);
         document.add(ticketLine);
 
-
-        var adresspronom = switch(user.getSex()) {
-            case Sex.FEMALE -> "Mrs./Frau";
-            case Sex.MALE -> "Mr./Herr";
-            default -> "";
-        };
-
-        document.add(new Paragraph(adresspronom));
-
         document.add(new Paragraph(order.getFirstName() + " " + order.getLastName()));
 
         if (order.getStreet() != null && order.getHousenumber() != null && order.getPostalCode() != null
@@ -234,7 +225,7 @@ public class PdfExportServiceImpl implements PdfExportService {
             }
             table.addCell(new Cell().add(new Paragraph(seatchoice)));
 
-            var bruttoPrice = ticket.getSector().getPrice();
+            var bruttoPrice = Optional.ofNullable(ticket.getSector().getPrice()).orElse(0);
             sum = sum + bruttoPrice;
             var ust = bruttoPrice - (bruttoPrice / (1 + 0.13));
             var netto = bruttoPrice - ust;
@@ -300,15 +291,7 @@ public class PdfExportServiceImpl implements PdfExportService {
         ticketLine.setTextAlignment(TextAlignment.RIGHT);
         document.add(ticketLine);
 
-        var adresspronom = switch(user.getSex()) {
-            case Sex.FEMALE -> "Mrs./Frau";
-            case Sex.MALE -> "Mr./Herr";
-            default -> "";
-        };
-
-        document.add(new Paragraph(adresspronom));
-
-        document.add(new Paragraph(user.getFirstName() + " " + user.getLastName()));
+        document.add(new Paragraph(order.getFirstName() + " " + order.getLastName()));
 
         if (order.getStreet() != null && order.getHousenumber() != null && order.getPostalCode() != null
             && order.getCity() != null && order.getCountry() != null) {
@@ -354,7 +337,7 @@ public class PdfExportServiceImpl implements PdfExportService {
             }
             table.addCell(new Cell().add(new Paragraph(seatchoice)));
 
-            var bruttoPrice = ticket.getSector().getPrice();
+            var bruttoPrice = Optional.ofNullable(ticket.getSector().getPrice()).orElse(0);
             sum = sum + bruttoPrice;
             var ust = bruttoPrice - (bruttoPrice / (1 + 0.13));
             var netto = bruttoPrice - ust;
