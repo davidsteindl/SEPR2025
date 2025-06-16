@@ -33,7 +33,7 @@
         <td>{{ i + 1 }}</td>
           <td>
             <ng-container *ngIf="ticket.seatId; else standing">
-              {{ ticket.rowNumber }}{{ ticket.seatLabel }}
+              Row {{ ticket.rowNumber }}, Seat {{ ticket.columnNumber }}
             </ng-container>
             <ng-template #standing>Standing</ng-template>
           </td>

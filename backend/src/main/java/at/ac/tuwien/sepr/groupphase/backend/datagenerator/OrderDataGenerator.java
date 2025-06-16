@@ -215,6 +215,7 @@ public class OrderDataGenerator {
             order.setOrderType(orderType);
             order.setCreatedAt(createdAt);
             order.setOrderGroup(group);
+            order.setUserId(user.getId());
             order = orderRepository.save(order);
 
             Ticket ticket = new Ticket();

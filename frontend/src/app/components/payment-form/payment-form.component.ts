@@ -124,7 +124,7 @@ export class PaymentFormComponent implements OnInit {
       next: (order: OrderDto) => {
         const dt = new Date(order.createdAt);
         this.toastr.success(
-          `Order #${order.id} placed on ${dt.toLocaleString()}`,
+          `Tickets bought successfully on ${dt.toLocaleString()}`,
           'Payment Complete'
         );
         localStorage.removeItem(this.FORM_STORAGE_KEY);
