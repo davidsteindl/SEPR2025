@@ -35,7 +35,8 @@
           triggers="manual"
           container="body"
           [autoClose]="'outside'"
-          (click)="openPopover(seat, pop)"
+          (click)="openPopover(seat, pop, $event)"
+          [ngClass]="{ 'selected-seat': isSeatSelected(seat) }"
         ></div>
       </ng-container>
       <ng-template #normalSeat>
@@ -43,7 +44,8 @@
           [ngClass]="{
             'seat-circle': getSectorType(seat.sectorId) !== 'STANDING',
             'standing-rect': getSectorType(seat.sectorId) === 'STANDING',
-            'deleted-seat': seat.deleted
+            'deleted-seat': seat.deleted,
+            'selected-seat': isSeatSelected(seat)
           }"
           [ngStyle]="{
             'background-color': seat.deleted
@@ -58,7 +60,7 @@
           triggers="manual"
           container="body"
           [autoClose]="'outside'"
-          (click)="openPopover(seat, pop)"
+          (click)="openPopover(seat, pop, $event)"
         ></div>
       </ng-template>
     </div>
@@ -93,3 +95,11 @@
     </div>
   </div>
 </ng-template>
+
+<style>
+.selected-seat {
+  outline: 3px solid #2ecc40 !important;
+  outline-offset: 2px;
+  z-index: 2;
+}
+</style>

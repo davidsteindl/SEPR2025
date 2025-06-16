@@ -29,12 +29,20 @@ export class EditRoomSeatMapComponent implements OnChanges {
   // Track selected sector for each seat popover
   selectedSectorIdMap: { [seatId: number]: number | null } = {};
 
+  // Multi-seat selection
+  selectedSeats: Seat[] = [];
+
+  // Track the currently open popover and seat
+  private lastPopover: NgbPopover | null = null;
+  private lastPopoverSeatId: number | null = null;
+
   ngOnChanges(changes: SimpleChanges) {
     if (changes["room"]) {
       this.buildGrid();
       this.computeSectorColors();
       this.splitSectors();
       this.allSectors = this.room.sectors;
+      this.selectedSeats = [];
     }
   }
 
@@ -64,23 +72,78 @@ export class EditRoomSeatMapComponent implements OnChanges {
     });
   }
 
-  openPopover(seat: Seat, pop: NgbPopover) {
-    // Initialize the selected sector for this seat when popover opens
-    this.selectedSectorIdMap[seat.id] = seat.sectorId ?? null;
-    if (!pop.isOpen()) {
-      pop.open({ seat });
+  // Multi-select logic: ctrl+click toggles selection, normal click selects one
+  onSeatClick(seat: Seat, event: MouseEvent) {
+    if (event.ctrlKey) {
+      const idx = this.selectedSeats.findIndex((s) => s.id === seat.id);
+      if (idx >= 0) {
+        this.selectedSeats.splice(idx, 1);
+      } else {
+        this.selectedSeats.push(seat);
+        // Move popover to this seat
+        if (this.lastPopover && this.lastPopoverSeatId !== seat.id) {
+          this.lastPopover.close();
+        }
+        if (this.lastPopover && !this.lastPopover.isOpen()) {
+          this.lastPopover.open({ seat });
+        }
+        this.lastPopoverSeatId = seat.id;
+      }
+    } else {
+      this.selectedSeats = [seat];
     }
   }
 
+  openPopover(seat: Seat, pop: NgbPopover, event?: MouseEvent) {
+    // Multi-select: only open popover if not ctrl+click
+    if (event && event.ctrlKey) {
+      this.onSeatClick(seat, event);
+      // Move popover to this seat
+      if (this.lastPopover && this.lastPopover !== pop) {
+        this.lastPopover.close();
+      }
+      if (!pop.isOpen()) {
+        pop.open({ seat });
+      }
+      this.lastPopover = pop;
+      this.lastPopoverSeatId = seat.id;
+      return;
+    }
+    this.selectedSectorIdMap[seat.id] = seat.sectorId ?? null;
+    this.selectedSeats = [seat];
+    if (this.lastPopover && this.lastPopover !== pop) {
+      this.lastPopover.close();
+    }
+    if (!pop.isOpen()) {
+      pop.open({ seat });
+    }
+    this.lastPopover = pop;
+    this.lastPopoverSeatId = seat.id;
+  }
+
   assignSeat(seat: Seat, sectorId: number | null, pop: NgbPopover) {
-    seat.deleted = false;
-    seat.sectorId = sectorId;
-    pop.close();
+    const seatsToAssign =
+      this.selectedSeats.length > 0 ? this.selectedSeats : [seat];
+    seatsToAssign.forEach((s) => {
+      s.deleted = false;
+      s.sectorId = sectorId;
+    });
+    this.selectedSeats = [];
+    if (this.lastPopover) this.lastPopover.close();
+    this.lastPopover = null;
+    this.lastPopoverSeatId = null;
   }
 
   deleteSeat(seat: Seat, pop: NgbPopover) {
-    seat.deleted = true;
-    pop.close();
+    const seatsToDelete =
+      this.selectedSeats.length > 0 ? this.selectedSeats : [seat];
+    seatsToDelete.forEach((s) => {
+      s.deleted = true;
+    });
+    this.selectedSeats = [];
+    if (this.lastPopover) this.lastPopover.close();
+    this.lastPopover = null;
+    this.lastPopoverSeatId = null;
   }
 
   /**
@@ -106,5 +169,9 @@ export class EditRoomSeatMapComponent implements OnChanges {
     if (sectorId == null) return null;
     const sector = this.room.sectors.find((s) => s.id === sectorId);
     return sector ? sector.type : null;
+  }
+
+  isSeatSelected(seat: Seat): boolean {
+    return this.selectedSeats.some((s) => s.id === seat.id);
   }
 }
