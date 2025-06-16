@@ -113,7 +113,13 @@ public class RoomServiceImpl implements RoomService {
                 savedRoom.addSeat(seat);
             }
         }
-        return roomMapper.roomToRoomDetailDto(savedRoom);
+
+        roomRepository.saveAndFlush(savedRoom);
+        Room persistedRoom = roomRepository.findAllWithSectorsAndSeats().stream()
+            .filter(r -> r.getId().equals(savedRoom.getId()))
+            .findFirst()
+            .orElseThrow(() -> new EntityNotFoundException("Room not found with id " + savedRoom.getId()));
+        return roomMapper.roomToRoomDetailDto(persistedRoom);
     }
 
     @Override
