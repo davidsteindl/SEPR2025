@@ -41,7 +41,7 @@ public class ReservationCleanUpService {
             List<Ticket> reservedTickets = ticketRepository.findByShowAndStatus(show, TicketStatus.RESERVED);
 
             for (Ticket ticket : reservedTickets) {
-                ticket.setStatus(TicketStatus.CANCELLED);
+                ticket.setStatus(TicketStatus.EXPIRED);
                 LOGGER.info("Auto-cancelled ticket ID={} for show '{}' starting at {}",
                     ticket.getId(), show.getName(), show.getDate());
             }
