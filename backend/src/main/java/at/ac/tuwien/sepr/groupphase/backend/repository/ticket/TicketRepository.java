@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.repository.ticket;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,4 +38,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
         """)
     List<Object[]> findTopTenEventsByCategoryOrderByTicketCountDesc(@Param("category") Event.EventCategory category, @Param("endDate") LocalDateTime endDate,
                                                                     Pageable pageable);
+
+    List<Ticket> findByShowAndStatus(Show show, TicketStatus status);
 }
