@@ -9,7 +9,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.MessageMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Message;
-import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.LoginAttemptException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -280,7 +279,9 @@ public class CustomUserDetailService implements UserService {
 
         var user = userInDatabase.get();
         if (!user.getEmail().equals(userToUpdate.getEmail()) && userRepository.existsByEmail(userToUpdate.getEmail())) {
-            throw new ConflictException("User with Email already exists");
+            List<String> validationErrors = new ArrayList<>();
+            validationErrors.add("Email is already in use");
+            throw new ValidationException("Validation of user to update failed", validationErrors);
         }
 
         userValidator.validateForUpdate(userToUpdate);
