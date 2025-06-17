@@ -40,6 +40,7 @@ export class EditRoomPageComponent implements OnInit {
     this.route.paramMap.subscribe((params: ParamMap) => {
       const id = +params.get("id")!;
       this.roomService.getRoomById(id).subscribe((r) => {
+        console.log("Room loaded: ", r);
         this.room = r;
         this.loading = false;
       });
@@ -97,7 +98,7 @@ export class EditRoomPageComponent implements OnInit {
     const val = this.sectorForm.getRawValue();
     // normalize stage
     if (val.type === SectorType.STAGE) {
-      val.price = 0;
+      delete val.price;
       val.capacity = null;
     }
     if (this.editingSector) {
@@ -116,7 +117,7 @@ export class EditRoomPageComponent implements OnInit {
 
   saveLayout(afterSuccess?: () => void) {
     // Removed unassigned seat check
-    console.log("ROOM: ", this.room);
+    console.log("ROOM to be saved: ", this.room);
     this.roomService.edit(this.room).subscribe({
       next: (updatedRoom) => {
         console.log("updated room ", updatedRoom);

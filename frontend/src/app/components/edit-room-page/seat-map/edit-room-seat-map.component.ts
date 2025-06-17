@@ -148,6 +148,7 @@ export class EditRoomSeatMapComponent implements OnChanges {
     const seatsToDelete =
       this.selectedSeats.length > 0 ? this.selectedSeats : [seat];
     seatsToDelete.forEach((s) => {
+      s.sectorId = null; // unassign sector before deleting
       s.deleted = true;
     });
     this.selectedSeats = [];
