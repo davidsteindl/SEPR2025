@@ -335,11 +335,20 @@ public class RoomServiceImpl implements RoomService {
             seat.setColumnNumber(dto.getColumnNumber());
             seat.setDeleted(dto.isDeleted());
 
+            if (dto.getSectorId() != null) {
+                Sector sector = sectorRepository.findById(dto.getSectorId())
+                    .orElseThrow(() -> new EntityNotFoundException("Sector not found: " + dto.getSectorId()));
+                seat.setSector(sector);
+            } else {
+                seat.setSector(null);
+            }
+
             updatedSeatList.add(seat);
         }
 
         room.getSeats().removeIf(seat -> seat.getId() != null && updatedSeatList.stream().noneMatch(s -> Objects.equals(s.getId(), seat.getId())));
     }
+
 
     /**
      * Synchronizes the Room's sectors with the given list of SectorDto: updates existing,
