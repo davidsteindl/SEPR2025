@@ -77,8 +77,13 @@ public class EventEndpoint {
         @RequestParam(name = "size", defaultValue = "10") int size
     ) {
         LOGGER.info("GET /api/v1/events?page={}&size={}", page, size);
-        Pageable pageable = PageRequest.of(page, size);
-        return eventService.getAllPaginatedEvents(pageable);
+        Pageable sorted = PageRequest.of(page,
+            size,
+            Sort.by(Sort.Order.asc("dateTime"),
+                Sort.Order.asc("name").ignoreCase()
+            )
+        );
+        return eventService.getAllPaginatedEvents(sorted);
     }
 
     @GetMapping

@@ -79,18 +79,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public Page<UpdateEventDto> getAllPaginatedEvents(Pageable pageable) {
         LOGGER.debug("Get all events paginated");
-        Pageable sorted = PageRequest.of(
-            pageable.getPageNumber(),
-            pageable.getPageSize(),
-            Sort.by("dateTime").ascending()
-        );
-
-        LocalDateTime nowTrunc = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-
-        Specification<Event> upcoming = (root, query, cb) ->
-            cb.greaterThanOrEqualTo(root.get("dateTime"), nowTrunc);
-
-        return eventRepository.findAll(where(upcoming), sorted)
+        return eventRepository.findAll(pageable)
             .map(eventMapper::eventToUpdateEventDto);
     }
 
