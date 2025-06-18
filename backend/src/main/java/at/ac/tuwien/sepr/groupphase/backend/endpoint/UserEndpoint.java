@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.SimpleMessageDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
@@ -16,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -60,8 +60,16 @@ public class UserEndpoint {
                                                     @RequestParam(name = "size", defaultValue = "10") int size
     ) {
         LOGGER.info("getAllUsers paginated page={} size={}", page, size);
-        Pageable pageable = PageRequest.of(page, size);
-        return userService.getAllUsersPaginated(pageable);
+        Pageable sorted = PageRequest.of(
+            page,
+            size,
+            Sort.by(
+                Sort.Order.desc("locked"),
+                Sort.Order.asc("lastName").ignoreCase(),
+                Sort.Order.asc("firstName").ignoreCase()
+            )
+        );
+        return userService.getAllUsersPaginated(sorted);
     }
 
     @PutMapping("/{id}/unlock")
