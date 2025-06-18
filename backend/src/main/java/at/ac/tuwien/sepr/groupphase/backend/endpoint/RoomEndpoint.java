@@ -14,6 +14,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -72,5 +76,17 @@ public class RoomEndpoint {
     public List<RoomDetailDto> getAllRooms() {
         LOGGER.info("GET /api/v1/rooms");
         return roomservice.getAllRooms();
+    }
+
+    @GetMapping("/paginated")
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get all rooms paginated", security = @SecurityRequirement(name = "apiKey"))
+    public Page<RoomDetailDto> getAllRoomsPaginated(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+        LOGGER.info("GET /api/v1/rooms/page?page={}&size={}", page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        return roomservice.getAllRoomsPaginated(pageable);
     }
 }
