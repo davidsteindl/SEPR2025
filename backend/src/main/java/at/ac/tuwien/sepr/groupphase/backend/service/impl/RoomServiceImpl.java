@@ -349,7 +349,7 @@ public class RoomServiceImpl implements RoomService {
 
     public Page<RoomDetailDto> getAllRoomsPaginated(Pageable pageable) {
         LOGGER.debug("Fetching all rooms paginated");
-        return roomRepository.findAllWithSectorsAndSeatsPaginated(pageable)
+        return roomRepository.findAll(pageable)
             .map(roomMapper::roomToRoomDetailDto);
     }
 
