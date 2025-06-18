@@ -9,6 +9,8 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -83,4 +85,11 @@ public interface RoomService {
      * @return a list of {@link RoomDetailDto} representing all rooms
      */
     List<RoomDetailDto> getAllRooms();
+
+    /**
+     * Retrieves all rooms paginated
+     *
+     * @return a page of all rooms
+     */
+    Page<RoomDetailDto> getAllRoomsPaginated(Pageable pageable);
 }

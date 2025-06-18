@@ -34,6 +34,8 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -342,6 +344,13 @@ public class RoomServiceImpl implements RoomService {
         return roomRepository.findAllWithSectorsAndSeats().stream()
             .map(roomMapper::roomToRoomDetailDto)
             .toList();
+    }
+
+
+    public Page<RoomDetailDto> getAllRoomsPaginated(Pageable pageable) {
+        LOGGER.debug("Fetching all rooms paginated");
+        return roomRepository.findAllWithSectorsAndSeatsPaginated(pageable)
+            .map(roomMapper::roomToRoomDetailDto);
     }
 
     /**
