@@ -22,5 +22,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     List<Room> findAllWithSectorsAndSeats();
 
     @EntityGraph(attributePaths = {"sectors", "seats"})
-    Page<Room> findAllWithSectorsAndSeatsPaginated(Pageable pageable);
+    @Override
+    Page<Room> findAll(Pageable pageable);
 }
