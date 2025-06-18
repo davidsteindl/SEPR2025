@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -86,7 +87,13 @@ public class RoomEndpoint {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
         LOGGER.info("GET /api/v1/rooms/page?page={}&size={}", page, size);
-        Pageable pageable = PageRequest.of(page, size);
-        return roomservice.getAllRoomsPaginated(pageable);
+        Pageable sorted = PageRequest.of(page,
+            size,
+            Sort.by(
+                Sort.Order.asc("eventLocation.name").ignoreCase(),
+                Sort.Order.asc("name").ignoreCase()
+            )
+        );
+        return roomservice.getAllRoomsPaginated(sorted);
     }
 }
