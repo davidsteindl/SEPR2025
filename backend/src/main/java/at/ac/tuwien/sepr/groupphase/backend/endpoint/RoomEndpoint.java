@@ -87,7 +87,8 @@ public class RoomEndpoint {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
         LOGGER.info("GET /api/v1/rooms/page?page={}&size={}", page, size);
-        Pageable sorted = PageRequest.of(page,
+        Pageable sorted = PageRequest.of(
+            page,
             size,
             Sort.by(
                 Sort.Order.asc("eventLocation.name").ignoreCase(),
