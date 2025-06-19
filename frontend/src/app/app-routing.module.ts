@@ -38,6 +38,7 @@ import { PasswordComponent } from './components/password/password.component';
 import {ResetPasswordComponent} from "./components/password/reset-password/reset-password.component";
 import { BuyTicketsPageComponent } from './components/buy-tickets-page/buy-tickets-page.component';
 import {AccountActivationComponent} from "./components/password/account-activation/account-activation.component";
+import {UpdateRoomsComponent} from "./components/room/update-rooms/update-rooms.component";
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -52,6 +53,7 @@ const routes: Routes = [
   { path: 'search', component: SearchComponent, canActivate: [AuthGuard]},
   { path: 'create-event', component: CreateEventComponent, canActivate: [AdminGuard] },
   { path: 'update-events', component: UpdateEventsComponent, canActivate: [AdminGuard] },
+  { path: 'update-rooms', component: UpdateRoomsComponent, canActivate: [AdminGuard] },
   { path: 'events/:id/edit',  component: EditEventComponent, canActivate: [AdminGuard] },
   { path: 'create-artist', component: CreateArtistComponent, canActivate: [AdminGuard] },
   { path: 'create-show', component: CreateShowComponent, canActivate: [AdminGuard] },
