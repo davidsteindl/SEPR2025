@@ -60,11 +60,22 @@
     .sector-color-indicator {
       width: 22px;
       height: 22px;
-      border-radius: 50%;
       margin-right: 0.75rem;
       border: 2px solid #eee;
       flex-shrink: 0;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07);
+      border-radius: 50%; /* default: circle for normal */
+
+      &.stage-sector-indicator,
+      &.standing-sector-indicator {
+        border-radius: 0 !important; /* square for stage/standing */
+      }
+      &.normal-sector-indicator {
+        border-radius: 50% !important; /* ensure normal is always a circle */
+      }
+      &.stage-sector-indicator {
+        background: #888 !important;
+      }
     }
     .sector-label-row {
       display: flex;
@@ -94,6 +105,12 @@
       &:hover {
         color: #1976d2;
       }
+    }
+    .icon-btn.delete {
+      color: #dc3545 !important; /* Bootstrap red */
+    }
+    .icon-btn.delete:hover {
+      color: #a71d2a !important; /* darker red on hover */
     }
   }
 }
