@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import java.lang.invoke.MethodHandles;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomPageDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,10 +84,10 @@ public class RoomEndpoint {
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get all rooms paginated", security = @SecurityRequirement(name = "apiKey"))
-    public Page<RoomDetailDto> getAllRoomsPaginated(
+    public Page<RoomPageDto> getAllRoomsPaginated(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
-        LOGGER.info("GET /api/v1/rooms/page?page={}&size={}", page, size);
+        LOGGER.info("GET /api/v1/rooms/paginated?page={}&size={}", page, size);
         Pageable sorted = PageRequest.of(
             page,
             size,

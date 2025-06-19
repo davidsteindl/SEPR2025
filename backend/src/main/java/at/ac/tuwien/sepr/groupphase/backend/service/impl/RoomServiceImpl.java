@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomPageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
@@ -299,10 +300,10 @@ public class RoomServiceImpl implements RoomService {
     }
 
 
-    public Page<RoomDetailDto> getAllRoomsPaginated(Pageable pageable) {
+    public Page<RoomPageDto> getAllRoomsPaginated(Pageable pageable) {
         LOGGER.debug("Fetching all rooms paginated");
         return roomRepository.findAll(pageable)
-            .map(roomMapper::roomToRoomDetailDto);
+            .map(roomMapper::roomToRoomPageDto);
     }
 
     /**
