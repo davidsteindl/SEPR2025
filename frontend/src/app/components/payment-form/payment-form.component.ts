@@ -6,7 +6,7 @@ import { CartService } from 'src/app/services/cart.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { TicketService } from 'src/app/services/ticket.service';
-import { OrderDto } from 'src/app/dtos/order';
+import {OrderDto, OrderGroupDto} from 'src/app/dtos/order';
 import { TicketRequestDto } from 'src/app/dtos/ticket';
 import {UserService} from "../../services/user.service";
 import {User} from "../../dtos/user";
@@ -121,10 +121,11 @@ export class PaymentFormComponent implements OnInit {
 
   private buildHandler() {
     return {
-      next: (order: OrderDto) => {
+      next: (group: OrderGroupDto) => {
+        const order = group.orders[0];
         const dt = new Date(order.createdAt);
         this.toastr.success(
-          `Tickets bought successfully on ${dt.toLocaleString()}`,
+          `Order #${group.id} placed on ${dt.toLocaleString()}`,
           'Payment Complete'
         );
         localStorage.removeItem(this.FORM_STORAGE_KEY);
