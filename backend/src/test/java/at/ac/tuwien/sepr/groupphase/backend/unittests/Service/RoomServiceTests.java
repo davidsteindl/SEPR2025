@@ -524,33 +524,81 @@ public class RoomServiceTests {
     }
 
     @Test
-    public void testUpdateRoom_modifyExistingSector_updatesIt() throws ValidationException {
+    public void testUpdateRoom_addNormalSector_thenReassignSeats_thenChangeSectorTypeToStanding() throws ValidationException {
         RoomDetailDto original = roomService.createRoom(createRoomDto);
 
         SectorDto defaultSector = original.getSectors().get(0);
 
-        List<SeatDto> seats = original.getSeats();
+        SectorDto newNormalSector = new SectorDto();
+        newNormalSector.setPrice(55);
 
-        StandingSectorDto standingSector = new StandingSectorDto();
-        standingSector.setId(defaultSector.getId());
-        standingSector.setPrice(99);
-        standingSector.setCapacity(50);
-
-        RoomDetailDto update = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
+        RoomDetailDto withNewSector = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
             .id(original.getId())
             .name(original.getName())
-            .sectors(List.of(standingSector))
-            .seats(seats)
             .eventLocationId(original.getEventLocationId())
+            .sectors(List.of(defaultSector, newNormalSector))
+            .seats(original.getSeats())
             .build();
 
-        RoomDetailDto updated = roomService.updateRoom(original.getId(), update);
+        RoomDetailDto updatedWithNormal = roomService.updateRoom(original.getId(), withNewSector);
 
-        assertEquals(1, updated.getSectors().size());
-        assertTrue(updated.getSectors().get(0) instanceof StandingSectorDto);
-        StandingSectorDto result = (StandingSectorDto) updated.getSectors().get(0);
-        assertEquals(99, result.getPrice());
-        assertEquals(50, result.getCapacity());
+        assertEquals(2, updatedWithNormal.getSectors().size());
+
+        SectorDto createdNewNormal = updatedWithNormal.getSectors().stream()
+            .filter(s -> !Objects.equals(s.getId(), defaultSector.getId()))
+            .findFirst()
+            .orElseThrow();
+
+        List<SeatDto> reassignedSeats = updatedWithNormal.getSeats().stream()
+            .map(seat -> {
+                SeatDto updatedSeat = new SeatDto();
+                updatedSeat.setId(seat.getId());
+                updatedSeat.setRowNumber(seat.getRowNumber());
+                updatedSeat.setColumnNumber(seat.getColumnNumber());
+                updatedSeat.setDeleted(seat.isDeleted());
+                updatedSeat.setSectorId(createdNewNormal.getId());
+                return updatedSeat;
+            })
+            .toList();
+
+        RoomDetailDto withSeatsReassigned = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
+            .id(updatedWithNormal.getId())
+            .name(updatedWithNormal.getName())
+            .eventLocationId(updatedWithNormal.getEventLocationId())
+            .sectors(List.of(defaultSector, createdNewNormal))
+            .seats(reassignedSeats)
+            .build();
+
+        RoomDetailDto updatedWithSeats = roomService.updateRoom(updatedWithNormal.getId(), withSeatsReassigned);
+
+        long countAssignedToNew = updatedWithSeats.getSeats().stream()
+            .filter(s -> s.getSectorId().equals(createdNewNormal.getId()))
+            .count();
+
+        assertEquals(updatedWithSeats.getSeats().size(), countAssignedToNew);
+
+        StandingSectorDto standing = new StandingSectorDto();
+        standing.setId(createdNewNormal.getId());
+        standing.setPrice(99);
+        standing.setCapacity(50);
+
+        RoomDetailDto withStanding = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
+            .id(updatedWithSeats.getId())
+            .name(updatedWithSeats.getName())
+            .eventLocationId(updatedWithSeats.getEventLocationId())
+            .sectors(List.of(defaultSector, standing))
+            .seats(updatedWithSeats.getSeats())
+            .build();
+
+        RoomDetailDto finalResult = roomService.updateRoom(updatedWithSeats.getId(), withStanding);
+
+        StandingSectorDto resultStanding = (StandingSectorDto) finalResult.getSectors().stream()
+            .filter(s -> s instanceof StandingSectorDto)
+            .findFirst()
+            .orElseThrow();
+
+        assertEquals(99, resultStanding.getPrice());
+        assertEquals(50, resultStanding.getCapacity());
     }
 
 
