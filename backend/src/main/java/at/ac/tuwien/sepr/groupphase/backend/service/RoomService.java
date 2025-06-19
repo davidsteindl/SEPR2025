@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomPageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StandingSectorUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
@@ -90,5 +91,5 @@ public interface RoomService {
      *
      * @return a page of all rooms
      */
-    Page<RoomDetailDto> getAllRoomsPaginated(Pageable pageable);
+    Page<RoomPageDto> getAllRoomsPaginated(Pageable pageable);
 }

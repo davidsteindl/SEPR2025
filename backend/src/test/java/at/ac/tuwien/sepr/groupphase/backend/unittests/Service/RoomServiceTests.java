@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomPageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
@@ -276,7 +277,7 @@ public class RoomServiceTests {
         RoomDetailDto second = roomService.createRoom(secondDto);
 
         Pageable pageable = PageRequest.of(0, 2);
-        Page<RoomDetailDto> page = roomService.getAllRoomsPaginated(pageable);
+        Page<RoomPageDto> page = roomService.getAllRoomsPaginated(pageable);
 
         assertAll(
             () -> assertEquals(2, page.getTotalElements(), "There should be 2 rooms in total contained"),
@@ -300,7 +301,7 @@ public class RoomServiceTests {
         roomRepository.deleteAll();
 
         Pageable pageable = PageRequest.of(0, 1);
-        Page<RoomDetailDto> page = roomService.getAllRoomsPaginated(pageable);
+        Page<RoomPageDto> page = roomService.getAllRoomsPaginated(pageable);
 
         assertAll(
             () -> assertEquals(0, page.getTotalElements(), "No rooms present, total should be 0"),
