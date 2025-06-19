@@ -546,13 +546,13 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public void createTicketHold(CreateHoldDto createHoldDto) {
         LOGGER.debug("Hold seat with id {} for show {}", createHoldDto.getSeatId(), createHoldDto.getShowId());
-
-        ticketValidator.validateHold(createHoldDto.getShowId(), createHoldDto.getSectorId(), createHoldDto.getSeatId(), createHoldDto.getUserId());
+        Long userId = authFacade.getCurrentUserId();
+        ticketValidator.validateHold(createHoldDto.getShowId(), createHoldDto.getSectorId(), createHoldDto.getSeatId(), userId);
 
         Hold hold = new Hold();
         hold.setShowId(createHoldDto.getShowId());
         hold.setSeatId(createHoldDto.getSeatId());
-        hold.setUserId(createHoldDto.getSeatId());
+        hold.setUserId(userId);
         hold.setSectorId(createHoldDto.getSectorId());
         hold.setValidUntil(LocalDateTime.now().plusMinutes(30));
 

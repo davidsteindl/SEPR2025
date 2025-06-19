@@ -62,6 +62,7 @@ export class BuyTicketsPageComponent implements OnInit, OnDestroy {
               next: (r: Room) => {
                 this.room = r;
                 this.loadingRoom = false;
+                console.log("Fetched room: ", r);
               },
               error: err => {
                 console.error('Error fetching room usage', err);

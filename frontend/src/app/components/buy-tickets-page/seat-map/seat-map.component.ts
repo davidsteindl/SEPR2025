@@ -17,13 +17,15 @@ import { Sector } from 'src/app/dtos/sector';
 import { Seat } from 'src/app/dtos/seat';
 import { SectorType } from 'src/app/dtos/sector-type';
 import { PaymentItem } from 'src/app/dtos/payment-item';
+import { TicketService } from "src/app/services/ticket.service";
+import { CreateHoldDto } from "src/app/dtos/create-hold";
 
 @Component({
-  selector: 'app-seat-map',
+  selector: "app-seat-map",
   standalone: true,
   imports: [CommonModule, FormsModule, NgbModule],
-  templateUrl: './seat-map.component.html',
-  styleUrls: ['./seat-map.component.scss']
+  templateUrl: "./seat-map.component.html",
+  styleUrls: ["./seat-map.component.scss"],
 })
 export class SeatMapComponent implements OnInit, OnChanges {
   @Input() room!: Room;
@@ -33,17 +35,17 @@ export class SeatMapComponent implements OnInit, OnChanges {
 
   @Output() seatSelected = new EventEmitter<PaymentItem>();
 
-  @ViewChild('seatPopoverTpl', { static: true }) seatPopoverTpl!: TemplateRef<any>;
-  @ViewChild('standingPopoverTpl', { static: true }) standingPopoverTpl!: TemplateRef<any>;
+  @ViewChild("seatPopoverTpl", { static: true })
+  seatPopoverTpl!: TemplateRef<any>;
+  @ViewChild("standingPopoverTpl", { static: true })
+  standingPopoverTpl!: TemplateRef<any>;
 
   // map for sectorId -> random color string
   sectorColorMap: { [sectorId: number]: string } = {};
 
-
   seatedSectors: Sector[] = [];
   standingSectors: Sector[] = [];
   stageSectors: Sector[] = [];
-
 
   standingRects: Array<{
     sector: Sector;
@@ -58,32 +60,27 @@ export class SeatMapComponent implements OnInit, OnChanges {
   private seatById: { [id: number]: Seat } = {};
   private sectorOfSeat: { [seatId: number]: Sector } = {};
 
-
-  gridTemplateColumns = '';
-  gridTemplateRows = '';
-
+  gridTemplateColumns = "";
+  gridTemplateRows = "";
 
   standingQuantity: { [sectorId: number]: number } = {};
-
 
   selectedSeatIdSet = new Set<number>();
   selectedStandingSectorSet = new Set<number>();
 
-  constructor() {}
+  constructor(private ticketService: TicketService) {}
 
-  ngOnInit(): void {
-
-  }
+  ngOnInit(): void {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['room'] && this.room) {
+    if (changes["room"] && this.room) {
       this.buildGrid();
       this.computeSectorColors();
       this.splitSectors();
       this.computeStandingRectangles();
       this.buildCartSelectionSets();
     }
-    if (changes['cartItems']) {
+    if (changes["cartItems"]) {
       this.buildCartSelectionSets();
     }
   }
@@ -101,13 +98,19 @@ export class SeatMapComponent implements OnInit, OnChanges {
   }
 
   private computeSectorColors(): void {
-
-    // Generate random colors for each sector
     this.sectorColorMap = {};
     for (const sec of this.room.sectors) {
-      const hue = Math.floor(Math.random() * 360);
+      const hue = this.hashToHue(sec.id);
       this.sectorColorMap[sec.id] = `hsl(${hue}, 60%, 75%)`;
     }
+  }
+
+  private hashToHue(id: number): number {
+    let hash = id;
+    hash = ((hash >> 16) ^ hash) * 0x45d9f3b;
+    hash = ((hash >> 16) ^ hash) * 0x45d9f3b;
+    hash = (hash >> 16) ^ hash;
+    return Math.abs(hash) % 360;
   }
 
   private splitSectors(): void {
@@ -121,7 +124,7 @@ export class SeatMapComponent implements OnInit, OnChanges {
     }
     for (const sec of this.room.sectors) {
       // populate seats for each sector from flat list
-      sec.seats = this.room.seats.filter(s => s.sectorId === sec.id);
+      sec.seats = this.room.seats.filter((s) => s.sectorId === sec.id);
       // classify sector types
       if (sec.type === SectorType.STAGE) {
         this.stageSectors.push(sec);
@@ -161,10 +164,10 @@ export class SeatMapComponent implements OnInit, OnChanges {
     this.selectedStandingSectorSet.clear();
 
     for (const it of this.cartItems) {
-      if (it.type === 'SEATED' && it.seatId != null) {
+      if (it.type === "SEATED" && it.seatId != null) {
         this.selectedSeatIdSet.add(it.seatId);
       }
-      if (it.type === 'STANDING' && it.sectorId != null) {
+      if (it.type === "STANDING" && it.sectorId != null) {
         this.selectedStandingSectorSet.add(it.sectorId);
       }
     }
@@ -181,14 +184,21 @@ export class SeatMapComponent implements OnInit, OnChanges {
   addSeatedToCart(seat: Seat, sector: Sector, pop: NgbPopover) {
     const item: PaymentItem = {
       eventName: this.eventName,
-      type: 'SEATED',
+      type: "SEATED",
       price: sector.price,
       sectorId: sector.id,
       seatId: seat.id,
       rowNumber: seat.rowNumber,
       columnNumber: seat.columnNumber,
-      showId: this.showId
+      showId: this.showId,
     };
+    // Create hold for seated ticket
+    const dto: CreateHoldDto = {
+      showId: this.showId,
+      sectorId: sector.id,
+      seatId: seat.id,
+    };
+    this.ticketService.createTicketHold(dto).subscribe();
     this.seatSelected.emit(item);
     pop.close();
   }
@@ -207,12 +217,21 @@ export class SeatMapComponent implements OnInit, OnChanges {
     const qty = this.standingQuantity[sec.id] || 1;
     const item: PaymentItem = {
       eventName: this.eventName,
-      type: 'STANDING',
+      type: "STANDING",
       price: sec.price,
       sectorId: sec.id,
       quantity: qty,
-      showId: this.showId
+      showId: this.showId,
     };
+    // Create hold for each standing ticket
+    for (let i = 0; i < qty; i++) {
+      const dto: CreateHoldDto = {
+        showId: this.showId,
+        sectorId: sec.id,
+        seatId: null,
+      };
+      this.ticketService.createTicketHold(dto).subscribe();
+    }
     this.seatSelected.emit(item);
     pop.close();
   }
