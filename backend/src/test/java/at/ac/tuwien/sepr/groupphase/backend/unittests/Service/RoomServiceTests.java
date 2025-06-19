@@ -18,6 +18,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
@@ -28,7 +29,6 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -158,9 +158,9 @@ public class RoomServiceTests {
             .sectors(List.of())
             .build();
 
-        assertThrows(EntityNotFoundException.class,
+        assertThrows(NotFoundException.class,
             () -> roomService.updateRoom(999L, bogus),
-            "Updating a non-existing room ID should throw EntityNotFoundException");
+            "Updating a non-existing room ID should throw NotFoundException");
     }
 
     @Test
@@ -226,11 +226,11 @@ public class RoomServiceTests {
             .name("Invalid Room")
             .build();
 
-        assertThrows(EntityNotFoundException.class, () -> roomService.createRoom(invalid));
+        assertThrows(NotFoundException.class, () -> roomService.createRoom(invalid));
     }
 
     @Test
-    public void testUpdateRoom_addSectorWithNonExistingId_throwsEntityNotFoundException() {
+    public void testUpdateRoom_addSectorWithNonExistingId_throwsNotFoundException() {
         RoomDetailDto original = roomService.createRoom(createRoomDto);
         StandingSectorDto invalidSector = new StandingSectorDto();
         invalidSector.setId(9999L); // fake ID

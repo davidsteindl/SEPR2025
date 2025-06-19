@@ -1,11 +1,11 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.ShowValidator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.*;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.*;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.ShowServiceImpl;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -126,8 +126,8 @@ public class ShowServiceTest {
     }
 
     @Test
-    public void testGetShowById_nonExisting_throwsEntityNotFoundException() {
-        assertThrows(EntityNotFoundException.class, () -> showService.getShowById(999L));
+    public void testGetShowById_nonExisting_throwsNotFoundException() {
+        assertThrows(NotFoundException.class, () -> showService.getShowById(999L));
     }
 
     @Test
