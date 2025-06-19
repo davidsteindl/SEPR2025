@@ -38,8 +38,8 @@ import java.util.Set;
 public class EventDataGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventDataGenerator.class);
-    private static final int NUMBER_OF_FUTURE_EVENTS = 20;
-    private static final int NUMBER_OF_PAST_EVENTS = 5;
+    private static final int NUMBER_OF_FUTURE_EVENTS = 25;
+    private static final int NUMBER_OF_PAST_EVENTS = 15;
     private static final int NUMBER_OF_FUTURE_SHOWS = 50;
     private static final int NUMBER_OF_PAST_SHOWS = 5;
     private static final int NUMBER_OF_ARTISTS = 10;
