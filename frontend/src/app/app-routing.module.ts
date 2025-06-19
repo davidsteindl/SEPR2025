@@ -19,7 +19,7 @@ import {CreateLocationComponent} from './components/create-content/create-locati
 import {AdminComponent} from './components/admin/admin.component';
 import {ArtistEventsComponent} from './components/artist-events/artist-events.component';
 import {EventOverviewComponent} from "./components/event-overview/event-overview.component";
-import { CreateRoomComponent } from "./components/create-content/create-room/create-room.component";
+import {CreateRoomComponent} from "./components/create-content/create-room/create-room.component";
 import {LocationShowsComponent} from "./components/location-shows/location-shows.component";
 import {PaymentFormComponent} from './components/payment-form/payment-form.component';
 import {OrderOverviewComponent} from "./components/order-overview/order-overview.component";
@@ -32,21 +32,23 @@ import {
 import {PastOrderDetailComponent} from "./components/order-detail/past-order-detail/past-order-detail.component";
 import {EditEventComponent} from "./components/edit-event/edit-event.component";
 import {TicketComponent} from "./components/ticket/ticket.component";
-import { PasswordComponent } from './components/password/password.component';
+import {PasswordComponent} from './components/password/password.component';
 import {ResetPasswordComponent} from "./components/password/reset-password/reset-password.component";
-import { BuyTicketsPageComponent } from './components/buy-tickets-page/buy-tickets-page.component';
+import {BuyTicketsPageComponent} from './components/buy-tickets-page/buy-tickets-page.component';
 import {AccountActivationComponent} from "./components/password/account-activation/account-activation.component";
-import { EditRoomPageComponent } from "./components/edit-room-page/edit-room-page.component";
+import {EditRoomPageComponent} from "./components/edit-room-page/edit-room-page.component";
+import {CreateMessageComponent} from "./components/create-content/create-message/create-message.component";
+
 const routes: Routes = [
-  { path: "", component: HomeComponent },
-  { path: "login", component: LoginComponent },
+  {path: "", component: HomeComponent},
+  {path: "login", component: LoginComponent},
   {
     path: "manage-accounts",
     component: ManageAccountsComponent,
     canActivate: [AdminGuard],
   },
-  { path: "register", component: RegisterComponent },
-  { path: "termsandconditions", component: TermsandconditionsComponent },
+  {path: "register", component: RegisterComponent},
+  {path: "termsandconditions", component: TermsandconditionsComponent},
   {
     path: "message",
     canActivate: mapToCanActivate([AuthGuard]),
@@ -57,9 +59,9 @@ const routes: Routes = [
     component: PaymentFormComponent,
     canActivate: [AuthGuard],
   },
-  { path: "user", component: UserComponent, canActivate: [AuthGuard] },
-  { path: "user-edit", component: UserEditComponent, canActivate: [AuthGuard] },
-  { path: "search", component: SearchComponent, canActivate: [AuthGuard] },
+  {path: "user", component: UserComponent, canActivate: [AuthGuard]},
+  {path: "user-edit", component: UserEditComponent, canActivate: [AuthGuard]},
+  {path: "search", component: SearchComponent, canActivate: [AuthGuard]},
   {
     path: "create-event",
     component: CreateEventComponent,
@@ -91,11 +93,16 @@ const routes: Routes = [
     canActivate: [AdminGuard],
   },
   {
+    path: "create-news",
+    component: CreateMessageComponent,
+    canActivate: [AdminGuard],
+  },
+  {
     path: "create-room",
     component: CreateRoomComponent,
     canActivate: [AdminGuard],
   },
-  { path: "admin", component: AdminComponent, canActivate: [AdminGuard] },
+  {path: "admin", component: AdminComponent, canActivate: [AdminGuard]},
   {
     path: "artists/:id/events",
     component: ArtistEventsComponent,
@@ -146,9 +153,9 @@ const routes: Routes = [
     component: TicketComponent,
     canActivate: [AdminGuard],
   },
-  { path: "forgot-password", component: PasswordComponent },
-  { path: "reset-password/:token", component: ResetPasswordComponent },
-  { path: "account-activation/:token", component: AccountActivationComponent },
+  {path: "forgot-password", component: PasswordComponent},
+  {path: "reset-password/:token", component: ResetPasswordComponent},
+  {path: "account-activation/:token", component: AccountActivationComponent},
 ];
 
 @NgModule({
