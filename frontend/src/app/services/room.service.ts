@@ -1,12 +1,13 @@
-import { Injectable } from "@angular/core";
-import { Globals } from "../global/globals";
-import { HttpClient } from "@angular/common/http";
-import { CreateRoom } from "../dtos/create-room";
-import { Observable } from "rxjs";
-import { Room } from "../dtos/room";
+import { Injectable } from '@angular/core';
+import {Globals} from '../global/globals';
+import {HttpClient} from "@angular/common/http";
+import {CreateRoom} from "../dtos/create-room";
+import { Observable } from 'rxjs';
+import {Room} from "../dtos/room";
+
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root'
 })
 export class RoomService {
   private roomBaseUri: string = this.globals.backendUri + "/rooms";
@@ -49,5 +50,14 @@ export class RoomService {
    */
   getAll(): Observable<Room[]> {
     return this.httpClient.get<Room[]>(this.roomBaseUri);
+  }
+
+  /**
+   * Retrieves all rooms paginated.
+   */
+  getPaginatedRooms(page: number, size: number): Observable<Page<RoomPageDto>> {
+    return this.httpClient.get<Page<RoomPageDto>>(
+      `${this.roomBaseUri}/paginated?page=${page}&size=${size}`
+    );
   }
 }
