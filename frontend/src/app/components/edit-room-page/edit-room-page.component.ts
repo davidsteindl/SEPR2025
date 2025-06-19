@@ -10,6 +10,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { EditRoomSeatMapComponent } from "./seat-map/edit-room-seat-map.component";
 import { CommonModule } from "@angular/common";
 import { U } from "@angular/common/common_module.d-Qx8B6pmN";
+import { ToastrService } from "ngx-toastr";
 
 @Component({
   selector: "app-edit-room-page",
@@ -33,7 +34,8 @@ export class EditRoomPageComponent implements OnInit {
     private route: ActivatedRoute,
     private roomService: RoomService,
     private modalService: NgbModal,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
@@ -98,7 +100,7 @@ export class EditRoomPageComponent implements OnInit {
     const val = this.sectorForm.getRawValue();
     // normalize stage
     if (val.type === SectorType.STAGE) {
-      delete val.price;
+      val.price = null;
       val.capacity = null;
     }
     if (this.editingSector) {
@@ -126,6 +128,7 @@ export class EditRoomPageComponent implements OnInit {
           this.seatMap.refreshSectors();
         }
         if (afterSuccess) afterSuccess();
+        this.toastr.success("Room saved successfully!");
         console.log("Layout saved successfully");
       },
       error: (err) => {
