@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
@@ -174,7 +175,7 @@ public class RoomServiceTests {
             .id(created.getId())
             .name(created.getName())
             .sectors(List.of(standing))
-            .seats(created.getSeats())
+            .seats(List.of())
             .eventLocationId(created.getEventLocationId())
             .build();
 
@@ -184,7 +185,7 @@ public class RoomServiceTests {
             .id(updated.getId())
             .name(updated.getName())
             .sectors(List.of()) // remove all
-            .seats(updated.getSeats())
+            .seats(List.of())
             .eventLocationId(updated.getEventLocationId())
             .build();
 
@@ -227,71 +228,6 @@ public class RoomServiceTests {
 
         assertThrows(EntityNotFoundException.class, () -> roomService.createRoom(invalid));
     }
-
-    @Test
-    public void testUpdateRoom_addStandingSector() throws ValidationException {
-        RoomDetailDto original = roomService.createRoom(createRoomDto);
-
-        // Get default sector
-        SectorDto existing = original.getSectors().stream()
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElseThrow();
-
-        // relace default sector with standing sector
-        StandingSectorDto newSector = new StandingSectorDto();
-        newSector.setId(existing.getId());
-        newSector.setPrice(55);
-        newSector.setCapacity(45);
-
-        RoomDetailDto update = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
-            .id(original.getId())
-            .name(original.getName())
-            .sectors(List.of(newSector))
-            .seats(original.getSeats())
-            .eventLocationId(original.getEventLocationId())
-            .build();
-
-        RoomDetailDto updated = roomService.updateRoom(original.getId(), update);
-
-        assertAll(
-            () -> assertEquals(1, updated.getSectors().size(), "Should still have only one sector"),
-            () -> assertTrue(updated.getSectors().get(0) instanceof StandingSectorDto, "Sector should now be a StandingSectorDto"),
-            () -> assertEquals(45, ((StandingSectorDto) updated.getSectors().get(0)).getCapacity())
-        );
-    }
-
-
-    @Test
-    public void testUpdateRoom_addStageSector() throws ValidationException {
-        RoomDetailDto original = roomService.createRoom(createRoomDto);
-
-        // get default sector
-        SectorDto defaultSector = original.getSectors().stream()
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElseThrow();
-
-        // replace it with stage sector
-        StageSectorDto updatedSector = new StageSectorDto();
-        updatedSector.setId(defaultSector.getId());
-
-        RoomDetailDto update = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
-            .id(original.getId())
-            .name(original.getName())
-            .sectors(List.of(updatedSector))
-            .seats(original.getSeats())
-            .eventLocationId(original.getEventLocationId())
-            .build();
-
-        RoomDetailDto updated = roomService.updateRoom(original.getId(), update);
-
-        assertAll(
-            () -> assertEquals(1, updated.getSectors().size(), "Should still have only one sector"),
-            () -> assertTrue(updated.getSectors().get(0) instanceof StageSectorDto, "Sector should now be a StageSectorDto")
-        );
-    }
-
 
     @Test
     public void testUpdateRoom_addSectorWithNonExistingId_throwsEntityNotFoundException() {
@@ -360,7 +296,6 @@ public class RoomServiceTests {
     }
 
 
-
     @Test
     public void testGetRoomUsageForShow_someSeatsOccupied_byTickets() {
         RoomDetailDto room = roomService.createRoom(createRoomDto);
@@ -402,6 +337,64 @@ public class RoomServiceTests {
             .count();
 
         assertEquals(3, unavailableCount, "Exactly 3 seats should be marked unavailable");
+    }
+
+    @Test
+    public void testUpdateRoom_addSectorAndReassignSomeSeats() throws ValidationException {
+        RoomDetailDto room = roomService.createRoom(createRoomDto);
+
+        SectorDto defaultSector = room.getSectors().get(0);
+
+        SectorDto newSector = new SectorDto();
+        newSector.setPrice(50);
+
+        RoomDetailDto withNewSector = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
+            .id(room.getId())
+            .name(room.getName())
+            .eventLocationId(room.getEventLocationId())
+            .sectors(List.of(defaultSector, newSector))
+            .seats(room.getSeats())
+            .build();
+
+        RoomDetailDto updatedRoom = roomService.updateRoom(room.getId(), withNewSector);
+
+        assertEquals(2, updatedRoom.getSectors().size());
+
+        SectorDto createdNewSector = updatedRoom.getSectors().stream()
+            .filter(s -> !Objects.equals(s.getId(), defaultSector.getId()))
+            .findFirst().orElseThrow();
+
+        List<SeatDto> reAssignedSeats = new ArrayList<>();
+        for (int i = 0; i < updatedRoom.getSeats().size(); i++) {
+            SeatDto seat = updatedRoom.getSeats().get(i);
+            SeatDto updated = new SeatDto();
+            updated.setId(seat.getId());
+            updated.setRowNumber(seat.getRowNumber());
+            updated.setColumnNumber(seat.getColumnNumber());
+            updated.setDeleted(seat.isDeleted());
+            if (i < updatedRoom.getSeats().size() / 2) {
+                updated.setSectorId(createdNewSector.getId());
+            } else {
+                updated.setSectorId(defaultSector.getId());
+            }
+            reAssignedSeats.add(updated);
+        }
+
+        RoomDetailDto reassignedRoom = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
+            .id(updatedRoom.getId())
+            .name(updatedRoom.getName())
+            .eventLocationId(updatedRoom.getEventLocationId())
+            .sectors(List.of(defaultSector, createdNewSector))
+            .seats(reAssignedSeats)
+            .build();
+
+        RoomDetailDto result = roomService.updateRoom(updatedRoom.getId(), reassignedRoom);
+
+        long countNewSector = result.getSeats().stream().filter(s -> s.getSectorId().equals(createdNewSector.getId())).count();
+        long countDefaultSector = result.getSeats().stream().filter(s -> s.getSectorId().equals(defaultSector.getId())).count();
+
+        assertEquals(result.getSeats().size() / 2, countNewSector);
+        assertEquals(result.getSeats().size() / 2, countDefaultSector);
     }
 
 
@@ -494,7 +487,7 @@ public class RoomServiceTests {
             .id(original.getId())
             .name(original.getName())
             .sectors(List.of(newSector))
-            .seats(original.getSeats())
+            .seats(List.of())
             .eventLocationId(original.getEventLocationId())
             .build();
 
@@ -508,38 +501,6 @@ public class RoomServiceTests {
                     !(s instanceof StageSectorDto)
             ), "Expected a normal SectorDto to be present")
         );
-    }
-
-    @Test
-    public void testUpdateRoom_removeNormalSector() throws ValidationException {
-        RoomDetailDto original = roomService.createRoom(createRoomDto);
-
-        SectorDto newSector = new SectorDto();
-        newSector.setPrice(25);
-
-        // Add sector first
-        RoomDetailDto withSector = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
-            .id(original.getId())
-            .name(original.getName())
-            .sectors(List.of(newSector))
-            .seats(original.getSeats())
-            .eventLocationId(original.getEventLocationId())
-            .build();
-
-        RoomDetailDto updatedWithSector = roomService.updateRoom(original.getId(), withSector);
-        assertEquals(1, updatedWithSector.getSectors().size());
-
-        // Now remove it again
-        RoomDetailDto withNoSectors = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
-            .id(original.getId())
-            .name(original.getName())
-            .sectors(List.of())
-            .seats(original.getSeats())
-            .eventLocationId(original.getEventLocationId())
-            .build();
-
-        RoomDetailDto result = roomService.updateRoom(original.getId(), withNoSectors);
-        assertEquals(0, result.getSectors().size(), "All sectors should be removed");
     }
 
     @Test
@@ -563,37 +524,84 @@ public class RoomServiceTests {
     }
 
     @Test
-    public void testUpdateRoom_modifyExistingNormalSector_updatesIt() throws ValidationException {
-        RoomDetailDto room = roomService.createRoom(createRoomDto);
+    public void testUpdateRoom_addNormalSector_thenReassignSeats_thenChangeSectorTypeToStanding() throws ValidationException {
+        RoomDetailDto original = roomService.createRoom(createRoomDto);
 
-        SectorDto sector = new SectorDto();
-        sector.setPrice(25);
+        SectorDto defaultSector = original.getSectors().get(0);
 
-        // add sector
-        room = roomService.updateRoom(room.getId(), RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
-            .id(room.getId())
-            .name(room.getName())
-            .sectors(List.of(sector))
-            .seats(room.getSeats())
-            .eventLocationId(room.getEventLocationId())
-            .build());
+        SectorDto newNormalSector = new SectorDto();
+        newNormalSector.setPrice(55);
 
-        SectorDto createdSector = room.getSectors().stream()
-            .filter(s -> s instanceof SectorDto && s.getId() != null)
-            .findFirst().orElseThrow();
+        RoomDetailDto withNewSector = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
+            .id(original.getId())
+            .name(original.getName())
+            .eventLocationId(original.getEventLocationId())
+            .sectors(List.of(defaultSector, newNormalSector))
+            .seats(original.getSeats())
+            .build();
 
-        createdSector.setPrice(99); // update price
+        RoomDetailDto updatedWithNormal = roomService.updateRoom(original.getId(), withNewSector);
 
-        room = roomService.updateRoom(room.getId(), RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
-            .id(room.getId())
-            .name(room.getName())
-            .sectors(List.of(createdSector))
-            .seats(room.getSeats())
-            .eventLocationId(room.getEventLocationId())
-            .build());
+        assertEquals(2, updatedWithNormal.getSectors().size());
 
-        assertEquals(99, room.getSectors().get(0).getPrice());
+        SectorDto createdNewNormal = updatedWithNormal.getSectors().stream()
+            .filter(s -> !Objects.equals(s.getId(), defaultSector.getId()))
+            .findFirst()
+            .orElseThrow();
+
+        List<SeatDto> reassignedSeats = updatedWithNormal.getSeats().stream()
+            .map(seat -> {
+                SeatDto updatedSeat = new SeatDto();
+                updatedSeat.setId(seat.getId());
+                updatedSeat.setRowNumber(seat.getRowNumber());
+                updatedSeat.setColumnNumber(seat.getColumnNumber());
+                updatedSeat.setDeleted(seat.isDeleted());
+                updatedSeat.setSectorId(createdNewNormal.getId());
+                return updatedSeat;
+            })
+            .toList();
+
+        RoomDetailDto withSeatsReassigned = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
+            .id(updatedWithNormal.getId())
+            .name(updatedWithNormal.getName())
+            .eventLocationId(updatedWithNormal.getEventLocationId())
+            .sectors(List.of(defaultSector, createdNewNormal))
+            .seats(reassignedSeats)
+            .build();
+
+        RoomDetailDto updatedWithSeats = roomService.updateRoom(updatedWithNormal.getId(), withSeatsReassigned);
+
+        long countAssignedToNew = updatedWithSeats.getSeats().stream()
+            .filter(s -> s.getSectorId().equals(createdNewNormal.getId()))
+            .count();
+
+        assertEquals(updatedWithSeats.getSeats().size(), countAssignedToNew);
+
+        StandingSectorDto standing = new StandingSectorDto();
+        standing.setId(createdNewNormal.getId());
+        standing.setPrice(99);
+        standing.setCapacity(50);
+
+        RoomDetailDto withStanding = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
+            .id(updatedWithSeats.getId())
+            .name(updatedWithSeats.getName())
+            .eventLocationId(updatedWithSeats.getEventLocationId())
+            .sectors(List.of(defaultSector, standing))
+            .seats(updatedWithSeats.getSeats())
+            .build();
+
+        RoomDetailDto finalResult = roomService.updateRoom(updatedWithSeats.getId(), withStanding);
+
+        StandingSectorDto resultStanding = (StandingSectorDto) finalResult.getSectors().stream()
+            .filter(s -> s instanceof StandingSectorDto)
+            .findFirst()
+            .orElseThrow();
+
+        assertEquals(99, resultStanding.getPrice());
+        assertEquals(50, resultStanding.getCapacity());
     }
+
+
 
     @Test
     public void testGetRoomUsageForShow_deletedSeatsAreNotAvailable() {
@@ -705,20 +713,23 @@ public class RoomServiceTests {
     public void testGetRoomUsageForShow_standingSector_expiredHolds_doNotAffectAvailability() throws ValidationException {
         RoomDetailDto room = roomService.createRoom(createRoomDto);
 
+        SectorDto defaultSector = room.getSectors().get(0);
+
         StandingSectorDto standing = new StandingSectorDto();
         standing.setPrice(20);
         standing.setCapacity(10);
 
-        room = roomService.updateRoom(room.getId(), RoomDetailDto.RoomDetailDtoBuilder
-            .aRoomDetailDto()
+        RoomDetailDto withStanding = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
             .id(room.getId())
             .name(room.getName())
             .eventLocationId(room.getEventLocationId())
+            .sectors(List.of(defaultSector, standing))
             .seats(room.getSeats())
-            .sectors(List.of(standing))
-            .build());
+            .build();
 
-        StandingSector sectorEntity = (StandingSector) roomRepository.findById(room.getId()).get()
+        RoomDetailDto updatedRoom = roomService.updateRoom(room.getId(), withStanding);
+
+        StandingSector standingSector = (StandingSector) roomRepository.findById(updatedRoom.getId()).get()
             .getSectors().stream()
             .filter(s -> s instanceof StandingSector)
             .findFirst()
@@ -729,7 +740,7 @@ public class RoomServiceTests {
             .withDate(LocalDateTime.now().plusDays(1))
             .withDuration(90)
             .withEvent(event)
-            .withRoom(roomRepository.findById(room.getId()).orElseThrow())
+            .withRoom(roomRepository.findById(updatedRoom.getId()).orElseThrow())
             .build();
         show = showRepository.save(show);
 
@@ -737,7 +748,7 @@ public class RoomServiceTests {
         for (int i = 0; i < 3; i++) {
             Ticket ticket = new Ticket();
             ticket.setShow(show);
-            ticket.setSector(sectorEntity);
+            ticket.setSector(standingSector);
             ticket.setStatus(TicketStatus.BOUGHT);
             ticketRepository.save(ticket);
         }
@@ -745,7 +756,7 @@ public class RoomServiceTests {
         // 2 expired Holds --> should be ignored
         for (int i = 0; i < 2; i++) {
             Hold expiredHold = new Hold();
-            expiredHold.setSectorId(sectorEntity.getId());
+            expiredHold.setSectorId(standingSector.getId());
             expiredHold.setShowId(show.getId());
             expiredHold.setUserId(1L);
             expiredHold.setValidUntil(LocalDateTime.now().minusMinutes(10));
@@ -760,6 +771,7 @@ public class RoomServiceTests {
 
         assertEquals(7, standingUsage.getAvailableCapacity(), "Only tickets should reduce availability, expired holds ignored");
     }
+
 
     @Test
     public void testUpdateRoom_invalidDtoTypeCombination_throwsValidationException() {
