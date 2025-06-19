@@ -49,7 +49,7 @@ public class TicketEndpoint {
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Initiate ticket purchase", security = @SecurityRequirement(name = "apiKey"))
-    public OrderDto buyTickets(
+    public OrderGroupDto buyTickets(
         @RequestBody @Valid TicketRequestDto ticketRequestDto) throws ValidationException {
         LOGGER.info("POST /api/v1/tickets/buy with request {}", ticketRequestDto);
         return ticketService.buyTickets(ticketRequestDto);

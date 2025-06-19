@@ -405,12 +405,7 @@ public class TicketEndpointTest implements TestData {
         JsonNode buyJson = objectMapper.readTree(buyResult.getResponse().getContentAsString());
         Long groupId = buyJson.get("id").asLong();
 
-        Long realGroupId = orderRepository.findById(groupId)
-            .orElseThrow()
-            .getOrderGroup()
-            .getId();
-
-        MvcResult detailResult = mockMvc.perform(get("/api/v1/tickets/order-groups/" + realGroupId)
+        MvcResult detailResult = mockMvc.perform(get("/api/v1/tickets/order-groups/" + groupId)
                 .header("Authorization", jwt)
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -420,7 +415,7 @@ public class TicketEndpointTest implements TestData {
 
 
         assertAll(
-            () -> assertEquals(realGroupId, json.get("id").asLong()),
+            () -> assertEquals(groupId, json.get("id").asLong()),
             () -> assertEquals("Test Show", json.get("showName").asText()),
             () -> assertEquals("Arena", json.get("locationName").asText()),
             () -> assertTrue(json.has("tickets"), "Should contain tickets"),

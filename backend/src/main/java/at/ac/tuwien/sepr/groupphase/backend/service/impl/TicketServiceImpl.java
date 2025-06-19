@@ -109,7 +109,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public OrderDto buyTickets(TicketRequestDto request) throws ValidationException {
+    public OrderGroupDto buyTickets(TicketRequestDto request) throws ValidationException {
         LOGGER.debug("Buy tickets request: {}", request);
         ticketValidator.validateForBuyTickets(request);
         ticketValidator.validateCheckoutPaymentData(request);
@@ -119,9 +119,19 @@ public class TicketServiceImpl implements TicketService {
 
         var result = createTickets(order, show, request.getTargets(), TicketStatus.BOUGHT);
         finalizeOrder(order, result.tickets);
-        var dto = buildOrderDto(order, result.tickets);
-        dto.setTotalPrice(result.totalPrice);
-        return dto;
+        OrderGroup group = order.getOrderGroup();
+        OrderDto orderDto = buildOrderDto(order, result.tickets);
+        orderDto.setTotalPrice(result.totalPrice);
+
+        OrderGroupDto groupDto = new OrderGroupDto();
+        groupDto.setId(group.getId());
+        Ticket firstTicket = result.tickets.getFirst();
+        groupDto.setShowName(firstTicket.getShow().getName());
+        groupDto.setShowDate(firstTicket.getShow().getDate());
+        groupDto.setLocationName(firstTicket.getShow().getEvent().getLocation().getName());
+        groupDto.setOrders(List.of(orderDto));
+
+        return groupDto;
     }
 
     @Override
