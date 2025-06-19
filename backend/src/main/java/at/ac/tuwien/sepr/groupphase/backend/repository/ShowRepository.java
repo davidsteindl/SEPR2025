@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,4 +65,11 @@ public interface ShowRepository extends JpaRepository<Show, Long>, JpaSpecificat
 
     @EntityGraph(attributePaths = {"room.sectors", "event"})
     Page<Show> findAll(Specification<Show> spec, Pageable pageable);
+
+    @Query("""
+            SELECT s FROM Show s
+            WHERE s.date BETWEEN :start AND :end
+        """)
+    List<Show> findShowsBetween(@Param("start") LocalDateTime start,
+                                @Param("end") LocalDateTime end);
 }

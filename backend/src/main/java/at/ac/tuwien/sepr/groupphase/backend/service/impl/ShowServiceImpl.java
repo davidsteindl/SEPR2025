@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -95,5 +96,11 @@ public class ShowServiceImpl implements ShowService {
         return showRepository
             .findByIdWithRoomAndSectors(id)
             .orElseThrow(() -> new EntityNotFoundException("Show not found"));
+    }
+
+    @Override
+    public List<Show> findShowsBetween(LocalDateTime start, LocalDateTime end) {
+        LOGGER.debug("Finding shows between {} and {}", start, end);
+        return showRepository.findShowsBetween(start, end);
     }
 }
