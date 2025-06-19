@@ -10,8 +10,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StageSectorDto
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StandingSectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StandingSectorUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.RoomMapper;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.SeatMapper;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.SectorMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Hold;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
@@ -40,6 +38,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -59,15 +58,12 @@ public class RoomServiceImpl implements RoomService {
     private final TicketRepository ticketRepository;
     private final HoldRepository holdRepository;
     private final RoomMapper roomMapper;
-    private final SectorMapper sectorMapper;
-    private final SeatMapper seatMapper;
     private final SectorValidator sectorValidator;
 
     @Autowired
     public RoomServiceImpl(EventLocationRepository eventLocationRepository,
                            RoomRepository roomRepository, SectorRepository sectorRepository, SeatRepository seatRepository, ShowService showService,
-                           TicketRepository ticketRepository, HoldRepository holdRepository, RoomMapper roomMapper, SectorMapper sectorMapper,
-                           SeatMapper seatMapper, SectorValidator sectorValidator) {
+                           TicketRepository ticketRepository, HoldRepository holdRepository, RoomMapper roomMapper, SectorValidator sectorValidator) {
         this.eventLocationRepository = eventLocationRepository;
         this.roomRepository = roomRepository;
         this.sectorRepository = sectorRepository;
@@ -76,8 +72,6 @@ public class RoomServiceImpl implements RoomService {
         this.ticketRepository = ticketRepository;
         this.holdRepository = holdRepository;
         this.roomMapper = roomMapper;
-        this.sectorMapper = sectorMapper;
-        this.seatMapper = seatMapper;
         this.sectorValidator = sectorValidator;
     }
 
@@ -147,12 +141,57 @@ public class RoomServiceImpl implements RoomService {
                 .orElseThrow(() -> new EntityNotFoundException(
                     "EventLocation not found with id " + dto.getEventLocationId())));
 
-        syncSeats(room, dto.getSeats());
+        Map<Long, Sector> replacedSectors = new HashMap<>();
+        List<Sector> toKeep = syncSectors(room, dtoSectors, replacedSectors);
 
-        syncSectors(room, dtoSectors);
+        syncSeats(room, dto.getSeats(), replacedSectors);
+
+        room.getSectors().removeIf(exists ->
+            toKeep.stream().noneMatch(s -> Objects.equals(s.getId(), exists.getId())));
 
         roomRepository.saveAndFlush(room);
+
         return roomMapper.roomToRoomDetailDto(room);
+    }
+
+    /**
+     * Replaces the type of a sector in a room with a new one based on the provided DTO.
+     *
+     * @param room      the Room containing the sector to replace
+     * @param oldSector the existing Sector to be replaced
+     * @param newDto    the DTO containing new sector details
+     * @return the newly created Sector instance
+     * @throws ValidationException if the new DTO is invalid or incompatible
+     */
+    private Sector replaceSectorType(Room room, Sector oldSector, SectorDto newDto) throws ValidationException {
+        LOGGER.debug("Replacing sector type for sector ID {} to new type {}", oldSector.getId(), newDto.getClass().getSimpleName());
+
+        Sector newSector;
+        if (newDto instanceof StandingSectorDto ssd) {
+            newSector = new StandingSector();
+            ((StandingSector) newSector).setCapacity(ssd.getCapacity());
+            newSector.setPrice(ssd.getPrice());
+        } else if (newDto instanceof StageSectorDto) {
+            newSector = new StageSector();
+            newSector.setPrice(null);
+        } else {
+            newSector = new Sector();
+            newSector.setPrice(newDto.getPrice());
+        }
+
+        room.addSector(newSector);
+
+        sectorRepository.save(newSector);
+
+        for (Seat seat : room.getSeats()) {
+            if (seat.getSector() != null && Objects.equals(seat.getSector().getId(), oldSector.getId())) {
+                seat.setSector(newSector);
+            }
+        }
+
+        room.getSectors().remove(oldSector);
+
+        return newSector;
     }
 
     @Override
@@ -306,10 +345,11 @@ public class RoomServiceImpl implements RoomService {
      * Synchronizes the Room's seats with the given list of SeatDto: updates existing,
      * adds new ones, and removes those not present in the DTO.
      *
-     * @param room     the managed Room entity
-     * @param seatDtos list of SeatDto representing desired final state
+     * @param room            the managed Room entity
+     * @param seatDtos        list of SeatDto representing desired final state
+     * @param replacedSectors map of sector IDs where the sector type was changed
      */
-    private void syncSeats(Room room, List<SeatDto> seatDtos) {
+    private void syncSeats(Room room, List<SeatDto> seatDtos, Map<Long, Sector> replacedSectors) {
         LOGGER.debug("Syncing seats for room ID {} with {} seat DTOs", room.getId(), seatDtos.size());
 
         Map<Long, Seat> existingSeatsById = room.getSeats().stream()
@@ -336,8 +376,13 @@ public class RoomServiceImpl implements RoomService {
             seat.setDeleted(dto.isDeleted());
 
             if (dto.getSectorId() != null) {
-                Sector sector = sectorRepository.findById(dto.getSectorId())
-                    .orElseThrow(() -> new EntityNotFoundException("Sector not found: " + dto.getSectorId()));
+                Sector sector = room.getSectors().stream()
+                    .filter(s -> Objects.equals(s.getId(), dto.getSectorId()))
+                    .findFirst()
+                    .orElseGet(() -> replacedSectors.get(dto.getSectorId()));
+                if (sector == null) {
+                    throw new EntityNotFoundException("Sector not found: " + dto.getSectorId());
+                }
                 seat.setSector(sector);
             } else {
                 seat.setSector(null);
@@ -356,8 +401,9 @@ public class RoomServiceImpl implements RoomService {
      *
      * @param room       the managed Room entity
      * @param sectorDtos list of SectorDto representing desired final state
+     * @return a list of sectors that should be kept in the room
      */
-    private void syncSectors(Room room, List<SectorDto> sectorDtos) {
+    private List<Sector> syncSectors(Room room, List<SectorDto> sectorDtos, Map<Long, Sector> replacedSectors) throws ValidationException {
         LOGGER.debug("Syncing the sectors with new data: {}", sectorDtos);
         Map<Long, Sector> existing = room.getSectors().stream()
             .collect(Collectors.toMap(Sector::getId, Function.identity()));
@@ -365,21 +411,56 @@ public class RoomServiceImpl implements RoomService {
 
         for (SectorDto sd : sectorDtos) {
             Sector sector;
+
             if (sd instanceof StandingSectorDto ssd) {
-                sector = syncStanding(existing, room, ssd);
+                if (ssd.getId() != null && existing.containsKey(ssd.getId())) {
+                    Sector raw = existing.get(ssd.getId());
+                    if (raw instanceof StandingSector) {
+                        sector = syncStanding(existing, room, ssd);
+                    } else {
+                        sector = replaceSectorType(room, raw, ssd);
+                        replacedSectors.put(raw.getId(), sector);
+                    }
+                } else {
+                    sector = syncStanding(existing, room, ssd);
+                }
+
             } else if (sd instanceof StageSectorDto stgd) {
-                sector = syncStage(existing, room, stgd);
+                if (stgd.getId() != null && existing.containsKey(stgd.getId())) {
+                    Sector raw = existing.get(stgd.getId());
+                    if (raw instanceof StageSector) {
+                        sector = syncStage(existing, room, stgd);
+                    } else {
+                        sector = replaceSectorType(room, raw, stgd);
+                        replacedSectors.put(raw.getId(), sector);
+                    }
+                } else {
+                    sector = syncStage(existing, room, stgd);
+                }
+
             } else if (sd instanceof SectorDto normal) {
-                sector = syncNormalSector(existing, room, normal);
+                if (normal.getId() != null && existing.containsKey(normal.getId())) {
+                    Sector raw = existing.get(normal.getId());
+                    if (raw.getClass() == Sector.class) {
+                        sector = syncNormalSector(existing, room, normal);
+                    } else {
+                        sector = replaceSectorType(room, raw, normal);
+                        replacedSectors.put(raw.getId(), sector);
+                    }
+                } else {
+                    sector = syncNormalSector(existing, room, normal);
+                }
+
             } else {
                 throw new IllegalArgumentException("Unknown sector DTO type: " + sd.getClass());
             }
+
             toKeep.add(sector);
         }
 
-        room.getSectors().removeIf(exists ->
-            toKeep.stream().noneMatch(s -> Objects.equals(s.getId(), exists.getId())));
+        return toKeep;
     }
+
 
     /**
      * Synchronizes or creates a normal Sector based on the DTO.
@@ -389,22 +470,28 @@ public class RoomServiceImpl implements RoomService {
      * @param dto      the SectorDto containing updated data
      * @return the managed Sector instance
      */
-    private Sector syncNormalSector(Map<Long, Sector> existing, Room room, SectorDto dto) {
-        LOGGER.debug("Syncing normal sector with details: {}", dto);
+    private Sector syncNormalSector(Map<Long, Sector> existing, Room room, SectorDto dto) throws ValidationException {
+        LOGGER.debug("Syncing NormalSector with details: {}", dto);
+        if (dto.getId() != null && !existing.containsKey(dto.getId())) {
+            throw new EntityNotFoundException("Sector not found with id " + dto.getId());
+        }
+        Sector raw = dto.getId() != null ? existing.get(dto.getId()) : null;
 
         Sector sec;
-        if (dto.getId() != null) {
-            if (!existing.containsKey(dto.getId())) {
-                throw new EntityNotFoundException("Sector not found with id " + dto.getId());
-            }
-            sec = existing.get(dto.getId());
-        } else {
+
+        if (raw instanceof StandingSector || raw instanceof StageSector) {
+            throw new ValidationException("Sector with id " + dto.getId() + " is not a NormalSector",
+                List.of("Sector with id " + dto.getId() + " is not a NormalSector"));
+        } else if (raw == null) {
             sec = new Sector();
+            sec.setPrice(dto.getPrice());
             room.addSector(sec);
+        } else {
+            sec = raw;
+            sec.setPrice(dto.getPrice());
+            sec.setRoom(room);
         }
 
-        sec.setPrice(dto.getPrice());
-        sec.setRoom(room);
         return sec;
     }
 
@@ -417,37 +504,30 @@ public class RoomServiceImpl implements RoomService {
      * @param dto      the StandingSectorDto containing updated data
      * @return the managed StandingSector instance
      */
-    private StandingSector syncStanding(Map<Long, Sector> existing, Room room, StandingSectorDto dto) {
-        LOGGER.debug("Syncing the standing sector with details: {}", dto);
+    private StandingSector syncStanding(Map<Long, Sector> existing, Room room, StandingSectorDto dto) throws ValidationException {
+        LOGGER.debug("Syncing the StandingSector with details: {}", dto);
         if (dto.getId() != null && !existing.containsKey(dto.getId())) {
-            throw new EntityNotFoundException("SeatedSector not found with id " + dto.getId());
+            throw new EntityNotFoundException("StandingSector not found with id " + dto.getId());
         }
         Sector raw = dto.getId() != null ? existing.get(dto.getId()) : null;
 
         StandingSector sec;
 
-        // Ensure the sector is of type StandingSector:
-        // If an existing sector has a different type, delete and replace it
-        // If no sector exists, create a new one
-        // Otherwise, reuse the existing StandingSector
         if (raw != null && !(raw instanceof StandingSector)) {
-            sectorRepository.delete(raw);
-            room.getSectors().remove(raw);
-            sec = new StandingSector();
-            room.addSector(sec);
+            throw new ValidationException("Sector with id " + dto.getId() + " is not a StandingSector",
+                List.of("Sector with id " + dto.getId() + " is not a StandingSector"));
         } else if (raw == null) {
             sec = new StandingSector();
+            sec.setPrice(dto.getPrice());
+            sec.setCapacity(dto.getCapacity());
             room.addSector(sec);
         } else {
             sec = (StandingSector) raw;
+            sec.setPrice(dto.getPrice());
+            sec.setCapacity(dto.getCapacity());
+            sec.setRoom(room);
         }
 
-        sec.setPrice(dto.getPrice());
-        sec.setCapacity(dto.getCapacity());
-        sec.setRoom(room);
-        if (dto.getId() == null) {
-            room.addSector(sec);
-        }
         return sec;
     }
 
@@ -459,16 +539,28 @@ public class RoomServiceImpl implements RoomService {
      * @param dto      the StageSectorDto containing updated data
      * @return the managed StageSector instance
      */
-    private StageSector syncStage(Map<Long, Sector> existing, Room room, StageSectorDto dto) {
-        LOGGER.debug("Syncing the seated sector with details: {}", dto);
+    private StageSector syncStage(Map<Long, Sector> existing, Room room, StageSectorDto dto) throws ValidationException {
+        LOGGER.debug("Syncing the StageSector with details: {}", dto);
         if (dto.getId() != null && !existing.containsKey(dto.getId())) {
-            throw new EntityNotFoundException("SeatedSector not found with id " + dto.getId());
+            throw new EntityNotFoundException("StageSector not found with id " + dto.getId());
         }
-        StageSector sec = (StageSector) existing.getOrDefault(dto.getId(), new StageSector());
-        sec.setRoom(room);
-        if (dto.getId() == null) {
+        Sector raw = dto.getId() != null ? existing.get(dto.getId()) : null;
+
+        StageSector sec;
+
+        if (raw != null && !(raw instanceof StageSector)) {
+            throw new ValidationException("Sector with id " + dto.getId() + " is not a StageSector",
+                List.of("Sector with id " + dto.getId() + " is not a StageSector"));
+        } else if (raw == null) {
+            sec = new StageSector();
+            sec.setPrice(null);
             room.addSector(sec);
+        } else {
+            sec = (StageSector) raw;
+            sec.setPrice(null);
+            sec.setRoom(room);
         }
+
         return sec;
     }
 }
