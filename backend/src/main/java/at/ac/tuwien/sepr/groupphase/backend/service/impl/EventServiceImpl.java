@@ -72,10 +72,15 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Page<UpdateEventDto> getAllPaginatedEvents(Pageable pageable) {
+    public Page<UpdateEventDto> getAllEventsPaginated(Pageable pageable) {
         LOGGER.debug("Get all events paginated");
         return eventRepository.findAll(pageable)
             .map(eventMapper::eventToUpdateEventDto);
+    }
+
+    @Override
+    public long countEventsBefore(LocalDateTime dateTime) {
+        return eventRepository.countByDateTimeBefore(dateTime);
     }
 
     @Override

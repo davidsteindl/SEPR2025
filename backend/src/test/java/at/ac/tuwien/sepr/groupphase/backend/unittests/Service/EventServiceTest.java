@@ -171,7 +171,7 @@ public class EventServiceTest {
     }
 
     @Test
-    public void testGetAllPaginatedEvents_returnsPagedUpdateEventDtos() {
+    public void testGetAllEvents_Paginated_returnsPagedUpdateEventDtos() {
         Event another = Event.EventBuilder.anEvent()
             .withName("Second Event")
             .withCategory(Event.EventCategory.CLASSICAL)
@@ -202,7 +202,7 @@ public class EventServiceTest {
         when(eventMapper.eventToUpdateEventDto(another)).thenReturn(dto2);
 
         Pageable pageable = PageRequest.of(0, 2);
-        Page<UpdateEventDto> page = eventService.getAllPaginatedEvents(pageable);
+        Page<UpdateEventDto> page = eventService.getAllEventsPaginated(pageable);
 
         assertAll(
             () -> assertEquals(2, page.getTotalElements()),
@@ -221,11 +221,11 @@ public class EventServiceTest {
     }
 
     @Test
-    public void testGetAllPaginatedEvents_empty_returnsEmptyPage() {
+    public void testGetAllEvents_Paginated_empty_returnsEmptyPage() {
         eventRepository.deleteAll();
 
         Pageable pageable = PageRequest.of(0, 1);
-        Page<UpdateEventDto> page = eventService.getAllPaginatedEvents(pageable);
+        Page<UpdateEventDto> page = eventService.getAllEventsPaginated(pageable);
 
         assertAll(
             () -> assertEquals(0, page.getTotalElements()),

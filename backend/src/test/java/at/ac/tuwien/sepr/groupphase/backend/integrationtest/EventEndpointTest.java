@@ -157,7 +157,7 @@ public class EventEndpointTest implements TestData {
     }
 
     @Test
-    public void getAllPaginatedEvents_asAdmin_shouldReturnPagedUpdateEventDtos() throws Exception {
+    public void getAllEvents_Paginated_asAdmin_shouldReturnPagedUpdateEventDtos() throws Exception {
         MvcResult result = mockMvc.perform(get(EVENT_BASE_URI + "/paginated")
                 .param("page", "0")
                 .param("size", "1")
@@ -176,7 +176,7 @@ public class EventEndpointTest implements TestData {
     }
 
     @Test
-    public void getAllPaginatedEvents_asUser_shouldFailWith403() throws Exception {
+    public void getAllEvents_Paginated_asUser_shouldFailWith403() throws Exception {
         mockMvc.perform(get(EVENT_BASE_URI + "/paginated" )
                 .param("page", "0")
                 .param("size", "1")

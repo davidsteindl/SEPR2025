@@ -11,6 +11,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {
@@ -34,8 +35,15 @@ public interface EventService {
      *
      * @return a page of all events
      */
-    Page<UpdateEventDto> getAllPaginatedEvents(Pageable pageable);
+    Page<UpdateEventDto> getAllEventsPaginated(Pageable pageable);
 
+    /**
+     * Counts the number of events that occur before the specified date and time.
+     *
+     * @param dateTime the date and time before which events should be counted
+     * @return the number of events that occur before the specified date and time
+     */
+    long countEventsBefore(LocalDateTime dateTime);
 
     /**
      * Saves the given event.
