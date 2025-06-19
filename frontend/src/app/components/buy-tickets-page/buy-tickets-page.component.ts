@@ -47,6 +47,8 @@ export class BuyTicketsPageComponent implements OnInit, OnDestroy {
       if (idStr) {
         this.showId = +idStr;
 
+        this.cartService.clear();
+
         // load Show
         this.loadingShow = true;
         console.log("FETCHING SHOWS")
@@ -166,14 +168,20 @@ export class BuyTicketsPageComponent implements OnInit, OnDestroy {
       return;
     }
     this.ticketService.reserveTickets(this.showId, items).subscribe({
-      next: () => {
-        this.toastr.success('Tickets reserved successfully!');
+      next: (res) => {
+        const dt = new Date(res.createdAt);
+        this.toastr.success(`Order #${res.groupId} placed on ${dt.toLocaleString()}`,
+          'Reservation Complete'
+        );
         this.cartService.clear();
         this.router.navigate(['/orders'], { queryParams: { tab: 'reservations' } });
       },
       error: err => {
-        const msg = err.error?.message ?? err.message ?? 'Unknown error';
-        this.toastr.error(`Failed to reserve tickets: ${msg}`);
+        console.error('Reservation failed', err);
+
+        const msg = err?.error?.detail ?? err?.error?.message ?? err.message ?? 'Unknown error';
+
+        this.toastr.error(msg, 'Reservation failed');
       }
     });
   }

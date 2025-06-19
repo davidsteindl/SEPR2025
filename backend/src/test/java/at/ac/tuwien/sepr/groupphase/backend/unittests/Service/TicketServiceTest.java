@@ -208,7 +208,9 @@ public class TicketServiceTest {
         target.setSeatId(seat.getId());
         TicketRequestDto request = createBuyRequest(List.of(target));
 
-        OrderDto orderDto = ticketService.buyTickets(request);
+        OrderGroupDto orderGroupDto = ticketService.buyTickets(request);
+
+        OrderDto orderDto = orderGroupDto.getOrders().getFirst();
         TicketDto dto = orderDto.getTickets().getFirst();
 
         var orderEntity = orderRepository.findById(orderDto.getId()).orElseThrow();
@@ -231,7 +233,9 @@ public class TicketServiceTest {
             () -> assertNotNull(orderEntity.getOrderGroup()),
             () -> assertEquals(1L, orderEntity.getOrderGroup().getUserId()),
             () -> assertEquals(1, orderRepository.findAll().size()),
-            () -> assertEquals(1, ticketRepository.findAll().size())
+            () -> assertEquals(1, ticketRepository.findAll().size()),
+            () -> assertEquals(orderEntity.getOrderGroup().getId(), orderGroupDto.getId()),
+            () -> assertEquals(testShow.getName(), orderGroupDto.getShowName())
         );
     }
 
@@ -243,7 +247,9 @@ public class TicketServiceTest {
         standingTarget.setQuantity(2);
         TicketRequestDto request = createBuyRequest(List.of(standingTarget));
 
-        OrderDto orderDto = ticketService.buyTickets(request);
+        OrderGroupDto orderGroupDto = ticketService.buyTickets(request);
+
+        OrderDto orderDto = orderGroupDto.getOrders().getFirst();
         var orderEntity = orderRepository.findById(orderDto.getId()).orElseThrow();
 
         assertAll(
@@ -256,7 +262,8 @@ public class TicketServiceTest {
             () -> assertEquals(city, orderEntity.getCity()),
             () -> assertEquals(country, orderEntity.getCountry()),
             () -> assertNotNull(orderEntity.getOrderGroup()),
-            () -> assertEquals(1L, orderEntity.getOrderGroup().getUserId())
+            () -> assertEquals(1L, orderEntity.getOrderGroup().getUserId()),
+        () -> assertEquals(orderEntity.getOrderGroup().getId(), orderGroupDto.getId())
         );
     }
 
@@ -285,7 +292,8 @@ public class TicketServiceTest {
 
         TicketRequestDto request = createBuyRequest(List.of(t1, t2));
 
-        OrderDto orderDto = ticketService.buyTickets(request);
+        OrderGroupDto orderGroupDto = ticketService.buyTickets(request);
+        OrderDto orderDto = orderGroupDto.getOrders().getFirst();
 
         assertAll(
             () -> assertNotNull(orderDto.getId()),
@@ -309,7 +317,8 @@ public class TicketServiceTest {
         // use helper method
         TicketRequestDto request = createBuyRequest(List.of(standingTarget));
 
-        OrderDto orderDto = ticketService.buyTickets(request);
+        OrderGroupDto orderGroupDto = ticketService.buyTickets(request);
+        OrderDto orderDto = orderGroupDto.getOrders().getFirst();
 
         assertAll(
             () -> assertNotNull(orderDto.getId()),
@@ -350,6 +359,10 @@ public class TicketServiceTest {
         assertEquals(TicketStatus.RESERVED, dto.getStatus());
         assertEquals(OrderType.RESERVATION, reservationDto.getOrderType());
         assertEquals(testShow.getDate().minusMinutes(30), reservationDto.getExpiresAt());
+
+        Order order = orderRepository.findById(reservationDto.getId()).orElseThrow();
+        assertEquals(order.getOrderGroup().getId(), reservationDto.getGroupId(),
+            "ReservationDto should contain the OrderGroup ID");
 
         assertEquals(1, orderRepository.findAll().size());
         assertEquals(1, ticketRepository.findAll().size());
@@ -396,7 +409,8 @@ public class TicketServiceTest {
         buyReq.setReservedTicketIds(List.of(reservedTicketId));
 
         // 3. Buy reserved ticket
-        OrderDto result = ticketService.buyReservedTickets(buyReq);
+        OrderGroupDto groupResult = ticketService.buyReservedTickets(buyReq);
+        OrderDto result = groupResult.getOrders().getFirst();
 
         TicketDto boughtTicket = result.getTickets().getFirst();
         var order = orderRepository.findById(result.getId()).orElseThrow();
@@ -426,9 +440,9 @@ public class TicketServiceTest {
         target.setSeatId(seat.getId());
 
         TicketRequestDto buyReq = createBuyRequest(List.of(target));
-        OrderDto boughtOrder = ticketService.buyTickets(buyReq);
+        OrderGroupDto boughtGroup = ticketService.buyTickets(buyReq);
 
-        Long boughtTicketId = boughtOrder.getTickets().getFirst().getId();
+        Long boughtTicketId = boughtGroup.getOrders().getFirst().getTickets().getFirst().getId();
 
         // Try to buy again as "reserved"
         TicketRequestDto invalidBuyReservedReq = createBuyRequest(List.of(target));
@@ -460,7 +474,8 @@ public class TicketServiceTest {
         TicketRequestDto buyReq = createBuyRequest(List.of(target));
         buyReq.setReservedTicketIds(List.of(reservedTicketId));
 
-        OrderDto newOrder = ticketService.buyReservedTickets(buyReq);
+        OrderGroupDto groupResult = ticketService.buyReservedTickets(buyReq);
+        OrderDto newOrder = groupResult.getOrders().getFirst();
 
         var oldOrder = orderRepository.findById(oldOrderId).orElseThrow();
         var newOrderEntity = orderRepository.findById(newOrder.getId()).orElseThrow();
@@ -574,7 +589,8 @@ public class TicketServiceTest {
         buyReq.setExpirationDate("12/30");
         buyReq.setSecurityCode("123");
 
-        OrderDto buyOrder = ticketService.buyTickets(buyReq);
+        OrderGroupDto buyGroup = ticketService.buyTickets(buyReq);
+        OrderDto buyOrder = buyGroup.getOrders().getFirst();
         Long boughtTicketId = buyOrder.getTickets().getFirst().getId();
 
         Long originalOrderGroupId = orderRepository.findById(buyOrder.getId())
@@ -591,7 +607,8 @@ public class TicketServiceTest {
         );
 
         // buy the same seat again
-        OrderDto rebuy = ticketService.buyTickets(buyReq);
+        OrderGroupDto rebuyGroup = ticketService.buyTickets(buyReq);
+        OrderDto rebuy = rebuyGroup.getOrders().getFirst();
         Long newOrderGroupId = orderRepository.findById(rebuy.getId())
             .orElseThrow()
             .getOrderGroup()
@@ -643,7 +660,8 @@ public class TicketServiceTest {
         t.setSeatId(seat.getId());
 
         TicketRequestDto req = createBuyRequest(List.of(t));
-        OrderDto ord = ticketService.buyTickets(req);
+        OrderGroupDto buyGroup = ticketService.buyTickets(req);
+        OrderDto ord = buyGroup.getOrders().getFirst();
 
         Long ticketId = ord.getTickets().getFirst().getId();
 
@@ -666,7 +684,8 @@ public class TicketServiceTest {
         target.setSectorId(sector.getId());
         target.setSeatId(seat.getId());
         TicketRequestDto request = createBuyRequest(List.of(target));
-        OrderDto initialOrder = ticketService.buyTickets(request);
+        OrderGroupDto initialGroup = ticketService.buyTickets(request);
+        OrderDto initialOrder = initialGroup.getOrders().getFirst();
         Long ticketId = initialOrder.getTickets().getFirst().getId();
 
         // Refund ticket
@@ -710,7 +729,8 @@ public class TicketServiceTest {
         t2.setSeatId(second.getId());
 
         TicketRequestDto request = createBuyRequest(List.of(t1, t2));
-        OrderDto initialOrder = ticketService.buyTickets(request);
+        OrderGroupDto initialGroup = ticketService.buyTickets(request);
+        OrderDto initialOrder = initialGroup.getOrders().getFirst();
         List<TicketDto> boughtTickets = initialOrder.getTickets();
 
         Long refundedTicketId = boughtTickets.getFirst().getId();
@@ -848,7 +868,8 @@ public class TicketServiceTest {
         TicketTargetSeatedDto target = new TicketTargetSeatedDto();
         target.setSectorId(sector.getId());
         target.setSeatId(seat.getId());
-        OrderDto initialOrder = ticketService.buyTickets(createBuyRequest(List.of(target)));
+        OrderGroupDto initialGroup = ticketService.buyTickets(createBuyRequest(List.of(target)));
+        OrderDto initialOrder = initialGroup.getOrders().getFirst();
 
         Long groupId = orderRepository.findById(initialOrder.getId())
             .orElseThrow()

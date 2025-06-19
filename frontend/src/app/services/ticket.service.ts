@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaymentItem } from '../dtos/payment-item';
-import {OrderDto, OrderGroupDetailDto, OrderGroupDto} from '../dtos/order';
+import {OrderGroupDetailDto, OrderGroupDto} from '../dtos/order';
 import { TicketDto, TicketRequestDto, ReservationDto } from '../dtos/ticket';
 import { Globals } from '../global/globals';
 import {Page} from "../dtos/page";
@@ -29,7 +29,7 @@ export class TicketService {
       city: string;
       country: string;
     }
-  ): Observable<OrderDto> {
+  ): Observable<OrderGroupDto> {
     const targets = items.map((i) => {
       if (i.type === "SEATED") {
         return {
@@ -52,7 +52,7 @@ export class TicketService {
       ...paymentForm,
     };
 
-    return this.http.post<OrderDto>(`${this.base}/buy`, payload);
+    return this.http.post<OrderGroupDto>(`${this.base}/buy`, payload);
   }
 
   reserveTickets(
@@ -87,8 +87,8 @@ export class TicketService {
     return this.http.post<TicketDto[]>(`${this.base}/refund`, ticketIds);
   }
 
-  buyReservedTickets(payload: TicketRequestDto): Observable<OrderDto> {
-    return this.http.post<OrderDto>(`${this.base}/reservations/buy`, payload);
+  buyReservedTickets(payload: TicketRequestDto): Observable<OrderGroupDto> {
+    return this.http.post<OrderGroupDto>(`${this.base}/reservations/buy`, payload);
   }
 
   cancelReservations(ticketIds: number[]): Observable<TicketDto[]> {

@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint.exceptionhandler;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ValidationErrorRestDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.LoginAttemptException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
+import at.ac.tuwien.sepr.groupphase.backend.exception.SeatUnavailableException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,6 +104,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ValidationErrorRestDto(e.summary(), e.errors());
     }
 
+
+    /**
+     * Handles {@link SeatUnavailableException}.
+     */
+    @ExceptionHandler(SeatUnavailableException.class)
+    public ResponseEntity<ProblemDetail> handleSeatUnavailable(SeatUnavailableException ex, ServletWebRequest req) {
+        LOG.warn("Seat unavailable: {}", ex.getMessage());
+        ProblemDetail pd = toProblemDetail(HttpStatus.CONFLICT, ex.getMessage(), req);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(pd);
+    }
 
     /**
      * Override methods from ResponseEntityExceptionHandler to send a customized
