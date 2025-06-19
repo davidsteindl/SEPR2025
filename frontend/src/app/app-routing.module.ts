@@ -79,6 +79,11 @@ const routes: Routes = [
     canActivate: [AdminGuard],
   },
   {
+    path: 'update-rooms',
+    component: UpdateRoomsComponent,
+    canActivate: [AdminGuard],
+  },
+  {
     path: "events/:id/edit",
     component: EditEventComponent,
     canActivate: [AdminGuard],
