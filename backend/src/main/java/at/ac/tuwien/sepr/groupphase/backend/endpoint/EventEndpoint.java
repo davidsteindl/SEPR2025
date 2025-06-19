@@ -25,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -72,19 +74,23 @@ public class EventEndpoint {
     @Secured("ROLE_ADMIN")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get all events paginated", security = @SecurityRequirement(name = "apiKey"))
-    public Page<UpdateEventDto> getAllPaginatedEvents(
+    public Page<UpdateEventDto> getAllEventsPaginated(
         @RequestParam(name = "page", defaultValue = "0") int page,
-        @RequestParam(name = "size", defaultValue = "10") int size
+        @RequestParam(name = "size", defaultValue = "10") int size,
+        @RequestParam(name = "fromDate", required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fromDate
     ) {
-        LOGGER.info("GET /api/v1/events?page={}&size={}", page, size);
-        Pageable sorted = PageRequest.of(
-            page,
-            size,
-            Sort.by(Sort.Order.asc("dateTime"),
-                Sort.Order.asc("name").ignoreCase()
-            )
-        );
-        return eventService.getAllPaginatedEvents(sorted);
+        LOGGER.info("GET /api/v1/events?page={}&size={}&fromDate={}", page, size, fromDate);
+        Sort sort = Sort.by(Sort.Order.asc("dateTime"), Sort.Order.asc("name").ignoreCase());
+        if (fromDate != null) {
+            long countBefore = eventService.countEventsBefore(fromDate);
+            int targetPage = (int) (countBefore / size);
+            Pageable pageable = PageRequest.of(targetPage, size, sort);
+            return eventService.getAllEventsPaginated(pageable);
+        } else {
+            Pageable pageable = PageRequest.of(page, size, sort);
+            return eventService.getAllEventsPaginated(pageable);
+        }
     }
 
     @GetMapping
