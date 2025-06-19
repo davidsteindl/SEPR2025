@@ -47,6 +47,8 @@ export class BuyTicketsPageComponent implements OnInit, OnDestroy {
       if (idStr) {
         this.showId = +idStr;
 
+        this.cartService.clear();
+
         // load Show
         this.loadingShow = true;
         console.log("FETCHING SHOWS")
@@ -175,8 +177,11 @@ export class BuyTicketsPageComponent implements OnInit, OnDestroy {
         this.router.navigate(['/orders'], { queryParams: { tab: 'reservations' } });
       },
       error: err => {
-        const msg = err.error?.message ?? err.message ?? 'Unknown error';
-        this.toastr.error(`Failed to reserve tickets: ${msg}`);
+        console.error('Reservation failed', err);
+
+        const msg = err?.error?.detail ?? err?.error?.message ?? err.message ?? 'Unknown error';
+
+        this.toastr.error(msg, 'Reservation failed');
       }
     });
   }
