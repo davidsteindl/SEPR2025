@@ -10,3 +10,8 @@ export interface Room {
   sectors: Sector[];
   name: string;
 }
+export interface RoomPageDto {
+  id: number;
+  name: string;
+  eventLocationName: string;
+}

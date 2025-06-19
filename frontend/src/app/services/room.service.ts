@@ -3,7 +3,8 @@ import {Globals} from '../global/globals';
 import {HttpClient} from "@angular/common/http";
 import {CreateRoom} from "../dtos/create-room";
 import { Observable } from 'rxjs';
-import {Room} from "../dtos/room";
+import {Room, RoomPageDto} from "../dtos/room";
+import { Page } from '../dtos/page';
 
 
 @Injectable({
@@ -52,5 +53,14 @@ export class RoomService {
    */
   getAll(): Observable<Room[]> {
     return this.httpClient.get<Room[]>(this.roomBaseUri);
+  }
+
+  /**
+   * Retrieves all rooms paginated.
+   */
+  getPaginatedRooms(page: number, size: number): Observable<Page<RoomPageDto>> {
+    return this.httpClient.get<Page<RoomPageDto>>(
+      `${this.roomBaseUri}/paginated?page=${page}&size=${size}`
+    );
   }
 }
