@@ -22,6 +22,7 @@ public interface OrderGroupRepository extends JpaRepository<OrderGroup, Long> {
             JOIN t.show s
             WHERE og.userId = :userId
               AND o.orderType = :reservationType
+              AND s.date >= CURRENT_TIMESTAMP
         """)
     Page<OrderGroup> findReservations(
         @Param("userId") Long userId,

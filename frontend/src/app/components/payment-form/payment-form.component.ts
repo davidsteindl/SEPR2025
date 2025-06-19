@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PaymentItem } from "../../dtos/payment-item";
@@ -6,7 +6,7 @@ import { CartService } from 'src/app/services/cart.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { TicketService } from 'src/app/services/ticket.service';
-import { OrderDto } from 'src/app/dtos/order';
+import { OrderGroupDto } from 'src/app/dtos/order';
 import { TicketRequestDto } from 'src/app/dtos/ticket';
 import {UserService} from "../../services/user.service";
 import {User} from "../../dtos/user";
@@ -36,11 +36,7 @@ export class PaymentFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // use this in prod
     this.items = this.cart.getItems();
-
-    // for testing purposes, use test data
-    //this.items = TEST_PAYMENT_ITEMS;
 
     this.paymentForm = this.fb.group({
       cardNumber: [
@@ -121,10 +117,11 @@ export class PaymentFormComponent implements OnInit {
 
   private buildHandler() {
     return {
-      next: (order: OrderDto) => {
+      next: (group: OrderGroupDto) => {
+        const order = group.orders[0];
         const dt = new Date(order.createdAt);
         this.toastr.success(
-          `Tickets bought successfully on ${dt.toLocaleString()}`,
+          `Order #${group.id} placed on ${dt.toLocaleString()}`,
           'Payment Complete'
         );
         localStorage.removeItem(this.FORM_STORAGE_KEY);
@@ -139,6 +136,8 @@ export class PaymentFormComponent implements OnInit {
           backendErrors.errors.forEach((e: string) => {
             this.toastr.error(e, 'Validation Error');
           });
+        } else if (backendErrors?.detail) {
+          this.toastr.error(backendErrors.detail, 'Payment Failed');
         } else if (backendErrors?.message) {
           this.toastr.error(backendErrors.message, 'Payment Failed');
         } else {

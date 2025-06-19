@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
-import at.ac.tuwien.sepr.groupphase.backend.config.type.PaymentType;
 import at.ac.tuwien.sepr.groupphase.backend.service.TicketService;
 
 import java.time.LocalDateTime;
@@ -33,6 +32,7 @@ public class ReservationDto {
     private Long userId;
     private OrderType orderType;
     private LocalDateTime expiresAt;
+    private Long groupId;
 
     public Long getId() {
         return id;
@@ -80,5 +80,13 @@ public class ReservationDto {
 
     public void setExpiresAt(LocalDateTime expiresAt) {
         this.expiresAt = expiresAt;
+    }
+
+    public Long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
     }
 }

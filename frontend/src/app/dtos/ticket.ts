@@ -56,5 +56,6 @@ export interface ReservationDto {
   userId: number;
   orderType: 'RESERVATION';
   expiresAt: string;
+  groupId: number;
 }
 

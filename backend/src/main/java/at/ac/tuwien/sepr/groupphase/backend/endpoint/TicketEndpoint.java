@@ -49,7 +49,7 @@ public class TicketEndpoint {
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Initiate ticket purchase", security = @SecurityRequirement(name = "apiKey"))
-    public OrderDto buyTickets(
+    public OrderGroupDto buyTickets(
         @RequestBody @Valid TicketRequestDto ticketRequestDto) throws ValidationException {
         LOGGER.info("POST /api/v1/tickets/buy with request {}", ticketRequestDto);
         return ticketService.buyTickets(ticketRequestDto);
@@ -69,7 +69,7 @@ public class TicketEndpoint {
     @Secured("ROLE_USER")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Purchase previously reserved tickets with checkout data", security = @SecurityRequirement(name = "apiKey"))
-    public OrderDto buyReservedTickets(@RequestBody TicketRequestDto request) throws ValidationException {
+    public OrderGroupDto buyReservedTickets(@RequestBody TicketRequestDto request) throws ValidationException {
         LOGGER.info("POST /api/v1/tickets/reservations/buy with ticket IDs {}", request.getReservedTicketIds());
         return ticketService.buyReservedTickets(request);
     }

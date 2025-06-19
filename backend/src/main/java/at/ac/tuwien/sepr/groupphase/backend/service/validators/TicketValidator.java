@@ -50,7 +50,7 @@ public class TicketValidator {
         LOGGER.debug("validateForBuyTickets: {}", dto);
         Show show = requireShow(dto.getShowId());
         validateTargetsBelongToShow(show, dto.getTargets());
-        validateBeforeShowStarts(show);
+        validateShowNotStarted(show);
         validateNoHoldsOn(dto.getShowId(), dto.getTargets());
         validateNoTicketsOn(dto.getShowId(), dto.getTargets());
     }
@@ -114,13 +114,35 @@ public class TicketValidator {
      * Validates all DTO targets refer to sectors (and seats, if any) in this show’s room.
      */
     private void validateTargetsBelongToShow(Show show, List<TicketTargetDto> targets) {
+        List<Ticket> existing = ticketRepository.findByShowId(show.getId())
+            .stream()
+            .filter(t -> t.getStatus() == TicketStatus.BOUGHT || t.getStatus() == TicketStatus.RESERVED)
+            .toList();
+
         for (TicketTargetDto t : targets) {
             if (t instanceof TicketTargetSeatedDto s) {
                 validateSectorBelongsToShow(show, s.getSectorId());
                 validateSeatBelongsToSector(s.getSectorId(), s.getSeatId());
             } else if (t instanceof TicketTargetStandingDto st) {
                 validateSectorBelongsToShow(show, st.getSectorId());
-                // TODO: validate quantity > 0 and not exceeding standing capacity
+                if (st.getQuantity() <= 0) {
+                    throw new SeatUnavailableException(
+                        "Requested standing quantity must be greater than zero for sector " + st.getSectorId());
+                }
+
+                StandingSector sector = (StandingSector) roomService.getSectorById(st.getSectorId());
+                long capacity = sector.getCapacity();
+
+                long alreadyTaken = existing.stream()
+                    .filter(tk -> tk.getSector().getId().equals(st.getSectorId()))
+                    .count();
+
+                if (alreadyTaken + st.getQuantity() > capacity) {
+                    throw new SeatUnavailableException(
+                        "Not enough standing capacity in sector " + st.getSectorId()
+                            + " (requested: " + st.getQuantity()
+                            + ", available: " + (capacity - alreadyTaken) + ")");
+                }
             }
         }
     }
@@ -243,6 +265,11 @@ public class TicketValidator {
             .stream()
             .filter(t -> t.getStatus() == TicketStatus.BOUGHT || t.getStatus() == TicketStatus.RESERVED)
             .toList();
+
+        Map<Long, Long> ticketsBySector = existing.stream()
+            .filter(t -> t.getSeat() == null)
+            .collect(Collectors.groupingBy(t -> t.getSector().getId(), Collectors.counting()));
+
         for (TicketTargetDto t : targets) {
             if (t instanceof TicketTargetSeatedDto s) {
                 boolean occupied = existing.stream()
@@ -250,8 +277,24 @@ public class TicketValidator {
                 if (occupied) {
                     throw new SeatUnavailableException("Seat " + s.getSeatId() + " already taken");
                 }
+            } else if (t instanceof TicketTargetStandingDto st) {
+                if (st.getQuantity() <= 0) {
+                    throw new SeatUnavailableException(
+                        "Requested standing quantity must be greater than zero for sector " + st.getSectorId());
+                }
+
+                StandingSector sector = (StandingSector) roomService.getSectorById(st.getSectorId());
+                long capacity = sector.getCapacity();
+
+                long alreadyTaken = ticketsBySector.getOrDefault(st.getSectorId(), 0L);
+
+                if (alreadyTaken + st.getQuantity() > capacity) {
+                    throw new SeatUnavailableException(
+                        "Not enough standing capacity in sector " + st.getSectorId()
+                            + " (requested: " + st.getQuantity()
+                            + ", available: " + (capacity - alreadyTaken) + ")");
+                }
             }
-            // TODO: for standing, ensure quantity does not exceed remaining spots
         }
     }
 
@@ -278,8 +321,17 @@ public class TicketValidator {
     private void validateBeforeShowStarts(Show show) {
         LocalDateTime cutoff = show.getDate().minusMinutes(30);
         if (LocalDateTime.now().isAfter(cutoff)) {
-            throw new SeatUnavailableException("Cannot modify tickets less than "
+            throw new SeatUnavailableException("Cannot reserve tickets less than "
                 + (long) 30 + " minutes before show starts");
+        }
+    }
+
+    /**
+     * Validates show has not started.
+     */
+    private void validateShowNotStarted(Show show) {
+        if (LocalDateTime.now().isAfter(show.getDate())) {
+            throw new SeatUnavailableException("Cannot buy tickets after show has started");
         }
     }
 
@@ -321,8 +373,7 @@ public class TicketValidator {
     private void validateRefundWindow(List<Ticket> tickets) {
         LocalDateTime now = LocalDateTime.now();
         for (Ticket t : tickets) {
-            LocalDateTime cutoff = t.getShow().getDate().minusMinutes(30);
-            if (now.isAfter(cutoff)) {
+            if (now.isAfter(t.getShow().getDate())) {
                 throw new IllegalArgumentException("Too late to refund ticket " + t.getId());
             }
         }
