@@ -212,13 +212,26 @@ public class TicketValidator {
     private void validateNoHoldsOn(Long showId, Long sectorId, Long seatId) {
         LocalDateTime now = LocalDateTime.now();
         List<Hold> holds = holdRepository.findByShowId(showId);
-        boolean conflict = holds.stream()
-            .anyMatch(h -> h.getValidUntil().isAfter(now)
-                && h.getSectorId().equals(sectorId)
-                && ((seatId == null && h.getSeatId() == null)
-                || (h.getSeatId() != null && h.getSeatId().equals(seatId))));
-        if (conflict) {
-            throw new SeatUnavailableException("Seat/Sector already on hold for show " + showId);
+        if (seatId != null) {
+            // Seated: any valid hold on this seat blocks it
+            boolean conflict = holds.stream()
+                .anyMatch(h -> h.getValidUntil().isAfter(now)
+                    && h.getSectorId().equals(sectorId)
+                    && h.getSeatId() != null && h.getSeatId().equals(seatId));
+            if (conflict) {
+                throw new SeatUnavailableException("Seat already on hold for show " + showId);
+            }
+        } else {
+            // Standing: only block if holds >= capacity
+            long activeHolds = holds.stream()
+                .filter(h -> h.getValidUntil().isAfter(now)
+                    && h.getSectorId().equals(sectorId)
+                    && h.getSeatId() == null)
+                .count();
+            long capacity = ((StandingSector) roomService.getSectorById(sectorId)).getCapacity();
+            if (activeHolds >= capacity) {
+                throw new SeatUnavailableException("Standing sector already fully on hold for show " + showId);
+            }
         }
     }
 

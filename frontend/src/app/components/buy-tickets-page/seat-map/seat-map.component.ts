@@ -17,6 +17,8 @@ import { Sector } from 'src/app/dtos/sector';
 import { Seat } from 'src/app/dtos/seat';
 import { SectorType } from 'src/app/dtos/sector-type';
 import { PaymentItem } from 'src/app/dtos/payment-item';
+import { TicketService } from "src/app/services/ticket.service";
+import { CreateHoldDto } from "src/app/dtos/create-hold";
 
 @Component({
   selector: "app-seat-map",
@@ -66,7 +68,7 @@ export class SeatMapComponent implements OnInit, OnChanges {
   selectedSeatIdSet = new Set<number>();
   selectedStandingSectorSet = new Set<number>();
 
-  constructor() {}
+  constructor(private ticketService: TicketService) {}
 
   ngOnInit(): void {}
 
@@ -190,6 +192,13 @@ export class SeatMapComponent implements OnInit, OnChanges {
       columnNumber: seat.columnNumber,
       showId: this.showId,
     };
+    // Create hold for seated ticket
+    const dto: CreateHoldDto = {
+      showId: this.showId,
+      sectorId: sector.id,
+      seatId: seat.id,
+    };
+    this.ticketService.createTicketHold(dto).subscribe();
     this.seatSelected.emit(item);
     pop.close();
   }
@@ -214,6 +223,15 @@ export class SeatMapComponent implements OnInit, OnChanges {
       quantity: qty,
       showId: this.showId,
     };
+    // Create hold for each standing ticket
+    for (let i = 0; i < qty; i++) {
+      const dto: CreateHoldDto = {
+        showId: this.showId,
+        sectorId: sec.id,
+        seatId: null,
+      };
+      this.ticketService.createTicketHold(dto).subscribe();
+    }
     this.seatSelected.emit(item);
     pop.close();
   }
