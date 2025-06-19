@@ -263,6 +263,7 @@ public class RoomServiceImpl implements RoomService {
 
         // prepare full seat list with availability info
         List<SeatUsageDto> seatDtos = room.getSeats().stream()
+            .distinct()
             .map(seat -> {
                 SeatUsageDto dto = new SeatUsageDto();
                 dto.setId(seat.getId());
