@@ -85,8 +85,8 @@ public class RoomEndpoint {
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Get all rooms paginated", security = @SecurityRequirement(name = "apiKey"))
     public Page<RoomPageDto> getAllRoomsPaginated(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size) {
+        @RequestParam(name = "page", defaultValue = "0") int page,
+        @RequestParam(name = "size", defaultValue = "10") int size) {
         LOGGER.info("GET /api/v1/rooms/paginated?page={}&size={}", page, size);
         Pageable sorted = PageRequest.of(
             page,
