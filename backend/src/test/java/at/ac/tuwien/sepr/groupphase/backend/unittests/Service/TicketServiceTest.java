@@ -405,7 +405,8 @@ public class TicketServiceTest {
         buyReq.setReservedTicketIds(List.of(reservedTicketId));
 
         // 3. Buy reserved ticket
-        OrderDto result = ticketService.buyReservedTickets(buyReq);
+        OrderGroupDto groupResult = ticketService.buyReservedTickets(buyReq);
+        OrderDto result = groupResult.getOrders().getFirst();
 
         TicketDto boughtTicket = result.getTickets().getFirst();
         var order = orderRepository.findById(result.getId()).orElseThrow();
@@ -469,7 +470,8 @@ public class TicketServiceTest {
         TicketRequestDto buyReq = createBuyRequest(List.of(target));
         buyReq.setReservedTicketIds(List.of(reservedTicketId));
 
-        OrderDto newOrder = ticketService.buyReservedTickets(buyReq);
+        OrderGroupDto groupResult = ticketService.buyReservedTickets(buyReq);
+        OrderDto newOrder = groupResult.getOrders().getFirst();
 
         var oldOrder = orderRepository.findById(oldOrderId).orElseThrow();
         var newOrderEntity = orderRepository.findById(newOrder.getId()).orElseThrow();

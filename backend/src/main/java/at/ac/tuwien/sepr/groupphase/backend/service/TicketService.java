@@ -88,7 +88,7 @@ public interface TicketService {
      * @throws ReservationExpiredException if the reservation has already expired.
      * @throws IllegalArgumentException if any ticketId is not part of the given reservation.
      */
-    OrderDto buyReservedTickets(TicketRequestDto request) throws ValidationException;
+    OrderGroupDto buyReservedTickets(TicketRequestDto request) throws ValidationException;
 
 
 

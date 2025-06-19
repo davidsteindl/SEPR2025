@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderGroupDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetStandingDto;
@@ -202,7 +203,9 @@ public class TicketEndpointTest implements TestData {
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
 
-        OrderDto response = objectMapper.readValue(result.getResponse().getContentAsString(), OrderDto.class);
+        OrderGroupDto groupResponse = objectMapper.readValue(result.getResponse().getContentAsString(), OrderGroupDto.class);
+        OrderDto response = groupResponse.getOrders().getFirst();
+
         assertAll(
             () -> assertNotNull(response.getId(), "Order ID should not be null"),
             () -> assertEquals(OrderType.ORDER, response.getOrderType(), "Order type should be ORDER"),

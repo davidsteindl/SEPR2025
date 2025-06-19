@@ -368,7 +368,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public OrderDto buyReservedTickets(TicketRequestDto request) throws ValidationException {
+    public OrderGroupDto buyReservedTickets(TicketRequestDto request) throws ValidationException {
         LOGGER.debug("Buy reserved tickets with checkout: {}", request);
 
         ticketValidator.validateCheckoutPaymentData(request);
@@ -408,9 +408,19 @@ public class TicketServiceImpl implements TicketService {
         orderRepository.save(oldReservation);
         orderRepository.save(newOrder);
 
-        OrderDto dto = buildOrderDto(newOrder, tickets);
-        dto.setTotalPrice(calculateTotalPrice(tickets));
-        return dto;
+        OrderDto orderDto = buildOrderDto(newOrder, tickets);
+        orderDto.setTotalPrice(calculateTotalPrice(tickets));
+
+        OrderGroupDto groupDto = new OrderGroupDto();
+        groupDto.setId(newGroup.getId());
+
+        Ticket firstTicket = tickets.getFirst();
+        groupDto.setShowName(firstTicket.getShow().getName());
+        groupDto.setShowDate(firstTicket.getShow().getDate());
+        groupDto.setLocationName(firstTicket.getShow().getEvent().getLocation().getName());
+        groupDto.setOrders(List.of(orderDto));
+
+        return groupDto;
     }
 
 
