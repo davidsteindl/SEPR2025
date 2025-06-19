@@ -19,6 +19,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StageSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.HoldRepository;
@@ -29,7 +30,6 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SectorValidator;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +80,7 @@ public class RoomServiceImpl implements RoomService {
     public RoomDetailDto createRoom(CreateRoomDto dto) {
         LOGGER.info("Creating a new room with details: {}", dto);
         EventLocation location = eventLocationRepository.findById(dto.getEventLocationId())
-            .orElseThrow(() -> new EntityNotFoundException(
+            .orElseThrow(() -> new NotFoundException(
                 "EventLocation not found with id " + dto.getEventLocationId()));
 
         Room room = Room.RoomBuilder.aRoom()
@@ -112,7 +112,7 @@ public class RoomServiceImpl implements RoomService {
         Room persistedRoom = roomRepository.findAllWithSectorsAndSeats().stream()
             .filter(r -> r.getId().equals(savedRoom.getId()))
             .findFirst()
-            .orElseThrow(() -> new EntityNotFoundException("Room not found with id " + savedRoom.getId()));
+            .orElseThrow(() -> new NotFoundException("Room not found with id " + savedRoom.getId()));
         return roomMapper.roomToRoomDetailDto(persistedRoom);
     }
 
@@ -125,7 +125,7 @@ public class RoomServiceImpl implements RoomService {
         }
 
         Room room = roomRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Room not found: " + id));
+            .orElseThrow(() -> new NotFoundException("Room not found: " + id));
 
         List<SectorDto> dtoSectors = dto.getSectors();
         if (!dtoSectors.isEmpty()) {
@@ -138,7 +138,7 @@ public class RoomServiceImpl implements RoomService {
 
         room.setEventLocation(
             eventLocationRepository.findById(dto.getEventLocationId())
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new NotFoundException(
                     "EventLocation not found with id " + dto.getEventLocationId())));
 
         Map<Long, Sector> replacedSectors = new HashMap<>();
@@ -199,20 +199,20 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public Sector getSectorById(Long sectorId) {
         return sectorRepository.findById(sectorId)
-            .orElseThrow(() -> new EntityNotFoundException("Sector not found with id " + sectorId));
+            .orElseThrow(() -> new NotFoundException("Sector not found with id " + sectorId));
     }
 
     @Override
     public Seat getSeatById(Long seatId) {
         return seatRepository.findById(seatId)
-            .orElseThrow(() -> new EntityNotFoundException("Seat not found with id " + seatId));
+            .orElseThrow(() -> new NotFoundException("Seat not found with id " + seatId));
     }
 
     @Override
     @Transactional
     public RoomDetailDto getRoomById(Long id) {
         LOGGER.debug("Retrieving a room with details: {}", id);
-        Room room = roomRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        Room room = roomRepository.findById(id).orElseThrow(NotFoundException::new);
         return roomMapper.roomToRoomDetailDto(room);
     }
 
@@ -367,7 +367,7 @@ public class RoomServiceImpl implements RoomService {
             if (dto.getId() != null) {
                 seat = existingSeatsById.get(dto.getId());
                 if (seat == null) {
-                    throw new EntityNotFoundException("Seat not found with id " + dto.getId());
+                    throw new NotFoundException("Seat not found with id " + dto.getId());
                 }
             } else {
                 seat = new Seat();
@@ -384,7 +384,7 @@ public class RoomServiceImpl implements RoomService {
                     .findFirst()
                     .orElseGet(() -> replacedSectors.get(dto.getSectorId()));
                 if (sector == null) {
-                    throw new EntityNotFoundException("Sector not found: " + dto.getSectorId());
+                    throw new NotFoundException("Sector not found: " + dto.getSectorId());
                 }
                 seat.setSector(sector);
             } else {
@@ -476,7 +476,7 @@ public class RoomServiceImpl implements RoomService {
     private Sector syncNormalSector(Map<Long, Sector> existing, Room room, SectorDto dto) throws ValidationException {
         LOGGER.debug("Syncing NormalSector with details: {}", dto);
         if (dto.getId() != null && !existing.containsKey(dto.getId())) {
-            throw new EntityNotFoundException("Sector not found with id " + dto.getId());
+            throw new NotFoundException("Sector not found with id " + dto.getId());
         }
         Sector raw = dto.getId() != null ? existing.get(dto.getId()) : null;
 
@@ -510,7 +510,7 @@ public class RoomServiceImpl implements RoomService {
     private StandingSector syncStanding(Map<Long, Sector> existing, Room room, StandingSectorDto dto) throws ValidationException {
         LOGGER.debug("Syncing the StandingSector with details: {}", dto);
         if (dto.getId() != null && !existing.containsKey(dto.getId())) {
-            throw new EntityNotFoundException("StandingSector not found with id " + dto.getId());
+            throw new NotFoundException("StandingSector not found with id " + dto.getId());
         }
         Sector raw = dto.getId() != null ? existing.get(dto.getId()) : null;
 
@@ -545,7 +545,7 @@ public class RoomServiceImpl implements RoomService {
     private StageSector syncStage(Map<Long, Sector> existing, Room room, StageSectorDto dto) throws ValidationException {
         LOGGER.debug("Syncing the StageSector with details: {}", dto);
         if (dto.getId() != null && !existing.containsKey(dto.getId())) {
-            throw new EntityNotFoundException("StageSector not found with id " + dto.getId());
+            throw new NotFoundException("StageSector not found with id " + dto.getId());
         }
         Sector raw = dto.getId() != null ? existing.get(dto.getId()) : null;
 

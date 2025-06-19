@@ -59,8 +59,13 @@ public interface ShowRepository extends JpaRepository<Show, Long>, JpaSpecificat
     Page<Show> findAllByEvent_Location_IdOrderByDateAsc(Long locationId, Pageable pageable);
 
 
-    @EntityGraph(attributePaths = {"room.seats", "room.sectors"})
-    @Query("SELECT s FROM Show s WHERE s.id = :id")
+    @Query("""
+            SELECT s FROM Show s
+            LEFT JOIN FETCH s.room r
+            LEFT JOIN FETCH r.sectors
+            LEFT JOIN FETCH r.seats
+            WHERE s.id = :id
+        """)
     Optional<Show> findByIdWithRoomAndSectors(@Param("id") Long id);
 
     @EntityGraph(attributePaths = {"room.sectors", "event"})
