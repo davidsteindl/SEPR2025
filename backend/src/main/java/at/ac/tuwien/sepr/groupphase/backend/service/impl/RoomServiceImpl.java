@@ -161,27 +161,28 @@ public class RoomServiceImpl implements RoomService {
      * @param oldSector the existing Sector to be replaced
      * @param newDto    the DTO containing new sector details
      * @return the newly created Sector instance
-     * @throws ValidationException if the new DTO is invalid or incompatible
      */
-    private Sector replaceSectorType(Room room, Sector oldSector, SectorDto newDto) throws ValidationException {
+    private Sector replaceSectorType(Room room, Sector oldSector, SectorDto newDto) {
         LOGGER.debug("Replacing sector type for sector ID {} to new type {}", oldSector.getId(), newDto.getClass().getSimpleName());
 
         Sector newSector;
         if (newDto instanceof StandingSectorDto ssd) {
-            newSector = new StandingSector();
-            ((StandingSector) newSector).setCapacity(ssd.getCapacity());
-            newSector.setPrice(ssd.getPrice());
+            StandingSector standingSector = new StandingSector();
+            standingSector.setCapacity(ssd.getCapacity());
+            standingSector.setPrice(ssd.getPrice());
+            standingSector.setRoom(room);
+            newSector = sectorRepository.save(standingSector);
         } else if (newDto instanceof StageSectorDto) {
-            newSector = new StageSector();
-            newSector.setPrice(null);
+            StageSector stageSector = new StageSector();
+            stageSector.setPrice(null);
+            stageSector.setRoom(room);
+            newSector = sectorRepository.save(stageSector);
         } else {
-            newSector = new Sector();
-            newSector.setPrice(newDto.getPrice());
+            Sector normalSector = new Sector();
+            normalSector.setPrice(newDto.getPrice());
+            normalSector.setRoom(room);
+            newSector = sectorRepository.save(normalSector);
         }
-
-        room.addSector(newSector);
-
-        sectorRepository.save(newSector);
 
         for (Seat seat : room.getSeats()) {
             if (seat.getSector() != null && Objects.equals(seat.getSector().getId(), oldSector.getId())) {
@@ -190,6 +191,7 @@ public class RoomServiceImpl implements RoomService {
         }
 
         room.getSectors().remove(oldSector);
+        room.addSector(newSector);
 
         return newSector;
     }
