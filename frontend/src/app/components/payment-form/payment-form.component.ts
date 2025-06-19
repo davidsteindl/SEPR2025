@@ -6,7 +6,7 @@ import { CartService } from 'src/app/services/cart.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { TicketService } from 'src/app/services/ticket.service';
-import {OrderDto, OrderGroupDto} from 'src/app/dtos/order';
+import { OrderGroupDto } from 'src/app/dtos/order';
 import { TicketRequestDto } from 'src/app/dtos/ticket';
 import {UserService} from "../../services/user.service";
 import {User} from "../../dtos/user";

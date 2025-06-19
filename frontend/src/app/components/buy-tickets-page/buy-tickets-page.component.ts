@@ -166,8 +166,11 @@ export class BuyTicketsPageComponent implements OnInit, OnDestroy {
       return;
     }
     this.ticketService.reserveTickets(this.showId, items).subscribe({
-      next: () => {
-        this.toastr.success('Tickets reserved successfully!');
+      next: (res) => {
+        const dt = new Date(res.createdAt);
+        this.toastr.success(`Order #${res.groupId} placed on ${dt.toLocaleString()}`,
+          'Reservation Complete'
+        );
         this.cartService.clear();
         this.router.navigate(['/orders'], { queryParams: { tab: 'reservations' } });
       },

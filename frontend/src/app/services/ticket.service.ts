@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PaymentItem } from '../dtos/payment-item';
-import {OrderDto, OrderGroupDetailDto, OrderGroupDto} from '../dtos/order';
+import {OrderGroupDetailDto, OrderGroupDto} from '../dtos/order';
 import { TicketDto, TicketRequestDto, ReservationDto } from '../dtos/ticket';
 import { Globals } from '../global/globals';
 import {Page} from "../dtos/page";
