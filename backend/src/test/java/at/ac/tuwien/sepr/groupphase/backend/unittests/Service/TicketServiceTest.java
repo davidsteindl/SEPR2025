@@ -360,6 +360,10 @@ public class TicketServiceTest {
         assertEquals(OrderType.RESERVATION, reservationDto.getOrderType());
         assertEquals(testShow.getDate().minusMinutes(30), reservationDto.getExpiresAt());
 
+        Order order = orderRepository.findById(reservationDto.getId()).orElseThrow();
+        assertEquals(order.getOrderGroup().getId(), reservationDto.getGroupId(),
+            "ReservationDto should contain the OrderGroup ID");
+
         assertEquals(1, orderRepository.findAll().size());
         assertEquals(1, ticketRepository.findAll().size());
     }

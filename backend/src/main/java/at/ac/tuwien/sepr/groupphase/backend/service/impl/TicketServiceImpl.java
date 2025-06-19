@@ -363,6 +363,7 @@ public class TicketServiceImpl implements TicketService {
             .map(ticketMapper::toDto)
             .collect(Collectors.toList()));
         dto.setExpiresAt(expiresAt);
+        dto.setGroupId(order.getOrderGroup().getId());
         return dto;
     }
 
