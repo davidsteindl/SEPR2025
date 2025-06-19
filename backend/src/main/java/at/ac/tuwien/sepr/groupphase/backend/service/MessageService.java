@@ -30,4 +30,11 @@ public interface MessageService {
      */
     Message publishMessage(Message message);
 
+    /**
+     * Find a message with image.
+     *
+     * @param id of News
+     * @return message entity
+     */
+    Message findOneWithImage(Long id);
 }

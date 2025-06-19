@@ -33,7 +33,7 @@ public class Message {
     @Column(nullable = false, length = 10000)
     private String text;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Image> images = new ArrayList<>();
 
     @ManyToMany(mappedBy = "viewedMessages")

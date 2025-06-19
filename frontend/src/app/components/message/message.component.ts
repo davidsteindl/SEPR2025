@@ -123,6 +123,7 @@ export class MessageComponent implements OnInit {
         this.defaultServiceErrorHandling(error);
       }
     });
+    this.modalService.dismissAll();
   }
 
   private loadMessage() {

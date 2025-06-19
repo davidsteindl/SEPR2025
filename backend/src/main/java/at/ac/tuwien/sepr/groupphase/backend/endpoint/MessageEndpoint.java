@@ -57,7 +57,7 @@ public class MessageEndpoint {
     @Operation(summary = "Get detailed information about a specific message", security = @SecurityRequirement(name = "apiKey"))
     public DetailedMessageDto find(@PathVariable(name = "id") Long id) {
         LOGGER.info("GET /api/v1/news/{}", id);
-        return messageMapper.messageToDetailedMessageDto(messageService.findOne(id));
+        return messageMapper.messageToDetailedMessageDto(messageService.findOneWithImage(id));
     }
 
     @Secured("ROLE_ADMIN")

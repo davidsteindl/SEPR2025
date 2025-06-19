@@ -5,15 +5,18 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ImageRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.MessageRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.MessageService;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Transactional
 @Service
 public class SimpleMessageService implements MessageService {
 
@@ -51,6 +54,21 @@ public class SimpleMessageService implements MessageService {
             imageRepository.saveAll(message.getImages());
         }
         return messageRepository.save(message);
+    }
+
+
+    @Override
+    public Message findOneWithImage(Long id) {
+        LOGGER.debug("Find message with id {}", id);
+        Optional<Message> message = messageRepository.findById(id);
+        if (message.isPresent()) {
+            var messageWithImage = message.get();
+            Hibernate.initialize(messageWithImage.getImages());
+            return messageWithImage;
+        } else {
+            throw new NotFoundException(String.format("Could not find message with id %s", id));
+        }
+
     }
 
 }
