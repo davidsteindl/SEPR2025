@@ -51,12 +51,12 @@ const routes: Routes = [
   {path: "register", component: RegisterComponent},
   {path: "termsandconditions", component: TermsandconditionsComponent},
   {
-    path: "message",
+    path: "news",
     canActivate: mapToCanActivate([AuthGuard]),
     component: MessageComponent,
   },
   {
-    path: "message/:id",
+    path: "news/:id",
     canActivate: mapToCanActivate([AuthGuard]),
     component: MessageDetailComponent,
   },
