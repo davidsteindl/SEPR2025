@@ -120,12 +120,12 @@ public class CustomUserDetailService implements UserService {
         ApplicationUser user = userRepository.findByEmail(userLoginDto.getEmail());
 
         if (user == null) {
-            throw new LoginAttemptException("Username or password is incorrect", 0);
+            throw new LoginAttemptException("Username or password is incorrect, or your account is locked due to too many failed login attempts", 0);
         }
 
         if (user.isLocked()) {
             throw new LoginAttemptException(
-                "Username or password is incorrect",
+                "Username or password is incorrect, or your account is locked due to too many failed login attempts",
                 user.getLoginTries());
         }
 
@@ -137,16 +137,16 @@ public class CustomUserDetailService implements UserService {
                 user.setLocked(true);
                 userRepository.save(user);
                 throw new LoginAttemptException(
-                    "Username or password is incorrect",
+                    "Username or password is incorrect, or your account is locked due to too many failed login attempts",
                     user.getLoginTries());
             }
             userRepository.save(user);
-            throw new LoginAttemptException("Username or password is incorrect", user.getLoginTries());
+            throw new LoginAttemptException("Username or password is incorrect, or your account is locked due to too many failed login attempts", user.getLoginTries());
         }
 
         if (!user.isActivated()) {
             throw new LoginAttemptException(
-                "Username or password is incorrect", user.getLoginTries());
+                "Username or password is incorrect, or your account is locked due to too many failed login attempts", user.getLoginTries());
         }
         user.setLoginTries(0);
         userRepository.save(user);

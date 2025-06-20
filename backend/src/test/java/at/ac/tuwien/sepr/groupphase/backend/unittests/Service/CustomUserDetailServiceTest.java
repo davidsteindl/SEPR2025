@@ -140,7 +140,7 @@ class CustomUserDetailServiceTest {
             () -> userDetailService.login(loginDto));
 
         assertAll(
-            () -> assertEquals("Username or password is incorrect", exception.getMessage()),
+            () -> assertEquals("Username or password is incorrect, or your account is locked due to too many failed login attempts", exception.getMessage()),
             () -> assertEquals(1, testUser.getLoginTries())
         );
         verify(userRepository).save(testUser);
@@ -162,7 +162,7 @@ class CustomUserDetailServiceTest {
             () -> userDetailService.login(loginDto));
 
         assertTrue(testUser.isLocked());
-        assertEquals("Username or password is incorrect",
+        assertEquals("Username or password is incorrect, or your account is locked due to too many failed login attempts",
             exception.getMessage());
         verify(userRepository).save(testUser);
     }
@@ -181,7 +181,7 @@ class CustomUserDetailServiceTest {
         LoginAttemptException exception = assertThrows(LoginAttemptException.class,
             () -> userDetailService.login(loginDto));
 
-        assertEquals("Username or password is incorrect",
+        assertEquals("Username or password is incorrect, or your account is locked due to too many failed login attempts",
             exception.getMessage());
         verify(userRepository, never()).save(testUser);
     }
