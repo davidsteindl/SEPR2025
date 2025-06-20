@@ -57,6 +57,42 @@ public class MailServiceImpl implements MailService {
 
     @Async
     @Override
+    public void sendUserUnlockEmail(String email) {
+        LOGGER.info("sending email for User unlock ...");
+        String htmlContent = """
+                <html>
+                    <body>
+                        <p>Dear Customer,</p>
+                        <p>Your Account was unlocked. You can log in to your account again :)</p>
+
+                        <p>Best regards,<br/>Your TicketLine Team</p>
+                    </body>
+                </html>
+            """;
+
+        sendMail(email, "Account unlocked for your TicketLine-Account", htmlContent);
+    }
+
+    @Async
+    @Override
+    public void sendUserBlockEmail(String email) {
+        LOGGER.info("sending email for User block ...");
+        String htmlContent = """
+                <html>
+                    <body>
+                        <p>Dear Customer,</p>
+                        <p>Your Account was blocked. You can no longer log in to your account.</p>
+
+                        <p>Best regards,<br/>Your TicketLine Team</p>
+                    </body>
+                </html>
+            """;
+
+        sendMail(email, "Account blocked for your TicketLine-Account", htmlContent);
+    }
+
+    @Async
+    @Override
     public void sendAccountActivationEmail(String email, String link, String time) {
         LOGGER.info("sending email for Account-Activation ...");
         String htmlContent = """
