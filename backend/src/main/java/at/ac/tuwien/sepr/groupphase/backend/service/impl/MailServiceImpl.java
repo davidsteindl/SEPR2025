@@ -88,7 +88,7 @@ public class MailServiceImpl implements MailService {
                 </html>
             """;
 
-        sendMail(email, "Account unlocked for your TicketLine-Account", htmlContent);
+        sendMail(email, "Account blocked for your TicketLine-Account", htmlContent);
     }
 
     @Async
