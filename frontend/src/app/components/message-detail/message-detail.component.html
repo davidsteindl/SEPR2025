@@ -15,10 +15,15 @@
   <p>{{ message.text }}</p>
 
   <div class="mt-4">
-    <div *ngIf="message.images?.length > 0;">
-      <h5>Images</h5>
-      <img *ngFor="let img of message.images" [src]="getImageUrl(img.id)" class="img-fluid mb-3"
-           style="max-width: 100%; max-height: 400px;">
+    <div class="mt-4">
+      <div *ngIf="message.images?.length > 0;">
+        <h5>Images</h5>
+        <div class="d-flex flex-wrap gap-3">
+          <img *ngFor="let img of message.images"
+               [src]="getImageUrl(img.id)"
+               class="img-fluid"
+               style="max-width: 800px; max-height: 40vh; width: auto; height: auto;">
+        </div>
+      </div>
     </div>
-  </div>
 </div>
