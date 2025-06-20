@@ -1,0 +1,72 @@
+<div class="mt-4 container">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Create News</h2>
+    <button class="btn btn-outline-secondary" (click)="onBackClick()">
+      ← Back to Admin
+    </button>
+  </div>
+  <hr>
+
+  <form #messageForm="ngForm" (ngSubmit)="addMessage()" novalidate>
+
+    <div class="form-group">
+      <label for="inputTitle">Title <span class="text-danger">*</span></label>
+      <input id="inputTitle" name="title" class="form-control" required [(ngModel)]="currentMessage.title" />
+      <div *ngIf="submitted && messageForm.controls.title?.invalid" class="text-danger">
+        Title is required.
+      </div>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="inputSummary">Summary <span class="text-danger">*</span></label>
+      <textarea id="inputSummary" name="summary" rows="3" class="form-control" required [(ngModel)]="currentMessage.summary"></textarea>
+      <div *ngIf="submitted && messageForm.controls.summary?.invalid" class="text-danger">
+        Summary is required.
+      </div>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="inputText">Text <span class="text-danger">*</span></label>
+      <textarea id="inputText" name="text" rows="6" class="form-control" required [(ngModel)]="currentMessage.text"></textarea>
+      <div *ngIf="submitted && messageForm.controls.text?.invalid" class="text-danger">
+        Text is required.
+      </div>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="newsImage">Images</label>
+      <input id="newsImage" type="file" accept="image/*" multiple class="form-control" (change)="onFileSelected($event)">
+    </div>
+
+    <div class="mt-4 text-center">
+      <button type="submit" class="btn btn-success me-2" [disabled]="messageForm.invalid">Create News</button>
+    </div>
+
+  </form>
+
+  <div *ngIf="showConfirm">
+    <div class="modal-backdrop fade show"></div>
+
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header justify-content-center border-0">
+            <h5 class="modal-title text-center fw-bold mb-0">
+              Confirm Exit
+            </h5>
+          </div>
+          <div class="modal-body text-center py-2">
+            <p class="mb-1">
+              If you exit this page, your changes will not be saved.
+            </p>
+          </div>
+          <div class="modal-footer justify-content-center pt-1 pb-2 border-0">
+            <button type="button" class="btn btn-success me-2" (click)="stay()">Stay on Page</button>
+            <button type="button" class="btn btn-danger" (click)="exit()">Exit Page</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

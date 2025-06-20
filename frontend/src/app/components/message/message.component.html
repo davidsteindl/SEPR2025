@@ -14,7 +14,7 @@
     <div class="d-flex justify-content-center mb-3">
       <button
         type="button"
-        class="btn btn-outline-primary"
+        class="btn btn-primary mt-3"
         style="padding: 0.5rem 1rem;"
         (click)="toggleShowAllMessages()">
         {{ showAllMessages ? 'Show only unread' : 'Show all news' }}
@@ -23,93 +23,6 @@
 
     <div *ngIf="allMessagesRead" class="alert alert-info alert-dismissible fade show">
       <strong>Info:</strong> You have read all news.
-    </div>
-
-    <div class="row p-2 mb-4">
-      <button *ngIf="isAdmin()" type="button" class="btn btn-secondary btn-sm mr-4"
-              (click)="openAddModal(messageAddModal)">Add news
-      </button>
-
-      <ng-template #messageAddModal let-modal>
-        <div class="modal-header">
-          <h5 class="modal-title">Message</h5>
-          <button type="button" class="close" (click)="modal.dismiss('X')" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <form (ngSubmit)="addMessage(messageForm)" #messageForm="ngForm">
-
-            <div class="form-group">
-              <label for="inputTitle">Title</label>
-              <input type="text" name="title" class="form-control" id="inputTitle" required
-                     aria-describedby="titleHelp" placeholder="Enter title" [(ngModel)]="currentMessage.title"
-                     [readOnly]="currentMessage.id">
-              <div *ngIf="submitted && messageForm.controls.title.errors" class="error">
-                <small class="form-text text-warning" *ngIf="messageForm.controls.title.errors.required">Your title
-                  is
-                  required!
-                </small>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="inputSummary">Summary</label>
-              <textarea rows="3" name="summary" class="form-control" id="inputSummary" required
-                        aria-describedby="summaryHelp" placeholder="Enter summary" [(ngModel)]="currentMessage.summary"
-                        [readOnly]="currentMessage.id"></textarea>
-              <div *ngIf="submitted && messageForm.controls.summary.errors" class="error">
-                <small class="form-text text-warning" *ngIf="messageForm.controls.summary.errors.required">Your
-                  summary is
-                  required!
-                </small>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="inputText">Text</label>
-              <textarea rows="6" name="text" class="form-control" id="inputText" required
-                        aria-describedby="textHelp" placeholder="Enter text" [(ngModel)]="currentMessage.text"
-                        [readOnly]="currentMessage.id"></textarea>
-              <div *ngIf="submitted && messageForm.controls.text.errors" class="error">
-                <small class="form-text text-warning" *ngIf="messageForm.controls.text.errors.required">Your text is
-                  required!
-                </small>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Image</label>
-              <div>
-                <img *ngFor="let image of currentMessage.images" [src]="newsImage(image.id)"
-                     alt="News Image" class="img-fluid" style="max-width: 100%; max-height: 400px;">
-              </div>
-            </div>
-
-            <div *ngIf="isAdmin() && !currentMessage.id" class="row mb-2">
-              <label for="newsImage" class="col-form-label text-md-end text-muted col-md-2">Image</label>
-              <div class="col-md-10">
-                <input
-                  multiple
-                  type="file" accept="image/*"
-                  class="form-control"
-                  id="newsImage"
-                  name="newsImage"
-                  (change)="onFileSelected($event)"/>
-              </div>
-            </div>
-
-            <button type="button" (click)="addMessage(messageForm)" id="add-msg" class="btn btn-success float-right"
-                    *ngIf="!currentMessage.id">Add message
-            </button>
-
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" id="close-modal-btn" (click)="modal.dismiss('close')">Close
-          </button>
-        </div>
-      </ng-template>
     </div>
 
     <div *ngFor="let message of getMessage()" class="row justify-content-center p-2">
@@ -121,8 +34,9 @@
             <h5 class="card-title">{{ message.title }}</h5>
             <h6 class="card-subtitle mb-2 text-muted">{{ message.publishedAt | date }}</h6>
             <p class="card-text">{{ message.summary }}</p>
-            <button (click)="openExistingMessageModal(message.id, messageAddModal)" type="button"
-                    class="btn btn-success">
+            <button type="button"
+                    class="btn btn-success"
+                    [routerLink]="['/news', message.id]">
               Details
             </button>
           </div>

@@ -1,0 +1,30 @@
+<div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+  <strong>Error!</strong> {{ errorMessage }}
+  <button type="button" class="close" (click)="vanishError()" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div class="container mt-4" *ngIf="message">
+  <button class="btn btn-outline-secondary mb-3" [routerLink]="['/news']">← Back to News</button>
+
+  <h2>{{ message.title }}</h2>
+  <h6
+    class="text-muted">{{ message.publishedAt | date: 'mediumDate' }} {{ message.publishedAt | date: 'shortTime' }}</h6>
+  <hr>
+  <p>{{ message.text }}</p>
+
+  <div class="mt-4">
+    <div class="mt-4">
+      <div *ngIf="message.images?.length > 0;">
+        <h5>Images</h5>
+        <div class="d-flex flex-wrap gap-3">
+          <img *ngFor="let img of message.images"
+               [src]="getImageUrl(img.id)"
+               class="img-fluid"
+               style="max-width: 800px; max-height: 40vh; width: auto; height: auto;">
+        </div>
+      </div>
+    </div>
+</div>
+</div>
