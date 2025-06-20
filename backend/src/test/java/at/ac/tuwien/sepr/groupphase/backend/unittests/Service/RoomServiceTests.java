@@ -30,6 +30,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -164,7 +165,7 @@ public class RoomServiceTests {
 
         assertThrows(NotFoundException.class,
             () -> roomService.updateRoom(999L, bogus),
-            "Updating a non-existing room ID should throw NotFoundException");
+            "Updating a non-existing room ID should throw EntityNotFoundException");
     }
 
     @Test

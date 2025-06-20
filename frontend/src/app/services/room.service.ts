@@ -3,7 +3,8 @@ import {Globals} from '../global/globals';
 import {HttpClient} from "@angular/common/http";
 import {CreateRoom} from "../dtos/create-room";
 import { Observable } from 'rxjs';
-import {Room} from "../dtos/room";
+import {Room, RoomPageDto} from "../dtos/room";
+import { Page } from '../dtos/page';
 
 
 @Injectable({

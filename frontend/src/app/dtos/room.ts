@@ -16,3 +16,8 @@ export interface RoomPageDto {
   name: string;
   eventLocationName: string;
 }
+export interface RoomPageDto {
+  id: number;
+  name: string;
+  eventLocationName: string;
+}
