@@ -125,7 +125,7 @@ public class CustomUserDetailService implements UserService {
 
         if (user.isLocked()) {
             throw new LoginAttemptException(
-                "Your account is locked due to too many failed login attempts, please contact an administrator",
+                "Username or password is incorrect",
                 user.getLoginTries());
         }
 
@@ -137,7 +137,7 @@ public class CustomUserDetailService implements UserService {
                 user.setLocked(true);
                 userRepository.save(user);
                 throw new LoginAttemptException(
-                    "Your account is locked due to too many failed login attempts, please contact an administrator",
+                    "Username or password is incorrect",
                     user.getLoginTries());
             }
             userRepository.save(user);
@@ -146,7 +146,7 @@ public class CustomUserDetailService implements UserService {
 
         if (!user.isActivated()) {
             throw new LoginAttemptException(
-                "Your account is not yet activated, please look at your emails", user.getLoginTries());
+                "Username or password is incorrect", user.getLoginTries());
         }
         user.setLoginTries(0);
         userRepository.save(user);
@@ -234,6 +234,7 @@ public class CustomUserDetailService implements UserService {
         user.setLocked(false);
         user.setLoginTries(0);
         userRepository.save(user);
+        this.mailService.sendUserUnlockEmail(user.getEmail());
     }
 
     @Override
@@ -244,6 +245,7 @@ public class CustomUserDetailService implements UserService {
         user.setLocked(true);
         user.setLoginTries(0);
         userRepository.save(user);
+        this.mailService.sendUserBlockEmail(user.getEmail());
     }
 
     @Override

@@ -17,6 +17,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomUserDetailService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
+import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -54,6 +55,9 @@ class CustomUserDetailServiceTest {
 
     @Mock
     private UserValidator userValidator;
+
+    @Mock
+    private MailService mailService;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -158,7 +162,7 @@ class CustomUserDetailServiceTest {
             () -> userDetailService.login(loginDto));
 
         assertTrue(testUser.isLocked());
-        assertEquals("Your account is locked due to too many failed login attempts, please contact an administrator",
+        assertEquals("Username or password is incorrect",
             exception.getMessage());
         verify(userRepository).save(testUser);
     }
@@ -177,7 +181,7 @@ class CustomUserDetailServiceTest {
         LoginAttemptException exception = assertThrows(LoginAttemptException.class,
             () -> userDetailService.login(loginDto));
 
-        assertEquals("Your account is locked due to too many failed login attempts, please contact an administrator",
+        assertEquals("Username or password is incorrect",
             exception.getMessage());
         verify(userRepository, never()).save(testUser);
     }

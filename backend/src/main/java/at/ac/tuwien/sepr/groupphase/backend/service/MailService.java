@@ -19,6 +19,20 @@ public interface MailService {
     void sendPasswordResetEmail(String email, String passwordResetLink, String time);
 
     /**
+     * Function to send an info mail to the user, that his Account was unlocked.
+     *
+     * @param email the receiver email
+     */
+    void sendUserUnlockEmail(String email);
+
+    /**
+     * Function to send an info mail to the user, that his Account was blocked.
+     *
+     * @param email the receiver email
+     */
+    void sendUserBlockEmail(String email);
+
+    /**
      * Function to send an account activation email.
      *
      * @param email the receiver email
