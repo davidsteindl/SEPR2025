@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {CommonModule, NgForOf} from "@angular/common";
-import {RouterLink} from "@angular/router";
+import {ActivatedRoute, RouterLink} from "@angular/router";
 import {Page} from "../../../dtos/page";
 import {RoomPageDto} from "../../../dtos/room";
 import {RoomService} from "../../../services/room.service";
@@ -21,13 +21,17 @@ export class UpdateRoomsComponent implements OnInit {
   roomsLoading = false;
   roomsTriggered = false;
 
+  showBackButton = false;
+
   constructor(
     private roomService: RoomService,
     private notification: ToastrService,
-    private errorFormatter: ErrorFormatterService
+    private errorFormatter: ErrorFormatterService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    this.showBackButton = this.route.snapshot.queryParamMap.get('fromAdmin') === 'true';
     this.loadAllRooms();
   }
 
