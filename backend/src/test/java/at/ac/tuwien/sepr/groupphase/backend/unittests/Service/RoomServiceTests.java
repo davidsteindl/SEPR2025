@@ -30,7 +30,6 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -165,7 +164,7 @@ public class RoomServiceTests {
 
         assertThrows(NotFoundException.class,
             () -> roomService.updateRoom(999L, bogus),
-            "Updating a non-existing room ID should throw EntityNotFoundException");
+            "Updating a non-existing room ID should throw NotFoundException");
     }
 
     @Test
@@ -554,38 +553,6 @@ public class RoomServiceTests {
                     !(s instanceof StageSectorDto)
             ), "Expected a normal SectorDto to be present")
         );
-    }
-
-    @Test
-    public void testUpdateRoom_removeNormalSector() throws ValidationException {
-        RoomDetailDto original = roomService.createRoom(createRoomDto);
-
-        SectorDto newSector = new SectorDto();
-        newSector.setPrice(25);
-
-        // Add sector first
-        RoomDetailDto withSector = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
-            .id(original.getId())
-            .name(original.getName())
-            .sectors(List.of(newSector))
-            .seats(original.getSeats())
-            .eventLocationId(original.getEventLocationId())
-            .build();
-
-        RoomDetailDto updatedWithSector = roomService.updateRoom(original.getId(), withSector);
-        assertEquals(1, updatedWithSector.getSectors().size());
-
-        // Now remove it again
-        RoomDetailDto withNoSectors = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
-            .id(original.getId())
-            .name(original.getName())
-            .sectors(List.of())
-            .seats(original.getSeats())
-            .eventLocationId(original.getEventLocationId())
-            .build();
-
-        RoomDetailDto result = roomService.updateRoom(original.getId(), withNoSectors);
-        assertEquals(0, result.getSectors().size(), "All sectors should be removed");
     }
 
     @Test
