@@ -38,6 +38,7 @@ import {BuyTicketsPageComponent} from './components/buy-tickets-page/buy-tickets
 import {AccountActivationComponent} from "./components/password/account-activation/account-activation.component";
 import {EditRoomPageComponent} from "./components/edit-room-page/edit-room-page.component";
 import {CreateMessageComponent} from "./components/create-content/create-message/create-message.component";
+import {MessageDetailComponent} from "./components/message-detail/message-detail.component";
 
 const routes: Routes = [
   {path: "", component: HomeComponent},
@@ -53,6 +54,11 @@ const routes: Routes = [
     path: "message",
     canActivate: mapToCanActivate([AuthGuard]),
     component: MessageComponent,
+  },
+  {
+    path: "message/:id",
+    canActivate: mapToCanActivate([AuthGuard]),
+    component: MessageDetailComponent,
   },
   {
     path: "checkout",
