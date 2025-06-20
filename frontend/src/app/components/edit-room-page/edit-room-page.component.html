@@ -2,7 +2,12 @@
 <div *ngIf="!loading" class="edit-room-page d-flex">
   <!-- Seat Map -->
   <div class="flex-grow-1 seat-map-container mb-3">
-    <h3 class="mb-3">{{ room.name }}</h3>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="mb-0">{{ room.name }}</h3>
+      <button class="btn btn-outline-secondary" (click)="onBackToUpdateRoomsClick()">
+        ← Back to Rooms Update Page
+      </button>
+    </div>
     <app-edit-room-seat-map [room]="room"></app-edit-room-seat-map>
   </div>
 
@@ -136,4 +141,24 @@
       </button>
     </div>
   </ng-template>
+
+  <div *ngIf="showConfirmExit">
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header justify-content-center border-0">
+            <h5 class="modal-title text-center fw-bold mb-0">Confirm Exit</h5>
+          </div>
+          <div class="modal-body text-center py-2">
+            <p>If you exit this page, your changes will not be saved.</p>
+          </div>
+          <div class="modal-footer justify-content-center pt-1 pb-2 border-0">
+            <button class="btn btn-success me-2" (click)="stay()">Stay on Page</button>
+            <button class="btn btn-danger" (click)="exit()">Exit Page</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
