@@ -1,6 +1,6 @@
 // edit-room-page.component.ts
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { ActivatedRoute, ParamMap } from "@angular/router";
+import {ActivatedRoute, ParamMap, Router} from "@angular/router";
 import { RoomService } from "src/app/services/room.service";
 import { Room } from "src/app/dtos/room";
 import { Sector, SectorType } from "src/app/dtos/sector";
@@ -9,7 +9,6 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ReactiveFormsModule } from "@angular/forms";
 import { EditRoomSeatMapComponent } from "./seat-map/edit-room-seat-map.component";
 import { CommonModule } from "@angular/common";
-import { U } from "@angular/common/common_module.d-Qx8B6pmN";
 import { ToastrService } from "ngx-toastr";
 
 @Component({
@@ -23,6 +22,10 @@ export class EditRoomPageComponent implements OnInit {
   room!: Room;
   loading = true;
 
+  showAdminReturn = false;
+  showConfirmExit = false;
+  private initialRoomState!: string;
+
   // form for creating/editing a sector
   sectorForm!: FormGroup;
   private editingModalRef!: NgbModalRef;
@@ -32,6 +35,7 @@ export class EditRoomPageComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private roomService: RoomService,
     private modalService: NgbModal,
     private fb: FormBuilder,
@@ -39,11 +43,14 @@ export class EditRoomPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.showAdminReturn = this.route.snapshot.queryParamMap.get('fromAdmin') === 'true';
+
     this.route.paramMap.subscribe((params: ParamMap) => {
       const id = +params.get("id")!;
       this.roomService.getRoomById(id).subscribe((r) => {
         console.log("Room loaded: ", r);
         this.room = r;
+        this.initialRoomState = JSON.stringify(r);
         this.loading = false;
       });
     });
@@ -130,6 +137,9 @@ export class EditRoomPageComponent implements OnInit {
         if (afterSuccess) afterSuccess();
         this.toastr.success("Room saved successfully!");
         console.log("Layout saved successfully");
+        this.router.navigate(['/update-rooms'], {
+          queryParams: { fromAdmin: this.showAdminReturn }
+        });
       },
       error: (err) => {
         console.error("Error saving layout:", err);
@@ -157,4 +167,29 @@ export class EditRoomPageComponent implements OnInit {
   }
 
   SectorType = SectorType;
+
+  onBackToUpdateRoomsClick(): void {
+    if (this.isUnchanged()) {
+      this.router.navigate(['/update-rooms'], {
+        queryParams: { fromAdmin: this.showAdminReturn }
+      });
+    } else {
+      this.showConfirmExit = true;
+    }
+  }
+
+  private isUnchanged(): boolean {
+    return JSON.stringify(this.room) === this.initialRoomState;
+  }
+
+  stay(): void {
+    this.showConfirmExit = false;
+  }
+
+  exit(): void {
+    this.showConfirmExit = false;
+    this.router.navigate(['/update-rooms'], {
+      queryParams: { fromAdmin: this.showAdminReturn }
+    });
+  }
 }

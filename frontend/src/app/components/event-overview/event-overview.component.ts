@@ -27,6 +27,8 @@ import {ErrorFormatterService} from "../../services/error-formatter.service";
 export class EventOverviewComponent implements OnInit {
   event: Event | null = null;
   shows: (Show & { dateObj: Date })[] = [];
+  showsLoading = false;
+  showsTriggered = false;
   location: Location | null = null;
   artistMap: { [showId: number]: Artist[] } = {};
   backLink: any[] = ['/search'];
@@ -87,6 +89,8 @@ export class EventOverviewComponent implements OnInit {
   }
 
   loadPagedShows(eventId: number): void {
+    this.showsLoading = true;
+    this.showsTriggered = true;
     this.eventService.getPaginatedShowsForEvent(eventId, this.page, this.pageSize).subscribe({
       next: result => {
         this.shows = result.content.map(show => ({
@@ -95,6 +99,7 @@ export class EventOverviewComponent implements OnInit {
         }));
 
         this.totalPages = result.totalPages;
+        this.showsLoading = false;
 
         this.artistMap = {};
         this.shows.forEach(show => {
@@ -114,6 +119,7 @@ export class EventOverviewComponent implements OnInit {
         });
       },
       error: err => {
+        this.showsLoading = false;
         this.notification.error(this.errorFormatter.format(err), 'Loading shows failed', {
           enableHtml: true,
           timeOut: 8000,

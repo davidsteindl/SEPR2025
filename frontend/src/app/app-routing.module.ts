@@ -39,6 +39,7 @@ import {AccountActivationComponent} from "./components/password/account-activati
 import {EditRoomPageComponent} from "./components/edit-room-page/edit-room-page.component";
 import {CreateMessageComponent} from "./components/create-content/create-message/create-message.component";
 import {MessageDetailComponent} from "./components/message-detail/message-detail.component";
+import {UpdateRoomsComponent} from "./components/room/update-rooms/update-rooms.component";
 
 const routes: Routes = [
   {path: "", component: HomeComponent},
@@ -76,6 +77,11 @@ const routes: Routes = [
   {
     path: "update-events",
     component: UpdateEventsComponent,
+    canActivate: [AdminGuard],
+  },
+  {
+    path: 'update-rooms',
+    component: UpdateRoomsComponent,
     canActivate: [AdminGuard],
   },
   {

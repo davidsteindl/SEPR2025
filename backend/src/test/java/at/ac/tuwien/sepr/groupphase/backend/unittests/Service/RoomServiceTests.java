@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.SectorType;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomPageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SectorDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
@@ -36,6 +37,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -255,6 +259,54 @@ public class RoomServiceTests {
 
         List<RoomDetailDto> allRooms = roomService.getAllRooms();
         assertEquals(2, allRooms.size());
+    }
+
+    @Test
+    public void testGetAllRoomsPaginated_returnsPagedRoomDetailDtos() {
+
+        RoomDetailDto first = roomService.createRoom(createRoomDto);
+
+        CreateRoomDto secondDto = CreateRoomDto.CreateRoomDtoBuilder
+            .aCreateRoomDtoBuilder()
+            .eventLocationId(testLocation.getId())
+            .name("Room B")
+            .rows(5)
+            .columns(5)
+            .build();
+
+        RoomDetailDto second = roomService.createRoom(secondDto);
+
+        Pageable pageable = PageRequest.of(0, 2);
+        Page<RoomPageDto> page = roomService.getAllRoomsPaginated(pageable);
+
+        assertAll(
+            () -> assertEquals(2, page.getTotalElements(), "There should be 2 rooms in total contained"),
+            () -> assertEquals(2, page.getSize()," Page size should be 2"),
+            () -> assertEquals(2, page.getContent().size(), "Page should contain 2 rooms"),
+            () -> assertEquals(0, page.getNumber()," Page number should be 0"),
+            () -> assertEquals(1, page.getTotalPages(), "Total pages should be 1"),
+            () -> assertTrue(
+                page.getContent().stream().anyMatch(r -> r.getName().equals("Room A")),
+                "Page should contain Room A"
+            ),
+            () -> assertTrue(
+                page.getContent().stream().anyMatch(r -> r.getName().equals("Room B")),
+                "Page should contain Room B"
+            )
+        );
+    }
+
+    @Test
+    public void testGetAllRoomsPaginated_empty_returnsEmptyPage() {
+        roomRepository.deleteAll();
+
+        Pageable pageable = PageRequest.of(0, 1);
+        Page<RoomPageDto> page = roomService.getAllRoomsPaginated(pageable);
+
+        assertAll(
+            () -> assertEquals(0, page.getTotalElements(), "No rooms present, total should be 0"),
+            () -> assertTrue(page.getContent().isEmpty(), "Content page should be empty")
+        );
     }
 
     @Test

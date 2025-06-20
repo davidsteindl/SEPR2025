@@ -44,10 +44,18 @@
           <i class="fas fa-ticket cc-btn__icon"></i>
           <span>Show</span>
         </button>
-        <button class="cc-btn" routerLink="/create-room">
-          <i class="fas fa-th-large cc-btn__icon"></i>
-          <span>Room</span>
-        </button>
+        <div class="cc-card cc-card--rooms">
+          <i class="fas fa-th-large cc-card__icon"></i>
+          <span class="cc-card__label">Room</span>
+          <div class="cc-card__actions">
+            <button routerLink="/create-room" title="Create Room">
+              <i class="fas fa-plus"></i>
+            </button>
+            <button routerLink="/update-rooms" [queryParams]="{ fromAdmin: true }" title="Update Room">
+              <i class="fas fa-edit"></i>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 

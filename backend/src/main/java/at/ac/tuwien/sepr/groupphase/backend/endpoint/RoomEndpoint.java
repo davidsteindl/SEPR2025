@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.endpoint;
 
 import java.lang.invoke.MethodHandles;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomPageDto;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +27,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -72,5 +78,24 @@ public class RoomEndpoint {
     public List<RoomDetailDto> getAllRooms() {
         LOGGER.info("GET /api/v1/rooms");
         return roomservice.getAllRooms();
+    }
+
+    @GetMapping("/paginated")
+    @Secured("ROLE_ADMIN")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get all rooms paginated", security = @SecurityRequirement(name = "apiKey"))
+    public Page<RoomPageDto> getAllRoomsPaginated(
+        @RequestParam(name = "page", defaultValue = "0") int page,
+        @RequestParam(name = "size", defaultValue = "10") int size) {
+        LOGGER.info("GET /api/v1/rooms/paginated?page={}&size={}", page, size);
+        Pageable sorted = PageRequest.of(
+            page,
+            size,
+            Sort.by(
+                Sort.Order.asc("eventLocation.name").ignoreCase(),
+                Sort.Order.asc("name").ignoreCase()
+            )
+        );
+        return roomservice.getAllRoomsPaginated(sorted);
     }
 }

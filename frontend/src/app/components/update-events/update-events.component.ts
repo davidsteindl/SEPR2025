@@ -27,6 +27,7 @@ export class UpdateEventsComponent implements OnInit {
   eventsPageSize = 10;
   eventsLoading = false;
   eventsTriggered = false;
+  private isFirstLoad = true;
 
   constructor(
     private eventService: EventService,
@@ -43,16 +44,21 @@ export class UpdateEventsComponent implements OnInit {
     this.eventsTriggered = true;
     this.error = false;
 
-    this.eventService.getPaginatedEvents(page, this.eventsPageSize).subscribe({
+    const nowLocalIso = new Date().toISOString().slice(0, 19);
+    const obs = this.isFirstLoad
+      ? this.eventService.getPaginatedEvents(page, this.eventsPageSize, nowLocalIso)
+      : this.eventService.getPaginatedEvents(page, this.eventsPageSize);
+
+    obs.subscribe({
       next: pageResult => {
         this.eventsPage = pageResult;
-        this.eventsCurrentPage = page;
+        this.eventsCurrentPage = pageResult.number;
         this.eventsLoading = false;
+        this.isFirstLoad = false;
       },
       error: err => {
         this.eventsPage = undefined;
         this.eventsLoading = false;
-        this.eventsTriggered = false;
         console.error('Error loading events:', err);
         this.notification.error(
           this.errorFormatter.format(err),

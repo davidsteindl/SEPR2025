@@ -21,20 +21,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.springframework.data.jpa.domain.Specification.where;
 
 
 @Service
@@ -77,21 +72,15 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Page<UpdateEventDto> getAllPaginatedEvents(Pageable pageable) {
+    public Page<UpdateEventDto> getAllEventsPaginated(Pageable pageable) {
         LOGGER.debug("Get all events paginated");
-        Pageable sorted = PageRequest.of(
-            pageable.getPageNumber(),
-            pageable.getPageSize(),
-            Sort.by("dateTime").ascending()
-        );
-
-        LocalDateTime nowTrunc = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-
-        Specification<Event> upcoming = (root, query, cb) ->
-            cb.greaterThanOrEqualTo(root.get("dateTime"), nowTrunc);
-
-        return eventRepository.findAll(where(upcoming), sorted)
+        return eventRepository.findAll(pageable)
             .map(eventMapper::eventToUpdateEventDto);
+    }
+
+    @Override
+    public long countEventsBefore(LocalDateTime dateTime) {
+        return eventRepository.countByDateTimeBefore(dateTime);
     }
 
     @Override
