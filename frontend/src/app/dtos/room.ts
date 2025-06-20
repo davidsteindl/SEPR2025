@@ -11,3 +11,13 @@ export interface Room {
   name: string;
   eventLocationId: number;
 }
+export interface RoomPageDto {
+  id: number;
+  name: string;
+  eventLocationName: string;
+}
+export interface RoomPageDto {
+  id: number;
+  name: string;
+  eventLocationName: string;
+}
