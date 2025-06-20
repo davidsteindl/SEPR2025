@@ -51,7 +51,7 @@
             <button routerLink="/create-room" title="Create Room">
               <i class="fas fa-plus"></i>
             </button>
-            <button routerLink="/update-rooms" title="Update Room">
+            <button routerLink="/update-rooms" [queryParams]="{ fromAdmin: true }" title="Update Room">
               <i class="fas fa-edit"></i>
             </button>
           </div>
