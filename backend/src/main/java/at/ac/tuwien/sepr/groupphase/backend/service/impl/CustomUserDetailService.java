@@ -234,6 +234,7 @@ public class CustomUserDetailService implements UserService {
         user.setLocked(false);
         user.setLoginTries(0);
         userRepository.save(user);
+        this.mailService.sendUserUnlockEmail(user.getEmail());
     }
 
     @Override
@@ -244,6 +245,7 @@ public class CustomUserDetailService implements UserService {
         user.setLocked(true);
         user.setLoginTries(0);
         userRepository.save(user);
+        this.mailService.sendUserBlockEmail(user.getEmail());
     }
 
     @Override
