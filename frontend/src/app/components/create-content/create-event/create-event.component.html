@@ -75,8 +75,17 @@
         <div *ngIf="eventDuration.errors?.required" class="text-danger">
           Duration is required.
         </div>
-        <div *ngIf="eventDuration.errors?.min" class="text-danger">
+
+        <div *ngIf="eventDuration.errors?.min && eventDuration.value < 0" class="text-danger">
           Duration must be a positive number.
+        </div>
+
+        <div *ngIf="eventDuration.errors?.min && eventDuration.value >= 0" class="text-danger">
+          Duration must be between 10 and 10000 minutes.
+        </div>
+
+        <div *ngIf="eventDuration.errors?.max" class="text-danger">
+          Duration must be between 10 and 10000 minutes.
         </div>
       </div>
     </div>
