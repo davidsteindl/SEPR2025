@@ -4,6 +4,7 @@ import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventTopTenDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.UpdateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
@@ -11,6 +12,7 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
@@ -57,6 +59,9 @@ public class EventServiceTest {
 
     @Autowired
     private RoomRepository roomRepository;
+
+    @Autowired
+    private ArtistRepository artistRepository;
 
     @Autowired
     private SectorRepository sectorRepository;
@@ -153,17 +158,25 @@ public class EventServiceTest {
     @AfterEach
     @Transactional
     public void deleteData() {
-        ticketRepository.deleteAll();
-        showRepository.findAll().forEach(show -> {
+        List<Show> shows = showRepository.findAllWithArtists();
+
+        for (Show show : shows) {
+            show.getArtists().forEach(artist -> artist.getShows().remove(show));
             show.getArtists().clear();
-            showRepository.save(show);
-        });
+        }
+
+        List<Artist> artists = artistRepository.findAll();
+        artistRepository.saveAll(artists);
+
+        ticketRepository.deleteAll();
         showRepository.deleteAll();
         eventRepository.deleteAll();
         sectorRepository.deleteAll();
         roomRepository.deleteAll();
         eventLocationRepository.deleteAll();
+        artistRepository.deleteAll();
     }
+
 
     private void createEventWithShowsAndTickets(String eventName, int numTickets) {
         EventLocation location = EventLocation.EventLocationBuilder.anEventLocation()
