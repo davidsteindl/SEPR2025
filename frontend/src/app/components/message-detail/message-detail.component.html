@@ -6,12 +6,18 @@
 </div>
 
 <div class="container mt-4" *ngIf="message">
-  <button class="btn btn-outline-secondary mb-3" [routerLink]="['/news']">← Back to News</button>
-
-  <h2>{{ message.title }}</h2>
-  <h6
-    class="text-muted">{{ message.publishedAt | date: 'mediumDate' }} {{ message.publishedAt | date: 'shortTime' }}</h6>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="modal-title">{{ message.title }}</h2>
+    <button class="btn btn-outline-secondary" [routerLink]="['/news']">
+      ← Back to News Page
+    </button>
+  </div>
   <hr>
+  <h6 class="text-muted">
+    {{ message.publishedAt | date: 'mediumDate' }}
+    {{ message.publishedAt | date: 'shortTime' }}
+  </h6>
+
   <p>{{ message.text }}</p>
 
   <div class="mt-4">

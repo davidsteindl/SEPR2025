@@ -1,7 +1,7 @@
 <div class="mt-4 container">
-  <div class="row">
+  <div>
     <h2 class="modal-title">Search</h2>
-    <hr>
+    <hr class="mt-1 mb-4">
   </div>
   <ul class="nav nav-tabs custom-tabs mb-0">
     <li class="nav-item">
@@ -249,7 +249,7 @@
           <td>{{ ev.description }}</td>
           <td class="text-right">
             <button class="view-button" [routerLink]="['/events', ev.id, 'overview']"
-                    [queryParams]="{ from: 'event', tab: 'event'  }">
+                    [queryParams]="{ from: 'search', tab: 'event'  }">
               View Event
             </button>
           </td>

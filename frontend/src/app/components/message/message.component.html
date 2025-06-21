@@ -7,9 +7,9 @@
 
 
 <div class="mt-4 container">
-  <div class="row">
+  <div>
     <h2 class="modal-title"> News </h2>
-    <hr>
+    <hr class="mt-1 mb-4">
 
     <div class="d-flex justify-content-center mb-3">
       <button
@@ -103,7 +103,7 @@
           <td>{{ event.date ? (event.date | date: 'mediumDate') : 'No date scheduled' }}</td>
           <td><strong>{{ event.ticketsSold }}</strong></td>
           <td>
-            <button class="view-button" [routerLink]="['/events', event.id, 'overview']">View full event</button>
+            <button class="view-button" [routerLink]="['/events', event.id, 'overview']" [queryParams]="{ from: 'news' }">View full event</button>
           </td>
         </tr>
         </tbody>

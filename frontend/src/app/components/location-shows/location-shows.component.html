@@ -3,14 +3,14 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Shows in this location</h2>
     <button class="btn btn-outline-secondary" [routerLink]="['/search']" [queryParams]="{ tab: 'location' }">
-      ← Back to Search
+      ← Back to Search Page
     </button>
   </div>
 
-  <hr class="mb-4">
+  <hr>
 
   <div *ngIf="loading" class="text-center">
-    Loading…
+    Loading shows…
   </div>
   <div *ngIf="errorMsg" class="alert alert-danger">
     {{ errorMsg }}
