@@ -28,6 +28,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.SeatRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
+import at.ac.tuwien.sepr.groupphase.backend.security.AuthenticationFacade;
 import at.ac.tuwien.sepr.groupphase.backend.service.RoomService;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SectorValidator;
@@ -62,11 +63,12 @@ public class RoomServiceImpl implements RoomService {
     private final HoldRepository holdRepository;
     private final RoomMapper roomMapper;
     private final SectorValidator sectorValidator;
+    private final AuthenticationFacade authFacade;
 
     @Autowired
     public RoomServiceImpl(EventLocationRepository eventLocationRepository,
                            RoomRepository roomRepository, SectorRepository sectorRepository, SeatRepository seatRepository, ShowService showService,
-                           TicketRepository ticketRepository, HoldRepository holdRepository, RoomMapper roomMapper, SectorValidator sectorValidator) {
+                           TicketRepository ticketRepository, HoldRepository holdRepository, RoomMapper roomMapper, SectorValidator sectorValidator, AuthenticationFacade authFacade) {
         this.eventLocationRepository = eventLocationRepository;
         this.roomRepository = roomRepository;
         this.sectorRepository = sectorRepository;
@@ -76,6 +78,7 @@ public class RoomServiceImpl implements RoomService {
         this.holdRepository = holdRepository;
         this.roomMapper = roomMapper;
         this.sectorValidator = sectorValidator;
+        this.authFacade = authFacade;
     }
 
     @Override
@@ -220,19 +223,20 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Transactional
     public RoomDetailDto getRoomUsageForShow(Long showId) {
         LOGGER.debug("Retrieving room usage for show with id: {}", showId);
+
+        Long currentUserId = authFacade.getCurrentUserId();
 
         Show show = showService.getShowWithRoomAndSectors(showId);
         Room room = show.getRoom();
 
-        // tickets sold
-        List<Ticket> tickets = ticketRepository.findByShowId(showId);
-
-        tickets = tickets.stream()
-            .filter(t -> (t.getStatus() == TicketStatus.BOUGHT) || (t.getStatus() == TicketStatus.RESERVED))
+        List<Ticket> tickets = ticketRepository.findByShowId(showId).stream()
+            .filter(t -> t.getStatus() == TicketStatus.BOUGHT || t.getStatus() == TicketStatus.RESERVED)
             .toList();
 
+        // occupied seats
         Set<Long> occupiedSeatIds = tickets.stream()
             .map(Ticket::getSeat)
             .filter(Objects::nonNull)
@@ -246,18 +250,20 @@ public class RoomServiceImpl implements RoomService {
                 Collectors.counting()
             ));
 
-        // holds that are still valid
-        List<Hold> validHolds = holdRepository.findByShowId(showId).stream()
+        //  holds by other users
+        List<Hold> otherValidHolds = holdRepository.findByShowId(showId).stream()
             .filter(h -> h.getValidUntil().isAfter(LocalDateTime.now()))
+            .filter(h -> !h.getUserId().equals(currentUserId))
             .toList();
 
-        // separate out held seats vs. held standing spots
-        Set<Long> heldSeatIds = validHolds.stream()
+        // held seats by others
+        Set<Long> heldSeatIds = otherValidHolds.stream()
             .map(Hold::getSeatId)
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
-        Map<Long, Long> standingHoldCounts = validHolds.stream()
+        // held standing spots by others per sector
+        Map<Long, Long> standingHoldCounts = otherValidHolds.stream()
             .filter(h -> h.getSeatId() == null)
             .collect(Collectors.groupingBy(
                 Hold::getSectorId,
@@ -311,21 +317,13 @@ public class RoomServiceImpl implements RoomService {
             } else if (sec instanceof StageSector stage) {
                 StageSectorDto dto = new StageSectorDto();
                 dto.setId(stage.getId());
-                if (stage.getPrice() != null) {
-                    dto.setPrice(stage.getPrice());
-                } else {
-                    dto.setPrice(0);
-                }
+                dto.setPrice(stage.getPrice() != null ? stage.getPrice() : 0);
                 usageSectors.add(dto);
 
             } else {
                 SectorDto dto = new SectorDto();
                 dto.setId(sec.getId());
-                if (sec.getPrice() != null) {
-                    dto.setPrice(sec.getPrice());
-                } else {
-                    dto.setPrice(0);
-                }
+                dto.setPrice(sec.getPrice() != null ? sec.getPrice() : 0);
                 usageSectors.add(dto);
             }
         }
@@ -338,6 +336,7 @@ public class RoomServiceImpl implements RoomService {
             .eventLocationId(room.getEventLocation().getId())
             .build();
     }
+
 
 
     public List<RoomDetailDto> getAllRooms() {
