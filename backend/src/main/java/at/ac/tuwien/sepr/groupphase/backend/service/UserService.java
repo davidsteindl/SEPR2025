@@ -128,6 +128,15 @@ public interface UserService extends UserDetailsService {
     List<SimpleMessageDto> getUnseenMessages(Long userId);
 
     /**
+     * Get all messages that the user has not seen yet, paginated.
+     *
+     * @param userId   the id of the user
+     * @param pageable the pagination information
+     * @return paginated list of unseen messages
+     */
+    Page<SimpleMessageDto> getUnseenMessagesPaginated(Long userId, Pageable pageable);
+
+    /**
      * Marks the given message as seen for the user.
      *
      * @param userId    the id of the user

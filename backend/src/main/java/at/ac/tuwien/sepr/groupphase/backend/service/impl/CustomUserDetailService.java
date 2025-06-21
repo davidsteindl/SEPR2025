@@ -141,7 +141,8 @@ public class CustomUserDetailService implements UserService {
                     user.getLoginTries());
             }
             userRepository.save(user);
-            throw new LoginAttemptException("Username or password is incorrect, or your account is locked due to too many failed login attempts", user.getLoginTries());
+            throw new LoginAttemptException("Username or password is incorrect, or your account is locked due to too many failed login attempts",
+                user.getLoginTries());
         }
 
         if (!user.isActivated()) {
@@ -314,6 +315,17 @@ public class CustomUserDetailService implements UserService {
             .stream()
             .map(messageMapper::messageToSimpleMessageDto)
             .toList();
+    }
+
+    @Override
+    public Page<SimpleMessageDto> getUnseenMessagesPaginated(Long userId, Pageable pageable) {
+        LOGGER.debug("Get unseen messages for user {}", userId);
+        ApplicationUser user = findUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+        return messageRepository.findAllUnseenByUserIdPaginated(userId, pageable)
+            .map(messageMapper::messageToSimpleMessageDto);
     }
 
     @Transactional
