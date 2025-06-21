@@ -302,16 +302,39 @@ public class TicketValidator {
      * Validates that a single seat/sector has no BOUGHT or RESERVED ticket.
      */
     private void validateNoTicketsOn(Long showId, Long sectorId, Long seatId) {
-        List<Ticket> existing = ticketRepository.findByShowId(showId)
-            .stream()
-            .filter(t -> t.getStatus() == TicketStatus.BOUGHT || t.getStatus() == TicketStatus.RESERVED)
-            .toList();
-        boolean conflict = existing.stream().anyMatch(t ->
-            t.getSector().getId().equals(sectorId)
-                && ((seatId == null && t.getSeat() == null)
-                || (t.getSeat() != null && t.getSeat().getId().equals(seatId))));
-        if (conflict) {
-            throw new SeatUnavailableException("Seat/Sector already booked for show " + showId);
+        LocalDateTime now = LocalDateTime.now();
+
+        if (seatId == null) {
+
+            long activeHolds = holdRepository.findByShowId(showId).stream()
+                .filter(h -> h.getValidUntil().isAfter(now))
+                .filter(h -> h.getSectorId().equals(sectorId) && h.getSeatId() == null)
+                .count();
+
+            long soldOrReserved = ticketRepository.findByShowId(showId).stream()
+                .filter(t -> (t.getStatus() == TicketStatus.BOUGHT || t.getStatus() == TicketStatus.RESERVED))
+                .filter(t -> t.getSector().getId().equals(sectorId) && t.getSeat() == null)
+                .count();
+
+            StandingSector standing = (StandingSector) roomService.getSectorById(sectorId);
+            long capacity = standing.getCapacity();
+
+            if (soldOrReserved + activeHolds >= capacity) {
+                long available = capacity - soldOrReserved - activeHolds;
+                throw new SeatUnavailableException(
+                    "Not enough capacity in standing sector " + sectorId
+                        + " (available: " + available + ")"
+                );
+            }
+
+        } else {
+            boolean occupied = ticketRepository.findByShowId(showId).stream()
+                .filter(t -> (t.getStatus() == TicketStatus.BOUGHT || t.getStatus() == TicketStatus.RESERVED))
+                .anyMatch(t -> t.getSeat() != null && t.getSeat().getId().equals(seatId));
+
+            if (occupied) {
+                throw new SeatUnavailableException("Seat " + seatId + " already taken");
+            }
         }
     }
 
