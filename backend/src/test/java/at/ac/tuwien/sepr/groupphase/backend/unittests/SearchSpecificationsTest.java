@@ -32,7 +32,6 @@ class SearchSpecificationsTest {
         when(cb.conjunction()).thenReturn(predicate);
         when(cb.like(any(), anyString())).thenReturn(predicate);
 
-        // Typsicher für overloading:
         when(cb.between(any(), any(LocalDateTime.class), any(LocalDateTime.class)))
             .thenReturn(predicate);
         when(cb.between(any(), any(Integer.class), any(Integer.class)))

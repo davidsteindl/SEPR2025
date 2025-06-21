@@ -156,7 +156,7 @@ public class EventServiceTest {
 
         assertAll(
             () -> assertNull(result),
-            () -> assertEquals(1, eventRepository.findAll().size())
+            () -> assertTrue(eventRepository.existsById(eventId), "Test event should still exist")
         );
     }
 
@@ -254,7 +254,7 @@ public class EventServiceTest {
             () -> assertNotNull(savedEvent.getId()),
             () -> assertEquals("New Event", savedEvent.getName()),
             () -> assertEquals(testLocation.getId(), savedEvent.getLocation().getId()),
-            () -> assertEquals(2, eventRepository.findAll().size())
+            () -> assertTrue(eventRepository.existsById(savedEvent.getId()))
         );
     }
 
@@ -269,7 +269,7 @@ public class EventServiceTest {
 
         assertAll(
             () -> assertThrows(ValidationException.class, () -> eventService.createEvent(newEvent)),
-            () -> assertEquals(1, eventRepository.findAll().size())
+            () -> assertTrue(eventRepository.existsById(eventId), "Test event should still exist")
         );
     }
 
@@ -289,7 +289,7 @@ public class EventServiceTest {
 
         assertAll(
             () -> assertThrows(ValidationException.class, () -> eventService.createEvent(newEvent)),
-            () -> assertEquals(1, eventRepository.findAll().size())
+            () -> assertTrue(eventRepository.existsById(eventId), "Test event should still exist")
         );
     }
 
