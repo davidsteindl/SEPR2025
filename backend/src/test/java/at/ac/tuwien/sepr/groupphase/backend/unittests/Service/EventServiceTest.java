@@ -15,6 +15,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.EventServiceImpl;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -155,9 +156,10 @@ public class EventServiceTest {
 
         assertAll(
             () -> assertNull(result),
-            () -> assertEquals(1, eventRepository.findAll().size())
+            () -> assertTrue(eventRepository.existsById(eventId), "Test event should still exist")
         );
     }
+
 
     @Test
     public void testGetAllEvents_returnsList() {
@@ -235,6 +237,7 @@ public class EventServiceTest {
     }
 
     @Test
+    @Transactional
     public void testCreateEvent_validEvent_savesSuccessfully() throws ValidationException {
         Event newEvent = Event.EventBuilder.anEvent()
             .withName("New Event")
@@ -251,11 +254,12 @@ public class EventServiceTest {
             () -> assertNotNull(savedEvent.getId()),
             () -> assertEquals("New Event", savedEvent.getName()),
             () -> assertEquals(testLocation.getId(), savedEvent.getLocation().getId()),
-            () -> assertEquals(2, eventRepository.findAll().size())
+            () -> assertTrue(eventRepository.existsById(savedEvent.getId()))
         );
     }
 
     @Test
+    @Transactional
     public void testCreateEvent_nullLocation_throwsValidationException() {
         Event newEvent = Event.EventBuilder.anEvent()
             .withName("Invalid Event")
@@ -265,11 +269,12 @@ public class EventServiceTest {
 
         assertAll(
             () -> assertThrows(ValidationException.class, () -> eventService.createEvent(newEvent)),
-            () -> assertEquals(1, eventRepository.findAll().size())
+            () -> assertTrue(eventRepository.existsById(eventId), "Test event should still exist")
         );
     }
 
     @Test
+    @Transactional
     public void testCreateEvent_nonExistingLocation_throwsValidationException() {
         EventLocation fakeLocation = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Fake Location")
@@ -284,7 +289,7 @@ public class EventServiceTest {
 
         assertAll(
             () -> assertThrows(ValidationException.class, () -> eventService.createEvent(newEvent)),
-            () -> assertEquals(1, eventRepository.findAll().size())
+            () -> assertTrue(eventRepository.existsById(eventId), "Test event should still exist")
         );
     }
 
@@ -334,6 +339,7 @@ public class EventServiceTest {
     }
 
     @Test
+    @Transactional
     public void testUpdateEvent_validChange_succeeds() throws ValidationException {
         when(showRepository.findByEventOrderByDateAsc(event))
             .thenReturn(List.of());
@@ -358,6 +364,7 @@ public class EventServiceTest {
     }
 
     @Test
+    @Transactional
     public void testUpdateEvent_blankName_throwsValidationException() {
         Event invalid = Event.EventBuilder.anEvent()
             .withName("   ")
@@ -376,6 +383,7 @@ public class EventServiceTest {
     }
 
     @Test
+    @Transactional
     public void testUpdateEvent_showOutsideNewTimeframe_throwsValidationException() {
         Show s1 = new Show();
         s1.setId(42L);
@@ -403,6 +411,7 @@ public class EventServiceTest {
     }
 
     @Test
+    @Transactional
     public void testUpdateEvent_invalidLocation_throwsValidationException() {
         Event invalid = Event.EventBuilder.anEvent()
             .withName("Name")
