@@ -73,8 +73,10 @@ public class EventServiceTest {
     private Event event;
     private Long eventId;
 
+    @Transactional
     @BeforeEach
     public void setUp() {
+        deleteData();
         testLocation = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Test Location")
             .withCountry("Austria")
@@ -159,22 +161,21 @@ public class EventServiceTest {
     @Transactional
     public void deleteData() {
         List<Show> shows = showRepository.findAllWithArtists();
-
         for (Show show : shows) {
-            show.getArtists().forEach(artist -> artist.getShows().remove(show));
+            List<Artist> artistsCopy = List.copyOf(show.getArtists());
+            for (Artist artist : artistsCopy) {
+                artist.getShows().remove(show);
+            }
             show.getArtists().clear();
         }
 
-        List<Artist> artists = artistRepository.findAll();
-        artistRepository.saveAll(artists);
-
         ticketRepository.deleteAll();
         showRepository.deleteAll();
-        eventRepository.deleteAll();
         sectorRepository.deleteAll();
         roomRepository.deleteAll();
-        eventLocationRepository.deleteAll();
         artistRepository.deleteAll();
+        eventRepository.deleteAll();
+        eventLocationRepository.deleteAll();
     }
 
 
@@ -230,6 +231,7 @@ public class EventServiceTest {
         }
     }
 
+    @Transactional
     @Test
     public void testGetEventById_existingId_returnsEvent() {
         Event result = eventService.getEventById(eventId);
@@ -241,6 +243,7 @@ public class EventServiceTest {
         );
     }
 
+    @Transactional
     @Test
     public void testGetEventById_nonExistingId_returnsNull() {
         Event result = eventService.getEventById(999L);
@@ -251,6 +254,7 @@ public class EventServiceTest {
         );
     }
 
+    @Transactional
     @Test
     public void testGetAllEvents_returnsList() {
         List<Event> events = eventService.getAllEvents();
@@ -262,6 +266,7 @@ public class EventServiceTest {
         );
     }
 
+    @Transactional
     @Test
     public void testGetAllEvents_Paginated_returnsPagedUpdateEventDtos() {
         Event another = Event.EventBuilder.anEvent()
@@ -285,11 +290,10 @@ public class EventServiceTest {
         );
     }
 
+    @Transactional
     @Test
     public void testGetAllEvents_Paginated_empty_returnsEmptyPage() {
-        ticketRepository.deleteAll();
-        showRepository.deleteAll();
-        eventRepository.deleteAll();
+        deleteData();
 
         Pageable pageable = PageRequest.of(0, 1);
         Page<UpdateEventDto> page = eventService.getAllEventsPaginated(pageable);
@@ -300,6 +304,7 @@ public class EventServiceTest {
         );
     }
 
+    @Transactional
     @Test
     public void testGetEventsByArtist_returnsMappedDto() {
         Pageable pageable = PageRequest.of(0, 5);
@@ -312,6 +317,7 @@ public class EventServiceTest {
         );
     }
 
+    @Transactional
     @Test
     public void testGetPaginatedShowsForEvent_validEventId_returnsPaginatedShowDtos() {
         Pageable pageable = PageRequest.of(0, 5);
@@ -476,6 +482,7 @@ public class EventServiceTest {
         assertTrue(ex.getMessage().contains("Location not found"));
     }
 
+    @Transactional
     @Test
     public void testGetTopTenEventsByCategory_validCategory_returnsList() throws ValidationException {
         List<EventTopTenDto> result = eventService.getTopTenEventsByCategory(Event.EventCategory.CLASSICAL.name());
@@ -493,16 +500,7 @@ public class EventServiceTest {
     @Test
     @Transactional
     public void testGetTopTenEventsByCategory_allCategory_returnsList() throws ValidationException {
-        ticketRepository.deleteAll();
-        showRepository.findAll().forEach(show -> {
-            show.getArtists().clear();
-            showRepository.save(show);
-        });
-        showRepository.deleteAll();
-        eventRepository.deleteAll();
-        sectorRepository.deleteAll();
-        roomRepository.deleteAll();
-        eventLocationRepository.deleteAll();
+        deleteData();
 
         createEventWithShowsAndTickets("Event One", 5);
         createEventWithShowsAndTickets("Event Two", 8);
@@ -519,12 +517,14 @@ public class EventServiceTest {
         );
     }
 
+    @Transactional
     @Test
     public void testGetTopTenEventsByCategory_invalidCategory_throwsValidationException() {
         String invalidCategory = "INVALID_CAT";
         assertThrows(ValidationException.class, () -> eventService.getTopTenEventsByCategory(invalidCategory));
     }
 
+    @Transactional
     @Test
     public void testGetTopTenEventsByCategory_emptyResult_returnsEmptyList() throws ValidationException {
         ticketRepository.deleteAll();
