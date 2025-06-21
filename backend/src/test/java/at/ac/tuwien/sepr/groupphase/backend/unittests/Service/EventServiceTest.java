@@ -133,6 +133,9 @@ public class EventServiceTest {
 
     @AfterEach
     public void deleteData() {
+        for (Show show : showRepository.findAll()) {
+            show.getArtists().clear();
+        }
         showRepository.deleteAll();
         ticketRepository.deleteAll();
         eventRepository.deleteAll();
