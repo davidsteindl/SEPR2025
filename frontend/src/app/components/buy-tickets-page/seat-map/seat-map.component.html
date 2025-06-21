@@ -136,6 +136,8 @@
     </div>
     <button
       class="btn btn-sm btn-primary w-100"
+      [disabled]="standingQuantity[sector.id] > sector.availableCapacity"
+      [ngClass]="{'disabled': standingQuantity[sector.id] > sector.availableCapacity}"
       (click)="addStandingToCart(sector, pop)"
     >
       + Add
