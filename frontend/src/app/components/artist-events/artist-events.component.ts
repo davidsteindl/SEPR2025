@@ -3,13 +3,15 @@ import {ActivatedRoute, RouterLink} from '@angular/router';
 import {EventService} from '../../services/event.service';
 import {Event} from '../../dtos/event';
 import {Page} from "../../dtos/page";
-import {NgForOf, NgIf} from "@angular/common";
+import {CommonModule, NgForOf, NgIf} from "@angular/common";
 import {Artist} from "../../dtos/artist";
 import {ArtistService} from "../../services/artist.service";
 
 @Component({
   selector: 'app-artist-events',
+  standalone: true,
   imports: [
+    CommonModule,
     NgForOf,
     NgIf,
     RouterLink

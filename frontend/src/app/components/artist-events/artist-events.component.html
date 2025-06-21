@@ -3,7 +3,7 @@
     <h2>{{ artistName }}’s Upcoming Events</h2>
     <button class="btn btn-outline-secondary"
             [routerLink]="['/search']" [queryParams]="{ tab: 'artist' }">
-      ← Back to Search
+      ← Back to Search Page
     </button>
   </div>
 
@@ -13,7 +13,7 @@
         <div style="font-weight: bold">
           {{ event.name }}
         </div>
-        <button type="button" class="view-button" [routerLink]="['/events', event.id, 'overview']">View full event</button>
+        <button type="button" class="view-button" [routerLink]="['/events', event.id, 'overview']" [queryParams]="{ from: 'artist-events', artistId: artistId }">View full event</button>
       </li>
     </ul>
 
