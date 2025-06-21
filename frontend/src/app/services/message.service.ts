@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {Message, MessageCreate} from '../dtos/message';
 import {Observable} from 'rxjs';
 import {Globals} from '../global/globals';
+import {Page} from "../dtos/page";
 
 @Injectable({
   providedIn: 'root'
@@ -15,10 +16,12 @@ export class MessageService {
   }
 
   /**
-   * Loads all messages from the backend
+   * Loads all messages from the backend with pagination.
+   *
+   * @returns Observable of page of messages
    */
-  getMessage(): Observable<Message[]> {
-    return this.httpClient.get<Message[]>(this.messageBaseUri);
+  getMessagesPaginated(page: number, size: number): Observable<Page<Message>> {
+    return this.httpClient.get<Page<Message>>(`${this.messageBaseUri}/paginated?page=${page}&size=${size}`);
   }
 
   /**

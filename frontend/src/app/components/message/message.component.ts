@@ -28,6 +28,10 @@ export class MessageComponent implements OnInit {
   allMessagesRead = false;
   showAllMessages = false;
 
+  page = 0;
+  size = 10;
+  totalPages = 0;
+
   constructor(private messageService: MessageService,
               private userService: UserService,
               private eventService: EventService,
@@ -35,7 +39,7 @@ export class MessageComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadMessage();
+    this.loadMessages();
     this.loadCategories();
     this.loadTopTen();
   }
@@ -48,19 +52,21 @@ export class MessageComponent implements OnInit {
     this.error = false;
   }
 
-  private loadMessage() {
+  private loadMessages() {
     const userId = this.authService.getUserId();
+
     if (this.showAllMessages) {
-      this.messageService.getMessage().subscribe({
-        next: (messages) => {
+      this.messageService.getMessagesPaginated(this.page, this.size).subscribe({
+        next: (page) => {
           this.userService.getUnseenMessages(userId).subscribe({
             next: (unseen) => {
               const unseenIds = unseen.map(m => m.id);
-              this.message = messages.map(m => ({
+              this.message = page.content.map(m => ({
                 ...m,
                 seen: !unseenIds.includes(m.id)
               }));
               this.allMessagesRead = unseenIds.length === 0;
+              this.totalPages = page.totalPages;
             },
             error: error => this.defaultServiceErrorHandling(error)
           });
@@ -68,23 +74,31 @@ export class MessageComponent implements OnInit {
         error: error => this.defaultServiceErrorHandling(error)
       });
     } else {
-      this.userService.getUnseenMessages(userId).subscribe({
-        next: (messages) => {
-          this.message = messages.map(m => ({
+      this.userService.getUnseenMessagesPaginated(userId, this.page, this.size).subscribe({
+        next: (page) => {
+          this.message = page.content.map(m => ({
             ...m,
             seen: false
           }));
-          this.allMessagesRead = messages.length === 0;
+          this.allMessagesRead = page.totalElements === 0;
+          this.totalPages = page.totalPages;
         },
         error: error => this.defaultServiceErrorHandling(error)
       });
     }
   }
 
+  changePage(newPage: number) {
+    if (newPage >= 0 && newPage < this.totalPages) {
+      this.page = newPage;
+      this.loadMessages();
+    }
+  }
+
 
   toggleShowAllMessages() {
     this.showAllMessages = !this.showAllMessages;
-    this.loadMessage();
+    this.loadMessages();
   }
 
   private defaultServiceErrorHandling(error: any) {

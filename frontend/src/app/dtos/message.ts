@@ -15,5 +15,4 @@ export class MessageCreate {
   text: string;
   publishedAt: string;
   images?: File[];
-
 }
