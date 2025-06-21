@@ -1,9 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests;
 
-import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
-import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.service.specifications.ArtistSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.specifications.EventLocationSpecifications;
 import at.ac.tuwien.sepr.groupphase.backend.service.specifications.EventSpecifications;
