@@ -29,7 +29,7 @@ export class MessageComponent implements OnInit {
   showAllMessages = false;
 
   page = 0;
-  size = 10;
+  size = 5;
   totalPages = 0;
 
   constructor(private messageService: MessageService,
