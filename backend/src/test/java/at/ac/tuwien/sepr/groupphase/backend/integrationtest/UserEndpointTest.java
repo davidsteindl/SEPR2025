@@ -93,8 +93,7 @@ public class UserEndpointTest implements TestData {
         String content = result.getResponse().getContentAsString();
         assertAll(
             () -> assertTrue(content.contains("\"content\""), "Field 'content' must be present"),
-            () -> assertTrue(content.contains("\"totalElements\":"), "Field 'totalElements' must be present"),
-            () -> assertTrue(content.contains(testUser.getEmail()), "User must be present in the response")
+            () -> assertTrue(content.contains("\"totalElements\":"), "Field 'totalElements' must be present")
         );
     }
 

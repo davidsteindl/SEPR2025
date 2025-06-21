@@ -57,5 +57,5 @@ public interface UserRepository extends JpaRepository<ApplicationUser, Long> {
 
     @Transactional
     @Query("SELECT u FROM ApplicationUser u WHERE u.id <> :id")
-    Page<ApplicationUser> findAllByIdNot(Long id, Pageable pageable);
+    Page<ApplicationUser> findAllByIdNot(@Param("id") Long id, Pageable pageable);
 }
