@@ -4,11 +4,11 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventTopTenDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.UpdateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
@@ -66,22 +66,13 @@ public class EventServiceTest {
     private EventServiceImpl eventService;
 
     private EventLocation testLocation;
-
     private Event event;
-
     private Long eventId;
-
-    private EventDetailDto eventDetailDto;
-
-    private Show mockShow;
-
-    private ShowDetailDto mockShowDto;
 
     @BeforeEach
     public void setUp() {
         EventValidator eventValidator = new EventValidator(eventRepository, eventLocationRepository, showRepository);
-        eventService =
-            new EventServiceImpl(eventRepository, eventLocationRepository, showRepository, ticketRepository, eventMapper, showMapper, eventValidator);
+        eventService = new EventServiceImpl(eventRepository, eventLocationRepository, showRepository, ticketRepository, eventMapper, showMapper, eventValidator);
 
         testLocation = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Test Location")
@@ -91,7 +82,6 @@ public class EventServiceTest {
             .withPostalCode("1010")
             .withType(EventLocation.LocationType.OPERA)
             .build();
-
         eventLocationRepository.save(testLocation);
 
         event = Event.EventBuilder.anEvent()
@@ -102,33 +92,9 @@ public class EventServiceTest {
             .withDescription("A beautiful classical concert.")
             .withLocation(testLocation)
             .build();
-
         eventRepository.save(event);
 
         eventId = event.getId();
-
-        eventDetailDto = new EventDetailDto();
-        eventDetailDto.setId(eventId);
-        eventDetailDto.setName(event.getName());
-        eventDetailDto.setCategory(event.getCategory().name());
-        eventDetailDto.setDuration(event.getDuration());
-        eventDetailDto.setDescription(event.getDescription());
-        eventDetailDto.setDateTime(event.getDateTime());
-        eventDetailDto.setLocationId(testLocation.getId());
-
-        mockShow = new Show();
-        mockShow.setId(10L);
-        mockShow.setName("Test Show");
-        mockShow.setDuration(90);
-        mockShow.setEvent(event);
-
-        mockShowDto = ShowDetailDto.ShowDetailDtoBuilder.aShowDetailDto()
-            .id(10L)
-            .name("Test Show")
-            .duration(90)
-            .eventId(eventId)
-            .artistIds(Set.of(1L))
-            .build();
     }
 
     @AfterEach
@@ -145,8 +111,7 @@ public class EventServiceTest {
 
     @Test
     public void testGetEventById_existingId_returnsEvent() {
-        Event event = eventRepository.findAll().getFirst();
-        Event result = eventService.getEventById(event.getId());
+        Event result = eventService.getEventById(eventId);
 
         assertAll(
             () -> assertNotNull(result),
@@ -171,8 +136,8 @@ public class EventServiceTest {
 
         assertAll(
             () -> assertEquals(1, events.size()),
-            () -> assertEquals("Test Event", events.getFirst().getName()),
-            () -> assertEquals(testLocation.getId(), events.getFirst().getLocation().getId())
+            () -> assertEquals("Test Event", events.get(0).getName()),
+            () -> assertEquals(testLocation.getId(), events.get(0).getLocation().getId())
         );
     }
 
@@ -193,6 +158,7 @@ public class EventServiceTest {
 
         assertAll(
             () -> assertEquals(2, page.getTotalElements()),
+            () -> assertEquals(2, page.getContent().size()),
             () -> assertTrue(page.getContent().stream().anyMatch(d -> d.getName().equals("Test Event"))),
             () -> assertTrue(page.getContent().stream().anyMatch(d -> d.getName().equals("Second Event")))
         );
@@ -208,6 +174,30 @@ public class EventServiceTest {
         assertAll(
             () -> assertEquals(0, page.getTotalElements()),
             () -> assertTrue(page.getContent().isEmpty())
+        );
+    }
+
+    @Test
+    public void testGetEventsByArtist_returnsMappedDto() {
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<EventDetailDto> result = eventService.getEventsByArtist(1L, pageable);
+
+        assertAll(
+            () -> assertNotNull(result),
+            () -> assertEquals(0, result.getTotalElements()),
+            () -> assertTrue(result.getContent().isEmpty())
+        );
+    }
+
+    @Test
+    public void testGetPaginatedShowsForEvent_validEventId_returnsPaginatedShowDtos() {
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<ShowDetailDto> result = eventService.getPaginatedShowsForEvent(eventId, pageable);
+
+        assertAll(
+            () -> assertNotNull(result),
+            () -> assertEquals(0, result.getTotalElements()),
+            () -> assertTrue(result.getContent().isEmpty())
         );
     }
 
@@ -266,23 +256,6 @@ public class EventServiceTest {
             () -> assertThrows(ValidationException.class, () -> eventService.createEvent(newEvent)),
             () -> assertTrue(eventRepository.existsById(eventId))
         );
-    }
-
-    @Test
-    public void testGetEventsByArtist_returnsMappedDto() {
-        Long artistId = 1L;
-        Pageable pageable = PageRequest.of(0, 5);
-        Page<EventDetailDto> result = eventService.getEventsByArtist(artistId, pageable);
-
-        assertEquals(0, result.getTotalElements());
-    }
-
-    @Test
-    public void testGetPaginatedShowsForEvent_validEventId_returnsPaginatedShowDtos() {
-        Pageable pageable = PageRequest.of(0, 5);
-        Page<ShowDetailDto> result = eventService.getPaginatedShowsForEvent(eventId, pageable);
-
-        assertNotNull(result);
     }
 
     @Test
@@ -360,7 +333,6 @@ public class EventServiceTest {
         assertTrue(ex.getMessage().contains("outside event timeframe"));
     }
 
-
     @Test
     @Transactional
     public void testUpdateEvent_invalidLocation_throwsValidationException() {
@@ -384,31 +356,37 @@ public class EventServiceTest {
     public void testGetTopTenEventsByCategory_validCategory_returnsList() throws ValidationException {
         List<EventTopTenDto> result = eventService.getTopTenEventsByCategory(Event.EventCategory.CLASSICAL.name());
 
-        assertNotNull(result);
+        assertAll(
+            () -> assertNotNull(result),
+            () -> assertTrue(result.size() >= 0)
+        );
     }
 
     @Test
     public void testGetTopTenEventsByCategory_allCategory_returnsList() throws ValidationException {
         List<EventTopTenDto> result = eventService.getTopTenEventsByCategory("all");
 
-        assertNotNull(result);
+        assertAll(
+            () -> assertNotNull(result),
+            () -> assertTrue(result.size() >= 0)
+        );
     }
 
     @Test
     public void testGetTopTenEventsByCategory_invalidCategory_throwsValidationException() {
         String invalidCategory = "INVALID_CAT";
 
-        assertThrows(ValidationException.class, () -> {
-            eventService.getTopTenEventsByCategory(invalidCategory);
-        });
+        assertThrows(ValidationException.class, () -> eventService.getTopTenEventsByCategory(invalidCategory));
     }
 
     @Test
     public void testGetTopTenEventsByCategory_emptyResult_returnsEmptyList() throws ValidationException {
+        eventRepository.deleteAll();
         List<EventTopTenDto> result = eventService.getTopTenEventsByCategory("all");
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
+        assertAll(
+            () -> assertNotNull(result),
+            () -> assertTrue(result.isEmpty())
+        );
     }
-
 }
