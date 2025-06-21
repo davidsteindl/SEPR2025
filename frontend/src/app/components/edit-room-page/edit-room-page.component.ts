@@ -43,7 +43,8 @@ export class EditRoomPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.showAdminReturn = this.route.snapshot.queryParamMap.get('fromAdmin') === 'true';
+    this.showAdminReturn =
+      this.route.snapshot.queryParamMap.get("fromAdmin") === "true";
 
     this.route.paramMap.subscribe((params: ParamMap) => {
       const id = +params.get("id")!;
@@ -112,16 +113,16 @@ export class EditRoomPageComponent implements OnInit {
     }
     if (this.editingSector) {
       Object.assign(this.editingSector, val);
-      // For editing, just update and call saveLayout
-      this.saveLayout(() => this.editingModalRef.close());
+      // For editing, just update and call saveSectors
+      this.saveSectors(() => this.editingModalRef.close());
     } else {
       // Remove id for new sector (let backend assign)
       delete val.id;
       this.room.sectors.push(val as Sector);
       // Save layout and replace room with backend response
-      this.saveLayout(() => this.editingModalRef.close());
+      this.saveSectors(() => this.editingModalRef.close());
     }
-    // No longer close modal here; handled in saveLayout callback
+    // No longer close modal here; handled in saveSectors callback
   }
 
   saveLayout(afterSuccess?: () => void) {
@@ -137,12 +138,29 @@ export class EditRoomPageComponent implements OnInit {
         if (afterSuccess) afterSuccess();
         this.toastr.success("Room saved successfully!");
         console.log("Layout saved successfully");
-        this.router.navigate(['/update-rooms'], {
-          queryParams: { fromAdmin: this.showAdminReturn }
+        this.router.navigate(["/update-rooms"], {
+          queryParams: { fromAdmin: this.showAdminReturn },
         });
       },
       error: (err) => {
         console.error("Error saving layout:", err);
+      },
+    });
+  }
+
+  saveSectors(afterSuccess?: () => void) {
+    // Save only sectors, no navigation, different toast
+    this.roomService.edit(this.room).subscribe({
+      next: (updatedRoom) => {
+        this.room = updatedRoom;
+        if (this.seatMap) {
+          this.seatMap.refreshSectors();
+        }
+        if (afterSuccess) afterSuccess();
+        this.toastr.success("Sectors updated successfully!");
+      },
+      error: (err) => {
+        console.error("Error updating sectors:", err);
       },
     });
   }
@@ -170,8 +188,8 @@ export class EditRoomPageComponent implements OnInit {
 
   onBackToUpdateRoomsClick(): void {
     if (this.isUnchanged()) {
-      this.router.navigate(['/update-rooms'], {
-        queryParams: { fromAdmin: this.showAdminReturn }
+      this.router.navigate(["/update-rooms"], {
+        queryParams: { fromAdmin: this.showAdminReturn },
       });
     } else {
       this.showConfirmExit = true;
@@ -188,8 +206,8 @@ export class EditRoomPageComponent implements OnInit {
 
   exit(): void {
     this.showConfirmExit = false;
-    this.router.navigate(['/update-rooms'], {
-      queryParams: { fromAdmin: this.showAdminReturn }
+    this.router.navigate(["/update-rooms"], {
+      queryParams: { fromAdmin: this.showAdminReturn },
     });
   }
 }
