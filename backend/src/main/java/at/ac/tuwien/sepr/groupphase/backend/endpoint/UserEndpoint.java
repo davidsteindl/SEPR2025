@@ -138,6 +138,16 @@ public class UserEndpoint {
         return this.userService.getUnseenMessages(id);
     }
 
+    @GetMapping("/{id}/news/unseen/paginated")
+    @Secured("ROLE_USER")
+    @Operation(summary = "Get all unseen messages for a user", security = @SecurityRequirement(name = "apiKey"))
+    public Page<SimpleMessageDto> getUnseenMessagesPaginated(@PathVariable("id") Long id, @RequestParam(name = "page", defaultValue = "0") int page,
+                                                             @RequestParam(name = "size", defaultValue = "10") int size) {
+        LOGGER.info("getUnseenMessagesPaginated() for user {}", id);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("publishedAt")));
+        return this.userService.getUnseenMessagesPaginated(id, pageable);
+    }
+
     @PostMapping("/{userId}/news/{newsId}/markSeen")
     @Secured("ROLE_USER")
     @Operation(summary = "Mark a message as seen for a user", security = @SecurityRequirement(name = "apiKey"))

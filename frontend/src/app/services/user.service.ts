@@ -130,6 +130,17 @@ export class UserService {
   }
 
   /**
+   * Loads all UNSEEN messages for the current user paginated
+   *
+   * @param userId - ID of the user to load unseen messages for
+   * @param page - Page number to load
+   * @param size - Number of messages per page
+   */
+  getUnseenMessagesPaginated(userId: number, page: number, size: number): Observable<Page<Message>> {
+    return this.httpClient.get<Page<Message>>(`${this.userBaseUri}/${userId}/news/unseen/paginated?page=${page}&size=${size}`);
+  }
+
+  /**
    * Marks a message ID as seen for the current user
    */
   markMessageAsSeen(userId: number, messageId: number): Observable<void> {

@@ -12,10 +12,15 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
@@ -23,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,6 +59,19 @@ public class MessageEndpoint {
     }
 
     @Secured("ROLE_USER")
+    @GetMapping(value = "/paginated")
+    @Operation(summary = "Get list of messages without details", security = @SecurityRequirement(name = "apiKey"))
+    public Page<SimpleMessageDto> findAllPaginated(
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        LOGGER.info("GET /api/v1/news");
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("publishedAt")));
+        return messageService.findAllPaginated(pageable)
+            .map(messageMapper::messageToSimpleMessageDto);
+    }
+
+    @Secured("ROLE_USER")
     @GetMapping(value = "/{id}")
     @Operation(summary = "Get detailed information about a specific message", security = @SecurityRequirement(name = "apiKey"))
     public DetailedMessageDto find(@PathVariable(name = "id") Long id) {
@@ -65,7 +84,7 @@ public class MessageEndpoint {
     @PostMapping
     @Operation(summary = "Publish a new message", security = @SecurityRequirement(name = "apiKey"))
     public DetailedMessageDto create(@RequestPart(value = "message") @Valid MessageInquiryDto messageDto,
-        @RequestPart(value = "images", required = false) List<MultipartFile> files) {
+                                     @RequestPart(value = "images", required = false) List<MultipartFile> files) {
 
         LOGGER.info("POST /api/v1/news body: {}", messageDto);
         return messageMapper.messageToDetailedMessageDto(

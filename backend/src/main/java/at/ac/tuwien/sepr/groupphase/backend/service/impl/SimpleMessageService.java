@@ -8,6 +8,8 @@ import at.ac.tuwien.sepr.groupphase.backend.service.MessageService;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,12 @@ public class SimpleMessageService implements MessageService {
     public List<Message> findAll() {
         LOGGER.debug("Find all messages");
         return messageRepository.findAllByOrderByPublishedAtDesc();
+    }
+
+    @Override
+    public Page<Message> findAllPaginated(Pageable pageable) {
+        LOGGER.debug("Find all messages paginated");
+        return messageRepository.findAll(pageable);
     }
 
     @Override

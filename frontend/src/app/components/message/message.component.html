@@ -71,6 +71,19 @@
       </div>
     </div>
 
+    <nav *ngIf="totalPages > 1" class="mt-3">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="page === 0">
+          <button class="page-link" (click)="changePage(page - 1)">Previous</button>
+        </li>
+        <li class="page-item" *ngFor="let p of [].constructor(totalPages); let i = index" [class.active]="page === i">
+          <button class="page-link" (click)="changePage(i)">{{ i + 1 }}</button>
+        </li>
+        <li class="page-item" [class.disabled]="page === totalPages - 1">
+          <button class="page-link" (click)="changePage(page + 1)">Next</button>
+        </li>
+      </ul>
+    </nav>
 
     <hr>
 
@@ -103,7 +116,9 @@
           <td>{{ event.date ? (event.date | date: 'mediumDate') : 'No date scheduled' }}</td>
           <td><strong>{{ event.ticketsSold }}</strong></td>
           <td>
-            <button class="view-button" [routerLink]="['/events', event.id, 'overview']" [queryParams]="{ from: 'news' }">View full event</button>
+            <button class="view-button" [routerLink]="['/events', event.id, 'overview']"
+                    [queryParams]="{ from: 'news' }">View full event
+            </button>
           </td>
         </tr>
         </tbody>
