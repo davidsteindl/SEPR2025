@@ -154,6 +154,10 @@ public class EventServiceTest {
     @Transactional
     public void deleteData() {
         ticketRepository.deleteAll();
+        showRepository.findAll().forEach(show -> {
+            show.getArtists().clear();
+            showRepository.save(show);
+        });
         showRepository.deleteAll();
         eventRepository.deleteAll();
         sectorRepository.deleteAll();
@@ -476,8 +480,11 @@ public class EventServiceTest {
     @Test
     @Transactional
     public void testGetTopTenEventsByCategory_allCategory_returnsList() throws ValidationException {
-        // CLEAN DB
         ticketRepository.deleteAll();
+        showRepository.findAll().forEach(show -> {
+            show.getArtists().clear();
+            showRepository.save(show);
+        });
         showRepository.deleteAll();
         eventRepository.deleteAll();
         sectorRepository.deleteAll();
