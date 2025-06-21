@@ -8,8 +8,6 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ArtistMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
@@ -18,13 +16,10 @@ import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomSearchService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SearchValidator;
@@ -129,7 +124,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void givenValidSearchDto_whenSearchArtists_thenReturnsMappedDtoPage() throws ValidationException {
+    public void givenValidSearchDto_whenSearchArtists_thenReturnsMappedDtoPage() throws ValidationException {
         ArtistSearchDto searchDto = new ArtistSearchDto();
         searchDto.setFirstname("Fred");
         searchDto.setPage(0);
@@ -158,7 +153,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void givenNoMatches_whenSearchArtists_thenReturnsEmptyPage() throws ValidationException {
+    public void givenNoMatches_whenSearchArtists_thenReturnsEmptyPage() throws ValidationException {
         ArtistSearchDto searchDto = new ArtistSearchDto();
         searchDto.setFirstname("Unknown");
         searchDto.setPage(0);
@@ -185,7 +180,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void givenValidSearchDto_whenSearchEventLocations_thenReturnsMappedDtoPage() throws ValidationException {
+    public void givenValidSearchDto_whenSearchEventLocations_thenReturnsMappedDtoPage() throws ValidationException {
         Page<EventLocation> stubPage = new PageImpl<>(List.of(location), PageRequest.of(0, 10), 1);
         when(eventLocationRepo.findAll(
             ArgumentMatchers.<Specification<EventLocation>>any(),
@@ -219,7 +214,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void givenNoMatches_whenSearchEventLocations_thenReturnsEmptyPage() throws ValidationException {
+    public void givenNoMatches_whenSearchEventLocations_thenReturnsEmptyPage() throws ValidationException {
         when(eventLocationRepo.findAll(
             ArgumentMatchers.<Specification<EventLocation>>any(),
             any(Pageable.class)))
@@ -245,7 +240,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void searchEvents_MapsEntitiesToDto() throws ValidationException {
+    public void searchEvents_MapsEntitiesToDto() throws ValidationException {
         Page<Event> stubPage = new PageImpl<>(List.of(event), PageRequest.of(0,10), 1);
 
         when(eventRepo.findAll(
@@ -274,7 +269,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void givenValidSearchDto_whenSearchShows_thenReturnsMappedResultPage() throws ValidationException {
+    public void givenValidSearchDto_whenSearchShows_thenReturnsMappedResultPage() throws ValidationException {
         ShowSearchDto searchDto = new ShowSearchDto();
         searchDto.setPage(0);
         searchDto.setSize(10);
@@ -303,7 +298,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void givenNoMatchingShows_whenSearchShows_thenReturnsEmptyPage() throws ValidationException {
+    public void givenNoMatchingShows_whenSearchShows_thenReturnsEmptyPage() throws ValidationException {
         ShowSearchDto searchDto = new ShowSearchDto();
         searchDto.setPage(0);
         searchDto.setSize(10);
@@ -322,7 +317,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void givenShowWithoutSectors_whenSearchShows_thenMinAndMaxPriceAreZero() throws ValidationException {
+    public void givenShowWithoutSectors_whenSearchShows_thenMinAndMaxPriceAreZero() throws ValidationException {
         ShowSearchDto searchDto = new ShowSearchDto();
         searchDto.setPage(0);
         searchDto.setSize(10);
@@ -353,7 +348,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void givenShowWithSectors_whenSearchShows_thenMinAndMaxPriceAreCalculated() throws Exception {
+    public void givenShowWithSectors_whenSearchShows_thenMinAndMaxPriceAreCalculated() throws Exception {
         ShowSearchDto searchDto = new ShowSearchDto();
         searchDto.setPage(0);
         searchDto.setSize(10);
@@ -394,7 +389,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void givenDuration_whenSearchEvents_thenDurationSpecificationIsApplied() throws ValidationException {
+    public void givenDuration_whenSearchEvents_thenDurationSpecificationIsApplied() throws ValidationException {
         EventSearchDto dto = new EventSearchDto();
         dto.setPage(0);
         dto.setSize(10);
