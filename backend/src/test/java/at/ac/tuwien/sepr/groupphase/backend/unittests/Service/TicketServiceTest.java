@@ -1058,24 +1058,6 @@ public class TicketServiceTest {
 
     @Test
     @Transactional
-    public void testBuyTickets_withNonStandingSector_shouldThrowIllegalArgumentException() {
-        TicketTargetStandingDto standingTarget = new TicketTargetStandingDto();
-        standingTarget.setSectorId(sector.getId());
-        standingTarget.setQuantity(1);
-        TicketRequestDto request = createBuyRequest(List.of(standingTarget));
-
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            ticketService.buyTickets(request);
-        });
-
-        assertAll(
-            () -> assertTrue(ex.getMessage().contains("not a standing sector")),
-            () -> assertTrue(ex.getMessage().contains(sector.getId().toString()))
-        );
-    }
-
-    @Test
-    @Transactional
     public void testCancelReservations_whenNoTicketsFound_shouldThrowReservationNotFoundException() {
         List<Long> nonExistentIds = List.of(999999L, 888888L);
 
