@@ -322,8 +322,8 @@ public class TicketValidator {
             if (soldOrReserved + activeHolds >= capacity) {
                 long available = capacity - soldOrReserved - activeHolds;
                 throw new SeatUnavailableException(
-                    "Not enough capacity in standing sector " + sectorId +
-                        " (available: " + available + ")"
+                    "Not enough capacity in standing sector " + sectorId
+                        + " (available: " + available + ")"
                 );
             }
 
