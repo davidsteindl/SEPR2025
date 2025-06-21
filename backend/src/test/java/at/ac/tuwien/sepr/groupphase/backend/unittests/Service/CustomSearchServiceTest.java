@@ -8,22 +8,18 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchResultDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ArtistMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event.EventCategory;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
-import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.impl.CustomSearchService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SearchValidator;
@@ -41,8 +37,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -126,7 +124,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void givenValidSearchDto_whenSearchArtists_thenReturnsMappedDtoPage() throws ValidationException {
+    public void givenValidSearchDto_whenSearchArtists_thenReturnsMappedDtoPage() throws ValidationException {
         ArtistSearchDto searchDto = new ArtistSearchDto();
         searchDto.setFirstname("Fred");
         searchDto.setPage(0);
@@ -155,7 +153,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void givenNoMatches_whenSearchArtists_thenReturnsEmptyPage() throws ValidationException {
+    public void givenNoMatches_whenSearchArtists_thenReturnsEmptyPage() throws ValidationException {
         ArtistSearchDto searchDto = new ArtistSearchDto();
         searchDto.setFirstname("Unknown");
         searchDto.setPage(0);
@@ -182,7 +180,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void givenValidSearchDto_whenSearchEventLocations_thenReturnsMappedDtoPage() throws ValidationException {
+    public void givenValidSearchDto_whenSearchEventLocations_thenReturnsMappedDtoPage() throws ValidationException {
         Page<EventLocation> stubPage = new PageImpl<>(List.of(location), PageRequest.of(0, 10), 1);
         when(eventLocationRepo.findAll(
             ArgumentMatchers.<Specification<EventLocation>>any(),
@@ -216,7 +214,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void givenNoMatches_whenSearchEventLocations_thenReturnsEmptyPage() throws ValidationException {
+    public void givenNoMatches_whenSearchEventLocations_thenReturnsEmptyPage() throws ValidationException {
         when(eventLocationRepo.findAll(
             ArgumentMatchers.<Specification<EventLocation>>any(),
             any(Pageable.class)))
@@ -242,7 +240,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void searchEvents_MapsEntitiesToDto() throws ValidationException {
+    public void searchEvents_MapsEntitiesToDto() throws ValidationException {
         Page<Event> stubPage = new PageImpl<>(List.of(event), PageRequest.of(0,10), 1);
 
         when(eventRepo.findAll(
@@ -271,7 +269,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void givenValidSearchDto_whenSearchShows_thenReturnsMappedResultPage() throws ValidationException {
+    public void givenValidSearchDto_whenSearchShows_thenReturnsMappedResultPage() throws ValidationException {
         ShowSearchDto searchDto = new ShowSearchDto();
         searchDto.setPage(0);
         searchDto.setSize(10);
@@ -300,7 +298,7 @@ class CustomSearchServiceTest {
     }
 
     @Test
-    void givenNoMatchingShows_whenSearchShows_thenReturnsEmptyPage() throws ValidationException {
+    public void givenNoMatchingShows_whenSearchShows_thenReturnsEmptyPage() throws ValidationException {
         ShowSearchDto searchDto = new ShowSearchDto();
         searchDto.setPage(0);
         searchDto.setSize(10);
@@ -316,5 +314,106 @@ class CustomSearchServiceTest {
 
         verify(validator).validateForShows(searchDto);
         verify(showRepo).findAll(any(Specification.class), eq(PageRequest.of(0, 10)));
+    }
+
+    @Test
+    public void givenShowWithoutSectors_whenSearchShows_thenMinAndMaxPriceAreZero() throws ValidationException {
+        ShowSearchDto searchDto = new ShowSearchDto();
+        searchDto.setPage(0);
+        searchDto.setSize(10);
+
+        Room emptyRoom = new Room();
+        emptyRoom.setId(10L);
+        emptyRoom.setName("Empty Room");
+        emptyRoom.setSectors(Set.of());
+
+        Show showWithoutSectors = Show.ShowBuilder.aShow()
+            .withName("Show Without Sectors")
+            .withDuration(90)
+            .withDate(LocalDateTime.of(2025, 6, 1, 20, 0))
+            .withEvent(event)
+            .withRoom(emptyRoom)
+            .build();
+        showWithoutSectors.setId(200L);
+
+        Page<Show> stubPage = new PageImpl<>(List.of(showWithoutSectors), PageRequest.of(0, 10), 1);
+        when(showRepo.findAll(any(Specification.class), any(Pageable.class))).thenReturn(stubPage);
+        doNothing().when(validator).validateForShows(searchDto);
+
+        Page<ShowSearchResultDto> result = service.searchShows(searchDto);
+
+        ShowSearchResultDto dto = result.getContent().getFirst();
+        assertEquals(BigDecimal.ZERO, dto.getMinPrice());
+        assertEquals(BigDecimal.ZERO, dto.getMaxPrice());
+    }
+
+    @Test
+    public void givenShowWithSectors_whenSearchShows_thenMinAndMaxPriceAreCalculated() throws Exception {
+        ShowSearchDto searchDto = new ShowSearchDto();
+        searchDto.setPage(0);
+        searchDto.setSize(10);
+
+        Sector sector = new Sector();
+        sector.setPrice(100);
+
+        Room roomWithSectors = new Room();
+        roomWithSectors.setId(20L);
+        roomWithSectors.setName("Room With Sectors");
+        roomWithSectors.setSectors(Set.of(sector));
+
+        Show showWithSectors = Show.ShowBuilder.aShow()
+            .withName("Show With Sectors")
+            .withDuration(120)
+            .withDate(LocalDateTime.of(2025, 6, 1, 20, 0))
+            .withEvent(event)
+            .withRoom(roomWithSectors)
+            .build();
+        showWithSectors.setId(300L);
+
+        Page<Show> stubPage = new PageImpl<>(
+            List.of(showWithSectors),
+            PageRequest.of(0, 10),
+            1
+        );
+        when(showRepo.findAll(any(Specification.class), any(Pageable.class)))
+            .thenReturn(stubPage);
+
+        doNothing().when(validator).validateForShows(searchDto);
+
+        Page<ShowSearchResultDto> result = service.searchShows(searchDto);
+
+        assertEquals(1, result.getTotalElements());
+        ShowSearchResultDto dto = result.getContent().getFirst();
+        assertEquals(BigDecimal.valueOf(100), dto.getMinPrice());
+        assertEquals(BigDecimal.valueOf(100), dto.getMaxPrice());
+    }
+
+    @Test
+    public void givenDuration_whenSearchEvents_thenDurationSpecificationIsApplied() throws ValidationException {
+        EventSearchDto dto = new EventSearchDto();
+        dto.setPage(0);
+        dto.setSize(10);
+        dto.setDuration(90);
+
+        Page<Event> stubPage = new PageImpl<>(List.of(event), PageRequest.of(0, 10), 1);
+        when(eventRepo.findAll(any(Specification.class), any(Pageable.class))).thenReturn(stubPage);
+        doNothing().when(validator).validateForEvents(dto);
+
+        Page<EventSearchResultDto> result = service.searchEvents(dto);
+
+        assertEquals(1, result.getTotalElements());
+        EventSearchResultDto out = result.getContent().getFirst();
+
+        assertAll(
+            () -> assertEquals(1L, out.getId()),
+            () -> assertEquals("Test", out.getName()),
+            () -> assertEquals("Rock", out.getCategory()),
+            () -> assertEquals(2L, out.getLocationId()),
+            () -> assertEquals(90, out.getDuration()),
+            () -> assertEquals("Description", out.getDescription())
+        );
+
+        verify(validator).validateForEvents(dto);
+        verify(eventRepo).findAll(any(Specification.class), eq(PageRequest.of(0, 10)));
     }
 }
