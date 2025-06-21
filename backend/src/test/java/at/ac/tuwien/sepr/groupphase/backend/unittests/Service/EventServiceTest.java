@@ -134,6 +134,8 @@ public class EventServiceTest {
 
     @AfterEach
     public void deleteData() {
+        showRepository.deleteAll();
+        ticketRepository.deleteAll();
         eventRepository.deleteAll();
         eventLocationRepository.deleteAll();
     }
