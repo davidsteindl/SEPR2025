@@ -55,18 +55,22 @@
 </ng-template>
 
 <div *ngIf="showConfirmModal" class="custom-modal-backdrop">
-  <div class="custom-modal">
-    <div class="custom-modal-header">
-      <h5>Reserve Tickets</h5>
-      <button class="close-btn" (click)="cancelReservation()">×</button>
-    </div>
-    <div class="custom-modal-body">
-      <p>Please note: You must pick up your reserved tickets at least 30 minutes before the show starts.
-        Otherwise, the reservation will expire automatically.</p>
-    </div>
-    <div class="custom-modal-footer">
-      <button class="btn btn-success" (click)="confirmReservation()">Yes, reserve tickets</button>
-      <button class="btn btn-danger" (click)="cancelReservation()">Cancel</button>
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal fade show d-block" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header justify-content-center border-0">
+          <h5 class="modal-title fw-bold mb-0"> Reserve Tickets</h5>
+        </div>
+        <div class="modal-body text-center py-2">
+          <p class="mb-1">Please note: You must pick up your reserved tickets at least 30 minutes before the show starts.
+            Otherwise, the reservation will expire automatically.</p>
+        </div>
+        <div class="modal-footer justify-content-center pt-1 pb-2 border-0">
+          <button class="btn btn-success me-2" (click)="confirmReservation()">Yes, reserve tickets</button>
+          <button class="btn btn-danger" (click)="cancelReservation()">Cancel</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
