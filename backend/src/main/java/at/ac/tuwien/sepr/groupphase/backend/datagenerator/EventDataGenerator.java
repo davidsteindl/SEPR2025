@@ -140,7 +140,7 @@ public class EventDataGenerator {
             EventLocation loc = locations.get(random.nextInt(locations.size()));
 
             LocalDateTime eventStart = LocalDateTime.now()
-                .plusDays(random.nextInt(90))
+                .plusDays(random.nextInt(30))
                 .plusHours(random.nextInt(24))
                 .plusMinutes(random.nextInt(60))
                 .truncatedTo(ChronoUnit.MINUTES);
