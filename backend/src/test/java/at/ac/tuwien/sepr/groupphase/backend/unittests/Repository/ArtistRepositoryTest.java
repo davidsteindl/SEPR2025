@@ -178,4 +178,33 @@ public class ArtistRepositoryTest {
             () -> assertEquals("Doe", saved.getLastname())
         );
     }
+
+    @Test
+    public void testArtistDetailNameValidator_stageNameOnly_valid() {
+        var dto = new at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistDetailDto();
+        dto.setStagename("DJ Stage");
+        dto.setFirstname(null);
+        dto.setLastname(null);
+
+        var validator = new at.ac.tuwien.sepr.groupphase.backend.service.validators.ArtistDetailNameValidator();
+        assertTrue(validator.isValid(dto, null));
+    }
+
+    @Test
+    public void testArtistDetailNameValidator_firstAndLastName_valid() {
+        var dto = new at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistDetailDto();
+        dto.setStagename("  ");
+        dto.setFirstname("First");
+        dto.setLastname("Last");
+
+        var validator = new at.ac.tuwien.sepr.groupphase.backend.service.validators.ArtistDetailNameValidator();
+        assertTrue(validator.isValid(dto, null));
+    }
+
+    @Test
+    public void testArtistDetailNameValidator_nullDto_valid() {
+        var validator = new at.ac.tuwien.sepr.groupphase.backend.service.validators.ArtistDetailNameValidator();
+        assertTrue(validator.isValid(null, null));
+    }
+
 }
