@@ -3,61 +3,70 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Shows in this location</h2>
     <button class="btn btn-outline-secondary" [routerLink]="['/search']" [queryParams]="{ tab: 'location' }">
-      ← Back to Search
+      ← Back to Search Page
     </button>
   </div>
 
-  <hr class="mb-4">
+  <hr>
 
   <div *ngIf="loading" class="text-center">
-    Loading…
+    Loading shows…
   </div>
   <div *ngIf="errorMsg" class="alert alert-danger">
     {{ errorMsg }}
   </div>
+  <ng-container *ngIf="showPage?.content?.length > 0; else noShows">
+    <table class="table w-100" style="table-layout: fixed;">
+      <thead class="table-light">
+      <tr>
+        <th>Show</th>
+        <th>Date &amp; Time</th>
+        <th>Duration</th>
+        <th style="width: 250px;" class="text-center">Choose Ticket</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let s of showPage?.content">
+        <td>{{ s.name }}</td>
+        <td>{{ s.date | date:'short' }}</td>
+        <td>{{ s.duration }} min</td>
+        <td class="d-flex justify-content-center gap-2">
+          <ng-container *ngIf="s.dateObj > now; else notAvailable">
+            <button class="btn btn-sm btn-primary" [routerLink]="['/shows', s.id, 'room-usage']">
+              Buy / Reserve Ticket
+            </button>
+          </ng-container>
+          <ng-template #notAvailable>
+            <span class="text-muted">Not available</span>
+          </ng-template>
+        </td>
+      </tr>
+      </tbody>
+    </table>
 
-  <table *ngIf="!loading && showPage?.content?.length > 0" class="table w-100" style="table-layout: fixed;">
-    <thead class="table-light">
-    <tr>
-      <th>Show</th>
-      <th>Date &amp; Time</th>
-      <th>Duration</th>
-      <th style="width: 250px;" class="text-center">Choose Ticket</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let s of showPage?.content">
-      <td>{{ s.name }}</td>
-      <td>{{ s.date | date:'short' }}</td>
-      <td>{{ s.duration }} min</td>
-      <td class="d-flex justify-content-center gap-2">
-        <button class="btn btn-sm btn-primary" [routerLink]="['/shows', s.id, 'room-usage']">
-          Buy / Reserve Ticket
-        </button>
-      </td>
-    </tr>
-    </tbody>
-  </table>
-
-  <ul class="pagination justify-content-center mt-3">
-    <li class="page-item" [class.disabled]="showCurrentPage === 0">
-      <a class="page-link" style="cursor: pointer;" (click)="loadShows(showCurrentPage - 1)">
-        Previous
-      </a>
-    </li>
-    <li class="page-item disabled">
+    <ul class="pagination justify-content-center mt-3">
+      <li class="page-item" [class.disabled]="showCurrentPage === 0">
+        <a class="page-link" style="cursor: pointer;" (click)="loadShows(showCurrentPage - 1)">
+          Previous
+        </a>
+      </li>
+      <li class="page-item disabled">
       <span class="page-link">
         Page {{ showCurrentPage + 1 }} of {{ showPage?.totalPages }}
       </span>
-    </li>
-    <li class="page-item" [class.disabled]="showCurrentPage >= (showPage?.totalPages || 1) - 1">
-      <a class="page-link" style="cursor: pointer;" (click)="loadShows(showCurrentPage + 1)">
-        Next
-      </a>
-    </li>
-  </ul>
+      </li>
+      <li class="page-item" [class.disabled]="showCurrentPage + 1 >= showPage?.totalPages">
+        <a class="page-link" (click)="loadShows(showCurrentPage + 1)">
+          Next</a>
+      </li>
+    </ul>
+  </ng-container>
 
-  <div *ngIf="!loading && showPage?.content?.length === 0" class="text-muted text-center">
-    No shows found.
-  </div>
+  <ng-template #noShows>
+    <div *ngIf="!loading && showsTriggered"
+         class="text-center text-muted">
+      No shows found.
+    </div>
+  </ng-template>
+
 </div>

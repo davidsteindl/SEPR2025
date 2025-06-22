@@ -29,7 +29,7 @@ export class UserComponent implements OnInit {
 
   ngOnInit(): void {
     this.user = {
-      id: '',
+      id: null,
       dateOfBirth: new Date(),
       sex: Sex.male,
       email: "",

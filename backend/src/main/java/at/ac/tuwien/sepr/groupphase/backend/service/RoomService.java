@@ -2,13 +2,15 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.CreateRoomDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomPageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.SeatUsageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.roomdtos.StandingSectorUsageDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -83,4 +85,11 @@ public interface RoomService {
      * @return a list of {@link RoomDetailDto} representing all rooms
      */
     List<RoomDetailDto> getAllRooms();
+
+    /**
+     * Retrieves all rooms paginated.
+     *
+     * @return a page of all rooms
+     */
+    Page<RoomPageDto> getAllRoomsPaginated(Pageable pageable);
 }

@@ -3,6 +3,9 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 import jakarta.mail.MessagingException;
 import org.springframework.mail.javamail.JavaMailSender;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 
 public interface MailService {
 
@@ -13,7 +16,29 @@ public interface MailService {
      * @param email the receiver email
      * @param passwordResetLink the link for the user to reset his/her password
      */
-    void sendPasswordResetEmail(String email, String passwordResetLink);
+    void sendPasswordResetEmail(String email, String passwordResetLink, String time);
+
+    /**
+     * Function to send an info mail to the user, that his Account was unlocked.
+     *
+     * @param email the receiver email
+     */
+    void sendUserUnlockEmail(String email);
+
+    /**
+     * Function to send an info mail to the user, that his Account was blocked.
+     *
+     * @param email the receiver email
+     */
+    void sendUserBlockEmail(String email);
+
+    /**
+     * Function to send an account activation email.
+     *
+     * @param email the receiver email
+     * @param link the link for the user to activate his/her account
+     */
+    void sendAccountActivationEmail(String email, String link, String time);
 
     /**
      * Function to send an email.

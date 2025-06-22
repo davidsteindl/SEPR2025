@@ -109,7 +109,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public OrderDto buyTickets(TicketRequestDto request) throws ValidationException {
+    public OrderGroupDto buyTickets(TicketRequestDto request) throws ValidationException {
         LOGGER.debug("Buy tickets request: {}", request);
         ticketValidator.validateForBuyTickets(request);
         ticketValidator.validateCheckoutPaymentData(request);
@@ -119,9 +119,19 @@ public class TicketServiceImpl implements TicketService {
 
         var result = createTickets(order, show, request.getTargets(), TicketStatus.BOUGHT);
         finalizeOrder(order, result.tickets);
-        var dto = buildOrderDto(order, result.tickets);
-        dto.setTotalPrice(result.totalPrice);
-        return dto;
+        OrderGroup group = order.getOrderGroup();
+        OrderDto orderDto = buildOrderDto(order, result.tickets);
+        orderDto.setTotalPrice(result.totalPrice);
+
+        OrderGroupDto groupDto = new OrderGroupDto();
+        groupDto.setId(group.getId());
+        Ticket firstTicket = result.tickets.getFirst();
+        groupDto.setShowName(firstTicket.getShow().getName());
+        groupDto.setShowDate(firstTicket.getShow().getDate());
+        groupDto.setLocationName(firstTicket.getShow().getEvent().getLocation().getName());
+        groupDto.setOrders(List.of(orderDto));
+
+        return groupDto;
     }
 
     @Override
@@ -353,12 +363,13 @@ public class TicketServiceImpl implements TicketService {
             .map(ticketMapper::toDto)
             .collect(Collectors.toList()));
         dto.setExpiresAt(expiresAt);
+        dto.setGroupId(order.getOrderGroup().getId());
         return dto;
     }
 
     @Override
     @Transactional
-    public OrderDto buyReservedTickets(TicketRequestDto request) throws ValidationException {
+    public OrderGroupDto buyReservedTickets(TicketRequestDto request) throws ValidationException {
         LOGGER.debug("Buy reserved tickets with checkout: {}", request);
 
         ticketValidator.validateCheckoutPaymentData(request);
@@ -398,9 +409,19 @@ public class TicketServiceImpl implements TicketService {
         orderRepository.save(oldReservation);
         orderRepository.save(newOrder);
 
-        OrderDto dto = buildOrderDto(newOrder, tickets);
-        dto.setTotalPrice(calculateTotalPrice(tickets));
-        return dto;
+        OrderDto orderDto = buildOrderDto(newOrder, tickets);
+        orderDto.setTotalPrice(calculateTotalPrice(tickets));
+
+        OrderGroupDto groupDto = new OrderGroupDto();
+        groupDto.setId(newGroup.getId());
+
+        Ticket firstTicket = tickets.getFirst();
+        groupDto.setShowName(firstTicket.getShow().getName());
+        groupDto.setShowDate(firstTicket.getShow().getDate());
+        groupDto.setLocationName(firstTicket.getShow().getEvent().getLocation().getName());
+        groupDto.setOrders(List.of(orderDto));
+
+        return groupDto;
     }
 
 
@@ -546,13 +567,13 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public void createTicketHold(CreateHoldDto createHoldDto) {
         LOGGER.debug("Hold seat with id {} for show {}", createHoldDto.getSeatId(), createHoldDto.getShowId());
-
-        ticketValidator.validateHold(createHoldDto.getShowId(), createHoldDto.getSectorId(), createHoldDto.getSeatId(), createHoldDto.getUserId());
+        Long userId = authFacade.getCurrentUserId();
+        ticketValidator.validateHold(createHoldDto.getShowId(), createHoldDto.getSectorId(), createHoldDto.getSeatId(), userId);
 
         Hold hold = new Hold();
         hold.setShowId(createHoldDto.getShowId());
         hold.setSeatId(createHoldDto.getSeatId());
-        hold.setUserId(createHoldDto.getSeatId());
+        hold.setUserId(userId);
         hold.setSectorId(createHoldDto.getSectorId());
         hold.setValidUntil(LocalDateTime.now().plusMinutes(30));
 
@@ -566,7 +587,17 @@ public class TicketServiceImpl implements TicketService {
     @Transactional
     public Page<OrderGroupDto> getOrderGroupsByCategory(boolean isReservation, boolean past, Pageable pageable) {
         Long userId = authFacade.getCurrentUserId();
-        Page<OrderGroup> groups = orderGroupRepository.findByCategory(userId, isReservation, past, pageable);
+        Page<OrderGroup> groups;
+
+        if (isReservation) {
+            groups = orderGroupRepository.findReservations(userId, OrderType.RESERVATION, pageable);
+        } else {
+            List<OrderType> types = List.of(OrderType.ORDER, OrderType.REFUND);
+            groups = past
+                ? orderGroupRepository.findPaidOrRefundedPast(userId, types, pageable)
+                : orderGroupRepository.findPaidOrRefundedUpcoming(userId, types, pageable);
+        }
+
         return groups.map(group -> {
             OrderGroupDto dto = new OrderGroupDto();
             dto.setId(group.getId());
@@ -582,6 +613,7 @@ public class TicketServiceImpl implements TicketService {
             dto.setOrders(group.getOrders().stream()
                 .map(orderMapper::toDto)
                 .collect(Collectors.toList()));
+
             return dto;
         });
     }
@@ -610,7 +642,7 @@ public class TicketServiceImpl implements TicketService {
         List<TicketDto> tickets = group.getOrders().stream()
             .flatMap(order -> order.getTickets().stream())
             .distinct()
-            .map(this::mapTicketWithSeatDetails)
+            .map(ticketMapper::toDto)
             .toList();
         dto.setTickets(tickets);
 
@@ -621,44 +653,6 @@ public class TicketServiceImpl implements TicketService {
         dto.setOrders(sortedOrders);
 
         return dto;
-    }
-
-    /**
-     * Maps a {@link Ticket} entity to a {@link TicketDto}, including additional seat details
-     * such as the row number and column letter (seat label), if a seat is assigned.
-     *
-     * <p>This method extends the basic mapping by using the seat's {@code rowNumber}
-     * and converting the {@code columnNumber} into a letter (A-Z, AA, AB, etc.) for user-friendly display.
-     *
-     * @param ticket the {@link Ticket} entity to be mapped
-     * @return a fully populated {@link TicketDto} including row and seat label (if applicable)
-     */
-    private TicketDto mapTicketWithSeatDetails(Ticket ticket) {
-        TicketDto dto = ticketMapper.toDto(ticket);
-        if (ticket.getSeat() != null) {
-            int row = ticket.getSeat().getRowNumber();
-            int col = ticket.getSeat().getColumnNumber();
-            dto.setRowNumber(row);
-            dto.setSeatLabel(convertColumnNumberToLetter(col));
-        }
-        return dto;
-    }
-
-    /**
-     * Converts a 1-based numeric column index to its corresponding alphabetical representation,
-     * similar to Excel columns (e.g. 1 → A, 2 → B, ..., 27 → AA).
-     *
-     * @param number the column number to convert (1-based)
-     * @return a string representing the column in letter format
-     */
-    private String convertColumnNumberToLetter(int number) {
-        StringBuilder sb = new StringBuilder();
-        while (number > 0) {
-            number--;
-            sb.insert(0, (char) ('A' + (number % 26)));
-            number /= 26;
-        }
-        return sb.toString();
     }
 
 }

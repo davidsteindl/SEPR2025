@@ -18,8 +18,8 @@ public class MessageDataGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private static final int NUMBER_OF_MESSAGES_TO_GENERATE = 5;
     private static final String TEST_NEWS_TITLE = "Title";
-    private static final String TEST_NEWS_SUMMARY = "Summary of the message";
-    private static final String TEST_NEWS_TEXT = "This is the text of the message";
+    private static final String TEST_NEWS_SUMMARY = "Summary of the news";
+    private static final String TEST_NEWS_TEXT = "This is the text of the news";
 
     private final MessageRepository messageRepository;
 

@@ -53,11 +53,18 @@
               </div>
             </div>
 
-            <div style="display: flex;" class="mt-2">
-              <button type="button" (click)="loginUser()" class="btn btn-success float-right ">Login</button>
-              <p>
-                <button routerLink="/forgot-password" class="btn btn-link">Forgot password?</button>
-              </p>
+            <div class="d-flex align-items-center mt-2">
+              <button
+                type="submit"
+                class="btn btn-success me-3">
+                Login
+              </button>
+              <button
+                type="button"
+                routerLink="/forgot-password"
+                class="btn btn-link p-0">
+                Forgot password?
+              </button>
             </div>
 
             <p> If you don't have an account:

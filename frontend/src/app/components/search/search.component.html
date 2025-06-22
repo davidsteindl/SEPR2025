@@ -1,7 +1,7 @@
 <div class="mt-4 container">
-  <div class="row">
+  <div>
     <h2 class="modal-title">Search</h2>
-    <hr>
+    <hr class="mt-1 mb-4">
   </div>
   <ul class="nav nav-tabs custom-tabs mb-0">
     <li class="nav-item">
@@ -105,7 +105,7 @@
       </div>
       <div class="row">
         <div class="form-group col-md-6">
-          <label for="eventLocatioPostalCode">City´s Postal Code</label>
+          <label for="eventLocationPostalCode">City´s Postal Code</label>
           <input id="eventLocationPostalCode" [(ngModel)]="eventLocationPostalCode" class="form-control"/>
         </div>
         <div class="text-center">
@@ -171,7 +171,7 @@
       </ng-container>
 
       <ng-template #noEventLocations>
-        <div class="text-center text-muted" style="font-weight: bold">
+        <div class="text-center text-muted" style="font-weight: bold" *ngIf="!eventLocationLoading && eventLocationTriggered && eventLocationPage?.content?.length === 0">
           No event locations found.
         </div>
       </ng-template>
@@ -182,8 +182,8 @@
     <div class="tab-box">
       <div class="row">
         <div class="form-group col-md-6">
-          <label for="eventName">Event name</label>
-          <input id="eventName" [(ngModel)]="eventName" class="form-control"/>
+          <label for="eventName1">Event name</label>
+          <input id="eventName1" [(ngModel)]="eventName" class="form-control"/>
         </div>
         <div class="form-group col-md-6">
           <label for="eventCategory">Event category</label>
@@ -237,7 +237,8 @@
           <th>Category</th>
           <th>Duration</th>
           <th>Description</th>
-          <th></th>
+          <th>Event</th>
+
         </tr>
         </thead>
         <tbody>
@@ -248,7 +249,7 @@
           <td>{{ ev.description }}</td>
           <td class="text-right">
             <button class="view-button" [routerLink]="['/events', ev.id, 'overview']"
-                    [queryParams]="{ from: 'event', tab: 'event'  }">
+                    [queryParams]="{ from: 'search', tab: 'event'  }">
               View Event
             </button>
           </td>
@@ -272,7 +273,7 @@
       </ng-container>
 
       <ng-template #noEvents>
-        <div class="text-center text-muted" style="font-weight: bold">
+        <div class="text-center text-muted" style="font-weight: bold" *ngIf="!eventLoading && eventTriggered && eventPage?.content?.length === 0">
           No events found.
         </div>
       </ng-template>
@@ -283,8 +284,8 @@
     <div class="tab-box">
       <div class="row">
         <div class="form-group col-md-6">
-          <label for="eventName">Event name</label>
-          <input id="eventName" [(ngModel)]="showEventName" name="eventName" class="form-control"/>
+          <label for="eventName2">Event name</label>
+          <input id="eventName2" [(ngModel)]="showEventName" name="eventName" class="form-control"/>
         </div>
         <div class="form-group col-md-6">
           <label for="roomName">Room name</label>
@@ -361,10 +362,16 @@
               <ng-template #noPrice>–</ng-template>
             </td>
             <td class="text-center">
-              <button class="btn btn-primary btn-sm" [routerLink]="['/shows', s.id, 'room-usage']">
-                Buy/Reserve Ticket
-              </button>
+              <ng-container *ngIf="s.dateObj > now; else notAvailable">
+                <button class="btn btn-primary btn-sm" [routerLink]="['/shows', s.id, 'room-usage']">
+                  Buy/Reserve Ticket
+                </button>
+              </ng-container>
+              <ng-template #notAvailable>
+                <span class="text-muted">Not available</span>
+              </ng-template>
             </td>
+
 
           </tr>
           </tbody>

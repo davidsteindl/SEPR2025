@@ -3,7 +3,7 @@ import {OrderGroupDetailDto} from "../../../dtos/order";
 import {ActivatedRoute} from "@angular/router";
 import {TicketService} from "../../../services/ticket.service";
 import {OrderService} from "../../../services/order.service";
-import {CurrencyPipe, DatePipe, NgForOf, NgIf} from "@angular/common";
+import {CurrencyPipe, DatePipe, LowerCasePipe, NgForOf, NgIf, TitleCasePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import { CartService } from 'src/app/services/cart.service';
 import { Router } from '@angular/router';
@@ -17,7 +17,9 @@ import { PaymentItem } from 'src/app/dtos/payment-item';
     FormsModule,
     DatePipe,
     NgIf,
-    NgForOf
+    NgForOf,
+    LowerCasePipe,
+    TitleCasePipe
   ],
   templateUrl: './reserved-order-detail.component.html',
   standalone: true,

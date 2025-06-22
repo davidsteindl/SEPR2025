@@ -1,44 +1,82 @@
 <div class="mt-4 container">
 
-    <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong>Error! </strong> {{ errorMessage }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close" (click)="vanishError()">
-            <span aria-hidden="true">&times;</span>
-        </button>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>All Accounts</h2>
+    <button #backBtn class="btn btn-outline-secondary" [routerLink]="['/admin']">
+      ← Back to Admin Page
+    </button>
+  </div>
+  <hr>
+
+  <div class="card p-4">
+    <div class="text-end mb-3">
+      <button class="btn btn-success" [style.width.px]="backBtn.offsetWidth" routerLink="/register">
+        <i class="fas fa-user-plus me-2"></i>
+        Create User
+      </button>
     </div>
 
-    <div class="card p-4">
-        <h2>Blocked Accounts</h2>
-        <ng-container *ngIf="lockedUsers.length > 0; else noUsers">
-            <table class="table table-striped table-hover">
-                <thead class="thead-light">
-                    <tr>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th class="text-end">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let u of lockedUsers">
-                        <td>{{ u.firstName }}</td>
-                        <td>{{ u.lastName }}</td>
-                        <td>{{ u.email }}</td>
-                        <td class="text-end">
-                            <button *ngIf="isAdmin()" class="btn btn-success" (click)="onUnlock(u.id)">
-                                Revoke block
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </ng-container>
+    <div *ngIf="usersLoading" class="text-center text-muted my-2">
+      Loading users…
     </div>
 
+    <ng-container *ngIf="usersPage?.content?.length> 0; else noUsers">
+      <table class="table table-striped table-hover">
+        <thead class="thead-light">
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Email</th>
+          <th>
+          <span style="margin-left: 560px; display: inline-block;">
+          Action
+          </span>
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let u of usersPage?.content">
+          <td><strong>{{ u.firstName }}</strong></td>
+          <td>{{ u.lastName }}</td>
+          <td>{{ u.email }}</td>
+          <td class="text-end">
+            <button class="btn btn-secondary" style="margin-right: 10px" (click)="resetPassword(u.id)">
+              Reset password
+            </button>
+            <button *ngIf="u.isLocked" class="btn btn-success" (click)="onUnlock(u.id)">
+              Revoke block
+            </button>
+            <button *ngIf="!u.isLocked" class="btn btn-danger" (click)="block(u.id)">
+              Block User
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <ul class="pagination justify-content-center" style="margin-top: 1rem">
+        <li class="page-item" [class.disabled]="usersCurrentPage === 0">
+          <a class="page-link" style="cursor: pointer;" (click)="loadAllUsers(usersCurrentPage - 1)">Previous</a>
+        </li>
+        <li class="page-item disabled">
+              <span class="page-link">Page {{ usersCurrentPage + 1 }}
+                of {{ usersPage?.totalPages }}</span>
+        </li>
+        <li class="page-item"
+            [class.disabled]="usersCurrentPage >= (usersPage?.totalPages || 1) - 1">
+          <a class="page-link" style="cursor: pointer;"
+             (click)="loadAllUsers(usersCurrentPage + 1)">Next</a>
+        </li>
+      </ul>
+
+    </ng-container>
     <ng-template #noUsers>
-        <div class="alert alert-info" *ngIf="!error">
-            No locked users.
-        </div>
+      <div class="text-center text-muted" style="font-weight: bold"
+           *ngIf="!usersLoading && usersTriggered && usersPage?.content.length===0">
+        No users found.
+      </div>
     </ng-template>
+  </div>
 
 </div>

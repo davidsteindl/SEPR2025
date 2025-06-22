@@ -41,15 +41,16 @@ export class EventService {
    * Updates an existing event
    *
    * @param event to update
+   * @param id ID of the event to update
    */
   update(id: number, event: UpdateEvent): Observable<Event> {
     return this.httpClient.put<Event>(`${this.eventBaseUri}/${id}`,
       {
-        name:       event.name,
-        category:   event.category,
-        description:event.description,
-        dateTime:   event.dateTime,
-        duration:   event.duration,
+        name: event.name,
+        category: event.category,
+        description: event.description,
+        dateTime: event.dateTime,
+        duration: event.duration,
         locationId: event.locationId
       }
     );
@@ -60,6 +61,17 @@ export class EventService {
    */
   getAll(): Observable<Event[]> {
     return this.httpClient.get<Event[]>(this.eventBaseUri);
+  }
+
+  /**
+   * Retrieves all events paginated
+   */
+  getPaginatedEvents(page = 0, size = 10, fromDate?: string): Observable<Page<Event>> {
+    let url = `${this.eventBaseUri}/paginated?page=${page}&size=${size}`;
+    if (fromDate) {
+      url += `&fromDate=${encodeURIComponent(fromDate)}`;
+    }
+    return this.httpClient.get<Page<Event>>(url);
   }
 
   /**

@@ -1,0 +1,164 @@
+<!-- edit-room-page.component.html -->
+<div *ngIf="!loading" class="edit-room-page d-flex">
+  <!-- Seat Map -->
+  <div class="flex-grow-1 seat-map-container mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3 class="mb-0">{{ room.name }}</h3>
+      <button class="btn btn-outline-secondary" (click)="onBackToUpdateRoomsClick()">
+        ← Back to Rooms Update Page
+      </button>
+    </div>
+    <app-edit-room-seat-map [room]="room"></app-edit-room-seat-map>
+  </div>
+
+  <!-- Sectors Sidebar -->
+  <div class="ticket-sidebar d-flex flex-column">
+    <div class="sidebar-header p-3 border-bottom">
+      <h5>Sectors</h5>
+    </div>
+    <div class="sidebar-body flex-grow-1 overflow-auto p-2">
+      <div
+        *ngFor="let sec of room.sectors"
+        class="sector-item mb-2 p-3 border rounded bg-light"
+      >
+        <div class="sector-label-row">
+          <span
+            class="sector-color-indicator"
+            [ngClass]="{
+              'stage-sector-indicator': sec.type === 'STAGE',
+              'standing-sector-indicator': sec.type === 'STANDING',
+              'normal-sector-indicator': sec.type === 'NORMAL'
+            }"
+            [ngStyle]="{
+              background: sec.type === 'STAGE' ? '#888' : getSectorColor(sec.id)
+            }"
+          ></span>
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center mb-1">
+              <span class="">Sector number: {{ sec.id }}</span>
+            </div>
+            <div class="d-flex align-items-center mb-1">
+              <span class="sector-type-label">Type:</span>
+              <span class="sector-type-value">{{ sec.type }}</span>
+            </div>
+
+            <div
+              *ngIf="sec.type !== 'STAGE'"
+              class="d-flex align-items-center mb-1"
+            >
+              <span class="me-2"><strong>Price:</strong></span>
+              <span>€{{ sec.price }}</span>
+            </div>
+            <div
+              *ngIf="sec.type === 'STANDING'"
+              class="d-flex align-items-center mb-1"
+            >
+              <span class="me-2"><strong>Capacity:</strong></span>
+              <span>{{ sec.capacity }}</span>
+            </div>
+          </div>
+          <div class="d-flex flex-column ms-2">
+            <button
+              class="icon-btn"
+              (click)="openEditSectorModal(sectorModal, sec)"
+              title="Edit"
+            >
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button
+              class="icon-btn delete"
+              (click)="deleteSector(sec)"
+              title="Delete"
+            >
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-footer p-3 border-top">
+      <button
+        class="btn btn-secondary w-100 mb-2"
+        (click)="openNewSectorModal(sectorModal)"
+      >
+        Add New Sector
+      </button>
+      <button class="btn btn-success w-100" (click)="saveLayout()">
+        Save Layout
+      </button>
+    </div>
+  </div>
+
+  <!-- Sector Modal -->
+  <ng-template #sectorModal let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title">
+        {{ editingSector ? "Edit Sector" : "New Sector" }}
+      </h5>
+      <button
+        type="button"
+        class="btn-close"
+        aria-label="Close"
+        (click)="modal.dismiss()"
+      ></button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="sectorForm">
+        <div class="mb-3">
+          <label class="form-label">Type</label>
+          <select class="form-select" formControlName="type">
+            <option [ngValue]="SectorType.STAGE">Stage</option>
+            <option [ngValue]="SectorType.NORMAL">Seated</option>
+            <option [ngValue]="SectorType.STANDING">Standing</option>
+          </select>
+        </div>
+        <div
+          class="mb-3"
+          *ngIf="sectorForm.get('type')!.value !== SectorType.STAGE"
+        >
+          <label class="form-label">Price (€)</label>
+          <input type="number" class="form-control" formControlName="price" />
+        </div>
+        <div
+          class="mb-3"
+          *ngIf="sectorForm.get('type')!.value === SectorType.STANDING"
+        >
+          <label class="form-label">Capacity</label>
+          <input
+            type="number"
+            class="form-control"
+            formControlName="capacity"
+          />
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+        Cancel
+      </button>
+      <button type="button" class="btn btn-primary" (click)="saveSector()">
+        Save
+      </button>
+    </div>
+  </ng-template>
+
+  <div *ngIf="showConfirmExit">
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header justify-content-center border-0">
+            <h5 class="modal-title text-center fw-bold mb-0">Confirm Exit</h5>
+          </div>
+          <div class="modal-body text-center py-2">
+            <p>If you exit this page, your changes will not be saved.</p>
+          </div>
+          <div class="modal-footer justify-content-center pt-1 pb-2 border-0">
+            <button class="btn btn-success me-2" (click)="stay()">Stay on Page</button>
+            <button class="btn btn-danger" (click)="exit()">Exit Page</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

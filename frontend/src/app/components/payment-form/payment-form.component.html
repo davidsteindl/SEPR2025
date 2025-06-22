@@ -179,7 +179,7 @@
         <li *ngFor="let it of items" class="d-flex justify-content-between mb-2">
           <div>
             <ng-container *ngIf="it.type==='SEATED'">
-              {{ it.eventName }}, Sektor {{ it.sectorId }}, {{ it.rowNumber }}A
+              {{ it.eventName }}, Sektor {{ it.sectorId }}, Row {{ it.rowNumber }}, Seat {{ it.columnNumber }}
             </ng-container>
             <ng-container *ngIf="it.type==='STANDING'">
               {{ it.quantity }}× {{ it.eventName }}, Sektor {{ it.sectorId }}, Stehplatz

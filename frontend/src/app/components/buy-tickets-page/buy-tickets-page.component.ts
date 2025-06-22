@@ -29,6 +29,7 @@ export class BuyTicketsPageComponent implements OnInit, OnDestroy {
 
   cartSub!: Subscription;
   currentItems: PaymentItem[] = [];
+  showConfirmModal = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -46,6 +47,8 @@ export class BuyTicketsPageComponent implements OnInit, OnDestroy {
       if (idStr) {
         this.showId = +idStr;
 
+        this.cartService.clear();
+
         // load Show
         this.loadingShow = true;
         console.log("FETCHING SHOWS")
@@ -61,6 +64,7 @@ export class BuyTicketsPageComponent implements OnInit, OnDestroy {
               next: (r: Room) => {
                 this.room = r;
                 this.loadingRoom = false;
+                console.log("Fetched room: ", r);
               },
               error: err => {
                 console.error('Error fetching room usage', err);
@@ -149,6 +153,11 @@ export class BuyTicketsPageComponent implements OnInit, OnDestroy {
   }
 
   onBuyTickets() {
+    const items = this.cartService.getItems();
+    if (!items || items.length === 0) {
+      this.toastr.warning('Your cart is empty. Please select tickets first.');
+      return;
+    }
     this.router.navigate(['/checkout']);
   }
 
@@ -159,15 +168,34 @@ export class BuyTicketsPageComponent implements OnInit, OnDestroy {
       return;
     }
     this.ticketService.reserveTickets(this.showId, items).subscribe({
-      next: () => {
-        this.toastr.success('Tickets reserved successfully!');
+      next: (res) => {
+        const dt = new Date(res.createdAt);
+        this.toastr.success(`Order #${res.groupId} placed on ${dt.toLocaleString()}`,
+          'Reservation Complete'
+        );
         this.cartService.clear();
         this.router.navigate(['/orders'], { queryParams: { tab: 'reservations' } });
       },
       error: err => {
-        const msg = err.error?.message ?? err.message ?? 'Unknown error';
-        this.toastr.error(`Failed to reserve tickets: ${msg}`);
+        console.error('Reservation failed', err);
+
+        const msg = err?.error?.detail ?? err?.error?.message ?? err.message ?? 'Unknown error';
+
+        this.toastr.error(msg, 'Reservation failed');
       }
     });
+  }
+
+  openReservationConfirm(): void {
+    this.showConfirmModal = true;
+  }
+
+  confirmReservation(): void {
+    this.onReserveTickets();
+    this.showConfirmModal = false;
+  }
+
+  cancelReservation(): void {
+    this.showConfirmModal = false;
   }
 }

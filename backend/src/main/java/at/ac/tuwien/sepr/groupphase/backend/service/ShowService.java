@@ -3,6 +3,8 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ShowService {
@@ -39,6 +41,15 @@ public interface ShowService {
     public List<Show> findShowsByEventId(Long eventId);
 
     Show getShowWithRoomAndSectors(Long id);
+
+    /**
+     * Finds all shows for a specific date.
+     *
+     * @param start startDate
+     * @param end endDate
+     * @return a list of shows for the date
+     */
+    List<Show> findShowsBetween(LocalDateTime start, LocalDateTime end);
 
 }
 

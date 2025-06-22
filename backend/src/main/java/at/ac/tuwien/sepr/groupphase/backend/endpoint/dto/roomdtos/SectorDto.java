@@ -12,7 +12,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 )
 @JsonSubTypes({
     @JsonSubTypes.Type(value = StandingSectorDto.class, name = "STANDING"),
-    @JsonSubTypes.Type(value = StageSectorDto.class, name = "STAGE")
+    @JsonSubTypes.Type(value = StageSectorDto.class, name = "STAGE"),
+    @JsonSubTypes.Type(value = SectorDto.class, name = "NORMAL")
 })
 public class SectorDto {
 
@@ -42,7 +43,7 @@ public class SectorDto {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(Integer price) {
         this.price = price;
     }
 }

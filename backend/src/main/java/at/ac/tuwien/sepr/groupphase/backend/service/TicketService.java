@@ -54,7 +54,7 @@ public interface TicketService {
      * @throws IllegalArgumentException if the request is malformed (e.g. invalid event or sector ID).
      * @throws SeatUnavailableException if one or more requested seats have already been taken.
      */
-    OrderDto buyTickets(TicketRequestDto ticketRequestDto) throws ValidationException;
+    OrderGroupDto buyTickets(TicketRequestDto ticketRequestDto) throws ValidationException;
 
 
     /**
@@ -88,7 +88,7 @@ public interface TicketService {
      * @throws ReservationExpiredException if the reservation has already expired.
      * @throws IllegalArgumentException if any ticketId is not part of the given reservation.
      */
-    OrderDto buyReservedTickets(TicketRequestDto request) throws ValidationException;
+    OrderGroupDto buyReservedTickets(TicketRequestDto request) throws ValidationException;
 
 
 

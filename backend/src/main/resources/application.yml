@@ -8,6 +8,9 @@ logging:
     level: r=%X{r} ip=%X{ip} u=%X{u} %5p
 
 spring:
+  servlet:
+    multipart:
+      max-request-size: 10MB
   h2:
     console:
       enabled: true
@@ -81,3 +84,7 @@ spring:
     timeout-per-shutdown-phase: 30s
 server:
   shutdown: graceful
+
+---
+frontend:
+  base-url: http://localhost:4200

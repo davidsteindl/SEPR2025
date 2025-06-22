@@ -1,34 +1,63 @@
-<div class="mt-4 container">
-  <div class="row">
+<div class="admin container mt-4">
+  <h2 class="modal-title">Admin</h2>
+  <hr class="mt-1 mb-4">
+  <div class="admin__cards">
 
-    <h2 class="modal-title">Admin</h2>
-    <hr>
-
-    <div class="middle">
-
-      <div class="user">
-        <span> User-Management: </span>
-        <button class="btn buttons">Create User</button>
-        <button class="btn buttons" routerLink="/manage-accounts">Revoke User</button>
-        <button class="btn buttons">Block User</button>
-        <button class="btn buttons">Reset Password</button>
+    <section class="card user-management">
+      <h3 class="card__title">User Management</h3>
+      <div class="user-management__body">
+        <button class="um-btn" routerLink="/manage-accounts">
+          <i class="fas fa-users-cog um-btn__icon"></i>
+          <span class="um-btn__text">Manage Accounts</span>
+        </button>
       </div>
-      <br>
-      <button class="btn button">Create News</button>
-      <br>
-      <div class="events">
-        <button class="btn buttons" routerLink="/create-event">Create Event</button>
-        <button class="btn buttons" routerLink="/update-events">Update Events</button>
-      </div>
-      <br>
-      <button class="btn button" routerLink="/create-location">Create Location</button>
-      <br>
-      <button class="btn button" routerLink="/create-artist">Create Artist</button>
-      <br>
-      <button class="btn button" routerLink="/create-show">Create Show</button>
-      <br>
-      <button class="btn button" routerLink="/create-room">Create Room</button>
+    </section>
 
-    </div>
+    <section class="card content-creation">
+      <h3 class="card__title">Content Creation</h3>
+      <div class="cc-grid">
+        <button class="cc-btn" routerLink="/create-news">
+          <i class="fas fa-newspaper cc-btn__icon"></i>
+          <span>News</span>
+        </button>
+        <div class="cc-card cc-card--events">
+          <i class="fa-regular fa-calendar cc-card__icon"></i>
+          <span class="cc-card__label">Event</span>
+          <div class="cc-card__actions">
+            <button routerLink="/create-event" title="Create Event">
+              <i class="fas fa-plus"></i>
+            </button>
+            <button routerLink="/update-events" title="Update Event">
+              <i class="fas fa-edit"></i>
+            </button>
+          </div>
+        </div>
+        <button class="cc-btn" routerLink="/create-location">
+          <i class="fa-solid fa-location-dot cc-btn__icon"></i>
+          <span>Location</span>
+        </button>
+        <button class="cc-btn" routerLink="/create-artist">
+          <i class="fas fa-user cc-btn__icon"></i>
+          <span>Artist</span>
+        </button>
+        <button class="cc-btn" routerLink="/create-show">
+          <i class="fas fa-ticket cc-btn__icon"></i>
+          <span>Show</span>
+        </button>
+        <div class="cc-card cc-card--rooms">
+          <i class="fas fa-th-large cc-card__icon"></i>
+          <span class="cc-card__label">Room</span>
+          <div class="cc-card__actions">
+            <button routerLink="/create-room" title="Create Room">
+              <i class="fas fa-plus"></i>
+            </button>
+            <button routerLink="/update-rooms" [queryParams]="{ fromAdmin: true }" title="Update Room">
+              <i class="fas fa-edit"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </div>
 </div>

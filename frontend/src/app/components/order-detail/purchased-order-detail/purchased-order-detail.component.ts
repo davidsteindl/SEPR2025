@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {OrderDto, OrderGroupDetailDto} from 'src/app/dtos/order';
 import {FormsModule} from "@angular/forms";
-import {CurrencyPipe, DatePipe, NgForOf, NgIf} from "@angular/common";
+import {CurrencyPipe, DatePipe, LowerCasePipe, NgForOf, NgIf, TitleCasePipe} from "@angular/common";
 import { TicketService } from 'src/app/services/ticket.service';
 import {PdfExportService} from "../../../services/pdf-export.service";
 import {ToastrService} from "ngx-toastr";
@@ -17,7 +17,9 @@ import {ToastrService} from "ngx-toastr";
     CurrencyPipe,
     DatePipe,
     NgIf,
-    NgForOf
+    NgForOf,
+    LowerCasePipe,
+    TitleCasePipe
   ],
   styleUrls: ['./purchased-order-detail.component.scss']
 })
@@ -93,10 +95,6 @@ export class PurchasedOrderDetailComponent implements OnInit {
     return Object.values(this.selected).some(v => v);
   }
 
-  get tickets() {
-    return this.group?.tickets ?? [];
-  }
-
   get orders() {
     return [...(this.group?.orders ?? [])].sort(
       (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
@@ -110,10 +108,33 @@ export class PurchasedOrderDetailComponent implements OnInit {
   }
 
   getOrderLabel(order: OrderDto, index: number): string {
-    switch (order.orderType) {
-      case 'ORDER': return `Order ${index + 1}`;
-      case 'REFUND': return `Refund ${index + 1}`;
-      default: return `Order`;
+    const orders = this.sortedOrders;
+
+    let orderCount = 0;
+    let refundCount = 0;
+
+    for (let i = 0; i <= index; i++) {
+      if (orders[i].orderType === 'ORDER') {
+        orderCount++;
+      } else if (orders[i].orderType === 'REFUND') {
+        refundCount++;
+      }
+    }
+
+    const isLast = index === orders.length - 1;
+
+    if (order.orderType === 'ORDER') {
+      if (orderCount === 1) {
+        return 'Original Order';
+      } else if (isLast) {
+        return 'Current Order';
+      } else {
+        return `Updated Order #${orderCount - 1}`;
+      }
+    } else if (order.orderType === 'REFUND') {
+      return `Refund #${refundCount}`;
+    } else {
+      return 'Order';
     }
   }
 

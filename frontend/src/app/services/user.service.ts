@@ -1,12 +1,15 @@
 import {HttpClient} from '@angular/common/http';
 import {map, Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
-import {User, UserEdit } from '../dtos/user';
+import {User, UserEdit} from '../dtos/user';
 import {formatIsoDate} from "../utils/date-helper";
+
 const baseUri = environment.backendUrl + '/users';
-import { Injectable } from '@angular/core';
-import { LockedUser } from '../dtos/locked-user';
-import { Globals } from '../global/globals';
+import {Injectable} from '@angular/core';
+import {LockedUser} from '../dtos/locked-user';
+import {Globals} from '../global/globals';
+import {Page} from "../dtos/page";
+import {Message} from "../dtos/message";
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +35,7 @@ export class UserService {
    *  Get current user.
    */
   getCurrentUser(): Observable<User> {
-    console.log(' current User ' );
+    console.log(' current User ');
     return this.httpClient.get<User>(`${this.userBaseUri}/me`);
   }
 
@@ -57,7 +60,7 @@ export class UserService {
    *
    * @return Observable, to confirm that deleting was successful.
    */
-  deleteUser( ): Observable<void> {
+  deleteUser(): Observable<void> {
     return this.httpClient.delete<void>(
       `${this.userBaseUri}/me`);
   }
@@ -86,6 +89,14 @@ export class UserService {
     return this.httpClient.get<LockedUser[]>(`${this.userBaseUri}/locked`);
   }
 
+  /**
+   * Loads all users from the backend paginated.
+   */
+  getAllUsersPaginated(page = 0, size = 10): Observable<Page<User>> {
+    const params = `?page=${page}&size=${size}`;
+    return this.httpClient.get<Page<User>>(`${this.userBaseUri}/paginated${params}`);
+  }
+
 
   /**
    * Unlocks a user by ID.
@@ -95,5 +106,44 @@ export class UserService {
     return this.httpClient.put<void>(`${this.userBaseUri}/${id}/unlock`, null);
   }
 
+  /**
+   * Blocks a user by ID.
+   */
+  blockUser(id: number): Observable<void> {
+    console.log('Unlock User with id ' + id);
+    return this.httpClient.put<void>(`${this.userBaseUri}/${id}/block`, null);
+  }
 
+  /**
+   * Sends a password-reset to the user.
+   */
+  resetPassword(id: number): Observable<void> {
+    console.log('Sends a password-reset to user with id resetPassword' + id);
+    return this.httpClient.put<void>(`${this.userBaseUri}/${id}/resetPassword`, null);
+  }
+
+  /**
+   * Loads all UNSEEN messages for the current user
+   */
+  getUnseenMessages(userId: number): Observable<Message[]> {
+    return this.httpClient.get<Message[]>(`${this.userBaseUri}/${userId}/news/unseen`);
+  }
+
+  /**
+   * Loads all UNSEEN messages for the current user paginated
+   *
+   * @param userId - ID of the user to load unseen messages for
+   * @param page - Page number to load
+   * @param size - Number of messages per page
+   */
+  getUnseenMessagesPaginated(userId: number, page: number, size: number): Observable<Page<Message>> {
+    return this.httpClient.get<Page<Message>>(`${this.userBaseUri}/${userId}/news/unseen/paginated?page=${page}&size=${size}`);
+  }
+
+  /**
+   * Marks a message ID as seen for the current user
+   */
+  markMessageAsSeen(userId: number, messageId: number): Observable<void> {
+    return this.httpClient.post<void>(`${this.userBaseUri}/${userId}/news/${messageId}/markSeen`, null);
+  }
 }

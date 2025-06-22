@@ -6,7 +6,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -53,10 +59,21 @@ public class ApplicationUser {
     private boolean locked;
 
     @Column(nullable = false, length = 100)
-    private boolean admin;
+    private boolean isAdmin;
 
     @Column(nullable = false, length = 100)
     private int loginTries;
+
+    @Column(nullable = false)
+    private boolean isActivated;
+
+    @ManyToMany
+    @JoinTable(
+        name = "user_views_news",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "message_id")
+    )
+    private List<Message> viewedMessages = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -163,11 +180,11 @@ public class ApplicationUser {
     }
 
     public Boolean isAdmin() {
-        return admin;
+        return isAdmin;
     }
 
     public void setAdmin(Boolean isAdmin) {
-        this.admin = isAdmin;
+        this.isAdmin = isAdmin;
     }
 
     public int getLoginTries() {
@@ -178,61 +195,68 @@ public class ApplicationUser {
         this.loginTries = loginTries;
     }
 
+    public boolean isActivated() {
+        return isActivated;
+    }
+
+    public void setActivated(boolean activated) {
+        isActivated = activated;
+    }
+
+    public List<Message> getViewedMessages() {
+        return viewedMessages;
+    }
+
+    public void setViewedMessages(List<Message> viewedMessages) {
+        this.viewedMessages = viewedMessages;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         ApplicationUser that = (ApplicationUser) o;
         return locked == that.locked
-            && admin == that.admin
+            && isAdmin == that.isAdmin
             && loginTries == that.loginTries
-            && id.equals(that.id)
-            && firstName.equals(that.firstName)
-            && lastName.equals(that.lastName)
-            && password.equals(that.password)
-            && dateOfBirth.equals(that.dateOfBirth)
-            && sex == that.sex && email.equals(that.email)
+            && isActivated == that.isActivated
+            && Objects.equals(id, that.id)
+            && Objects.equals(firstName, that.firstName)
+            && Objects.equals(lastName, that.lastName)
+            && Objects.equals(password, that.password)
+            && Objects.equals(dateOfBirth, that.dateOfBirth)
+            && sex == that.sex
+            && Objects.equals(email, that.email)
             && Objects.equals(housenumber, that.housenumber)
             && Objects.equals(country, that.country)
             && Objects.equals(city, that.city)
             && Objects.equals(street, that.street)
-            && Objects.equals(postalCode, that.postalCode);
+            && Objects.equals(postalCode, that.postalCode)
+            && Objects.equals(viewedMessages, that.viewedMessages);
     }
 
     @Override
     public int hashCode() {
-        int result = id.hashCode();
-        result = 31 * result + firstName.hashCode();
-        result = 31 * result + lastName.hashCode();
-        result = 31 * result + password.hashCode();
-        result = 31 * result + dateOfBirth.hashCode();
-        result = 31 * result + sex.hashCode();
-        result = 31 * result + email.hashCode();
-        result = 31 * result + Objects.hashCode(housenumber);
-        result = 31 * result + Objects.hashCode(country);
-        result = 31 * result + Objects.hashCode(city);
-        result = 31 * result + Objects.hashCode(street);
-        result = 31 * result + Objects.hashCode(postalCode);
-        result = 31 * result + Boolean.hashCode(locked);
-        result = 31 * result + Boolean.hashCode(admin);
-        result = 31 * result + loginTries;
-        return result;
+        return Objects.hash(id, firstName, lastName, password, dateOfBirth, sex, email,
+            housenumber, country, city, street, postalCode, locked, isAdmin,
+            loginTries, isActivated, viewedMessages);
     }
 
     @Override
     public String toString() {
         return "ApplicationUser{"
             + "id=" + id
-            +  ", firstName='" + firstName + '\''
+            + ", firstName='" + firstName + '\''
             + ", lastName='" + lastName + '\''
             + ", dateOfBirth=" + dateOfBirth
             + ", sex=" + sex
             + ", email='" + email + '\''
             + ", locked=" + locked
-            + ", admin=" + admin
+            + ", isAdmin=" + isAdmin
             + ", loginTries=" + loginTries
+            + ", isActivated=" + isActivated
+            + ", viewedMessages=" + viewedMessages
             + '}';
     }
 
@@ -252,6 +276,8 @@ public class ApplicationUser {
         private boolean isLocked;
         private boolean isAdmin;
         private int loginTries;
+        private boolean isActivated;
+        private List<Message> viewedMessages;
 
         private ApplicationUserBuilder() {
         }
@@ -295,6 +321,11 @@ public class ApplicationUser {
             return this;
         }
 
+        public ApplicationUserBuilder withIsActivated(Boolean activated) {
+            this.isActivated = activated;
+            return this;
+        }
+
         public ApplicationUserBuilder withCity(String city) {
             this.city = city;
             return this;
@@ -306,7 +337,7 @@ public class ApplicationUser {
         }
 
         public ApplicationUserBuilder withPostalCode(String postalCode) {
-            this.postalCode = city;
+            this.postalCode = postalCode;
             return this;
         }
 
@@ -335,6 +366,11 @@ public class ApplicationUser {
             return this;
         }
 
+        public ApplicationUserBuilder withViewedMessages(List<Message> viewedMessages) {
+            this.viewedMessages = viewedMessages;
+            return this;
+        }
+
         public ApplicationUser build() {
             ApplicationUser user = new ApplicationUser();
             user.setId(id);
@@ -351,6 +387,9 @@ public class ApplicationUser {
             user.setLocked(isLocked);
             user.setAdmin(isAdmin);
             user.setLoginTries(loginTries);
+            user.setActivated(isActivated);
+            user.setCity(city);
+            user.setViewedMessages(Objects.requireNonNullElseGet(viewedMessages, ArrayList::new));
             return user;
         }
     }

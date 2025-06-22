@@ -1,40 +1,42 @@
 package at.ac.tuwien.sepr.groupphase.backend.unittests.Service;
 
+import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventTopTenDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.UpdateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.ShowMapper;
-import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
-import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.EventMapper;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Sector;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
+import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.ArtistRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventLocationRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
+import at.ac.tuwien.sepr.groupphase.backend.repository.SectorRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
-import at.ac.tuwien.sepr.groupphase.backend.service.impl.EventServiceImpl;
-import at.ac.tuwien.sepr.groupphase.backend.service.validators.EventValidator;
+import at.ac.tuwien.sepr.groupphase.backend.service.EventService;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import static org.mockito.Mockito.*;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,36 +54,29 @@ public class EventServiceTest {
     @Autowired
     private TicketRepository ticketRepository;
 
-    private EventServiceImpl eventService;
-
-    private EventLocation testLocation;
-
+    @Autowired
     private ShowRepository showRepository;
 
-    private EventMapper eventMapper;
+    @Autowired
+    private RoomRepository roomRepository;
 
-    private ShowMapper showMapper;
+    @Autowired
+    private ArtistRepository artistRepository;
 
+    @Autowired
+    private SectorRepository sectorRepository;
+
+    @Autowired
+    private EventService eventService;
+
+    private EventLocation testLocation;
     private Event event;
-
     private Long eventId;
 
-    private EventDetailDto eventDetailDto;
-
-    private Show mockShow;
-
-    private ShowDetailDto mockShowDto;
-
+    @Transactional
     @BeforeEach
     public void setUp() {
-        ticketRepository = mock(TicketRepository.class);
-        showRepository = mock(ShowRepository.class);
-        eventMapper = mock(EventMapper.class);
-        showMapper = mock(ShowMapper.class);
-        EventValidator eventValidator = new EventValidator(eventRepository, eventLocationRepository, showRepository);
-        eventService =
-            new EventServiceImpl(eventRepository, eventLocationRepository, showRepository, ticketRepository, eventMapper, showMapper, eventValidator);
-
+        deleteData();
         testLocation = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Test Location")
             .withCountry("Austria")
@@ -90,86 +85,254 @@ public class EventServiceTest {
             .withPostalCode("1010")
             .withType(EventLocation.LocationType.OPERA)
             .build();
-
         eventLocationRepository.save(testLocation);
 
         event = Event.EventBuilder.anEvent()
-            .withName("Test Event")
+            .withName("Event One")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDuration(800)
             .withDateTime(LocalDateTime.now().plusDays(1))
             .withDescription("A beautiful classical concert.")
             .withLocation(testLocation)
             .build();
-
         eventRepository.save(event);
-
         eventId = event.getId();
 
-        eventDetailDto = new EventDetailDto();
-        eventDetailDto.setId(eventId);
-        eventDetailDto.setName(event.getName());
-        eventDetailDto.setCategory(event.getCategory().name());
-        eventDetailDto.setDuration(event.getDuration());
-        eventDetailDto.setDescription(event.getDescription());
-        eventDetailDto.setDateTime(event.getDateTime());
-        eventDetailDto.setLocationId(testLocation.getId());
-
-        mockShow = new Show();
-        mockShow.setId(10L);
-        mockShow.setName("Test Show");
-        mockShow.setDuration(90);
-        mockShow.setEvent(event);
-
-        mockShowDto = ShowDetailDto.ShowDetailDtoBuilder.aShowDetailDto()
-            .id(10L)
-            .name("Test Show")
-            .duration(90)
-            .eventId(eventId)
-            .artistIds(Set.of(1L))
+        Room room = Room.RoomBuilder.aRoom()
+            .withName("Room A")
+            .withEventLocation(testLocation)
             .build();
+        roomRepository.save(room);
+
+        Sector sector = Sector.SectorBuilder.aSector()
+            .withPrice(100)
+            .withRoom(room)
+            .build();
+        sectorRepository.save(sector);
+
+        Show show = Show.ShowBuilder.aShow()
+            .withName("Show One")
+            .withDate(event.getDateTime().plusHours(1))
+            .withDuration(120)
+            .withEvent(event)
+            .withRoom(room)
+            .withArtists(new HashSet<>())
+            .build();
+        showRepository.save(show);
+
+        for (int i = 0; i < 5; i++) {
+            Ticket ticket = new Ticket();
+            ticket.setShow(show);
+            ticket.setSector(sector);
+            ticket.setStatus(TicketStatus.BOUGHT);
+            ticketRepository.save(ticket);
+        }
+
+        Event eventTwo = Event.EventBuilder.anEvent()
+            .withName("Event Two")
+            .withCategory(Event.EventCategory.CLASSICAL)
+            .withDuration(500)
+            .withDateTime(LocalDateTime.now().plusDays(2))
+            .withDescription("Another classical concert.")
+            .withLocation(testLocation)
+            .build();
+        eventRepository.save(eventTwo);
+
+        Show showTwo = Show.ShowBuilder.aShow()
+            .withName("Show Two")
+            .withDate(eventTwo.getDateTime().plusHours(1))
+            .withDuration(100)
+            .withEvent(eventTwo)
+            .withRoom(room)
+            .withArtists(new HashSet<>())
+            .build();
+        showRepository.save(showTwo);
+
+        for (int i = 0; i < 8; i++) {
+            Ticket ticket = new Ticket();
+            ticket.setShow(showTwo);
+            ticket.setSector(sector);
+            ticket.setStatus(TicketStatus.BOUGHT);
+            ticketRepository.save(ticket);
+        }
     }
 
     @AfterEach
+    @Transactional
     public void deleteData() {
+        List<Show> shows = showRepository.findAllWithArtists();
+        for (Show show : shows) {
+            List<Artist> artistsCopy = List.copyOf(show.getArtists());
+            for (Artist artist : artistsCopy) {
+                artist.getShows().remove(show);
+            }
+            show.getArtists().clear();
+        }
+
+        ticketRepository.deleteAll();
+        showRepository.deleteAll();
+        sectorRepository.deleteAll();
+        roomRepository.deleteAll();
+        artistRepository.deleteAll();
         eventRepository.deleteAll();
         eventLocationRepository.deleteAll();
     }
 
+
+    private void createEventWithShowsAndTickets(String eventName, int numTickets) {
+        EventLocation location = EventLocation.EventLocationBuilder.anEventLocation()
+            .withName("Test Location for " + eventName)
+            .withCountry("Austria")
+            .withCity("Vienna")
+            .withStreet("Test Street")
+            .withPostalCode("1010")
+            .withType(EventLocation.LocationType.OPERA)
+            .build();
+        eventLocationRepository.save(location);
+
+        Event event = Event.EventBuilder.anEvent()
+            .withName(eventName)
+            .withCategory(Event.EventCategory.CLASSICAL)
+            .withDateTime(LocalDateTime.now().plusDays(1))
+            .withDuration(200)
+            .withDescription("Event for testing.")
+            .withLocation(location)
+            .build();
+        eventRepository.save(event);
+
+        Room room = Room.RoomBuilder.aRoom()
+            .withName("Room for " + eventName)
+            .withEventLocation(location)
+            .build();
+        roomRepository.save(room);
+
+        Sector sector = Sector.SectorBuilder.aSector()
+            .withPrice(100)
+            .withRoom(room)
+            .build();
+        sectorRepository.save(sector);
+
+        Show show = Show.ShowBuilder.aShow()
+            .withName("Show for " + eventName)
+            .withDate(event.getDateTime().plusHours(1))
+            .withDuration(120)
+            .withEvent(event)
+            .withRoom(room)
+            .withArtists(new HashSet<>())
+            .build();
+        showRepository.save(show);
+
+        for (int i = 0; i < numTickets; i++) {
+            Ticket ticket = new Ticket();
+            ticket.setShow(show);
+            ticket.setSector(sector);
+            ticket.setStatus(TicketStatus.BOUGHT);
+            ticketRepository.save(ticket);
+        }
+    }
+
+    @Transactional
     @Test
     public void testGetEventById_existingId_returnsEvent() {
-        Event event = eventRepository.findAll().getFirst();
-        Event result = eventService.getEventById(event.getId());
+        Event result = eventService.getEventById(eventId);
 
         assertAll(
             () -> assertNotNull(result),
-            () -> assertEquals("Test Event", result.getName()),
+            () -> assertEquals("Event One", result.getName()),
             () -> assertEquals(testLocation.getId(), result.getLocation().getId())
         );
     }
 
+    @Transactional
     @Test
     public void testGetEventById_nonExistingId_returnsNull() {
         Event result = eventService.getEventById(999L);
 
         assertAll(
             () -> assertNull(result),
-            () -> assertEquals(1, eventRepository.findAll().size())
+            () -> assertTrue(eventRepository.existsById(eventId))
         );
     }
 
+    @Transactional
     @Test
     public void testGetAllEvents_returnsList() {
         List<Event> events = eventService.getAllEvents();
 
         assertAll(
-            () -> assertEquals(1, events.size()),
-            () -> assertEquals("Test Event", events.get(0).getName()),
+            () -> assertEquals(2, events.size()),
+            () -> assertEquals("Event One", events.get(0).getName()),
             () -> assertEquals(testLocation.getId(), events.get(0).getLocation().getId())
         );
     }
 
+    @Transactional
     @Test
+    public void testGetAllEvents_Paginated_returnsPagedUpdateEventDtos() {
+        Event another = Event.EventBuilder.anEvent()
+            .withName("Event Three")
+            .withCategory(Event.EventCategory.CLASSICAL)
+            .withDateTime(LocalDateTime.now().plusDays(2))
+            .withDuration(60)
+            .withDescription("Third")
+            .withLocation(testLocation)
+            .build();
+        eventRepository.save(another);
+
+        Pageable pageable = PageRequest.of(0, 2);
+        Page<UpdateEventDto> page = eventService.getAllEventsPaginated(pageable);
+
+        assertAll(
+            () -> assertEquals(3, page.getTotalElements()),
+            () -> assertEquals(2, page.getContent().size()),
+            () -> assertTrue(page.getContent().stream()
+                .allMatch(d -> List.of("Event One", "Event Two", "Event Three").contains(d.getName())))
+        );
+    }
+
+    @Transactional
+    @Test
+    public void testGetAllEvents_Paginated_empty_returnsEmptyPage() {
+        deleteData();
+
+        Pageable pageable = PageRequest.of(0, 1);
+        Page<UpdateEventDto> page = eventService.getAllEventsPaginated(pageable);
+
+        assertAll(
+            () -> assertEquals(0, page.getTotalElements()),
+            () -> assertTrue(page.getContent().isEmpty())
+        );
+    }
+
+    @Transactional
+    @Test
+    public void testGetEventsByArtist_returnsMappedDto() {
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<EventDetailDto> result = eventService.getEventsByArtist(1L, pageable);
+
+        assertAll(
+            () -> assertNotNull(result),
+            () -> assertEquals(0, result.getTotalElements()),
+            () -> assertTrue(result.getContent().isEmpty())
+        );
+    }
+
+    @Transactional
+    @Test
+    public void testGetPaginatedShowsForEvent_validEventId_returnsPaginatedShowDtos() {
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<ShowDetailDto> result = eventService.getPaginatedShowsForEvent(eventId, pageable);
+
+        assertAll(
+            () -> assertNotNull(result),
+            () -> assertEquals(1, result.getTotalElements()),
+            () -> assertEquals(1, result.getContent().size()),
+            () -> assertEquals("Show One", result.getContent().get(0).getName())
+        );
+    }
+
+    @Test
+    @Transactional
     public void testCreateEvent_validEvent_savesSuccessfully() throws ValidationException {
         Event newEvent = Event.EventBuilder.anEvent()
             .withName("New Event")
@@ -186,11 +349,12 @@ public class EventServiceTest {
             () -> assertNotNull(savedEvent.getId()),
             () -> assertEquals("New Event", savedEvent.getName()),
             () -> assertEquals(testLocation.getId(), savedEvent.getLocation().getId()),
-            () -> assertEquals(2, eventRepository.findAll().size())
+            () -> assertTrue(eventRepository.existsById(savedEvent.getId()))
         );
     }
 
     @Test
+    @Transactional
     public void testCreateEvent_nullLocation_throwsValidationException() {
         Event newEvent = Event.EventBuilder.anEvent()
             .withName("Invalid Event")
@@ -200,16 +364,17 @@ public class EventServiceTest {
 
         assertAll(
             () -> assertThrows(ValidationException.class, () -> eventService.createEvent(newEvent)),
-            () -> assertEquals(1, eventRepository.findAll().size())
+            () -> assertTrue(eventRepository.existsById(eventId))
         );
     }
 
     @Test
+    @Transactional
     public void testCreateEvent_nonExistingLocation_throwsValidationException() {
         EventLocation fakeLocation = EventLocation.EventLocationBuilder.anEventLocation()
             .withName("Fake Location")
             .build();
-        fakeLocation.setId(999L); // non-existing location
+        fakeLocation.setId(999L);
 
         Event newEvent = Event.EventBuilder.anEvent()
             .withName("Invalid Event")
@@ -219,66 +384,19 @@ public class EventServiceTest {
 
         assertAll(
             () -> assertThrows(ValidationException.class, () -> eventService.createEvent(newEvent)),
-            () -> assertEquals(1, eventRepository.findAll().size())
+            () -> assertTrue(eventRepository.existsById(eventId))
         );
     }
 
     @Test
-    public void testGetEventsByArtist_returnsMappedDto() {
-        Long artistId = 1L;
-        Pageable pageable = PageRequest.of(0, 5);
-
-        when(showRepository.findEventsByArtistId(eq(artistId), eq(pageable)))
-            .thenReturn(new PageImpl<>(List.of(event)));
-
-        when(eventMapper.eventToEventDetailDto(event)).thenReturn(eventDetailDto);
-
-        Page<EventDetailDto> result = eventService.getEventsByArtist(artistId, pageable);
-
-        assertAll(
-            () -> assertEquals(1, result.getTotalElements()),
-            () -> assertEquals("Test Event", result.getContent().getFirst().getName()),
-            () -> assertEquals("CLASSICAL", result.getContent().getFirst().getCategory())
-        );
-
-        verify(showRepository).findEventsByArtistId(artistId, pageable);
-        verify(eventMapper).eventToEventDetailDto(event);
-    }
-
-
-    @Test
-    public void testGetPaginatedShowsForEvent_validEventId_returnsPaginatedShowDtos() {
-        Pageable pageable = PageRequest.of(0, 5);
-        Page<Show> showPage = new PageImpl<>(List.of(mockShow), pageable, 1);
-
-        when(showRepository.findByEvent(any(Event.class), eq(pageable)))
-            .thenReturn(showPage);
-        when(showMapper.showToShowDetailDto(mockShow)).thenReturn(mockShowDto);
-
-        Page<ShowDetailDto> result = eventService.getPaginatedShowsForEvent(eventId, pageable);
-
-        assertAll(
-            () -> assertNotNull(result),
-            () -> assertEquals(1, result.getTotalElements()),
-            () -> assertEquals(1, result.getContent().size()),
-            () -> assertEquals(mockShowDto, result.getContent().getFirst())
-        );
-
-        verify(showRepository).findByEvent(any(Event.class), eq(pageable));
-        verify(showMapper).showToShowDetailDto(mockShow);
-    }
-
-    @Test
+    @Transactional
     public void testUpdateEvent_validChange_succeeds() throws ValidationException {
-        when(showRepository.findByEventOrderByDateAsc(event))
-            .thenReturn(List.of());
-
         Event updated = Event.EventBuilder.anEvent()
             .withName("New Name")
             .withCategory(Event.EventCategory.CLASSICAL)
             .withDescription("New Desc")
-            .withDateTime(event.getDateTime().plusHours(1))
-            .withDuration(100)
+            .withDateTime(event.getDateTime())
+            .withDuration(900)
             .withLocation(testLocation)
             .build();
 
@@ -287,12 +405,13 @@ public class EventServiceTest {
         assertAll(
             () -> assertEquals("New Name", result.getName()),
             () -> assertEquals("New Desc", result.getDescription()),
-            () -> assertEquals(100, result.getDuration()),
+            () -> assertEquals(900, result.getDuration()),
             () -> assertEquals(testLocation.getId(), result.getLocation().getId())
         );
     }
 
     @Test
+    @Transactional
     public void testUpdateEvent_blankName_throwsValidationException() {
         Event invalid = Event.EventBuilder.anEvent()
             .withName("   ")
@@ -311,15 +430,22 @@ public class EventServiceTest {
     }
 
     @Test
+    @Transactional
     public void testUpdateEvent_showOutsideNewTimeframe_throwsValidationException() {
-        Show s1 = new Show();
-        s1.setId(42L);
-        s1.setDate(event.getDateTime().minusHours(2));
-        s1.setDuration(30);
-        s1.setEvent(event);
+        Room room = Room.RoomBuilder.aRoom()
+            .withName("Test Room")
+            .withEventLocation(testLocation)
+            .build();
+        roomRepository.save(room);
 
-        when(showRepository.findByEventOrderByDateAsc(any(Event.class)))
-            .thenReturn(List.of(s1));
+        Show s1 = Show.ShowBuilder.aShow()
+            .withName("Conflict Show")
+            .withDate(event.getDateTime().minusHours(2))
+            .withDuration(30)
+            .withEvent(event)
+            .withRoom(room)
+            .build();
+        showRepository.save(s1);
 
         Event invalid = Event.EventBuilder.anEvent()
             .withName("Name")
@@ -338,6 +464,7 @@ public class EventServiceTest {
     }
 
     @Test
+    @Transactional
     public void testUpdateEvent_invalidLocation_throwsValidationException() {
         Event invalid = Event.EventBuilder.anEvent()
             .withName("Name")
@@ -355,76 +482,52 @@ public class EventServiceTest {
         assertTrue(ex.getMessage().contains("Location not found"));
     }
 
+    @Transactional
     @Test
     public void testGetTopTenEventsByCategory_validCategory_returnsList() throws ValidationException {
-        Pageable topTen = PageRequest.of(0, 10);
-        Event.EventCategory category = Event.EventCategory.CLASSICAL;
-
-        Event mockEvent = new Event();
-        mockEvent.setId(1L);
-        mockEvent.setName("Event One");
-        mockEvent.setDateTime(LocalDateTime.now());
-
-        Object[] row = new Object[] {mockEvent, 5L};
-        List<Object[]> mockResults = new ArrayList<>();
-        mockResults.add(row);
-
-        ArgumentCaptor<LocalDateTime> captor = ArgumentCaptor.forClass(LocalDateTime.class);
-        when(ticketRepository.findTopTenEventsByCategoryOrderByTicketCountDesc(eq(category), captor.capture(), eq(topTen)))
-            .thenReturn(mockResults);
-
-        List<EventTopTenDto> result = eventService.getTopTenEventsByCategory(category.name());
+        List<EventTopTenDto> result = eventService.getTopTenEventsByCategory(Event.EventCategory.CLASSICAL.name());
 
         assertAll(
             () -> assertNotNull(result),
-            () -> assertEquals(1, result.size()),
-            () -> assertEquals("Event One", result.get(0).getName()),
-            () -> assertEquals(5L, result.get(0).getTicketsSold())
+            () -> assertEquals(2, result.size()),
+            () -> assertEquals("Event Two", result.get(0).getName()),
+            () -> assertEquals(8L, result.get(0).getTicketsSold()),
+            () -> assertEquals("Event One", result.get(1).getName()),
+            () -> assertEquals(5L, result.get(1).getTicketsSold())
         );
     }
 
     @Test
+    @Transactional
     public void testGetTopTenEventsByCategory_allCategory_returnsList() throws ValidationException {
-        Pageable topTen = PageRequest.of(0, 10);
+        deleteData();
 
-        Event mockEvent = new Event();
-        mockEvent.setId(2L);
-        mockEvent.setName("Event Two");
-        mockEvent.setDateTime(LocalDateTime.now());
-
-        Object[] row = new Object[] {mockEvent, 8L};
-        List<Object[]> mockResults = new ArrayList<>();
-        mockResults.add(row);
-
-        ArgumentCaptor<LocalDateTime> captor = ArgumentCaptor.forClass(LocalDateTime.class);
-        when(ticketRepository.findTopTenEventsOrderByTicketCountDesc(captor.capture(), eq(topTen)))
-            .thenReturn(mockResults);
+        createEventWithShowsAndTickets("Event One", 5);
+        createEventWithShowsAndTickets("Event Two", 8);
 
         List<EventTopTenDto> result = eventService.getTopTenEventsByCategory("all");
 
         assertAll(
             () -> assertNotNull(result),
-            () -> assertEquals(1, result.size()),
+            () -> assertEquals(2, result.size()),
             () -> assertEquals("Event Two", result.get(0).getName()),
-            () -> assertEquals(8L, result.get(0).getTicketsSold())
+            () -> assertEquals(8L, result.get(0).getTicketsSold()),
+            () -> assertEquals("Event One", result.get(1).getName()),
+            () -> assertEquals(5L, result.get(1).getTicketsSold())
         );
     }
 
+    @Transactional
     @Test
     public void testGetTopTenEventsByCategory_invalidCategory_throwsValidationException() {
         String invalidCategory = "INVALID_CAT";
-
-        assertThrows(ValidationException.class, () -> {
-            eventService.getTopTenEventsByCategory(invalidCategory);
-        });
+        assertThrows(ValidationException.class, () -> eventService.getTopTenEventsByCategory(invalidCategory));
     }
 
+    @Transactional
     @Test
     public void testGetTopTenEventsByCategory_emptyResult_returnsEmptyList() throws ValidationException {
-        Pageable topTen = PageRequest.of(0, 10);
-
-        when(ticketRepository.findTopTenEventsOrderByTicketCountDesc(LocalDateTime.now().plusDays(30), topTen)).thenReturn(List.of());
-
+        ticketRepository.deleteAll();
         List<EventTopTenDto> result = eventService.getTopTenEventsByCategory("all");
 
         assertAll(
@@ -433,4 +536,31 @@ public class EventServiceTest {
         );
     }
 
+    @Test
+    @Transactional
+    public void testUpdateEvent_longNameAndBlankDescription_throwsValidationException() {
+        // Name länger als 100 Zeichen
+        String longName = "A".repeat(101);
+        String blankDescription = "   ";
+
+        Event invalid = Event.EventBuilder.anEvent()
+            .withName(longName)
+            .withCategory(Event.EventCategory.CLASSICAL)
+            .withDescription(blankDescription)
+            .withDateTime(event.getDateTime())
+            .withDuration(120)
+            .withLocation(testLocation)
+            .build();
+
+        ValidationException ex = assertThrows(
+            ValidationException.class,
+            () -> eventService.updateEvent(eventId, invalid)
+        );
+
+        String msg = ex.getMessage();
+        assertAll(
+            () -> assertTrue(msg.contains("Name must not exceed 100 characters")),
+            () -> assertTrue(msg.contains("Description must not be blank"))
+        );
+    }
 }

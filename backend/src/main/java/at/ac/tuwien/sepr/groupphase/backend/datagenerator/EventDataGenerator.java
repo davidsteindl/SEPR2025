@@ -38,8 +38,8 @@ import java.util.Set;
 public class EventDataGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventDataGenerator.class);
-    private static final int NUMBER_OF_FUTURE_EVENTS = 20;
-    private static final int NUMBER_OF_PAST_EVENTS = 5;
+    private static final int NUMBER_OF_FUTURE_EVENTS = 25;
+    private static final int NUMBER_OF_PAST_EVENTS = 15;
     private static final int NUMBER_OF_FUTURE_SHOWS = 50;
     private static final int NUMBER_OF_PAST_SHOWS = 5;
     private static final int NUMBER_OF_ARTISTS = 10;
@@ -140,7 +140,7 @@ public class EventDataGenerator {
             EventLocation loc = locations.get(random.nextInt(locations.size()));
 
             LocalDateTime eventStart = LocalDateTime.now()
-                .plusDays(random.nextInt(90))
+                .plusDays(random.nextInt(30))
                 .plusHours(random.nextInt(24))
                 .plusMinutes(random.nextInt(60))
                 .truncatedTo(ChronoUnit.MINUTES);

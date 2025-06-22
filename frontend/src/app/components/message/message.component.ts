@@ -1,9 +1,8 @@
-import {ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild, ViewChildren} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {MessageService} from '../../services/message.service';
+import {UserService} from "../../services/user.service";
 import {Message} from '../../dtos/message';
-import {Event, EventTopTenDto} from '../../dtos/event';
-import {NgbModal, NgbPaginationConfig} from '@ng-bootstrap/ng-bootstrap';
-import {UntypedFormBuilder, NgForm} from '@angular/forms';
+import {EventTopTenDto} from '../../dtos/event';
 import {AuthService} from '../../services/auth.service';
 import {EventService} from "../../services/event.service";
 import {eventCategory} from "../../dtos/eventCategory";
@@ -18,128 +17,98 @@ export class MessageComponent implements OnInit {
 
   error = false;
   errorMessage = '';
-  // After first submission attempt, form validation will start
   submitted = false;
-
-  currentMessage: Message;
 
   private message: Message[];
 
   selectedCategory: string = 'All';
-  categories: eventCategory[];
-  topTenEvents: EventTopTenDto[];
+  categories: eventCategory[] = [];
+  topTenEvents: EventTopTenDto[] = [];
 
+  allMessagesRead = false;
+  showAllMessages = false;
+
+  page = 0;
+  size = 5;
+  totalPages = 0;
 
   constructor(private messageService: MessageService,
+              private userService: UserService,
               private eventService: EventService,
-              private ngbPaginationConfig: NgbPaginationConfig,
-              private formBuilder: UntypedFormBuilder,
-              private cd: ChangeDetectorRef,
-              private authService: AuthService,
-              private modalService: NgbModal) {
+              private authService: AuthService) {
   }
 
   ngOnInit() {
-    this.loadMessage();
+    this.loadMessages();
     this.loadCategories();
     this.loadTopTen();
-  }
-
-  /**
-   * Returns true if the authenticated user is an admin
-   */
-  isAdmin(): boolean {
-    return this.authService.getUserRole() === 'ADMIN';
-  }
-
-  openAddModal(messageAddModal: TemplateRef<any>) {
-    this.currentMessage = new Message();
-    this.modalService.open(messageAddModal, {ariaLabelledBy: 'modal-basic-title'});
-  }
-
-  openExistingMessageModal(id: number, messageAddModal: TemplateRef<any>) {
-    this.messageService.getMessageById(id).subscribe({
-      next: res => {
-        this.currentMessage = res;
-        this.modalService.open(messageAddModal, {ariaLabelledBy: 'modal-basic-title'});
-      },
-      error: err => {
-        this.defaultServiceErrorHandling(err);
-      }
-    });
-  }
-
-  /**
-   * Starts form validation and builds a message dto for sending a creation request if the form is valid.
-   * If the procedure was successful, the form will be cleared.
-   */
-  addMessage(form) {
-    this.submitted = true;
-
-
-    if (form.valid) {
-      this.currentMessage.publishedAt = new Date().toISOString();
-      this.createMessage(this.currentMessage);
-      this.clearForm();
-    }
   }
 
   getMessage(): Message[] {
     return this.message;
   }
 
-  /**
-   * Error flag will be deactivated, which clears the error message
-   */
   vanishError() {
     this.error = false;
   }
 
-  /**
-   * Sends message creation request
-   *
-   * @param message the message which should be created
-   */
-  private createMessage(message: Message) {
-    this.messageService.createMessage(message).subscribe({
-        next: () => {
-          this.loadMessage();
+  private loadMessages() {
+    const userId = this.authService.getUserId();
+
+    if (this.showAllMessages) {
+      this.messageService.getMessagesPaginated(this.page, this.size).subscribe({
+        next: (page) => {
+          this.userService.getUnseenMessages(userId).subscribe({
+            next: (unseen) => {
+              const unseenIds = unseen.map(m => m.id);
+              this.message = page.content.map(m => ({
+                ...m,
+                seen: !unseenIds.includes(m.id)
+              }));
+              this.allMessagesRead = unseenIds.length === 0;
+              this.totalPages = page.totalPages;
+            },
+            error: error => this.defaultServiceErrorHandling(error)
+          });
         },
-        error: error => {
-          this.defaultServiceErrorHandling(error);
-        }
-      }
-    );
+        error: error => this.defaultServiceErrorHandling(error)
+      });
+    } else {
+      this.userService.getUnseenMessagesPaginated(userId, this.page, this.size).subscribe({
+        next: (page) => {
+          this.message = page.content.map(m => ({
+            ...m,
+            seen: false
+          }));
+          this.allMessagesRead = page.totalElements === 0;
+          this.totalPages = page.totalPages;
+        },
+        error: error => this.defaultServiceErrorHandling(error)
+      });
+    }
   }
 
-  /**
-   * Loads the specified page of message from the backend
-   */
-  private loadMessage() {
-    this.messageService.getMessage().subscribe({
-      next: (message: Message[]) => {
-        this.message = message;
-      },
-      error: error => {
-        this.defaultServiceErrorHandling(error);
-      }
-    });
+  changePage(newPage: number) {
+    if (newPage >= 0 && newPage < this.totalPages) {
+      this.page = newPage;
+      this.loadMessages();
+    }
   }
 
+
+  toggleShowAllMessages() {
+    this.showAllMessages = !this.showAllMessages;
+    this.loadMessages();
+  }
 
   private defaultServiceErrorHandling(error: any) {
     console.log(error);
     this.error = true;
     if (typeof error.error === 'object') {
-      this.errorMessage = error.error.error;
+      this.errorMessage = error.error.error ?? error.error.title;
     } else {
       this.errorMessage = error.error;
     }
-  }
-
-  private clearForm() {
-    this.currentMessage = new Message();
-    this.submitted = false;
   }
 
   private loadCategories() {
@@ -157,8 +126,8 @@ export class MessageComponent implements OnInit {
     this.eventService.getTopTen(this.selectedCategory).subscribe({
       next: (events: EventTopTenDto[]) => {
         this.topTenEvents = events;
-        if (events){
-          console.log(events)
+        if (events) {
+          console.log(events);
         }
       },
       error: error => {

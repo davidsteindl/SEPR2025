@@ -32,7 +32,7 @@ public class TicketDto {
     private Long sectorId;
     private TicketStatus status;
     private int rowNumber;
-    private String seatLabel;
+    private int columnNumber;
 
     public Long getId() {
         return id;
@@ -98,12 +98,12 @@ public class TicketDto {
         this.rowNumber = rowNumber;
     }
 
-    public String getSeatLabel() {
-        return seatLabel;
+    public int getColumnNumber() {
+        return columnNumber;
     }
 
-    public void setSeatLabel(String seatLabel) {
-        this.seatLabel = seatLabel;
+    public void setColumnNumber(int columnNumber) {
+        this.columnNumber = columnNumber;
     }
 
 }

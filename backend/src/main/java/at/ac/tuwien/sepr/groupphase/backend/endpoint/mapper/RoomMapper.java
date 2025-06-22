@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper;
 
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomDetailDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.room.RoomPageDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.EventLocation;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
 import org.mapstruct.Mapper;
@@ -9,11 +10,15 @@ import org.mapstruct.Named;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = SectorMapper.class)
+@Mapper(componentModel = "spring", uses = {SectorMapper.class, SeatMapper.class})
 public interface RoomMapper {
 
     @Mapping(target = "eventLocationId", source = "eventLocation.id")
+    @Mapping(target = "seats", source = "seats")
     RoomDetailDto roomToRoomDetailDto(Room room);
+
+    @Mapping(target = "eventLocationName", source = "eventLocation.name")
+    RoomPageDto roomToRoomPageDto(Room room);
 
     @Mapping(target = "eventLocation", source = "eventLocationId", qualifiedByName = "mapLocationIdToEventLocation")
     Room roomDetailDtoToRoom(RoomDetailDto dto);

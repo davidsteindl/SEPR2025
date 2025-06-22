@@ -37,8 +37,8 @@ public class UserDataGenerator {
         if (!userRepository.findAll().isEmpty()) {
             LOGGER.debug("Users already generated");
         } else {
-            LOGGER.debug("Generating 5 admins and 10 customers");
-            for (int i = 1; i <= 5; i++) {
+            LOGGER.debug("Generating 10 admins and 20 customers");
+            for (int i = 1; i <= 10; i++) {
                 String email = String.format("admin" + i + "@email.com");
                 String firstName = "AdminFirstName" + i;
                 String lastName = "AdminLastName" + i;
@@ -54,12 +54,13 @@ public class UserDataGenerator {
                     .withSex(sex)
                     .isLocked(false)
                     .isAdmin(true)
+                    .withIsActivated(true)
                     .withLoginTries(0)
                     .build();
                 userRepository.save(admin);
             }
 
-            for (int i = 1; i <= 10; i++) {
+            for (int i = 1; i <= 20; i++) {
                 String email = String.format("user" + i + "@email.com");
                 String firstName = "UserFirstName" + i;
                 String lastName = "UserLastName" + i;
@@ -77,11 +78,12 @@ public class UserDataGenerator {
                     .isLocked(false)
                     .isAdmin(false)
                     .withLoginTries(0)
+                    .withIsActivated(true)
                     .build();
                 userRepository.save(customer);
             }
 
-            LOGGER.debug("Finished generating 50 admins and 1000 customers");
+            LOGGER.debug("Finished generating 5 admins and 10 customers");
         }
     }
 }

@@ -27,4 +27,5 @@ public interface PasswordService {
      */
     void changePassword(PasswordChangeDto passwordChangeDto) throws NotFoundException, ValidationException, IllegalArgumentException;
 
+
 }

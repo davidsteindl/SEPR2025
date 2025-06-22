@@ -2,14 +2,14 @@
   <div class="mt-4 container">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2>Order #{{ group.id }} - Details</h2>
-      <button class="btn btn-secondary" (click)="goBack()">
-        ← Back to My Orders
+      <button class="btn btn-outline-secondary" (click)="goBack()">
+        ← Back to My Orders Page
       </button>
     </div>
     <hr>
 
     <section class="order-meta">
-      <p><strong>Date:</strong> {{ group.showDate | date: 'shortDate' }}</p>
+      <p><strong>Date:</strong> {{ group.showDate | date: 'short' }}</p>
       <p><strong>Show:</strong> {{ group.showName }}</p>
       <p><strong>Location:</strong> {{ group.locationName }}</p>
     </section>
@@ -30,11 +30,11 @@
           <td>{{ i + 1 }}</td>
           <td>
             <ng-container *ngIf="ticket.seatId; else standing">
-              {{ ticket.rowNumber }}{{ ticket.seatLabel }}
+              Row {{ ticket.rowNumber }}, Seat {{ ticket.columnNumber }}
             </ng-container>
             <ng-template #standing>Standing</ng-template>
           </td>
-          <td>{{ ticket.status }}</td>
+          <td>{{ ticket.status | lowercase | titlecase  }}</td>
           <td>{{ ticket.price | currency }}</td>
           <td><span class="text-muted">Unavailable</span></td>
         </tr>

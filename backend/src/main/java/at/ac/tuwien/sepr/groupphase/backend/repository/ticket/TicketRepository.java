@@ -2,6 +2,7 @@ package at.ac.tuwien.sepr.groupphase.backend.repository.ticket;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.TicketStatus;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,7 +22,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
         FROM Ticket t
         WHERE t.status = 'BOUGHT' AND t.show.event.dateTime BETWEEN CURRENT_TIMESTAMP AND :endDate
         GROUP BY t.show.event
-        ORDER BY ticketCount DESC
+        ORDER BY ticketCount DESC, t.show.event.dateTime ASC
         """)
     List<Object[]> findTopTenEventsOrderByTicketCountDesc(@Param("endDate") LocalDateTime endDate, Pageable pageable);
 
@@ -33,8 +34,10 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
                 AND t.show.event.category = :category
                 AND t.show.event.dateTime BETWEEN CURRENT_TIMESTAMP AND :endDate
         GROUP BY t.show.event
-        ORDER BY ticketCount DESC
+        ORDER BY ticketCount DESC, t.show.event.dateTime ASC
         """)
     List<Object[]> findTopTenEventsByCategoryOrderByTicketCountDesc(@Param("category") Event.EventCategory category, @Param("endDate") LocalDateTime endDate,
                                                                     Pageable pageable);
+
+    List<Ticket> findByShowAndStatus(Show show, TicketStatus status);
 }
