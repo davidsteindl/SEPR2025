@@ -258,9 +258,9 @@ class CustomUserDetailServiceTest {
             .withIsActivated(true)
             .build();
         Page<ApplicationUser> userPage = new PageImpl<>(List.of(u1, u2), pageable, 2);
-        when(userRepository.findAll(pageable)).thenReturn(userPage);
+        when(userRepository.findAllByIdNot(0L, pageable)).thenReturn(userPage);
 
-        Page<LockedUserDto> dtos = userDetailService.getAllUsersPaginated(pageable);
+        Page<LockedUserDto> dtos = userDetailService.getAllUsersPaginated(0L, pageable);
 
         assertAll(
             () -> assertEquals(2, dtos.getTotalElements()),
@@ -281,22 +281,20 @@ class CustomUserDetailServiceTest {
                 assertEquals(u2.isLocked(), second.getIsLocked());
             }
         );
-        verify(userRepository).findAll(pageable);
-    }
+        verify(userRepository).findAllByIdNot(0L, pageable);    }
 
     @Test
     void getAllUsersPaginated_emptyPage_returnsEmptyPage() {
         Pageable pageable = PageRequest.of(0, 1);
         Page<ApplicationUser> emptyPage = new PageImpl<>(List.of(), pageable, 0);
-        when(userRepository.findAll(pageable)).thenReturn(emptyPage);
-
-        Page<LockedUserDto> dtos = userDetailService.getAllUsersPaginated(pageable);
+        when(userRepository.findAllByIdNot(0L, pageable)).thenReturn(emptyPage);
+        Page<LockedUserDto> dtos = userDetailService.getAllUsersPaginated(0L, pageable);
 
         assertAll(
             () -> assertTrue(dtos.isEmpty()),
             () -> assertEquals(0, dtos.getTotalElements())
         );
-        verify(userRepository).findAll(pageable);
+        verify(userRepository).findAllByIdNot(0L, pageable);
     }
 
     @Test

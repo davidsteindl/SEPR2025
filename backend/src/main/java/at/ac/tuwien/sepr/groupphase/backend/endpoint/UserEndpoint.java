@@ -8,6 +8,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.UserMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
+import at.ac.tuwien.sepr.groupphase.backend.security.AuthenticationFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.slf4j.Logger;
@@ -40,11 +41,13 @@ public class UserEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final UserService userService;
     private final UserMapper userMapper;
+    private final AuthenticationFacade authenticationFacade;
 
 
-    public UserEndpoint(UserService userService, UserMapper userMapper) {
+    public UserEndpoint(UserService userService, UserMapper userMapper, AuthenticationFacade authenticationFacade) {
         this.userService = userService;
         this.userMapper = userMapper;
+        this.authenticationFacade = authenticationFacade;
     }
 
     @GetMapping("/locked")
@@ -60,6 +63,9 @@ public class UserEndpoint {
                                                     @RequestParam(name = "size", defaultValue = "10") int size
     ) {
         LOGGER.info("getAllUsers paginated page={} size={}", page, size);
+
+        Long currentUserId = authenticationFacade.getCurrentUserId();
+
         Pageable sorted = PageRequest.of(
             page,
             size,
@@ -69,7 +75,7 @@ public class UserEndpoint {
                 Sort.Order.asc("firstName").ignoreCase()
             )
         );
-        return userService.getAllUsersPaginated(sorted);
+        return userService.getAllUsersPaginated(currentUserId, sorted);
     }
 
     @PutMapping("/{id}/unlock")

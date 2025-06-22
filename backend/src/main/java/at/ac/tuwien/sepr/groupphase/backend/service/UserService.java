@@ -81,7 +81,7 @@ public interface UserService extends UserDetailsService {
      *
      * @return a page of all users
      */
-    Page<LockedUserDto> getAllUsersPaginated(Pageable pageable);
+    Page<LockedUserDto> getAllUsersPaginated(Long currentUserId, Pageable pageable);
 
     /**
      * Unlocks the user account with the given ID by setting its 'locked' status to false.
