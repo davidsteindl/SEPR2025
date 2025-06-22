@@ -35,9 +35,9 @@
             <h6 class="card-subtitle mb-2 text-muted">{{ message.publishedAt | date }}</h6>
             <p class="card-text">{{ message.summary }}</p>
             <button type="button"
-                    class="btn btn-success"
+                    class="view-button"
                     [routerLink]="['/news', message.id]">
-              Details
+              View Details
             </button>
           </div>
 
