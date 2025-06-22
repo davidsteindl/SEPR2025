@@ -1,7 +1,11 @@
 package at.ac.tuwien.sepr.groupphase.backend.repository;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Message;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,4 +20,34 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
      */
     List<Message> findAllByOrderByPublishedAtDesc();
 
+    /**
+     * Find all messages that a given user has NOT viewed yet, ordered by published at date (descending).
+     *
+     * @param userId the id of the ApplicationUser
+     * @return list of unseen messages
+     */
+    @Query("""
+            SELECT m FROM Message m
+            WHERE :userId NOT IN (
+                SELECT u.id FROM m.viewers u
+            )
+            ORDER BY m.publishedAt DESC
+        """)
+    List<Message> findAllUnseenByUserIdOrderByPublishedAtDesc(@Param("userId") Long userId);
+
+    /**
+     * Find all messages that a given user has NOT viewed yet.
+     * This method is paginated.
+     *
+     * @param userId   the id of the ApplicationUser
+     * @param pageable the pagination information
+     * @return paginated list of unseen messages
+     */
+    @Query("""
+            SELECT m FROM Message m
+            WHERE :userId NOT IN (
+                SELECT u.id FROM m.viewers u
+            )
+        """)
+    Page<Message> findAllUnseenByUserIdPaginated(@Param("userId") Long userId, Pageable pageable);
 }

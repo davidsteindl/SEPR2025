@@ -2,10 +2,14 @@ package at.ac.tuwien.sepr.groupphase.backend.unittests;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.artist.ArtistSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.eventlocation.EventLocationSearchDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowSearchDto;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.SearchValidator;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -251,5 +255,88 @@ class SearchValidatorTest {
         dto.setDuration(120);
         assertDoesNotThrow(() -> validator.validateForEvents(dto));
     }
+
+    @Test
+    void validateForShows_NullDto_Throws() {
+        assertThrows(ValidationException.class, () -> validator.validateForShows(null));
+    }
+
+    @Test
+    void validateForShows_AllFieldsEmpty_Throws() {
+        ShowSearchDto dto = new ShowSearchDto();
+        dto.setPage(0);
+        dto.setSize(10);
+        assertThrows(ValidationException.class, () -> validator.validateForShows(dto));
+    }
+
+    @Test
+    void validateForShows_InvalidPage_Throws() {
+        ShowSearchDto dto = new ShowSearchDto();
+        dto.setPage(-1);
+        dto.setSize(10);
+        dto.setName("A");
+        assertThrows(ValidationException.class, () -> validator.validateForShows(dto));
+    }
+
+    @Test
+    void validateForShows_InvalidSize_Throws() {
+        ShowSearchDto dto = new ShowSearchDto();
+        dto.setPage(0);
+        dto.setSize(0);
+        dto.setName("A");
+        assertThrows(ValidationException.class, () -> validator.validateForShows(dto));
+    }
+
+    @Test
+    void validateForShows_EndBeforeStart_Throws() {
+        ShowSearchDto dto = new ShowSearchDto();
+        dto.setPage(0);
+        dto.setSize(10);
+        dto.setStartDate(LocalDateTime.now());
+        dto.setEndDate(LocalDateTime.now().minusDays(1));
+        assertThrows(ValidationException.class, () -> validator.validateForShows(dto));
+    }
+
+    @Test
+    void validateForShows_MinPriceNegative_Throws() {
+        ShowSearchDto dto = new ShowSearchDto();
+        dto.setPage(0);
+        dto.setSize(10);
+        dto.setMinPrice(new BigDecimal("-1"));
+        assertThrows(ValidationException.class, () -> validator.validateForShows(dto));
+    }
+
+    @Test
+    void validateForShows_MaxPriceNegative_Throws() {
+        ShowSearchDto dto = new ShowSearchDto();
+        dto.setPage(0);
+        dto.setSize(10);
+        dto.setMaxPrice(new BigDecimal("-1"));
+        assertThrows(ValidationException.class, () -> validator.validateForShows(dto));
+    }
+
+    @Test
+    void validateForShows_MinPriceGreaterThanMaxPrice_Throws() {
+        ShowSearchDto dto = new ShowSearchDto();
+        dto.setPage(0);
+        dto.setSize(10);
+        dto.setMinPrice(new BigDecimal("10"));
+        dto.setMaxPrice(new BigDecimal("5"));
+        assertThrows(ValidationException.class, () -> validator.validateForShows(dto));
+    }
+
+    @Test
+    void validateForShows_ValidDto_DoesNotThrow() {
+        ShowSearchDto dto = new ShowSearchDto();
+        dto.setPage(0);
+        dto.setSize(10);
+        dto.setName("MyShow");
+        dto.setStartDate(LocalDateTime.now());
+        dto.setEndDate(LocalDateTime.now().plusDays(1));
+        dto.setMinPrice(new BigDecimal("5"));
+        dto.setMaxPrice(new BigDecimal("10"));
+        assertDoesNotThrow(() -> validator.validateForShows(dto));
+    }
+
 }
 

@@ -1,22 +1,30 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.SimpleMessageDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.password.PasswordResetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.mapper.MessageMapper;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
-import at.ac.tuwien.sepr.groupphase.backend.exception.ConflictException;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Message;
 import at.ac.tuwien.sepr.groupphase.backend.exception.LoginAttemptException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import at.ac.tuwien.sepr.groupphase.backend.repository.MessageRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.UserRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
+import at.ac.tuwien.sepr.groupphase.backend.service.MailService;
+import at.ac.tuwien.sepr.groupphase.backend.service.PasswordService;
+import at.ac.tuwien.sepr.groupphase.backend.service.TokenLinkService;
 import at.ac.tuwien.sepr.groupphase.backend.service.UserService;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.UserValidator;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
@@ -24,28 +32,46 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import static at.ac.tuwien.sepr.groupphase.backend.config.SecurityConstants.MAX_LOGIN_TRIES;
+
+import org.springframework.data.domain.Pageable;
+
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static at.ac.tuwien.sepr.groupphase.backend.config.SecurityConstants.MAX_LOGIN_TRIES;
 
 @Service
 public class CustomUserDetailService implements UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final UserRepository userRepository;
+    private final MessageRepository messageRepository;
+    private final MessageMapper messageMapper;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordService passwordService;
     private final JwtTokenizer jwtTokenizer;
     private final UserValidator userValidator;
+    MailService mailService;
+    TokenLinkService tokenLinkService;
 
     @Autowired
-    public CustomUserDetailService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-            JwtTokenizer jwtTokenizer, UserValidator userValidator) {
+    public CustomUserDetailService(UserRepository userRepository, MessageRepository messageRepository, MessageMapper messageMapper,
+                                   PasswordEncoder passwordEncoder,
+                                   JwtTokenizer jwtTokenizer, UserValidator userValidator, MailService mailService,
+                                   TokenLinkService tokenLinkService, PasswordService passwordService) {
         this.userRepository = userRepository;
+        this.messageRepository = messageRepository;
+        this.messageMapper = messageMapper;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenizer = jwtTokenizer;
         this.userValidator = userValidator;
+        this.mailService = mailService;
+        this.tokenLinkService = tokenLinkService;
+        this.passwordService = passwordService;
     }
 
     @Override
@@ -61,7 +87,7 @@ public class CustomUserDetailService implements UserService {
             }
 
             return new User(applicationUser.getEmail(), applicationUser.getPassword(), true, true, true,
-                    !applicationUser.isLocked(), grantedAuthorities);
+                !applicationUser.isLocked(), grantedAuthorities);
         } catch (NotFoundException e) {
             throw new UsernameNotFoundException(e.getMessage(), e);
         }
@@ -94,13 +120,13 @@ public class CustomUserDetailService implements UserService {
         ApplicationUser user = userRepository.findByEmail(userLoginDto.getEmail());
 
         if (user == null) {
-            throw new LoginAttemptException("Username or password is incorrect", 0);
+            throw new LoginAttemptException("Username or password is incorrect, or your account is locked due to too many failed login attempts", 0);
         }
 
         if (user.isLocked()) {
             throw new LoginAttemptException(
-                    "Your account is locked due to too many failed login attempts, please contact an administrator",
-                    user.getLoginTries());
+                "Username or password is incorrect, or your account is locked due to too many failed login attempts",
+                user.getLoginTries());
         }
 
         int currentTry = user.getLoginTries() + 1;
@@ -111,20 +137,26 @@ public class CustomUserDetailService implements UserService {
                 user.setLocked(true);
                 userRepository.save(user);
                 throw new LoginAttemptException(
-                        "Your account is locked due to too many failed login attempts, please contact an administrator",
-                        user.getLoginTries());
+                    "Username or password is incorrect, or your account is locked due to too many failed login attempts",
+                    user.getLoginTries());
             }
             userRepository.save(user);
-            throw new LoginAttemptException("Username or password is incorrect", user.getLoginTries());
+            throw new LoginAttemptException("Username or password is incorrect, or your account is locked due to too many failed login attempts",
+                user.getLoginTries());
+        }
+
+        if (!user.isActivated()) {
+            throw new LoginAttemptException(
+                "Username or password is incorrect, or your account is locked due to too many failed login attempts", user.getLoginTries());
         }
         user.setLoginTries(0);
         userRepository.save(user);
 
         List<String> roles = loadUserByUsername(user.getEmail())
-                .getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
+            .getAuthorities()
+            .stream()
+            .map(GrantedAuthority::getAuthority)
+            .toList();
 
         return jwtTokenizer.getAuthToken(user.getId().toString(), roles);
     }
@@ -143,8 +175,9 @@ public class CustomUserDetailService implements UserService {
             .withPassword(passwordEncoder.encode(userRegisterDto.getPassword()))
             .withSex(userRegisterDto.getSex())
             .withLoginTries(0)
-            .isAdmin(false)
+            .isAdmin(userRegisterDto.getIsAdmin())
             .isLocked(false)
+            .withIsActivated(userRegisterDto.getIsActivated())
             .build();
 
 
@@ -155,8 +188,17 @@ public class CustomUserDetailService implements UserService {
         }
 
         userRepository.save(user);
+
+        if (!user.isActivated()) {
+            LocalDateTime dateTime = LocalDateTime.now().plusMinutes(5);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
+
+            String formatted = dateTime.format(formatter);
+            this.mailService.sendAccountActivationEmail(user.getEmail(), tokenLinkService.createOttLink(user.getEmail(), "account-activation"), formatted);
+        }
     }
 
+    @Override
     public List<LockedUserDto> getLockedUsers() {
         LOGGER.debug("Fetching locked users");
         List<ApplicationUser> lockedUsers = userRepository.findAllByLockedTrue();
@@ -173,6 +215,19 @@ public class CustomUserDetailService implements UserService {
     }
 
     @Override
+    public Page<LockedUserDto> getAllUsersPaginated(Long currentUserId, Pageable pageable) {
+        LOGGER.debug("Fetching all users paginated");
+        return userRepository.findAllByIdNot(currentUserId, pageable)
+            .map(user -> LockedUserDto.LockedUserDtoBuilder.aLockedUserDto()
+                .withId(user.getId())
+                .withFirstName(user.getFirstName())
+                .withLastName(user.getLastName())
+                .withEmail(user.getEmail())
+                .withIsLocked(user.isLocked())
+                .build());
+    }
+
+    @Override
     public void unlockUser(Long id) {
         LOGGER.debug("unlock user {}", id);
         ApplicationUser user = userRepository.findById(id)
@@ -180,8 +235,29 @@ public class CustomUserDetailService implements UserService {
         user.setLocked(false);
         user.setLoginTries(0);
         userRepository.save(user);
+        this.mailService.sendUserUnlockEmail(user.getEmail());
     }
 
+    @Override
+    public void blockUser(Long id) {
+        LOGGER.debug("block user {}", id);
+        ApplicationUser user = userRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("User not found"));
+        user.setLocked(true);
+        user.setLoginTries(0);
+        userRepository.save(user);
+        this.mailService.sendUserBlockEmail(user.getEmail());
+    }
+
+    @Override
+    public void resetPassword(Long id) {
+        LOGGER.debug("password Reset user {}", id);
+        ApplicationUser user = userRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("User not found"));
+        PasswordResetDto passwordResetDto = new PasswordResetDto();
+        passwordResetDto.setEmail(user.getEmail());
+        passwordService.requestResetPassword(passwordResetDto);
+    }
 
     @Transactional
     @Override
@@ -206,7 +282,9 @@ public class CustomUserDetailService implements UserService {
 
         var user = userInDatabase.get();
         if (!user.getEmail().equals(userToUpdate.getEmail()) && userRepository.existsByEmail(userToUpdate.getEmail())) {
-            throw new ConflictException("User with Email already exists");
+            List<String> validationErrors = new ArrayList<>();
+            validationErrors.add("Email is already in use");
+            throw new ValidationException("Validation of user to update failed", validationErrors);
         }
 
         userValidator.validateForUpdate(userToUpdate);
@@ -226,5 +304,43 @@ public class CustomUserDetailService implements UserService {
         userRepository.save(user);
     }
 
+    @Override
+    public List<SimpleMessageDto> getUnseenMessages(Long userId) {
+        LOGGER.debug("Get unseen messages for user {}", userId);
+        ApplicationUser user = findUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+        return messageRepository.findAllUnseenByUserIdOrderByPublishedAtDesc(userId)
+            .stream()
+            .map(messageMapper::messageToSimpleMessageDto)
+            .toList();
+    }
 
+    @Override
+    public Page<SimpleMessageDto> getUnseenMessagesPaginated(Long userId, Pageable pageable) {
+        LOGGER.debug("Get unseen messages for user {}", userId);
+        ApplicationUser user = findUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+        return messageRepository.findAllUnseenByUserIdPaginated(userId, pageable)
+            .map(messageMapper::messageToSimpleMessageDto);
+    }
+
+    @Transactional
+    @Override
+    public void markMessageAsSeen(Long userId, Long messageId) {
+        ApplicationUser user = findUserById(userId);
+        Message message = messageRepository.findById(messageId).orElseThrow();
+
+        if (!user.getViewedMessages().contains(message)) {
+            user.getViewedMessages().add(message);
+        }
+        if (!message.getViewers().contains(user)) {
+            message.getViewers().add(user);
+        }
+
+        userRepository.save(user);
+    }
 }

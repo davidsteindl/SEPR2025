@@ -103,8 +103,8 @@ public class OrderDataGenerator {
 
         Random random = new Random();
 
-        LOGGER.debug("Generating 30 BOUGHT Orders on Past-Shows");
-        generateOrderGroups(30, ORDER, BOUGHT, pastShows, users, sectors, random);
+        LOGGER.debug("Generating 50 BOUGHT Orders on Past-Shows");
+        generateOrderGroups(50, ORDER, BOUGHT, pastShows, users, sectors, random);
 
         LOGGER.debug("Generating 20 CANCELLED Orders on Past-Shows");
         generateOrderGroups(20, CANCELLATION, CANCELLED, pastShows, users, sectors, random);
@@ -113,8 +113,8 @@ public class OrderDataGenerator {
         generateOrderGroups(20, REFUND, REFUNDED, pastShows, users, sectors, random);
 
 
-        LOGGER.debug("Generating 50 BOUGHT Orders on Future-Shows");
-        generateOrderGroups(50, ORDER, BOUGHT, futureShows, users, sectors, random);
+        LOGGER.debug("Generating 100 BOUGHT Orders on Future-Shows");
+        generateOrderGroups(100, ORDER, BOUGHT, futureShows, users, sectors, random);
         LOGGER.debug("Generating 25 RESERVATION Orders on Future-Shows");
         generateOrderGroups(25, RESERVATION, RESERVED, futureShows, users, sectors, random);
 
@@ -215,6 +215,7 @@ public class OrderDataGenerator {
             order.setOrderType(orderType);
             order.setCreatedAt(createdAt);
             order.setOrderGroup(group);
+            order.setUserId(user.getId());
             order = orderRepository.save(order);
 
             Ticket ticket = new Ticket();

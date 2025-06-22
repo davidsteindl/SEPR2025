@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.integrationtest;
 import at.ac.tuwien.sepr.groupphase.backend.basetest.TestData;
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.OrderGroupDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketRequestDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetStandingDto;
@@ -16,7 +17,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -203,7 +203,9 @@ public class TicketEndpointTest implements TestData {
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
 
-        OrderDto response = objectMapper.readValue(result.getResponse().getContentAsString(), OrderDto.class);
+        OrderGroupDto groupResponse = objectMapper.readValue(result.getResponse().getContentAsString(), OrderGroupDto.class);
+        OrderDto response = groupResponse.getOrders().getFirst();
+
         assertAll(
             () -> assertNotNull(response.getId(), "Order ID should not be null"),
             () -> assertEquals(OrderType.ORDER, response.getOrderType(), "Order type should be ORDER"),
@@ -304,7 +306,6 @@ public class TicketEndpointTest implements TestData {
     }
 
     @Test
-    @Disabled
     @Transactional
     public void getOrderGroupsByCategory_shouldReturnOneGroup_whenValidReservationExists() throws Exception {
         TicketRequestDto reserveRequest = new TicketRequestDto();
@@ -407,12 +408,7 @@ public class TicketEndpointTest implements TestData {
         JsonNode buyJson = objectMapper.readTree(buyResult.getResponse().getContentAsString());
         Long groupId = buyJson.get("id").asLong();
 
-        Long realGroupId = orderRepository.findById(groupId)
-            .orElseThrow()
-            .getOrderGroup()
-            .getId();
-
-        MvcResult detailResult = mockMvc.perform(get("/api/v1/tickets/order-groups/" + realGroupId)
+        MvcResult detailResult = mockMvc.perform(get("/api/v1/tickets/order-groups/" + groupId)
                 .header("Authorization", jwt)
                 .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -422,7 +418,7 @@ public class TicketEndpointTest implements TestData {
 
 
         assertAll(
-            () -> assertEquals(realGroupId, json.get("id").asLong()),
+            () -> assertEquals(groupId, json.get("id").asLong()),
             () -> assertEquals("Test Show", json.get("showName").asText()),
             () -> assertEquals("Arena", json.get("locationName").asText()),
             () -> assertTrue(json.has("tickets"), "Should contain tickets"),

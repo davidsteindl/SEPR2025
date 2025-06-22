@@ -9,12 +9,13 @@ import {convertFromUserToEdit, User} from 'src/app/dtos/user';
 import {UserService} from "../../../services/user.service";
 import {ErrorFormatterService} from "../../../services/error-formatter.service";
 import {AuthService} from "../../../services/auth.service";
+import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-user-edit',
   templateUrl: './user-edit.component.html',
   imports: [
-    FormsModule,
+    CommonModule,
     FormsModule
   ],
   standalone: true,
@@ -23,10 +24,10 @@ import {AuthService} from "../../../services/auth.service";
 export class UserEditComponent implements OnInit {
   loading = false;
 
-  email : string = '';
+  email: string = '';
 
   user: User = {
-    id: '',
+    id: null,
     firstName: '',
     lastName: '',
     dateOfBirth: new Date(),
@@ -39,6 +40,9 @@ export class UserEditComponent implements OnInit {
   };
   userBirthDateIsSet = false;
 
+  private initialUser!: User;
+  showConfirm = false;
+
   constructor(
     private service: UserService,
     public authService: AuthService,
@@ -49,11 +53,11 @@ export class UserEditComponent implements OnInit {
   }
 
   public get submitButtonText(): string {
-      return 'Save changes'
+    return 'Save changes'
   }
 
   public get userBirthDateText(): string {
-      return formatIsoDate(this.user.dateOfBirth);
+    return formatIsoDate(this.user.dateOfBirth);
   }
 
   public set userBirthDateText(date: string) {
@@ -68,7 +72,7 @@ export class UserEditComponent implements OnInit {
   ngOnInit(): void {
 
     this.user = {
-      id: '',
+      id: null,
       dateOfBirth: new Date(),
       sex: Sex.female,
       email: "",
@@ -87,21 +91,16 @@ export class UserEditComponent implements OnInit {
   private loadUserData(): void {
     this.loading = true;
     this.service.getCurrentUser().subscribe({
-      next: (user) => {
-        if (user) {
-          this.user = user;
-
-        } else {
-          this.notification.error('User not found!', 'Error');
-          this.router.navigate(['/users']);
-        }
+      next: user => {
+        this.user = user;
+        this.initialUser = JSON.parse(JSON.stringify(user));
         this.loading = false;
       },
-      error: (err) => {
+      error: err => {
         console.error('Error loading user data', err);
         this.notification.error('Could not load user data', 'Error');
         this.loading = false;
-      },
+      }
     });
   }
 
@@ -132,29 +131,51 @@ export class UserEditComponent implements OnInit {
 
       let observable: Observable<void>;
 
-        if (this.service.getCurrentUser()) {
+      if (this.service.getCurrentUser()) {
 
-            observable = this.service.edit(
-              convertFromUserToEdit(this.user));
-          } else {
-          console.error('No user email provided for editing');
-          return;
-        }
+        observable = this.service.edit(
+          convertFromUserToEdit(this.user));
+      } else {
+        console.error('No user email provided for editing');
+        return;
+      }
 
       observable.subscribe({
         next: data => {
-           this.notification.success(`User ${this.user.firstName}
+          this.notification.success(`User ${this.user.firstName}
            successfully updated.`);
-            this.router.navigate(['/user']);
+          this.router.navigate(['/user']);
         },
         error: error => {
-           console.error('Error saving user', error);
-           this.notification.error(this.errorFormatter.format(error), 'Could Not Save User', {
-             enableHtml: true,
-             timeOut: 10000 });
+          console.error('Error saving user', error);
+          this.notification.error(this.errorFormatter.format(error), 'Could Not Save User', {
+            enableHtml: true,
+            timeOut: 10000
+          });
         }
       });
     }
+  }
+
+  private isUnchanged(): boolean {
+    return JSON.stringify(this.initialUser) === JSON.stringify(this.user);
+  }
+
+  onBackClick(): void {
+    if (this.isUnchanged()) {
+      this.router.navigate(['/user']);
+    } else {
+      this.showConfirm = true;
+    }
+  }
+
+  stay(): void {
+    this.showConfirm = false;
+  }
+
+  exit(): void {
+    this.showConfirm = false;
+    this.router.navigate(['/user']);
   }
 
 }

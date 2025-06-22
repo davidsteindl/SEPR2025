@@ -16,7 +16,7 @@ export interface TicketDto {
   sectorId: number;
   status: TicketStatus;
   rowNumber?: number;
-  seatLabel?: string;
+  columnNumber?: number;
 }
 
 export interface TicketTargetSeatedDto {
@@ -56,5 +56,6 @@ export interface ReservationDto {
   userId: number;
   orderType: 'RESERVATION';
   expiresAt: string;
+  groupId: number;
 }
 

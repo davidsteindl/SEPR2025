@@ -122,6 +122,7 @@
   <div class="p-2">
     <p class="mb-1"><strong>Sector:</strong> {{ sector.id }}</p>
     <p class="mb-1"><strong>Price:</strong> € {{ sector.price }}</p>
+    <p class="mb-1"><strong>Available Tickets:</strong> {{ sector.availableCapacity ?? '?' }} / {{ sector.capacity ?? '?' }}</p>
     <div class="mb-2 d-flex align-items-center">
       <label class="me-2 mb-0"><strong>Quantity:</strong></label>
       <input
@@ -129,12 +130,14 @@
         class="form-control form-control-sm"
         style="width: 60px"
         min="1"
-        [max]="sector.capacity || 1"
+        [max]="sector.availableCapacity || 1"
         [(ngModel)]="standingQuantity[sector.id]"
       />
     </div>
     <button
       class="btn btn-sm btn-primary w-100"
+      [disabled]="standingQuantity[sector.id] > sector.availableCapacity"
+      [ngClass]="{'disabled': standingQuantity[sector.id] > sector.availableCapacity}"
       (click)="addStandingToCart(sector, pop)"
     >
       + Add

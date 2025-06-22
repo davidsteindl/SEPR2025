@@ -1,11 +1,23 @@
 <div class="jumbotron mt-5">
   <h1 class="display-4">Welcome to TicketLine!</h1>
-  <hr class="my-4">
-  <a *ngIf="!authService.isLoggedIn()" class="btn btn-success btn-lg" routerLink="/login" role="button">Login</a>
+  <hr class="mt-1">
+  <div *ngIf="!authService.isLoggedIn()" class="d-flex justify-content-center mb-4">
+    <a
+      class="btn btn-primary"
+      routerLink="/login"
+      role="button">
+      Go to Login
+    </a>
+  </div>
   <div *ngIf="authService.isLoggedIn()">
-    <p>Check out the latest message from TicketLine.</p>
-    <p class="lead">
-      <a class="btn btn-success btn-lg" routerLink="/message" role="button">Message</a>
-    </p>
+    <div class="d-flex align-items-center mb-3">
+      <span class="me-3">Check out the latest news from TicketLine.</span>
+      <a
+        class="btn btn-primary align-self-center"
+        routerLink="/news"
+        role="button">
+        Show News
+      </a>
+    </div>
   </div>
 </div>

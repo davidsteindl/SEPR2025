@@ -86,11 +86,12 @@ export class SearchComponent implements OnInit {
   showMinPrice: number | null = null;
   showMaxPrice: number | null = null;
 
-  showPage?: Page<ShowSearchResult>;
+  showPage?: Page<ShowSearchResult & { dateObj: Date }>;
   showLoading = false;
   showTriggered = false;
   showCurrentPage = 0;
   showPageSize = 10;
+  now: Date = new Date();
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -245,8 +246,8 @@ export class SearchComponent implements OnInit {
       name: this.showName?.trim() || undefined,
       eventName: this.showEventName?.trim() || undefined,
       roomName: this.showRoomName?.trim() || undefined,
-      startDate: this.showStartDate ? new Date(this.showStartDate).toISOString() : undefined,
-      endDate: this.showEndDate ? new Date(this.showEndDate).toISOString() : undefined,
+      startDate: this.showStartDate || undefined,
+      endDate: this.showEndDate || undefined,
       minPrice: this.showMinPrice,
       maxPrice: this.showMaxPrice
     };
@@ -256,7 +257,14 @@ export class SearchComponent implements OnInit {
 
     this.showService.searchShows(dto).subscribe({
       next: (pageResult) => {
-        this.showPage = pageResult;
+        this.showPage = {
+          ...pageResult,
+          content: pageResult.content.map(s => ({
+            ...s,
+            dateObj: new Date(s.date)
+          }))
+        };
+
         this.showCurrentPage = pageResult.number;
         this.showLoading = false;
       },
@@ -271,6 +279,7 @@ export class SearchComponent implements OnInit {
       }
     });
   }
+
   preventNonNumericInput(event: KeyboardEvent): void {
     const invalidChars = ['e', 'E', '+', '-', '.'];
     if (invalidChars.includes(event.key)) {

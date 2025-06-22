@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,10 +59,22 @@ public interface ShowRepository extends JpaRepository<Show, Long>, JpaSpecificat
     Page<Show> findAllByEvent_Location_IdOrderByDateAsc(Long locationId, Pageable pageable);
 
 
-    @EntityGraph(attributePaths = {"room.seats", "room.sectors"})
-    @Query("SELECT s FROM Show s WHERE s.id = :id")
+    @Query("""
+            SELECT s FROM Show s
+            LEFT JOIN FETCH s.room r
+            LEFT JOIN FETCH r.sectors
+            LEFT JOIN FETCH r.seats
+            WHERE s.id = :id
+        """)
     Optional<Show> findByIdWithRoomAndSectors(@Param("id") Long id);
 
     @EntityGraph(attributePaths = {"room.sectors", "event"})
     Page<Show> findAll(Specification<Show> spec, Pageable pageable);
+
+    @Query("""
+            SELECT s FROM Show s
+            WHERE s.date BETWEEN :start AND :end
+        """)
+    List<Show> findShowsBetween(@Param("start") LocalDateTime start,
+                                @Param("end") LocalDateTime end);
 }

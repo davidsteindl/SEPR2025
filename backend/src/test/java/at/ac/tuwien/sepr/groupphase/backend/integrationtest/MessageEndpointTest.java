@@ -19,18 +19,20 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @ExtendWith(SpringExtension.class)
@@ -62,6 +64,7 @@ public class MessageEndpointTest implements TestData {
         .withSummary(TEST_NEWS_SUMMARY)
         .withText(TEST_NEWS_TEXT)
         .withPublishedAt(TEST_NEWS_PUBLISHED_AT)
+        .withImages(new ArrayList<>())
         .build();
 
     @BeforeEach
@@ -72,13 +75,14 @@ public class MessageEndpointTest implements TestData {
             .withSummary(TEST_NEWS_SUMMARY)
             .withText(TEST_NEWS_TEXT)
             .withPublishedAt(TEST_NEWS_PUBLISHED_AT)
+            .withImages(new ArrayList<>())
             .build();
     }
 
     @Test
     public void givenNothing_whenFindAll_thenEmptyList() throws Exception {
         MvcResult mvcResult = this.mockMvc.perform(get(MESSAGE_BASE_URI)
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -98,7 +102,7 @@ public class MessageEndpointTest implements TestData {
         messageRepository.save(message);
 
         MvcResult mvcResult = this.mockMvc.perform(get(MESSAGE_BASE_URI)
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -124,7 +128,7 @@ public class MessageEndpointTest implements TestData {
         messageRepository.save(message);
 
         MvcResult mvcResult = this.mockMvc.perform(get(MESSAGE_BASE_URI + "/{id}", message.getId())
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -137,7 +141,17 @@ public class MessageEndpointTest implements TestData {
         DetailedMessageDto detailedMessageDto = objectMapper.readValue(response.getContentAsString(),
             DetailedMessageDto.class);
 
-        assertEquals(message, messageMapper.detailedMessageDtoToMessage(detailedMessageDto));
+        Message actual = messageMapper.detailedMessageDtoToMessage(detailedMessageDto);
+
+        assertAll(
+            () -> assertEquals(message.getId(), actual.getId()),
+            () -> assertEquals(message.getPublishedAt(), actual.getPublishedAt()),
+            () -> assertEquals(message.getTitle(), actual.getTitle()),
+            () -> assertEquals(message.getSummary(), actual.getSummary()),
+            () -> assertEquals(message.getText(), actual.getText()),
+            () -> assertIterableEquals(message.getImages(), actual.getImages()),
+            () -> assertIterableEquals(message.getViewers(), actual.getViewers())
+        );
     }
 
     @Test
@@ -145,7 +159,7 @@ public class MessageEndpointTest implements TestData {
         messageRepository.save(message);
 
         MvcResult mvcResult = this.mockMvc.perform(get(MESSAGE_BASE_URI + "/{id}", -1)
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -157,11 +171,11 @@ public class MessageEndpointTest implements TestData {
         message.setPublishedAt(null);
         MessageInquiryDto messageInquiryDto = messageMapper.messageToMessageInquiryDto(message);
         String body = objectMapper.writeValueAsString(messageInquiryDto);
+        MockMultipartFile multipartFile = new MockMultipartFile("message", null, "application/json", body.getBytes());
 
-        MvcResult mvcResult = this.mockMvc.perform(post(MESSAGE_BASE_URI)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(body)
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.multipart(MESSAGE_BASE_URI)
+                .file(multipartFile)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -188,11 +202,11 @@ public class MessageEndpointTest implements TestData {
         message.setText(null);
         MessageInquiryDto messageInquiryDto = messageMapper.messageToMessageInquiryDto(message);
         String body = objectMapper.writeValueAsString(messageInquiryDto);
+        MockMultipartFile multipartFile = new MockMultipartFile("message", null, "application/json", body.getBytes());
 
-        MvcResult mvcResult = this.mockMvc.perform(post(MESSAGE_BASE_URI)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(body)
-            .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.multipart(MESSAGE_BASE_URI)
+                .file(multipartFile)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andDo(print())
             .andReturn();
         MockHttpServletResponse response = mvcResult.getResponse();
@@ -209,10 +223,36 @@ public class MessageEndpointTest implements TestData {
         );
     }
 
+    @Test
+    public void givenImage_then200() throws Exception {
+
+        byte[] imageBytes = new byte[1024]; // 1 KB image
+        MessageInquiryDto messageInquiryDto = messageMapper.messageToMessageInquiryDto(message);
+        String body = objectMapper.writeValueAsString(messageInquiryDto);
+        MockMultipartFile multipartFile = new MockMultipartFile("message", null, "application/json", body.getBytes());
+        MockMultipartFile imageFile = new MockMultipartFile("image", "test-image.jpg", "image/jpeg", imageBytes);
+
+        MvcResult mvcResult = this.mockMvc.perform(MockMvcRequestBuilders.multipart(MESSAGE_BASE_URI)
+                .file(multipartFile)
+                .file(imageFile)
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andDo(print())
+            .andReturn();
+
+        MockHttpServletResponse response = mvcResult.getResponse();
+
+        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+        assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
+        String responseBody = response.getContentAsString();
+        assertNotNull(responseBody);
+    }
+
+
     private boolean isNow(LocalDateTime date) {
         LocalDateTime today = LocalDateTime.now();
         return date.getYear() == today.getYear() && date.getDayOfYear() == today.getDayOfYear() &&
             date.getHour() == today.getHour();
     }
+
 
 }

@@ -9,6 +9,8 @@ export class RegisterUser {
     public dateOfBirth: string,
     public email: string,
     public termsAccepted: boolean,
-    public sex: Sex
+    public sex: Sex,
+    public isAdmin: boolean,
+    public isActivated: boolean
   ) {}
 }

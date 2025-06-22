@@ -4,12 +4,14 @@
   gap: 0.6rem;
   user-select: none;
   overflow: auto;
-    background: #fff;
-    padding: 1.5rem;
-    /* Remove any height/flex properties that force stretching */
-    width: max-content;
-    height: max-content;
-    margin: 0 auto;
+  background: #fff;
+  padding: 1.5rem;
+  /* Remove any height/flex properties that force stretching */
+  width: max-content;
+  height: max-content;
+  margin: 0 auto;
+  grid-auto-columns: 40px;
+  grid-auto-rows:    40px;
 }
 
 /* Every “grid-cell” occupies exactly one cell in the grid by default.

@@ -7,6 +7,7 @@ import {jwtDecode} from 'jwt-decode';
 import {Globals} from '../global/globals';
 import {RegisterUser} from "../dtos/register-user";
 import {PasswordChange} from "../dtos/password-change";
+import { HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -92,14 +93,25 @@ export class AuthService {
 
   resetPassword(email: string) : Observable<void> {
     console.log("Reset-Password-Request");
-    return this.httpClient.post<void>(this.authBaseUri + '/resetPassword', { email })
+    const headers = new HttpHeaders({ 'Skip-Auth': 'true' });
+    return this.httpClient.post<void>(this.authBaseUri + '/password-change-requests', { email }, { headers: headers, withCredentials: false })
 
   }
 
-  changePassword(changePasswordRequest: PasswordChange): Observable<void> {
-    console.log("Change-Password-Request");
-    return this.httpClient.post<void>(this.authBaseUri + '/changePassword', changePasswordRequest)
+  changePassword(changePasswordRequest: PasswordChange, token: string): Observable<void> {
+    console.log("Change-Password-Request" + token);
+    const headers = new HttpHeaders({ 'Skip-Auth': 'true' });
+    return this.httpClient.post<void>(`${this.authBaseUri}/password-change-requests/${token}`, changePasswordRequest, { headers })
   }
 
-
+  /**
+   * Returns the user ID from the current JWT token
+   */
+  getUserId(): number {
+    if (this.getToken() != null) {
+      const decoded: any = jwtDecode(this.getToken());
+      return Number(decoded.sub);
+    }
+    return null;
+  }
 }

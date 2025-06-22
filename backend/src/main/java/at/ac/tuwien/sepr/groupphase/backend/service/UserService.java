@@ -1,15 +1,20 @@
 package at.ac.tuwien.sepr.groupphase.backend.service;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.message.SimpleMessageDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserLoginDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserRegisterDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.UserUpdateDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
+import org.springframework.data.domain.Page;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -71,11 +76,33 @@ public interface UserService extends UserDetailsService {
     List<LockedUserDto> getLockedUsers();
 
     /**
+     * Returns all users, only administrators
+     * should be able to access this method.
+     *
+     * @return a page of all users
+     */
+    Page<LockedUserDto> getAllUsersPaginated(Long currentUserId, Pageable pageable);
+
+    /**
      * Unlocks the user account with the given ID by setting its 'locked' status to false.
      *
      * @param id the ID of the user to unlock
      */
     void unlockUser(Long id);
+
+    /**
+     * Blocks the user account with the given ID by setting its 'locked' status to true.
+     *
+     * @param id the ID of the user to block
+     */
+    void blockUser(Long id);
+
+    /**
+     * Sends a password reset to the user-email.
+     *
+     * @param id the ID of the user to block
+     */
+    void resetPassword(Long id);
 
     /**
      * Delete user.
@@ -87,11 +114,33 @@ public interface UserService extends UserDetailsService {
     /**
      * Update user.
      *
-     * @param id of user
+     * @param id           of user
      * @param userToUpdate updated user details
      */
     void update(Long id, UserUpdateDto userToUpdate) throws ValidationException;
 
+    /**
+     * Get all messages that the user has not seen yet.
+     *
+     * @param userId the id of the user
+     * @return list of unseen messages
+     */
+    List<SimpleMessageDto> getUnseenMessages(Long userId);
 
+    /**
+     * Get all messages that the user has not seen yet, paginated.
+     *
+     * @param userId   the id of the user
+     * @param pageable the pagination information
+     * @return paginated list of unseen messages
+     */
+    Page<SimpleMessageDto> getUnseenMessagesPaginated(Long userId, Pageable pageable);
 
+    /**
+     * Marks the given message as seen for the user.
+     *
+     * @param userId    the id of the user
+     * @param messageId the id of the message to mark as seen
+     */
+    void markMessageAsSeen(Long userId, Long messageId);
 }

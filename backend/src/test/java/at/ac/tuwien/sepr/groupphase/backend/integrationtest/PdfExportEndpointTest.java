@@ -12,7 +12,6 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
 import jakarta.transaction.Transactional;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

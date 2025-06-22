@@ -1,7 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.config.type.OrderType;
-import at.ac.tuwien.sepr.groupphase.backend.config.type.Sex;
 import at.ac.tuwien.sepr.groupphase.backend.exception.AuthorizationException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
@@ -180,16 +179,7 @@ public class PdfExportServiceImpl implements PdfExportService {
         ticketLine.setTextAlignment(TextAlignment.RIGHT);
         document.add(ticketLine);
 
-
-        var adresspronom = switch(user.getSex()) {
-            case Sex.FEMALE -> "Mrs./Frau";
-            case Sex.MALE -> "Mr./Herr";
-            default -> "";
-        };
-
-        document.add(new Paragraph(adresspronom));
-
-        document.add(new Paragraph(user.getFirstName() + " " + user.getLastName()));
+        document.add(new Paragraph(order.getFirstName() + " " + order.getLastName()));
 
         if (order.getStreet() != null && order.getHousenumber() != null && order.getPostalCode() != null
             && order.getCity() != null && order.getCountry() != null) {
@@ -226,15 +216,15 @@ public class PdfExportServiceImpl implements PdfExportService {
             table.addCell(new Cell().add(new Paragraph(ticket.getShow().getDate().format(formatter))));
             table.addCell(new Cell().add(new Paragraph(ticket.getShow().getEvent().getName())));
             table.addCell(new Cell().add(new Paragraph("1")));
-            var seatchoice = ticket.getSector().getRoom().getName() + ","
+            var seatchoice = "Room: " + ticket.getSector().getRoom().getName() + ", Sector: "
                 + ticket.getSector().getId();
             if (ticket.getSeat() != null) {
-                seatchoice = seatchoice + "," + ticket.getSeat().getRowNumber() + ","
+                seatchoice = seatchoice + ", Row: " + ticket.getSeat().getRowNumber() + ", Seat: "
                     + ticket.getSeat().getColumnNumber();
             }
             table.addCell(new Cell().add(new Paragraph(seatchoice)));
 
-            var bruttoPrice = ticket.getSector().getPrice();
+            var bruttoPrice = Optional.ofNullable(ticket.getSector().getPrice()).orElse(0);
             sum = sum + bruttoPrice;
             var ust = bruttoPrice - (bruttoPrice / (1 + 0.13));
             var netto = bruttoPrice - ust;
@@ -300,15 +290,7 @@ public class PdfExportServiceImpl implements PdfExportService {
         ticketLine.setTextAlignment(TextAlignment.RIGHT);
         document.add(ticketLine);
 
-        var adresspronom = switch(user.getSex()) {
-            case Sex.FEMALE -> "Mrs./Frau";
-            case Sex.MALE -> "Mr./Herr";
-            default -> "";
-        };
-
-        document.add(new Paragraph(adresspronom));
-
-        document.add(new Paragraph(user.getFirstName() + " " + user.getLastName()));
+        document.add(new Paragraph(order.getFirstName() + " " + order.getLastName()));
 
         if (order.getStreet() != null && order.getHousenumber() != null && order.getPostalCode() != null
             && order.getCity() != null && order.getCountry() != null) {
@@ -346,15 +328,15 @@ public class PdfExportServiceImpl implements PdfExportService {
             table.addCell(new Cell().add(new Paragraph(ticket.getShow().getDate().format(formatter))));
             table.addCell(new Cell().add(new Paragraph(ticket.getShow().getEvent().getName())));
             table.addCell(new Cell().add(new Paragraph("1")));
-            var seatchoice = ticket.getSector().getRoom().getName() + ","
+            var seatchoice = "Room: " + ticket.getSector().getRoom().getName() + ", Sector: "
                 + ticket.getSector().getId();
             if (ticket.getSeat() != null) {
-                seatchoice = seatchoice + "," + ticket.getSeat().getRowNumber() + ","
+                seatchoice = seatchoice + ", Row: " + ticket.getSeat().getRowNumber() + ", Seat: "
                     + ticket.getSeat().getColumnNumber();
             }
             table.addCell(new Cell().add(new Paragraph(seatchoice)));
 
-            var bruttoPrice = ticket.getSector().getPrice();
+            var bruttoPrice = Optional.ofNullable(ticket.getSector().getPrice()).orElse(0);
             sum = sum + bruttoPrice;
             var ust = bruttoPrice - (bruttoPrice / (1 + 0.13));
             var netto = bruttoPrice - ust;

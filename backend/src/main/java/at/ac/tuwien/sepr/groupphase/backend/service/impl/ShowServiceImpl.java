@@ -1,6 +1,7 @@
 package at.ac.tuwien.sepr.groupphase.backend.service.impl;
 
 import at.ac.tuwien.sepr.groupphase.backend.entity.Room;
+import at.ac.tuwien.sepr.groupphase.backend.exception.NotFoundException;
 import at.ac.tuwien.sepr.groupphase.backend.repository.RoomRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.validators.ShowValidator;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Artist;
@@ -12,13 +13,13 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.EventRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.service.ShowService;
 import at.ac.tuwien.sepr.groupphase.backend.util.EntitySyncUtil;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,7 +49,7 @@ public class ShowServiceImpl implements ShowService {
     @Override
     public Show getShowById(Long id) {
         return showRepository.findDetailedById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Show not found"));
+            .orElseThrow(() -> new NotFoundException("Show not found"));
     }
 
     @Override
@@ -85,7 +86,7 @@ public class ShowServiceImpl implements ShowService {
     public List<Show> findShowsByEventId(Long eventId) {
         LOGGER.debug("find Shows by EventId {}", eventId);
         var event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+            .orElseThrow(() -> new NotFoundException("Event not found"));
         return showRepository.findByEventOrderByDateAsc(event);
     }
 
@@ -94,6 +95,12 @@ public class ShowServiceImpl implements ShowService {
         LOGGER.debug("Find show with id {} including room and sectors", id);
         return showRepository
             .findByIdWithRoomAndSectors(id)
-            .orElseThrow(() -> new EntityNotFoundException("Show not found"));
+            .orElseThrow(() -> new NotFoundException("Show not found"));
+    }
+
+    @Override
+    public List<Show> findShowsBetween(LocalDateTime start, LocalDateTime end) {
+        LOGGER.debug("Finding shows between {} and {}", start, end);
+        return showRepository.findShowsBetween(start, end);
     }
 }

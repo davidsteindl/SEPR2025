@@ -23,6 +23,8 @@ public interface OtTokenRepository extends JpaRepository<PasswordOtt, Long> {
     @Query("UPDATE PasswordOtt p SET p.consumed = true WHERE p.otToken = :otToken")
     void markConsumed(@Param("otToken") String otToken);
 
+
+
     Optional<PasswordOtt> findByOtTokenAndConsumedFalseAndValidUntilAfter(String token, LocalDateTime now);
 
 }

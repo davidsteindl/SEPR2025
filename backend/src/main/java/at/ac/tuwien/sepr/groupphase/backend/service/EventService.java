@@ -3,6 +3,7 @@ package at.ac.tuwien.sepr.groupphase.backend.service;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventCategoryDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.EventTopTenDto;
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.event.UpdateEventDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.show.ShowDetailDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Event;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
@@ -10,6 +11,7 @@ import at.ac.tuwien.sepr.groupphase.backend.exception.ValidationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {
@@ -27,6 +29,21 @@ public interface EventService {
      * @return a list of all events
      */
     List<Event> getAllEvents();
+
+    /**
+     * Returns all events paginated.
+     *
+     * @return a page of all events
+     */
+    Page<UpdateEventDto> getAllEventsPaginated(Pageable pageable);
+
+    /**
+     * Counts the number of events that occur before the specified date and time.
+     *
+     * @param dateTime the date and time before which events should be counted
+     * @return the number of events that occur before the specified date and time
+     */
+    long countEventsBefore(LocalDateTime dateTime);
 
     /**
      * Saves the given event.

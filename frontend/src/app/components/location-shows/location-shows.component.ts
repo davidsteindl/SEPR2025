@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {CommonModule, DatePipe} from '@angular/common';
+import {CommonModule} from '@angular/common';
 import {ShowSearchResult} from 'src/app/dtos/show';
 import {ActivatedRoute, RouterLink} from "@angular/router";
 import {LocationService} from '../../services/location.service';
@@ -19,12 +19,15 @@ import {Page} from "../../dtos/page";
 export class LocationShowsComponent implements OnInit {
   locationId!: number;
 
-  showPage?: Page<ShowSearchResult>;
+  showPage?: Page<ShowSearchResult & { dateObj: Date }>;
   loading = false;
+  showsTriggered = false;
   errorMsg: string | null = null;
 
   showCurrentPage = 0;
   pageSize = 5;
+  now: Date = new Date();
+
 
 
   constructor(
@@ -40,10 +43,18 @@ export class LocationShowsComponent implements OnInit {
 
   loadShows(page: number = 0): void {
     this.loading = true;
+    this.showsTriggered = true;
     this.errorMsg = null;
+
     this.locationService.getShowsForEventLocation(this.locationId, page, this.pageSize).subscribe({
       next: pageResult => {
-        this.showPage = pageResult;
+        this.showPage = {
+          ...pageResult,
+          content: pageResult.content.map(s => ({
+            ...s,
+            dateObj: new Date(s.date)
+          }))
+        };
         this.showCurrentPage = pageResult.number;
         this.loading = false;
       },
