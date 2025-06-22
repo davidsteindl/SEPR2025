@@ -20,6 +20,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,8 +69,10 @@ public class EventEndpointTest implements TestData {
     private RoomRepository roomRepository;
     @Autowired
     private ArtistRepository artistRepository;
-    @Autowired private TicketRepository ticketRepository;
-    @Autowired private OrderRepository orderRepository;
+    @Autowired
+    private TicketRepository ticketRepository;
+    @Autowired
+    private OrderRepository orderRepository;
 
 
     private EventLocation testLocation;
@@ -177,7 +180,7 @@ public class EventEndpointTest implements TestData {
 
     @Test
     public void getAllEvents_Paginated_asUser_shouldFailWith403() throws Exception {
-        mockMvc.perform(get(EVENT_BASE_URI + "/paginated" )
+        mockMvc.perform(get(EVENT_BASE_URI + "/paginated")
                 .param("page", "0")
                 .param("size", "1")
                 .header(securityProperties.getAuthHeader(),
@@ -425,11 +428,11 @@ public class EventEndpointTest implements TestData {
 
         UpdateEventDto updated = objectMapper.readValue(result.getResponse().getContentAsString(), UpdateEventDto.class);
         assertAll(
-            () -> assertEquals(dto.getName(),        updated.getName()),
+            () -> assertEquals(dto.getName(), updated.getName()),
             () -> assertEquals(dto.getDescription(), updated.getDescription()),
-            () -> assertEquals(dto.getDuration(),    updated.getDuration()),
-            () -> assertEquals(dto.getDateTime(),    updated.getDateTime()),
-            () -> assertEquals(dto.getLocationId(),  updated.getLocationId())
+            () -> assertEquals(dto.getDuration(), updated.getDuration()),
+            () -> assertEquals(dto.getDateTime(), updated.getDateTime()),
+            () -> assertEquals(dto.getLocationId(), updated.getLocationId())
         );
     }
 
@@ -456,5 +459,25 @@ public class EventEndpointTest implements TestData {
         assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
     }
 
+    @Test
+    public void getAllEvents_Paginated_withFromDate() throws Exception {
+        LocalDateTime fromDate = LocalDateTime.now().minusDays(1);
 
+        MvcResult result = mockMvc.perform(get(EVENT_BASE_URI + "/paginated")
+                .param("size", "1")
+                .param("fromDate", fromDate.toString())
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        String body = result.getResponse().getContentAsString();
+        JsonNode json = objectMapper.readTree(body);
+
+        assertAll(
+            () -> assertTrue(body.contains("Jazzkonzert")),
+            () -> assertEquals(0, json.get("number").asInt()),
+            () -> assertEquals(1, json.get("size").asInt())
+        );
+    }
 }

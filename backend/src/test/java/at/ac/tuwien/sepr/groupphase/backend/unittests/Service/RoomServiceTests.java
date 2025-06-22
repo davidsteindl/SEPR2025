@@ -281,9 +281,9 @@ public class RoomServiceTests {
 
         assertAll(
             () -> assertEquals(2, page.getTotalElements(), "There should be 2 rooms in total contained"),
-            () -> assertEquals(2, page.getSize()," Page size should be 2"),
+            () -> assertEquals(2, page.getSize(), " Page size should be 2"),
             () -> assertEquals(2, page.getContent().size(), "Page should contain 2 rooms"),
-            () -> assertEquals(0, page.getNumber()," Page number should be 0"),
+            () -> assertEquals(0, page.getNumber(), " Page number should be 0"),
             () -> assertEquals(1, page.getTotalPages(), "Total pages should be 1"),
             () -> assertTrue(
                 page.getContent().stream().anyMatch(r -> r.getName().equals("Room A")),
@@ -654,7 +654,6 @@ public class RoomServiceTests {
     }
 
 
-
     @Test
     public void testGetRoomUsageForShow_deletedSeatsAreNotAvailable() {
         RoomDetailDto room = roomService.createRoom(createRoomDto);
@@ -870,5 +869,126 @@ public class RoomServiceTests {
         assertEquals(2, updated.getSectors().size(), "There should be two sectors now (default + standing)");
         assertTrue(updated.getSectors().stream().anyMatch(s -> s instanceof StandingSectorDto),
             "One of the sectors should be a StandingSector");
+    }
+
+    @Test
+    public void testGetRoomById_returnsCorrectRoom() {
+        RoomDetailDto created = roomService.createRoom(createRoomDto);
+
+        RoomDetailDto found = roomService.getRoomById(created.getId());
+
+        assertAll(
+            () -> assertEquals(created.getId(), found.getId()),
+            () -> assertEquals(created.getName(), found.getName()),
+            () -> assertEquals(created.getSectors().size(), found.getSectors().size()),
+            () -> assertEquals(created.getSeats().size(), found.getSeats().size())
+        );
+    }
+
+    @Test
+    public void testReplaceSectorType_createsStageSector() throws ValidationException {
+        RoomDetailDto created = roomService.createRoom(createRoomDto);
+
+        SectorDto defaultSector = created.getSectors().get(0);
+
+        StageSectorDto stage = new StageSectorDto();
+        stage.setId(defaultSector.getId());
+
+        RoomDetailDto updated = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
+            .id(created.getId())
+            .name(created.getName())
+            .eventLocationId(created.getEventLocationId())
+            .sectors(List.of(stage))
+            .seats(created.getSeats())
+            .build();
+
+        RoomDetailDto result = roomService.updateRoom(created.getId(), updated);
+
+        assertTrue(result.getSectors().stream().anyMatch(s -> s instanceof StageSectorDto),
+            "Sector should be replaced by StageSector");
+    }
+
+    @Test
+    public void testReplaceSectorType_createsNormalSector() throws ValidationException {
+        RoomDetailDto created = roomService.createRoom(createRoomDto);
+
+        SectorDto defaultSector = created.getSectors().get(0);
+
+        SectorDto normal = new SectorDto();
+        normal.setId(defaultSector.getId());
+        normal.setPrice(50);
+
+        RoomDetailDto updated = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
+            .id(created.getId())
+            .name(created.getName())
+            .eventLocationId(created.getEventLocationId())
+            .sectors(List.of(normal))
+            .seats(created.getSeats())
+            .build();
+
+        RoomDetailDto result = roomService.updateRoom(created.getId(), updated);
+
+        assertTrue(result.getSectors().stream().anyMatch(s -> s instanceof SectorDto &&
+                !(s instanceof StandingSectorDto) && !(s instanceof StageSectorDto)),
+            "Sector should be replaced by NormalSector");
+    }
+
+    @Test
+    public void testSyncSectors_existingStageSector_syncsWithoutReplace() throws ValidationException {
+        RoomDetailDto created = roomService.createRoom(createRoomDto);
+
+        SectorDto defaultSector = created.getSectors().get(0);
+
+        // Ersetze default mit StageSector
+        StageSectorDto stage = new StageSectorDto();
+        stage.setId(defaultSector.getId());
+
+        RoomDetailDto withStage = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
+            .id(created.getId())
+            .name(created.getName())
+            .eventLocationId(created.getEventLocationId())
+            .sectors(List.of(stage))
+            .seats(created.getSeats())
+            .build();
+
+        RoomDetailDto updated = roomService.updateRoom(created.getId(), withStage);
+
+        // Jetzt nochmal mit selbem ID und StageSectorDto, um den Branch zu triggern:
+        StageSectorDto sameStage = new StageSectorDto();
+        sameStage.setId(updated.getSectors().get(0).getId());
+
+        RoomDetailDto result = roomService.updateRoom(updated.getId(), RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
+            .id(updated.getId())
+            .name(updated.getName())
+            .eventLocationId(updated.getEventLocationId())
+            .sectors(List.of(sameStage))
+            .seats(updated.getSeats())
+            .build());
+
+        assertTrue(result.getSectors().stream().anyMatch(s -> s instanceof StageSectorDto),
+            "Existing StageSector should be synced without replacement");
+    }
+
+    @Test
+    public void testSyncSectors_newStageSector_created() throws ValidationException {
+        RoomDetailDto created = roomService.createRoom(createRoomDto);
+
+        StageSectorDto stage = new StageSectorDto();
+
+        List<SectorDto> existingSectors = created.getSectors();
+        existingSectors.add(stage);
+
+        RoomDetailDto withStage = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
+            .id(created.getId())
+            .name(created.getName())
+            .eventLocationId(created.getEventLocationId())
+            .sectors(existingSectors)
+            .seats(created.getSeats())
+            .build();
+
+        RoomDetailDto result = roomService.updateRoom(created.getId(), withStage);
+
+        assertTrue(result.getSectors().stream().anyMatch(s -> s instanceof StageSectorDto),
+            "New StageSector should be created");
     }
 }
