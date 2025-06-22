@@ -123,6 +123,10 @@
         </tr>
         </tbody>
       </table>
+
+      <div *ngIf="topTenEvents.length === 0" class="text-center mt-4">
+        <em>No events available.</em>
+      </div>
     </div>
 
   </div>
