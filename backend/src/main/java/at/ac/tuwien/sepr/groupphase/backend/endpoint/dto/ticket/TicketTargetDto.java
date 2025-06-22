@@ -24,8 +24,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @JsonSubTypes.Type(value = TicketTargetStandingDto.class, name = "standing")
 })
 public interface TicketTargetDto {
-
-    // maybe this would be an amazing place to use the observer pattern or mehrfaches dynamisches binden
+    
 
 
 }
