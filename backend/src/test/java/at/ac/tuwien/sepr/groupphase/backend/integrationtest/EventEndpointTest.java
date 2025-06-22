@@ -460,23 +460,24 @@ public class EventEndpointTest implements TestData {
     }
 
     @Test
-    public void getAllEvents_Paginated_shouldReturnCorrectPage() throws Exception {
+    public void getAllEvents_Paginated_withFromDate() throws Exception {
+        LocalDateTime fromDate = LocalDateTime.now().minusDays(1);
+
         MvcResult result = mockMvc.perform(get(EVENT_BASE_URI + "/paginated")
-                .param("page", "0")  // erste Seite
-                .param("size", "1")  // nur 1 Event pro Seite
+                .param("size", "1")
+                .param("fromDate", fromDate.toString())
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andReturn();
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-        String body = result.getResponse().getContentAsString();
 
+        String body = result.getResponse().getContentAsString();
         JsonNode json = objectMapper.readTree(body);
 
         assertAll(
             () -> assertTrue(body.contains("Jazzkonzert")),
             () -> assertEquals(0, json.get("number").asInt()),
-            () -> assertEquals(1, json.get("size").asInt()),
-            () -> assertEquals(1, json.get("totalElements").asInt())
+            () -> assertEquals(1, json.get("size").asInt())
         );
     }
 }

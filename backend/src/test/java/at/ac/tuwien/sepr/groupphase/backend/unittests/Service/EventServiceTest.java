@@ -535,4 +535,32 @@ public class EventServiceTest {
             () -> assertTrue(result.isEmpty())
         );
     }
+
+    @Test
+    @Transactional
+    public void testUpdateEvent_longNameAndBlankDescription_throwsValidationException() {
+        // Name länger als 100 Zeichen
+        String longName = "A".repeat(101);
+        String blankDescription = "   ";
+
+        Event invalid = Event.EventBuilder.anEvent()
+            .withName(longName)
+            .withCategory(Event.EventCategory.CLASSICAL)
+            .withDescription(blankDescription)
+            .withDateTime(event.getDateTime())
+            .withDuration(120)
+            .withLocation(testLocation)
+            .build();
+
+        ValidationException ex = assertThrows(
+            ValidationException.class,
+            () -> eventService.updateEvent(eventId, invalid)
+        );
+
+        String msg = ex.getMessage();
+        assertAll(
+            () -> assertTrue(msg.contains("Name must not exceed 100 characters")),
+            () -> assertTrue(msg.contains("Description must not be blank"))
+        );
+    }
 }
