@@ -1,5 +1,5 @@
-<div *ngIf="group && group.tickets; else loading">
-<div class="mt-4 container">
+<div *ngIf="group && group.tickets; else loadingPurchasedOrderDetails">
+  <div class="mt-4 container">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2>Order #{{ group.id }}</h2>
       <button class="btn btn-outline-secondary" (click)="goBack()">
@@ -7,7 +7,6 @@
       </button>
     </div>
     <hr>
-
 
 
     <section class="order-meta">
@@ -30,7 +29,7 @@
         </thead>
         <tbody>
         <tr *ngFor="let ticket of group.tickets; let i = index">
-        <td>{{ i + 1 }}</td>
+          <td>{{ i + 1 }}</td>
           <td>
             <ng-container *ngIf="ticket.seatId; else standing">
               Row {{ ticket.rowNumber }}, Seat {{ ticket.columnNumber }}
@@ -66,56 +65,61 @@
       </div>
     </section>
 
-    <div class="modal-overlay" *ngIf="showConfirmModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5>Refund Tickets</h5>
-          <button class="close-button" (click)="cancelRefund()">×</button>
-        </div>
-        <div class="modal-body">
-          <p>Do you really want to refund the selected tickets?</p>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-danger" (click)="confirmRefund()">
-            Yes, refund selected
-          </button>
-          <button class="btn btn-primary" (click)="cancelRefund()">
-            Exit, keep tickets
-          </button>
+    <div *ngIf="showConfirmModal">
+      <div class="modal-backdrop fade show"></div>
+      <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header justify-content-center border-0">
+              <h5 class="modal-title fw-bold mb-0"> Refund Tickets</h5>
+            </div>
+            <div class="modal-body text-center py-2">
+              <p class="mb-1">Do you really want to refund the selected tickets?</p>
+            </div>
+            <div class="modal-footer justify-content-center pt-1 pb-2 border-0">
+              <button class="btn btn-danger" (click)="confirmRefund()">
+                Yes, refund selected
+              </button>
+              <button class="btn btn-success" (click)="cancelRefund()">
+                No, keep tickets
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
 
-  <h4 class="mt-5">Order history</h4>
-  <table class="table w-100" style="table-layout: fixed; border-collapse: collapse;">
-  <thead class="table-light">
-    <tr>
-      <th>Order</th>
-      <th>Date</th>
-      <th>Download</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let order of sortedOrders; let i = index">
-      <td>{{ getOrderLabel(order, i) }}</td>
-      <td>{{ order.createdAt | date:'shortDate' }}</td>
-      <td>
-        <button class="pdf-button" (click)="exportAnyInvoice(order)">
-          {{ order.orderType === 'ORDER'
-          ? 'Download invoice'
-          : 'Download cancellation invoice' }}
-        </button>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+    <h4 class="mt-5">Order history</h4>
+    <table class="table w-100" style="table-layout: fixed; border-collapse: collapse;">
+      <thead class="table-light">
+      <tr>
+        <th>Order</th>
+        <th>Date</th>
+        <th>Download</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let order of sortedOrders; let i = index">
+        <td>{{ getOrderLabel(order, i) }}</td>
+        <td>{{ order.createdAt | date:'shortDate' }}</td>
+        <td>
+          <button class="btn btn-sm btn-primary" (click)="exportAnyInvoice(order)">
+            {{
+              order.orderType === 'ORDER'
+                ? 'Download invoice'
+                : 'Download cancellation invoice'
+            }}
+          </button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
 
 
-
+  </div>
 </div>
-</div>
 
-<ng-template #loading>
+<ng-template #loadingPurchasedOrderDetails>
   <p>Loading order details...</p>
 </ng-template>
