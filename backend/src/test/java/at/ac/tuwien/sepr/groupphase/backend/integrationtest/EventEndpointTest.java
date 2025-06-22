@@ -20,6 +20,7 @@ import at.ac.tuwien.sepr.groupphase.backend.repository.ShowRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.OrderRepository;
 import at.ac.tuwien.sepr.groupphase.backend.repository.ticket.TicketRepository;
 import at.ac.tuwien.sepr.groupphase.backend.security.JwtTokenizer;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -459,42 +460,23 @@ public class EventEndpointTest implements TestData {
     }
 
     @Test
-    public void getAllEvents_Paginated_withFromDate_shouldIncludeOnlyEventsAfterFromDate() throws Exception {
-        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-
-        Event eventBefore = new Event();
-        eventBefore.setName("Event Before");
-        eventBefore.setCategory(Event.EventCategory.JAZZ);
-        eventBefore.setDescription("Should be excluded");
-        eventBefore.setDuration(60);
-        eventBefore.setDateTime(now.minusDays(1));
-        eventBefore.setLocation(testLocation);
-        eventRepository.save(eventBefore);
-
-        Event eventAfter = new Event();
-        eventAfter.setName("Event After");
-        eventAfter.setCategory(Event.EventCategory.JAZZ);
-        eventAfter.setDescription("Should be included");
-        eventAfter.setDuration(60);
-        eventAfter.setDateTime(now.plusDays(1));
-        eventAfter.setLocation(testLocation);
-        eventRepository.save(eventAfter);
-
-        LocalDateTime fromDate = now;
-
+    public void getAllEvents_Paginated_shouldReturnCorrectPage() throws Exception {
         MvcResult result = mockMvc.perform(get(EVENT_BASE_URI + "/paginated")
-                .param("size", "10")
-                .param("fromDate", fromDate.toString())
+                .param("page", "0")  // erste Seite
+                .param("size", "1")  // nur 1 Event pro Seite
                 .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
             .andReturn();
 
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+        String body = result.getResponse().getContentAsString();
 
-        String content = result.getResponse().getContentAsString();
+        JsonNode json = objectMapper.readTree(body);
 
         assertAll(
-            () -> assertTrue(content.contains("Event After"), "Event after fromDate should be included"),
-            () -> assertFalse(content.contains("Event Before"), "Event before fromDate should be excluded")
+            () -> assertTrue(body.contains("Jazzkonzert")),
+            () -> assertEquals(0, json.get("number").asInt()),
+            () -> assertEquals(1, json.get("size").asInt()),
+            () -> assertEquals(1, json.get("totalElements").asInt())
         );
     }
 }
