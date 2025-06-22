@@ -68,8 +68,10 @@ public class EventEndpointTest implements TestData {
     private RoomRepository roomRepository;
     @Autowired
     private ArtistRepository artistRepository;
-    @Autowired private TicketRepository ticketRepository;
-    @Autowired private OrderRepository orderRepository;
+    @Autowired
+    private TicketRepository ticketRepository;
+    @Autowired
+    private OrderRepository orderRepository;
 
 
     private EventLocation testLocation;
@@ -177,7 +179,7 @@ public class EventEndpointTest implements TestData {
 
     @Test
     public void getAllEvents_Paginated_asUser_shouldFailWith403() throws Exception {
-        mockMvc.perform(get(EVENT_BASE_URI + "/paginated" )
+        mockMvc.perform(get(EVENT_BASE_URI + "/paginated")
                 .param("page", "0")
                 .param("size", "1")
                 .header(securityProperties.getAuthHeader(),
@@ -425,11 +427,11 @@ public class EventEndpointTest implements TestData {
 
         UpdateEventDto updated = objectMapper.readValue(result.getResponse().getContentAsString(), UpdateEventDto.class);
         assertAll(
-            () -> assertEquals(dto.getName(),        updated.getName()),
+            () -> assertEquals(dto.getName(), updated.getName()),
             () -> assertEquals(dto.getDescription(), updated.getDescription()),
-            () -> assertEquals(dto.getDuration(),    updated.getDuration()),
-            () -> assertEquals(dto.getDateTime(),    updated.getDateTime()),
-            () -> assertEquals(dto.getLocationId(),  updated.getLocationId())
+            () -> assertEquals(dto.getDuration(), updated.getDuration()),
+            () -> assertEquals(dto.getDateTime(), updated.getDateTime()),
+            () -> assertEquals(dto.getLocationId(), updated.getLocationId())
         );
     }
 
@@ -456,5 +458,43 @@ public class EventEndpointTest implements TestData {
         assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
     }
 
+    @Test
+    public void getAllEvents_Paginated_withFromDate_shouldIncludeOnlyEventsAfterFromDate() throws Exception {
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
 
+        Event eventBefore = new Event();
+        eventBefore.setName("Event Before");
+        eventBefore.setCategory(Event.EventCategory.JAZZ);
+        eventBefore.setDescription("Should be excluded");
+        eventBefore.setDuration(60);
+        eventBefore.setDateTime(now.minusDays(1));
+        eventBefore.setLocation(testLocation);
+        eventRepository.save(eventBefore);
+
+        Event eventAfter = new Event();
+        eventAfter.setName("Event After");
+        eventAfter.setCategory(Event.EventCategory.JAZZ);
+        eventAfter.setDescription("Should be included");
+        eventAfter.setDuration(60);
+        eventAfter.setDateTime(now.plusDays(1));
+        eventAfter.setLocation(testLocation);
+        eventRepository.save(eventAfter);
+
+        LocalDateTime fromDate = now;
+
+        MvcResult result = mockMvc.perform(get(EVENT_BASE_URI + "/paginated")
+                .param("size", "10")
+                .param("fromDate", fromDate.toString())
+                .header(securityProperties.getAuthHeader(), jwtTokenizer.getAuthToken(ADMIN_USER, ADMIN_ROLES)))
+            .andReturn();
+
+        assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+
+        String content = result.getResponse().getContentAsString();
+
+        assertAll(
+            () -> assertTrue(content.contains("Event After"), "Event after fromDate should be included"),
+            () -> assertFalse(content.contains("Event Before"), "Event before fromDate should be excluded")
+        );
+    }
 }
