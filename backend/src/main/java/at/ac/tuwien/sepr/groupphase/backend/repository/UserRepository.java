@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.repository;
 
+import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.user.LockedUserDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ApplicationUser;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Repository
 public interface UserRepository extends JpaRepository<ApplicationUser, Long> {
@@ -51,4 +54,8 @@ public interface UserRepository extends JpaRepository<ApplicationUser, Long> {
     @Query("UPDATE ApplicationUser a SET a.isActivated = true WHERE a.id = :userId")
     void activateUser(@Param("userId") Long userId);
 
+
+    @Transactional
+    @Query("SELECT u FROM ApplicationUser u WHERE u.id <> :id")
+    Page<ApplicationUser> findAllByIdNot(@Param("id") Long id, Pageable pageable);
 }

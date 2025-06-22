@@ -215,9 +215,9 @@ public class CustomUserDetailService implements UserService {
     }
 
     @Override
-    public Page<LockedUserDto> getAllUsersPaginated(Pageable pageable) {
+    public Page<LockedUserDto> getAllUsersPaginated(Long currentUserId, Pageable pageable) {
         LOGGER.debug("Fetching all users paginated");
-        return userRepository.findAll(pageable)
+        return userRepository.findAllByIdNot(currentUserId, pageable)
             .map(user -> LockedUserDto.LockedUserDtoBuilder.aLockedUserDto()
                 .withId(user.getId())
                 .withFirstName(user.getFirstName())
