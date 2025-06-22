@@ -1,46 +1,45 @@
-
- <div class="mt-4 container">
-   <div>
-     <h2 class="modal-title">My Profile: {{user.firstName}}</h2>
-     <hr class="mt-1 mb-4">
-   </div>
-
- <div style="margin-left: 7rem;">
-  <div class="row">
-    <div class="col-md-6">
-      <div class="mb-2">
-        <label class="col-form-label" style="font-weight: bold;">First Name</label>
-        <p>{{ user.firstName }}</p>
-      </div>
-    </div>
-
-    <div class="col-md-6">
-      <div class="mb-2">
-        <label class="col-form-label" style="font-weight: bold;">Last Name</label>
-        <p>{{ user.lastName }}</p>
-      </div>
-    </div>
+<div class="mt-4 container">
+  <div>
+    <h2 class="modal-title">My Profile: {{ user.firstName }}</h2>
+    <hr class="mt-1 mb-4">
   </div>
 
-  <div class="row">
-    <div class="col-md-6">
-      <div class="mb-2">
-        <label class="col-form-label" style="font-weight: bold;">Date of Birth</label>
-        <p>{{ user.dateOfBirth | date }}</p>
+  <div style="margin-left: 7rem;">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="mb-2">
+          <label class="col-form-label" style="font-weight: bold;">First Name</label>
+          <p>{{ user.firstName }}</p>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="mb-2">
+          <label class="col-form-label" style="font-weight: bold;">Last Name</label>
+          <p>{{ user.lastName }}</p>
+        </div>
       </div>
     </div>
 
-    <div class="col-md-6">
-      <div class="mb-2">
-        <label class="col-form-label" style="font-weight: bold;">Sex</label>
-        <p>   {{
-            user.sex === 'FEMALE' ? 'Female' :
-              user.sex === 'MALE' ? 'Male' :
-                'Other'
-          }}</p>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="mb-2">
+          <label class="col-form-label" style="font-weight: bold;">Date of Birth</label>
+          <p>{{ user.dateOfBirth | date }}</p>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="mb-2">
+          <label class="col-form-label" style="font-weight: bold;">Sex</label>
+          <p> {{
+              user.sex === 'FEMALE' ? 'Female' :
+                user.sex === 'MALE' ? 'Male' :
+                  'Other'
+            }}</p>
+        </div>
       </div>
     </div>
-  </div>
 
     <div class="col-md-6">
       <div class="mb-2">
@@ -49,71 +48,86 @@
       </div>
     </div>
 
-  <div class="row">
-    <div class="col-md-12">
-      <div class="mb-2">
-        <label class="col-form-label" style="font-weight: bold;">Street</label>
-        <p>{{ user?.street || 'Edit to add Street' }}</p>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="mb-2">
+          <label class="col-form-label" style="font-weight: bold;">Street</label>
+          <p>{{ user?.street || 'Edit to add Street' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="mb-2">
+          <label class="col-form-label" style="font-weight: bold;">House Number</label>
+          <p>{{ user?.housenumber || 'Edit to add House Number' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="mb-2">
+          <label class="col-form-label" style="font-weight: bold;">Postal Code</label>
+          <p>{{ user?.postalCode || 'Edit to add Postal Code' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="mb-2">
+          <label class="col-form-label" style="font-weight: bold;">City</label>
+          <p>{{ user?.city || 'Edit to add City' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="mb-2">
+          <label class="col-form-label" style="font-weight: bold;">Country</label>
+          <p>{{ user?.country || 'Edit to add Country' }}</p>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="mt-3 d-flex justify-content-center">
+
+      <button class="btn btn-warning" [routerLink]="['/user-edit']" aria-label="Edit user">
+        <i class="bi bi-pencil"></i> Edit
+      </button>
+      <span>&nbsp;</span>
+
+      <button class="btn btn-danger" (click)="onDeleteClick()" aria-label="Delete user">
+        <i class="bi bi-trash"></i> Delete
+      </button>
+
+    </div>
+
+    <div *ngIf="showDeleteConfirm">
+      <div class="modal-backdrop fade show"></div>
+      <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header justify-content-center border-0">
+              <h5 class="modal-title fw-bold mb-0">Confirm Delete</h5>
+            </div>
+            <div class="modal-body text-center py-2">
+              <p class="mb-1">Do you really want to delete your account?
+                If you agree your entire account including your personal data,
+                tickets you have bought before and other configurations of your TicketLine will be irretrievable
+                deleted!</p>
+            </div>
+            <div class="modal-footer justify-content-center pt-1 pb-2 border-0">
+              <button class="btn btn-success me-2" (click)="cancelDelete()">No, keep my account</button>
+              <button class="btn btn-danger" (click)="confirmDelete()">Yes, delete</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
-   <div class="row">
-     <div class="col-md-12">
-       <div class="mb-2">
-         <label class="col-form-label" style="font-weight: bold;">House Number</label>
-         <p>{{ user?.housenumber || 'Edit to add House Number' }}</p>
-       </div>
-     </div>
-   </div>
-
-   <div class="row">
-     <div class="col-md-12">
-       <div class="mb-2">
-         <label class="col-form-label" style="font-weight: bold;">Postal Code</label>
-         <p>{{ user?.postalCode || 'Edit to add Postal Code' }}</p>
-       </div>
-     </div>
-   </div>
-
-  <div class="row">
-    <div class="col-md-6">
-      <div class="mb-2">
-        <label class="col-form-label" style="font-weight: bold;">City</label>
-        <p>{{ user?.city || 'Edit to add City'}}</p>
-      </div>
-    </div>
-  </div>
-
-   <div class="row">
-     <div class="col-md-12">
-       <div class="mb-2">
-         <label class="col-form-label" style="font-weight: bold;">Country</label>
-         <p>{{ user?.country || 'Edit to add Country' }}</p>
-       </div>
-     </div>
-   </div>
-
-
-   <div class="mt-3 d-flex justify-content-center">
-
-    <button class="btn btn-warning" [routerLink]="['/user-edit']" aria-label="Edit user">
-      <i class="bi bi-pencil"></i> Edit
-    </button>
-    <span>&nbsp;</span>
-
-    <button class="btn btn-danger" (click)="userForDeletion = user"
-            data-bs-toggle="modal" data-bs-target="#delete-dialog" aria-label="Delete user">
-      <i class="bi bi-trash"></i> Delete
-    </button>
-
-  </div>
-
-  <app-confirm-delete-dialog
-    id="delete-dialog"
-    [hidden]="!userForDeletion"
-    [deleteWhat]="userForDeletion?.lastName"
-    (confirm)="deleteUser()">
-  </app-confirm-delete-dialog>
- </div>
- </div>
+</div>

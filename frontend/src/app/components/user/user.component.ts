@@ -1,23 +1,23 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthService} from '../../services/auth.service';
 import {Router, RouterLink} from "@angular/router";
-import { ToastrService } from 'ngx-toastr';
-import { User } from "../../dtos/user";
+import {ToastrService} from 'ngx-toastr';
+import {User} from "../../dtos/user";
 import {Sex} from "../../dtos/sex";
 import {UserService} from "../../services/user.service";
-import {DatePipe, NgIf} from "@angular/common";
-import {ConfirmDeleteDialogComponent} from "../confirm-delete-dialog/confirm-delete-dialog.component";
+import {DatePipe, CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-user',
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss'],
-  imports: [DatePipe, RouterLink, ConfirmDeleteDialogComponent]
+  standalone: true,
+  imports: [DatePipe, RouterLink, CommonModule]
 })
 
 export class UserComponent implements OnInit {
   user: User;
-  userForDeletion: User | undefined;
+  showDeleteConfirm = false;
   loading = false;
 
   constructor(
@@ -25,7 +25,8 @@ export class UserComponent implements OnInit {
     private service: UserService,
     private notification: ToastrService,
     private router: Router
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.user = {
@@ -79,6 +80,19 @@ export class UserComponent implements OnInit {
         console.error(error);
       },
     });
+  }
+
+  onDeleteClick(): void {
+    this.showDeleteConfirm = true;
+  }
+
+  cancelDelete(): void {
+    this.showDeleteConfirm = false;
+  }
+
+  confirmDelete(): void {
+    this.showDeleteConfirm = false;
+    this.deleteUser();
   }
 
 }
