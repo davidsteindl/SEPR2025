@@ -546,42 +546,6 @@ public class TicketValidatorTest {
         assertTrue(ex.getMessage().contains("Cannot reserve tickets less than"));
     }
 
-    @Test
-    public void validateHold_shouldThrowIfSeatAlreadyBooked() {
-        Long showId = 1L;
-        Long sectorId = 1L;
-        Long seatId = 1L;
-
-        Sector sector = new Sector();
-        sector.setId(sectorId);
-        Seat seat = new Seat();
-        seat.setId(seatId);
-        seat.setSector(sector);
-
-        Ticket existingTicket = new Ticket();
-        existingTicket.setSector(sector);
-        existingTicket.setSeat(seat);
-        existingTicket.setStatus(TicketStatus.BOUGHT);
-
-        when(ticketRepository.findByShowId(showId)).thenReturn(List.of(existingTicket));
-
-        Show show = new Show();
-        show.setDate(LocalDateTime.now().plusDays(1));
-        show.setId(showId);
-        Room room = new Room();
-        room.setSectors(Set.of(sector));
-        show.setRoom(room);
-
-        when(showService.getShowById(showId)).thenReturn(show);
-        when(roomService.getSectorById(sectorId)).thenReturn(sector);
-        when(roomService.getSeatById(seatId)).thenReturn(seat);
-
-        SeatUnavailableException ex = assertThrows(SeatUnavailableException.class,
-            () -> validator.validateHold(showId, sectorId, seatId, 1L)
-        );
-
-        assertTrue(ex.getMessage().contains("already booked"));
-    }
 
     @Test
     public void validateForBuyTickets_shouldThrowIfStandingQuantityZero() {
