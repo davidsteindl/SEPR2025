@@ -72,6 +72,7 @@ public class TicketValidator {
         Show show = requireShow(dto.getShowId());
         validateTargetsBelongToShow(show, dto.getTargets());
         validateBeforeShowStarts(show);
+        validateNoHoldsOn(dto.getShowId(), dto.getTargets());
         validateNoTicketsOn(dto.getShowId(), dto.getTargets());
     }
 
