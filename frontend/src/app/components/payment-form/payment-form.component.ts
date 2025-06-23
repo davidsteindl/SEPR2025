@@ -10,6 +10,7 @@ import { OrderGroupDto } from 'src/app/dtos/order';
 import { TicketRequestDto } from 'src/app/dtos/ticket';
 import {UserService} from "../../services/user.service";
 import {User} from "../../dtos/user";
+import {LocationService} from "../../services/location.service";
 
 @Component({
   selector: 'app-payment-form',
@@ -21,6 +22,7 @@ import {User} from "../../dtos/user";
 })
 export class PaymentFormComponent implements OnInit {
   items: PaymentItem[] = [];
+  countries: string[] = [];
 
   paymentForm!: FormGroup;
   loading = false;
@@ -32,11 +34,16 @@ export class PaymentFormComponent implements OnInit {
     private ticketService: TicketService,
     private toastr: ToastrService,
     private router: Router,
-    private userService: UserService
+    private userService: UserService,
+    private locationService: LocationService
   ) {}
 
   ngOnInit(): void {
     this.items = this.cart.getItems();
+
+    this.locationService.getCountries().subscribe((countries) => {
+      this.countries = countries;
+    });
 
     this.paymentForm = this.fb.group({
       cardNumber: [
