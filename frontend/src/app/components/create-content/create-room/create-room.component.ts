@@ -90,6 +90,35 @@ export class CreateRoomComponent implements OnInit {
     }
   }
 
+  validateRows(): void {
+    if (this.room.rows == null) {
+      return;
+    }
+    if (this.room.rows < 1) {
+      this.room.rows = 1;
+    } else if (this.room.rows > 100) {
+      this.room.rows = 100;
+    }
+  }
+
+  validateColumns(): void {
+    if (this.room.columns == null) {
+      return;
+    }
+    if (this.room.columns < 1) {
+      this.room.columns = 1;
+    } else if (this.room.columns > 100) {
+      this.room.columns = 100;
+    }
+  }
+
+  preventNonNumericInput(event: KeyboardEvent): void {
+    const invalidChars = ['e', 'E', '+', '-', '.'];
+    if (invalidChars.includes(event.key)) {
+      event.preventDefault();
+    }
+  }
+
   stay(): void {
     this.showConfirm = false;
   }

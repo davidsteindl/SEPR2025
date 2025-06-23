@@ -23,24 +23,28 @@
 
             <div class="form-group row mb-2">
               <div class="col-md-6">
-                <label for="firstName">First Name</label>
+                <label for="firstName">First Name<span class="text-danger">*</span></label>
                 <input type="text" name="firstName" formControlName="firstName" class="form-control" id="firstName"
                        aria-describedby="firstNameHelp" placeholder="Enter first name">
-                <div *ngIf="(registerForm.controls.firstName.touched || submitted) && registerForm.controls.firstName.errors" class="error">
-                  <small class="form-text text-warning" *ngIf="registerForm.controls.firstName.errors.required">Your
-                    Firstname
+                <div
+                  *ngIf="(registerForm.controls.firstName.touched || submitted) && registerForm.controls.firstName.errors"
+                  class="error">
+                  <small class="form-text text-warning" *ngIf="registerForm.controls.firstName.errors.required">
+                    First name
                     is
                     required!
                   </small>
                 </div>
               </div>
               <div class="col-md-6">
-                <label for="lastName">Last Name</label>
+                <label for="lastName">Last Name<span class="text-danger">*</span></label>
                 <input type="text" name="lastName" formControlName="lastName" class="form-control" id="lastName"
                        aria-describedby="lastNameHelp" placeholder="Enter last name">
-                <div *ngIf="(registerForm.controls.lastName.touched || submitted) && registerForm.controls.lastName.errors" class="error">
-                  <small class="form-text text-warning" *ngIf="registerForm.controls.lastName.errors.required">Your
-                    Lastname
+                <div
+                  *ngIf="(registerForm.controls.lastName.touched || submitted) && registerForm.controls.lastName.errors"
+                  class="error">
+                  <small class="form-text text-warning" *ngIf="registerForm.controls.lastName.errors.required">
+                    Last name
                     is
                     required!
                   </small>
@@ -50,31 +54,34 @@
 
             <div class="form-group row mb-2">
               <div class="col-md-6">
-                <label for="dateOfBirth">Birth Date</label>
+                <label for="dateOfBirth">Birth Date<span class="text-danger">*</span></label>
                 <input type="date"
                        id="dateOfBirth"
                        name="dateOfBirth"
                        formControlName="dateOfBirth"
                        class="form-control"
                        aria-describedby="BirthDateHelp">
-                <div *ngIf="(registerForm.controls.dateOfBirth.touched || submitted) && registerForm.controls.dateOfBirth.errors" class="error">
+                <div
+                  *ngIf="(registerForm.controls.dateOfBirth.touched || submitted) && registerForm.controls.dateOfBirth.errors"
+                  class="error">
                   <small class="form-text text-warning" *ngIf="registerForm.controls.dateOfBirth.errors.required">
-                    Your birthdate is required!
+                    Birthdate is required!
                   </small>
                 </div>
               </div>
 
               <div class="col-md-6">
-                <label for="sex">Sex</label>
+                <label for="sex">Sex<span class="text-danger">*</span></label>
                 <select class="form-select" formControlName="sex" id="sex" name="sex" required>
                   <option value="" disabled selected>Select sex</option>
                   <option value="FEMALE">Female</option>
                   <option value="MALE">Male</option>
                   <option value="OTHER">Other</option>
                 </select>
-                <div *ngIf="(registerForm.controls.sex.touched || submitted) && registerForm.controls.sex.errors" class="error">
+                <div *ngIf="(registerForm.controls.sex.touched || submitted) && registerForm.controls.sex.errors"
+                     class="error">
                   <small class="form-text text-warning" *ngIf="registerForm.controls.sex.errors.required">
-                    Your sex is required!
+                    Sex is required!
                   </small>
                 </div>
               </div>
@@ -82,11 +89,12 @@
 
 
             <div class="form-group mb-2">
-              <label for="email">Email</label>
+              <label for="email">Email <span class="text-danger">*</span></label>
               <input type="text" name="email" formControlName="email" class="form-control" id="email"
                      placeholder="Enter email" aria-describedby="emailHelp">
-              <div *ngIf="(registerForm.controls.email.touched || submitted) && registerForm.controls.email.errors" class="error">
-                <small class="form-text text-warning" *ngIf="registerForm.controls.email.errors.required">Your email
+              <div *ngIf="(registerForm.controls.email.touched || submitted) && registerForm.controls.email.errors"
+                   class="error">
+                <small class="form-text text-warning" *ngIf="registerForm.controls.email.errors.required">Email
                   is
                   required!
                 </small>
@@ -94,34 +102,35 @@
             </div>
 
             <div class="form-group mb-2">
-              <label for="password">Password (min 8 chars)</label>
+              <label for="password">Password (min 8 chars)<span class="text-danger">*</span></label>
               <input type="password" name="password" formControlName="password" class="form-control" id="password"
                      placeholder="Enter password">
-              <div *ngIf="(registerForm.controls.password.touched || submitted) && registerForm.controls.password.errors" class="error">
-                <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.required">Your
-                  password
+              <div
+                *ngIf="(registerForm.controls.password.touched || submitted) && registerForm.controls.password.errors"
+                class="error">
+                <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.required">
+                  Password
                   is
                   required!
                 </small>
-                <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.minlength">Your
-                  password
+                <small class="form-text text-warning" *ngIf="registerForm.controls.password.errors.minlength">
+                  Password
                   must be at least 8 characters long!
                 </small>
               </div>
             </div>
 
             <div class="form-group mb-2">
-              <label for="confirmPassword">Repeat Password (min 8 chars)</label>
+              <label for="confirmPassword">Repeat Password (min 8 chars)<span class="text-danger">*</span></label>
               <input type="password" name="confirmPassword" formControlName="confirmPassword" class="form-control"
                      placeholder="Repeat password" id="confirmPassword">
-              <div *ngIf="(registerForm.controls.confirmPassword.touched || submitted) && registerForm.controls.confirmPassword.errors" class="error">
-                <small class="form-text text-warning" *ngIf="registerForm.controls.confirmPassword.errors.required">Your
-                  password
-                  is
-                  required!
+              <div
+                *ngIf="(registerForm.controls.confirmPassword.touched || submitted) && registerForm.controls.confirmPassword.errors"
+                class="error">
+                <small class="form-text text-warning" *ngIf="registerForm.controls.confirmPassword.errors.required">Password needs to be repeated!
                 </small>
-                <small class="form-text text-warning" *ngIf="registerForm.controls.confirmPassword.errors.minlength">Your
-                  password
+                <small class="form-text text-warning" *ngIf="registerForm.controls.confirmPassword.errors.minlength">
+                  Password
                   must be at least 8 characters long!
                 </small>
               </div>
@@ -132,8 +141,8 @@
               <a href="#" class="link-secondary small"
                  data-bs-toggle="modal"
                  data-bs-target="#termsModal">
-                Terms and Conditions
-              </a>
+                Terms and Conditions </a>
+              <span class="text-danger">*</span>
               <input type="checkbox" formControlName="termsAccepted" id="termsAccepted"
                      style="margin-right: 0.5rem; margin-left: 0.2rem;"/>
               <div *ngIf="submitted && registerForm.controls.termsAccepted.errors" class="error w-100">
@@ -145,6 +154,7 @@
             <div *ngIf="authService.isLoggedIn() && isAdmin()">
               <label for="isAdmin">
                 Create User as Admin?
+                <span class="text-danger">*</span>
               </label>
               <input
                 type="checkbox"
