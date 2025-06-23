@@ -1,14 +1,6 @@
 .jumbotron {
   background: none
 }
-
-.login-wrapper {
-  width: 100%;
-  max-width: 30rem;
-  min-width: 20rem;
-  padding: 0 1rem;
-}
-
 .action-card {
   border: none;
   border-radius: 1rem;
@@ -16,6 +8,7 @@
   text-decoration: none;
   color: inherit;
   transition: transform .2s, box-shadow .2s;
+  max-width: 30rem;
 }
 
 .action-card:hover {

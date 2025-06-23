@@ -3,15 +3,15 @@
   <hr class="mt-1 mb-4">
   <div class="d-flex justify-content-center mt-4">
     <ng-container *ngIf="!authService.isLoggedIn(); else loggedIn">
-      <div class="login-wrapper">
-        <a routerLink="/login" class="card action-card w-100" role="button">
-          <div class="card-body d-flex flex-column align-items-center">
-            <i class="bi bi-box-arrow-in-right action-icon"></i>
-            <h5 class="card-title mt-2">Login</h5>
+      <a routerLink="/login" class="card action-card w-200" role="button">
+        <div class="card-body d-flex align-items-center">
+          <i class="bi bi-box-arrow-in-right action-icon me-3"></i>
+          <div class="text-start">
+            <h5 class="card-title mb-1">Login</h5>
             <p class="card-text mb-0">Access your account or create a new one</p>
           </div>
-        </a>
-      </div>
+        </div>
+      </a>
     </ng-container>
     <ng-template #loggedIn>
       <a routerLink="/news" class="card action-card" role="button">
