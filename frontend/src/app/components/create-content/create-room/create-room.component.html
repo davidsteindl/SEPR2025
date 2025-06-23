@@ -41,6 +41,7 @@
         [(ngModel)]="room.rows"
         #rows="ngModel"
         required min="1" max="100"
+        placeholder="1-100 rows"
       />
       <div *ngIf="rows.touched && rows.invalid" class="text-danger">
         <div *ngIf="rows.errors?.required">Rows is required.</div>
@@ -59,6 +60,7 @@
         [(ngModel)]="room.columns"
         #columns="ngModel"
         required min="1" max="100"
+        placeholder="1-100 columns"
       />
       <div *ngIf="columns.touched && columns.invalid" class="text-danger">
         <div *ngIf="columns.errors?.required">Columns is required.</div>
