@@ -10,6 +10,7 @@ import {UserService} from "../../../services/user.service";
 import {ErrorFormatterService} from "../../../services/error-formatter.service";
 import {AuthService} from "../../../services/auth.service";
 import {CommonModule} from "@angular/common";
+import {LocationService} from "../../../services/location.service";
 
 @Component({
   selector: 'app-user-edit',
@@ -25,6 +26,7 @@ export class UserEditComponent implements OnInit {
   loading = false;
 
   email: string = '';
+  countries: string[] = [];
 
   user: User = {
     id: null,
@@ -48,7 +50,8 @@ export class UserEditComponent implements OnInit {
     public authService: AuthService,
     private router: Router,
     private notification: ToastrService,
-    private errorFormatter: ErrorFormatterService
+    private errorFormatter: ErrorFormatterService,
+    private locationService: LocationService
   ) {
   }
 
@@ -70,6 +73,10 @@ export class UserEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
+
+      this.locationService.getCountries().subscribe((countries) => {
+        this.countries = countries;
+      });
 
     this.user = {
       id: null,
