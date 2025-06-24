@@ -18,7 +18,7 @@
         required
         class="form-control"
         #locationName="ngModel"/>
-      <div *ngIf="locationName.invalid && locationName.touched" class="text-danger">
+      <div *ngIf="locationName.invalid && locationName.touched" class="text-warning">
         Name is required.
       </div>
     </div>
@@ -35,7 +35,7 @@
         <option [ngValue]="null" disabled selected>Select type</option>
         <option *ngFor="let option of locationTypeOptions" [value]="option.value">{{ option.label }}</option>
       </select>
-      <div *ngIf="locationType.invalid && locationType.touched" class="text-danger">
+      <div *ngIf="locationType.invalid && locationType.touched" class="text-warning">
         Type is required.
       </div>
     </div>
@@ -52,7 +52,7 @@
         <option [ngValue]="null" disabled selected>Select country</option>
         <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
       </select>
-      <div *ngIf="locationCountry.invalid && locationCountry.touched" class="text-danger">
+      <div *ngIf="locationCountry.invalid && locationCountry.touched" class="text-warning">
         Country is required.
       </div>
     </div>
@@ -67,7 +67,7 @@
         required
         class="form-control"
         #locationCity="ngModel"/>
-      <div *ngIf="locationCity.invalid && locationCity.touched" class="text-danger">
+      <div *ngIf="locationCity.invalid && locationCity.touched" class="text-warning">
         City is required.
       </div>
     </div>
@@ -81,7 +81,7 @@
         required
         class="form-control"
         #locationStreet="ngModel"/>
-      <div *ngIf="locationStreet.invalid && locationStreet.touched" class="text-danger">
+      <div *ngIf="locationStreet.invalid && locationStreet.touched" class="text-warning">
         Street is required.
       </div>
     </div>
@@ -95,7 +95,7 @@
         required
         class="form-control"
         #locationPostalCode="ngModel"/>
-      <div *ngIf="locationPostalCode.invalid && locationPostalCode.touched" class="text-danger">
+      <div *ngIf="locationPostalCode.invalid && locationPostalCode.touched" class="text-warning">
         Postal code is required.
       </div>
     </div>

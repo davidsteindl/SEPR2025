@@ -13,6 +13,7 @@ import java.util.Set;
 public class CreateShowDto {
 
     @NotBlank(message = "Name must not be blank")
+    @Size(max = 50, message = "Name must not exceed 50 characters")
     private String name;
 
     @NotNull(message = "Duration must not be null")

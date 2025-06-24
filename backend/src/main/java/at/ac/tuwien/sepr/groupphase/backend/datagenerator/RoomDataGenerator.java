@@ -74,6 +74,7 @@ public class RoomDataGenerator {
 
                 Sector sector = new Sector();
                 sector.setRoom(room);
+                sector.setName("Seated Sector for " + room.getName());
                 sector.setPrice(SEATED_PRICE);
 
                 for (Seat seat : allSeats) {
@@ -85,6 +86,7 @@ public class RoomDataGenerator {
                 StandingSector standingSector = new StandingSector();
                 standingSector.setRoom(room);
                 standingSector.setPrice(STANDING_PRICE);
+                standingSector.setName("Standing Sector for " + room.getName());
                 standingSector.setCapacity(STANDING_CAPACITY);
 
                 for (Seat seat : allSeats) {
@@ -94,6 +96,7 @@ public class RoomDataGenerator {
                 }
 
                 StageSector stageSector = new StageSector();
+                stageSector.setName("Stage Sector for " + room.getName());
                 stageSector.setRoom(room);
 
                 for (Seat seat : allSeats) {

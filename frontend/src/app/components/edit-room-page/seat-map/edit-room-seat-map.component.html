@@ -74,7 +74,7 @@
       <select class="form-select" [(ngModel)]="selectedSectorIdMap[seat.id]">
         <option [ngValue]="null">Unassigned</option>
         <option *ngFor="let sec of allSectors" [ngValue]="sec.id">
-          {{ sec.type }} #{{ sec.id }}
+          {{ getSectorDisplayName(sec.id) }}
         </option>
       </select>
     </div>

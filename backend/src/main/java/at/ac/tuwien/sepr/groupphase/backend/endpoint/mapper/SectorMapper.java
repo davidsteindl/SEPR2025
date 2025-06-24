@@ -30,6 +30,7 @@ public interface SectorMapper {
         if (sector.getClass() == Sector.class) {
             SectorDto dto = new SectorDto();
             dto.setId(sector.getId());
+            dto.setName(sector.getName());
             dto.setPrice(sector.getPrice());
             dto.setType(SectorType.NORMAL);
             return dto;
@@ -53,6 +54,7 @@ public interface SectorMapper {
         if (dto.getType() == SectorType.NORMAL) {
             Sector s = new Sector();
             s.setId(dto.getId());
+            s.setName(dto.getName());
             s.setPrice(dto.getPrice());
             return s;
         }
