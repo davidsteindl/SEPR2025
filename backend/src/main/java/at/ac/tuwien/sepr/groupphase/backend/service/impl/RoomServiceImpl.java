@@ -68,7 +68,8 @@ public class RoomServiceImpl implements RoomService {
     @Autowired
     public RoomServiceImpl(EventLocationRepository eventLocationRepository,
                            RoomRepository roomRepository, SectorRepository sectorRepository, SeatRepository seatRepository, ShowService showService,
-                           TicketRepository ticketRepository, HoldRepository holdRepository, RoomMapper roomMapper, SectorValidator sectorValidator, AuthenticationFacade authFacade) {
+                           TicketRepository ticketRepository, HoldRepository holdRepository, RoomMapper roomMapper, SectorValidator sectorValidator,
+                           AuthenticationFacade authFacade) {
         this.eventLocationRepository = eventLocationRepository;
         this.roomRepository = roomRepository;
         this.sectorRepository = sectorRepository;
@@ -127,11 +128,11 @@ public class RoomServiceImpl implements RoomService {
     public RoomDetailDto updateRoom(Long id, RoomDetailDto dto) throws ValidationException {
         LOGGER.info("Updating a room with details: {}", dto);
         if (!Objects.equals(id, dto.getId())) {
-            throw new IllegalArgumentException("ID in path and payload must match");
+            throw new ValidationException("ID in path and payload must match", List.of("ID in path and payload must match"));
         }
 
         Room room = roomRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Room not found: " + id));
+            .orElseThrow(() -> new NotFoundException("Room not found with id " + id));
 
         List<SectorDto> dtoSectors = dto.getSectors();
         if (!dtoSectors.isEmpty()) {
@@ -218,7 +219,7 @@ public class RoomServiceImpl implements RoomService {
     @Transactional
     public RoomDetailDto getRoomById(Long id) {
         LOGGER.debug("Retrieving a room with details: {}", id);
-        Room room = roomRepository.findById(id).orElseThrow(NotFoundException::new);
+        Room room = roomRepository.findById(id).orElseThrow(() -> new NotFoundException("Room with id " + id + " not found"));
         return roomMapper.roomToRoomDetailDto(room);
     }
 
@@ -336,7 +337,6 @@ public class RoomServiceImpl implements RoomService {
             .eventLocationId(room.getEventLocation().getId())
             .build();
     }
-
 
 
     public List<RoomDetailDto> getAllRooms() {

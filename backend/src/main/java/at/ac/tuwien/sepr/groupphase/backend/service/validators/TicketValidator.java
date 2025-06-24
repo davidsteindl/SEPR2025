@@ -6,6 +6,7 @@ import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetSeatedDto;
 import at.ac.tuwien.sepr.groupphase.backend.endpoint.dto.ticket.TicketTargetStandingDto;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Hold;
+import at.ac.tuwien.sepr.groupphase.backend.entity.Seat;
 import at.ac.tuwien.sepr.groupphase.backend.entity.Show;
 import at.ac.tuwien.sepr.groupphase.backend.entity.StandingSector;
 import at.ac.tuwien.sepr.groupphase.backend.entity.ticket.Ticket;
@@ -38,7 +39,8 @@ public class TicketValidator {
     private final TicketRepository ticketRepository;
     private final AuthenticationFacade authenticationFacade;
 
-    public TicketValidator(ShowServiceImpl showService, RoomServiceImpl roomService, HoldRepository holdRepository, TicketRepository ticketRepository, AuthenticationFacade authenticationFacade) {
+    public TicketValidator(ShowServiceImpl showService, RoomServiceImpl roomService, HoldRepository holdRepository, TicketRepository ticketRepository,
+                           AuthenticationFacade authenticationFacade) {
         this.showService = showService;
         this.roomService = roomService;
         this.holdRepository = holdRepository;
@@ -201,16 +203,21 @@ public class TicketValidator {
         for (TicketTargetDto t : targets) {
             if (t instanceof TicketTargetSeatedDto s) {
                 // SEATED: any OTHER valid hold on this seat?
+                Seat seat = roomService.getSeatById(s.getSeatId());
+                if (seat == null) {
+                    throw new NotFoundException("Seat with id " + s.getSeatId() + " not found");
+                }
+
                 boolean conflict = otherHolds.stream()
                     .anyMatch(h -> s.getSeatId().equals(h.getSeatId()));
                 if (conflict) {
-                    throw new SeatUnavailableException("Seat " + s.getSeatId() + " is currently on hold");
+                    throw new SeatUnavailableException("Seat " + seat.getColumnNumber() + " Row + " + seat.getRowNumber() + " + is currently on hold");
                 }
                 // also check if already bought/reserved
                 boolean occupied = existing.stream()
                     .anyMatch(tk -> tk.getSeat() != null && tk.getSeat().getId().equals(s.getSeatId()));
                 if (occupied) {
-                    throw new SeatUnavailableException("Seat " + s.getSeatId() + " is already taken");
+                    throw new SeatUnavailableException("Seat " + seat.getColumnNumber() + " Row + " + seat.getRowNumber() + " is already taken");
                 }
 
             } else if (t instanceof TicketTargetStandingDto st) {
@@ -222,7 +229,8 @@ public class TicketValidator {
 
                 if (boughtOrReserved + held + requested > capacity) {
                     throw new SeatUnavailableException(
-                        "Not enough capacity in standing sector %d (requested %d, available %d)".formatted(st.getSectorId(), requested, capacity - boughtOrReserved - held)
+                        "Not enough capacity in standing sector %d (requested %d, available %d)".formatted(st.getSectorId(), requested,
+                            capacity - boughtOrReserved - held)
                     );
                 }
             }
@@ -273,10 +281,15 @@ public class TicketValidator {
 
         for (TicketTargetDto t : targets) {
             if (t instanceof TicketTargetSeatedDto s) {
+                Seat seat = roomService.getSeatById(s.getSeatId());
+                if (seat == null) {
+                    throw new NotFoundException("Seat with id " + s.getSeatId() + " not found");
+                }
+
                 boolean occupied = existing.stream()
                     .anyMatch(tk -> tk.getSeat() != null && tk.getSeat().getId().equals(s.getSeatId()));
                 if (occupied) {
-                    throw new SeatUnavailableException("Seat " + s.getSeatId() + " already taken");
+                    throw new SeatUnavailableException("Seat " + seat.getColumnNumber() + " Row + " + seat.getRowNumber() + " is already taken");
                 }
             } else if (t instanceof TicketTargetStandingDto st) {
                 if (st.getQuantity() <= 0) {
@@ -333,8 +346,12 @@ public class TicketValidator {
                 .filter(t -> (t.getStatus() == TicketStatus.BOUGHT || t.getStatus() == TicketStatus.RESERVED))
                 .anyMatch(t -> t.getSeat() != null && t.getSeat().getId().equals(seatId));
 
+            Seat seat = roomService.getSeatById(seatId);
+            if (seat == null) {
+                throw new NotFoundException("Seat with id " + seatId + " not found");
+            }
             if (occupied) {
-                throw new SeatUnavailableException("Seat " + seatId + " already taken");
+                throw new SeatUnavailableException("Seat " + seat.getColumnNumber() + " Row + " + seat.getRowNumber() + " is already taken");
             }
         }
     }
