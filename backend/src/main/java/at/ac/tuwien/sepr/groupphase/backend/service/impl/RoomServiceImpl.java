@@ -98,8 +98,9 @@ public class RoomServiceImpl implements RoomService {
 
         //Adds default sector for seats
         Sector defaultSector = new Sector();
-        defaultSector.setPrice(1);
+        defaultSector.setPrice(10);
         defaultSector.setRoom(savedRoom);
+        defaultSector.setName("Default Sector");
         savedRoom.addSector(defaultSector);
 
         for (int i = 0; i < dto.getRows(); i++) {
@@ -177,16 +178,19 @@ public class RoomServiceImpl implements RoomService {
             StandingSector standingSector = new StandingSector();
             standingSector.setCapacity(ssd.getCapacity());
             standingSector.setPrice(ssd.getPrice());
+            standingSector.setName(ssd.getName());
             standingSector.setRoom(room);
             newSector = sectorRepository.save(standingSector);
         } else if (newDto instanceof StageSectorDto) {
             StageSector stageSector = new StageSector();
             stageSector.setPrice(null);
+            stageSector.setName(newDto.getName());
             stageSector.setRoom(room);
             newSector = sectorRepository.save(stageSector);
         } else {
             Sector normalSector = new Sector();
             normalSector.setPrice(newDto.getPrice());
+            normalSector.setName(newDto.getName());
             normalSector.setRoom(room);
             newSector = sectorRepository.save(normalSector);
         }
@@ -318,11 +322,13 @@ public class RoomServiceImpl implements RoomService {
             } else if (sec instanceof StageSector stage) {
                 StageSectorDto dto = new StageSectorDto();
                 dto.setId(stage.getId());
+                dto.setName(stage.getName());
                 dto.setPrice(stage.getPrice() != null ? stage.getPrice() : 0);
                 usageSectors.add(dto);
 
             } else {
                 SectorDto dto = new SectorDto();
+                dto.setName(sec.getName());
                 dto.setId(sec.getId());
                 dto.setPrice(sec.getPrice() != null ? sec.getPrice() : 0);
                 usageSectors.add(dto);
@@ -497,10 +503,12 @@ public class RoomServiceImpl implements RoomService {
         } else if (raw == null) {
             sec = new Sector();
             sec.setPrice(dto.getPrice());
+            sec.setName(dto.getName());
             room.addSector(sec);
         } else {
             sec = raw;
             sec.setPrice(dto.getPrice());
+            sec.setName(dto.getName());
             sec.setRoom(room);
         }
 
@@ -531,12 +539,14 @@ public class RoomServiceImpl implements RoomService {
         } else if (raw == null) {
             sec = new StandingSector();
             sec.setPrice(dto.getPrice());
+            sec.setName(dto.getName());
             sec.setCapacity(dto.getCapacity());
             room.addSector(sec);
         } else {
             sec = (StandingSector) raw;
             sec.setPrice(dto.getPrice());
             sec.setCapacity(dto.getCapacity());
+            sec.setName(dto.getName());
             sec.setRoom(room);
         }
 
@@ -566,10 +576,12 @@ public class RoomServiceImpl implements RoomService {
         } else if (raw == null) {
             sec = new StageSector();
             sec.setPrice(null);
+            sec.setName(dto.getName());
             room.addSector(sec);
         } else {
             sec = (StageSector) raw;
             sec.setPrice(null);
+            sec.setName(dto.getName());
             sec.setRoom(room);
         }
 

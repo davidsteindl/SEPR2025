@@ -50,6 +50,7 @@ public class StandingSector extends Sector {
         return "StandingSector{"
             + "id=" + getId()
             + ", price=" + getPrice()
+            + ", name='" + getName() + '\''
             + ", room ID=" + (getRoom() != null ? getRoom().getId() : "null")
             + ", capacity=" + capacity
             + '}';
@@ -57,6 +58,7 @@ public class StandingSector extends Sector {
 
     public static final class StandingSectorBuilder {
         private int price;
+        private String name;
         private int capacity;
         private Room room;
 
@@ -66,6 +68,11 @@ public class StandingSector extends Sector {
 
         public StandingSectorBuilder withPrice(int price) {
             this.price = price;
+            return this;
+        }
+
+        public StandingSectorBuilder withName(String name) {
+            this.name = name;
             return this;
         }
 
@@ -82,6 +89,7 @@ public class StandingSector extends Sector {
         public StandingSector build() {
             StandingSector standingSector = new StandingSector();
             standingSector.setPrice(price);
+            standingSector.setName(name);
             standingSector.setCapacity(capacity);
             standingSector.setRoom(room);
             return standingSector;
