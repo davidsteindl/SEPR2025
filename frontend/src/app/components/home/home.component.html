@@ -1,23 +1,28 @@
-<div class="jumbotron mt-5">
-  <h1 class="display-4">Welcome to TicketLine!</h1>
-  <hr class="mt-1">
-  <div *ngIf="!authService.isLoggedIn()" class="d-flex justify-content-center mb-4">
-    <a
-      class="btn btn-primary"
-      routerLink="/login"
-      role="button">
-      Go to Login
-    </a>
-  </div>
-  <div *ngIf="authService.isLoggedIn()">
-    <div class="d-flex align-items-center mb-3">
-      <span class="me-3">Check out the latest news from TicketLine.</span>
-      <a
-        class="btn btn-primary align-self-center"
-        routerLink="/news"
-        role="button">
-        Show News
+<div class="jumbotron mt-5 text-center">
+  <h1 class="modal-title">Welcome to TicketLine!</h1>
+  <hr class="mt-1 mb-4">
+  <div class="d-flex justify-content-center mt-4">
+    <ng-container *ngIf="!authService.isLoggedIn(); else loggedIn">
+      <a routerLink="/login" class="card action-card w-200" role="button">
+        <div class="card-body d-flex align-items-center">
+          <i class="bi bi-box-arrow-in-right action-icon me-3"></i>
+          <div class="text-start">
+            <h5 class="card-title mb-1">Login</h5>
+            <p class="card-text mb-0">Access your account or create a new one</p>
+          </div>
+        </div>
       </a>
-    </div>
+    </ng-container>
+    <ng-template #loggedIn>
+      <a routerLink="/news" class="card action-card" role="button">
+        <div class="card-body d-flex align-items-center">
+          <i class="fas fa-newspaper action-icon me-3"> </i>
+          <div class="text-start">
+            <h5 class="card-title mb-1">Latest News</h5>
+            <p class="card-text mb-0">See what’s new at TicketLine</p>
+          </div>
+        </div>
+      </a>
+    </ng-template>
   </div>
 </div>

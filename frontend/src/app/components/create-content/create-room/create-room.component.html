@@ -24,7 +24,7 @@
         #roomName="ngModel"
         required maxlength="50"
       />
-      <div *ngIf="roomName.touched && roomName.invalid" class="text-danger">
+      <div *ngIf="roomName.touched && roomName.invalid" class="text-warning">
         <div *ngIf="roomName.errors?.required">Name is required.</div>
         <div *ngIf="roomName.errors?.maxlength">Max 50 characters.</div>
       </div>
@@ -41,10 +41,15 @@
         [(ngModel)]="room.rows"
         #rows="ngModel"
         required min="1" max="100"
+        placeholder="1-100 rows"
+        (blur)="validateRows()"
+        (keydown)="preventNonNumericInput($event)"
       />
-      <div *ngIf="rows.touched && rows.invalid" class="text-danger">
+      <div *ngIf="rows.touched" class="text-warning">
         <div *ngIf="rows.errors?.required">Rows is required.</div>
-        <div *ngIf="rows.errors?.min">Must be at least 1 row.</div>
+        <div *ngIf="(rows.errors?.min || rows.errors?.max)">
+          Rows must be between 1 and 100.
+        </div>
       </div>
     </div>
 
@@ -59,10 +64,15 @@
         [(ngModel)]="room.columns"
         #columns="ngModel"
         required min="1" max="100"
+        placeholder="1-100 columns"
+        (blur)="validateColumns()"
+        (keydown)="preventNonNumericInput($event)"
       />
-      <div *ngIf="columns.touched && columns.invalid" class="text-danger">
+      <div *ngIf="columns.touched" class="text-warning">
         <div *ngIf="columns.errors?.required">Columns is required.</div>
-        <div *ngIf="columns.errors?.min">Must be at least 1 column.</div>
+        <div *ngIf="(columns.errors?.min || columns.errors?.max)">
+          Columns must be between 1 and 100.
+        </div>
       </div>
     </div>
 
@@ -80,7 +90,7 @@
         <option [ngValue]="null" disabled>Select Location</option>
         <option *ngFor="let loc of locations" [ngValue]="loc.id">{{loc.name}}</option>
       </select>
-      <div *ngIf="eventLocation.touched && eventLocation.invalid" class="text-danger">
+      <div *ngIf="eventLocation.touched && eventLocation.invalid" class="text-warning">
         Location is required.
       </div>
     </div>

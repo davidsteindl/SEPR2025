@@ -1,8 +1,4 @@
 <div class="container mt-4">
-  <div class="row">
-    <h2 class="modal-title">Edit Profile</h2>
-    <hr>
-  </div>
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Update Event: {{ event.name }}</h2>
     <button class="btn btn-outline-secondary" (click)="onBackClick()">
@@ -22,7 +18,7 @@
         required
         class="form-control"
         #eventEditName="ngModel"/>
-      <div *ngIf="eventEditName.invalid && eventEditName.touched" class="text-danger">
+      <div *ngIf="eventEditName.invalid && eventEditName.touched" class="text-warning">
         Event name is required.
       </div>
     </div>
@@ -37,7 +33,7 @@
         rows="3"
         class="form-control"
         #eventEditDescription="ngModel"></textarea>
-      <div *ngIf="eventEditDescription.invalid && eventEditDescription.touched" class="text-danger">
+      <div *ngIf="eventEditDescription.invalid && eventEditDescription.touched" class="text-warning">
         Description is required.
       </div>
     </div>
@@ -53,7 +49,7 @@
           required
           [(ngModel)]="event.dateTime"
           #eventEditDateTime="ngModel"/>
-        <div *ngIf="eventEditDateTime.invalid && eventEditDateTime.touched" class="text-danger">
+        <div *ngIf="eventEditDateTime.invalid && eventEditDateTime.touched" class="text-warning">
           Start date &amp; time is required.
         </div>
       </div>
@@ -75,19 +71,19 @@
              (keydown)="preventNonNumericInput($event)"
              #eventEditDuration="ngModel"/>
       <div *ngIf="eventEditDuration.touched">
-        <div *ngIf="eventEditDuration.errors?.required" class="text-danger">
+        <div *ngIf="eventEditDuration.errors?.required" class="text-warning">
           Duration is required.
         </div>
 
-        <div *ngIf="eventEditDuration.errors?.min && eventEditDuration.value < 0" class="text-danger">
+        <div *ngIf="eventEditDuration.errors?.min && eventEditDuration.value < 0" class="text-warning">
           Duration must be a positive number.
         </div>
 
-        <div *ngIf="eventEditDuration.errors?.min && eventEditDuration.value >= 0" class="text-danger">
+        <div *ngIf="eventEditDuration.errors?.min && eventEditDuration.value >= 0" class="text-warning">
           Duration must be between 10 and 10000 minutes.
         </div>
 
-        <div *ngIf="eventEditDuration.errors?.max" class="text-danger">
+        <div *ngIf="eventEditDuration.errors?.max" class="text-warning">
           Duration must be between 10 and 10000 minutes.
         </div>
       </div>
@@ -105,7 +101,7 @@
         <option [ngValue]="null" disabled>Select category</option>
         <option *ngFor="let option of eventCategoryOptions" [value]="option.value">{{ option.label }}</option>
       </select>
-      <div *ngIf="eventEditCategory.invalid && eventEditCategory.touched" class="text-danger">
+      <div *ngIf="eventEditCategory.invalid && eventEditCategory.touched" class="text-warning">
         Category is required.
       </div>
     </div>
@@ -122,7 +118,7 @@
       <option [ngValue]="null" disabled>Select Location</option>
       <option *ngFor="let location of locations" [ngValue]="location.id">{{ location?.name }}</option>
     </select>
-    <div *ngIf="eventLocation.invalid && eventLocation.touched" class="text-danger">
+    <div *ngIf="eventLocation.invalid && eventLocation.touched" class="text-warning">
       Location is required.
     </div>
   </div>
