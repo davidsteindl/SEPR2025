@@ -7,7 +7,7 @@
   </div>
   <hr>
 
-<form #form="ngForm" (ngSubmit)="onSubmit(form)"novalidate>
+<form #form="ngForm" (ngSubmit)="onSubmit(form)" novalidate>
 
  <div class="row">
     <div class="mb-2 col-lg-6">
@@ -130,12 +130,16 @@
        Street
      </label>
      <div class="col-md-10">
-       <textarea
-         class="form-control"
+       <input
+         type="text"
          id="street"
-         name="street"
-         [(ngModel)]="user.street">
-       </textarea>
+         name="Street"
+         placeholder=""
+         class="form-control"
+         [class]="dynamicCssClassesForInput(userNameModel)"
+         [(ngModel)]="user.street"
+         #userNameModel="ngModel"
+         required>
      </div>
   </div>
 
@@ -144,12 +148,16 @@
       House Number
     </label>
     <div class="col-md-10">
-       <textarea
-         class="form-control"
-         id="housenumber"
-         name="housenumber"
-         [(ngModel)]="user.housenumber">
-       </textarea>
+      <input
+        type="text"
+        id="housenumber"
+        name="Housenumber"
+        placeholder=""
+        class="form-control"
+        [class]="dynamicCssClassesForInput(userNameModel)"
+        [(ngModel)]="user.housenumber"
+        #userNameModel="ngModel"
+        required>
     </div>
   </div>
 
@@ -158,12 +166,16 @@
       Postal Code
     </label>
     <div class="col-md-10">
-        <textarea
-          class="form-control"
-          id="postalCode"
-          name="postalCode"
-          [(ngModel)]="user.postalCode">
-        </textarea>
+      <input
+        type="text"
+        id="postalCode"
+        name="postalCode"
+        placeholder=""
+        class="form-control"
+        [class]="dynamicCssClassesForInput(userNameModel)"
+        [(ngModel)]="user.postalCode"
+        #userNameModel="ngModel"
+        required>
     </div>
   </div>
 
@@ -172,26 +184,39 @@
       City
     </label>
     <div class="col-md-10">
-       <textarea
-         class="form-control"
-         id="city"
-         name="city"
-         [(ngModel)]="user.city">
-       </textarea>
+      <input
+        type="text"
+        id="city"
+        name="city"
+        placeholder=""
+        class="form-control"
+        [class]="dynamicCssClassesForInput(userNameModel)"
+        [(ngModel)]="user.city"
+        #userNameModel="ngModel"
+        required>
     </div>
   </div>
+
 
   <div class="row mb-2">
     <label for="country" class="col-form-label text-md-end text-muted col-md-2">
       Country
     </label>
     <div class="col-md-10">
-       <textarea
-         class="form-control"
-         id="country"
-         name="country"
-         [(ngModel)]="user.country">
-       </textarea>
+      <select
+        id="country"
+        name="country"
+        class="form-control"
+        [(ngModel)]="user.country"
+        required>
+        <option [ngValue]="null" disabled selected>Select country</option>
+        <option *ngFor="let country of countries" [value]="country">
+          {{ country }}
+        </option>
+      </select>
+      <div *ngIf="!user.country && form.submitted" class="text-danger">
+        Country is required.
+      </div>
     </div>
   </div>
 
