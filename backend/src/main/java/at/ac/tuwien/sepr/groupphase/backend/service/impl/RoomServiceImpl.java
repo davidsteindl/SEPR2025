@@ -152,10 +152,24 @@ public class RoomServiceImpl implements RoomService {
         Map<Long, Sector> replacedSectors = new HashMap<>();
         List<Sector> toKeep = syncSectors(room, dtoSectors, replacedSectors);
 
+        for (Sector exists : room.getSectors()) {
+            boolean toRemove = toKeep.stream().noneMatch(s -> Objects.equals(s.getId(), exists.getId()));
+            if (toRemove) {
+                boolean hasTickets = !ticketRepository.findBySectorId(exists.getId()).isEmpty();
+                if (hasTickets) {
+                    throw new ValidationException(
+                        "Cannot delete sector with " + exists.getName() + " because tickets still exist",
+                        List.of("Cannot delete sector " + exists.getName() + " because tickets still exist")
+                    );
+                }
+            }
+        }
+
         syncSeats(room, dto.getSeats(), replacedSectors);
 
         room.getSectors().removeIf(exists ->
-            toKeep.stream().noneMatch(s -> Objects.equals(s.getId(), exists.getId())));
+            toKeep.stream().noneMatch(s -> Objects.equals(s.getId(), exists.getId()))
+        );
 
         roomRepository.saveAndFlush(room);
 
@@ -404,6 +418,7 @@ public class RoomServiceImpl implements RoomService {
                 seat.setSector(sector);
             } else {
                 seat.setSector(null);
+                seat.setDeleted(true);
             }
 
             updatedSeatList.add(seat);

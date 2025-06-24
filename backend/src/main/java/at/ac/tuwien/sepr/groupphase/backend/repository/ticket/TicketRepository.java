@@ -40,4 +40,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
                                                                     Pageable pageable);
 
     List<Ticket> findByShowAndStatus(Show show, TicketStatus status);
+
+    List<Ticket> findBySectorId(Long id);
 }
