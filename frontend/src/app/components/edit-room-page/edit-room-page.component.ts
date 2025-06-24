@@ -167,11 +167,16 @@ export class EditRoomPageComponent implements OnInit {
   }
 
   deleteSector(sector: Sector) {
-    // Safety copy
-    const prevSectors = [...this.room.sectors];
+    // Deep safety copy
+    const prevRoom = JSON.parse(JSON.stringify(this.room));
     // Remove sector from array
     this.room.sectors = this.room.sectors.filter((s) => s.id !== sector.id);
-    // Save sectors and update room from backend
+    // unassign seats
+    this.room.seats.forEach((seat) => {
+      if (seat.sectorId === sector.id) {
+        seat.sectorId = null;
+      }
+    });
     this.roomService.edit(this.room).subscribe({
       next: (updatedRoom) => {
         this.room = updatedRoom;
@@ -181,7 +186,11 @@ export class EditRoomPageComponent implements OnInit {
         this.toastr.success("Sector deleted successfully!");
       },
       error: (err) => {
-        this.room.sectors = prevSectors;
+        // Restore deep copy
+        this.room = prevRoom;
+        if (this.seatMap) {
+          this.seatMap.refreshSectors();
+        }
         this.toastr.error("Error deleting sector. Please try again.");
       },
     });
