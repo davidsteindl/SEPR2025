@@ -76,17 +76,17 @@ export class EditRoomPageComponent implements OnInit {
       type: [sector?.type ?? SectorType.NORMAL, Validators.required],
       price: [
         {
-          value: sector?.price ?? 0,
+          value: sector?.price ?? 1,
           disabled: sector?.type === SectorType.STAGE,
         },
-        Validators.min(0),
+        [Validators.required, Validators.min(1)],
       ],
       capacity: [
         {
-          value: sector?.capacity ?? null,
+          value: sector?.capacity ?? 1,
           disabled: sector?.type !== SectorType.STANDING,
         },
-        Validators.min(1),
+        [Validators.required, Validators.min(1)],
       ],
     });
     // react to type changes

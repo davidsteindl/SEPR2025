@@ -4,7 +4,10 @@
   <div class="flex-grow-1 seat-map-container mb-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h3 class="mb-0">{{ room.name }}</h3>
-      <button class="btn btn-outline-secondary" (click)="onBackToUpdateRoomsClick()">
+      <button
+        class="btn btn-outline-secondary"
+        (click)="onBackToUpdateRoomsClick()"
+      >
         ← Back to Rooms Update Page
       </button>
     </div>
@@ -35,12 +38,20 @@
           ></span>
           <div class="flex-grow-1">
             <div class="d-flex align-items-center mb-1">
-              <span class="">Sector: {{ sec.name || ('#' + sec.id) }}</span>
+              <span class="">Sector: {{ sec.name || "#" + sec.id }}</span>
             </div>
             <div class="d-flex align-items-center mb-1">
               <span class="sector-type-label">Type:</span>
               <span class="sector-type-value">
-                {{ sec.type === 'NORMAL' ? 'Seated' : (sec.type === 'STANDING' ? 'Standing' : (sec.type === 'STAGE' ? 'Stage' : sec.type)) }}
+                {{
+                  sec.type === "NORMAL"
+                    ? "Seated"
+                    : sec.type === "STANDING"
+                    ? "Standing"
+                    : sec.type === "STAGE"
+                    ? "Stage"
+                    : sec.type
+                }}
               </span>
             </div>
 
@@ -107,8 +118,15 @@
     <div class="modal-body">
       <form [formGroup]="sectorForm">
         <div class="mb-3">
-          <label class="form-label">Name <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" formControlName="name" required />
+          <label class="form-label"
+            >Name <span class="text-danger">*</span></label
+          >
+          <input
+            type="text"
+            class="form-control"
+            formControlName="name"
+            required
+          />
         </div>
         <div class="mb-3">
           <label class="form-label">Type</label>
@@ -142,7 +160,12 @@
       <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
         Cancel
       </button>
-      <button type="button" class="btn btn-primary" (click)="saveSector()">
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="saveSector()"
+        [disabled]="sectorForm.invalid"
+      >
         Save
       </button>
     </div>
@@ -160,7 +183,9 @@
             <p>If you exit this page, your changes will not be saved.</p>
           </div>
           <div class="modal-footer justify-content-center pt-1 pb-2 border-0">
-            <button class="btn btn-success me-2" (click)="stay()">Stay on Page</button>
+            <button class="btn btn-success me-2" (click)="stay()">
+              Stay on Page
+            </button>
             <button class="btn btn-danger" (click)="exit()">Exit Page</button>
           </div>
         </div>
