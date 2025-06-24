@@ -26,9 +26,8 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     @NotBlank(message = "Name must not be blank")
-    @Size(max = 100, message = "Name must not exceed 100 characters")
+    @Column(nullable = false, length = 100)
     private String name;
 
     @Enumerated(EnumType.STRING)

@@ -1,6 +1,5 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,8 +8,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -22,19 +19,13 @@ public class Artist {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    @NotBlank(message = "Name must not be blank")
-    @Size(max = 100, message = "Name must not exceed 100 characters")
+    @Column(length = 100)
     private String firstname;
 
-    @Column(nullable = false)
-    @NotBlank(message = "Name must not be blank")
-    @Size(max = 100, message = "Name must not exceed 100 characters")
+    @Column(length = 100)
     private String lastname;
 
-    @Column(nullable = false)
-    @NotBlank(message = "Name must not be blank")
-    @Size(max = 100, message = "Name must not exceed 100 characters")
+    @Column(length = 100)
     private String stagename;
 
     @ManyToMany
