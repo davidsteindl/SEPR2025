@@ -168,6 +168,7 @@ public class PdfExportEndpointTest implements TestData {
 
         StandingSector sector = new StandingSector();
         sector.setPrice(30);
+        sector.setName("Standing Area");
         sector.setCapacity(10);
         sector.setRoom(testRoom);
         sectorRepository.save(sector);

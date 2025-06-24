@@ -68,7 +68,8 @@ public class RoomServiceImpl implements RoomService {
     @Autowired
     public RoomServiceImpl(EventLocationRepository eventLocationRepository,
                            RoomRepository roomRepository, SectorRepository sectorRepository, SeatRepository seatRepository, ShowService showService,
-                           TicketRepository ticketRepository, HoldRepository holdRepository, RoomMapper roomMapper, SectorValidator sectorValidator, AuthenticationFacade authFacade) {
+                           TicketRepository ticketRepository, HoldRepository holdRepository, RoomMapper roomMapper, SectorValidator sectorValidator,
+                           AuthenticationFacade authFacade) {
         this.eventLocationRepository = eventLocationRepository;
         this.roomRepository = roomRepository;
         this.sectorRepository = sectorRepository;
@@ -97,8 +98,9 @@ public class RoomServiceImpl implements RoomService {
 
         //Adds default sector for seats
         Sector defaultSector = new Sector();
-        defaultSector.setPrice(1);
+        defaultSector.setPrice(10);
         defaultSector.setRoom(savedRoom);
+        defaultSector.setName("Default Sector");
         savedRoom.addSector(defaultSector);
 
         for (int i = 0; i < dto.getRows(); i++) {
@@ -127,11 +129,11 @@ public class RoomServiceImpl implements RoomService {
     public RoomDetailDto updateRoom(Long id, RoomDetailDto dto) throws ValidationException {
         LOGGER.info("Updating a room with details: {}", dto);
         if (!Objects.equals(id, dto.getId())) {
-            throw new IllegalArgumentException("ID in path and payload must match");
+            throw new ValidationException("ID in path and payload must match", List.of("ID in path and payload must match"));
         }
 
         Room room = roomRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Room not found: " + id));
+            .orElseThrow(() -> new NotFoundException("Room not found with id " + id));
 
         List<SectorDto> dtoSectors = dto.getSectors();
         if (!dtoSectors.isEmpty()) {
@@ -150,10 +152,24 @@ public class RoomServiceImpl implements RoomService {
         Map<Long, Sector> replacedSectors = new HashMap<>();
         List<Sector> toKeep = syncSectors(room, dtoSectors, replacedSectors);
 
+        for (Sector exists : room.getSectors()) {
+            boolean toRemove = toKeep.stream().noneMatch(s -> Objects.equals(s.getId(), exists.getId()));
+            if (toRemove) {
+                boolean hasTickets = !ticketRepository.findBySectorId(exists.getId()).isEmpty();
+                if (hasTickets) {
+                    throw new ValidationException(
+                        "Cannot delete sector with " + exists.getName() + " because tickets still exist",
+                        List.of("Cannot delete sector " + exists.getName() + " because tickets still exist")
+                    );
+                }
+            }
+        }
+
         syncSeats(room, dto.getSeats(), replacedSectors);
 
         room.getSectors().removeIf(exists ->
-            toKeep.stream().noneMatch(s -> Objects.equals(s.getId(), exists.getId())));
+            toKeep.stream().noneMatch(s -> Objects.equals(s.getId(), exists.getId()))
+        );
 
         roomRepository.saveAndFlush(room);
 
@@ -176,16 +192,19 @@ public class RoomServiceImpl implements RoomService {
             StandingSector standingSector = new StandingSector();
             standingSector.setCapacity(ssd.getCapacity());
             standingSector.setPrice(ssd.getPrice());
+            standingSector.setName(ssd.getName());
             standingSector.setRoom(room);
             newSector = sectorRepository.save(standingSector);
         } else if (newDto instanceof StageSectorDto) {
             StageSector stageSector = new StageSector();
             stageSector.setPrice(null);
+            stageSector.setName(newDto.getName());
             stageSector.setRoom(room);
             newSector = sectorRepository.save(stageSector);
         } else {
             Sector normalSector = new Sector();
             normalSector.setPrice(newDto.getPrice());
+            normalSector.setName(newDto.getName());
             normalSector.setRoom(room);
             newSector = sectorRepository.save(normalSector);
         }
@@ -218,7 +237,7 @@ public class RoomServiceImpl implements RoomService {
     @Transactional
     public RoomDetailDto getRoomById(Long id) {
         LOGGER.debug("Retrieving a room with details: {}", id);
-        Room room = roomRepository.findById(id).orElseThrow(NotFoundException::new);
+        Room room = roomRepository.findById(id).orElseThrow(() -> new NotFoundException("Room with id " + id + " not found"));
         return roomMapper.roomToRoomDetailDto(room);
     }
 
@@ -317,11 +336,13 @@ public class RoomServiceImpl implements RoomService {
             } else if (sec instanceof StageSector stage) {
                 StageSectorDto dto = new StageSectorDto();
                 dto.setId(stage.getId());
+                dto.setName(stage.getName());
                 dto.setPrice(stage.getPrice() != null ? stage.getPrice() : 0);
                 usageSectors.add(dto);
 
             } else {
                 SectorDto dto = new SectorDto();
+                dto.setName(sec.getName());
                 dto.setId(sec.getId());
                 dto.setPrice(sec.getPrice() != null ? sec.getPrice() : 0);
                 usageSectors.add(dto);
@@ -336,7 +357,6 @@ public class RoomServiceImpl implements RoomService {
             .eventLocationId(room.getEventLocation().getId())
             .build();
     }
-
 
 
     public List<RoomDetailDto> getAllRooms() {
@@ -398,6 +418,7 @@ public class RoomServiceImpl implements RoomService {
                 seat.setSector(sector);
             } else {
                 seat.setSector(null);
+                seat.setDeleted(true);
             }
 
             updatedSeatList.add(seat);
@@ -497,10 +518,12 @@ public class RoomServiceImpl implements RoomService {
         } else if (raw == null) {
             sec = new Sector();
             sec.setPrice(dto.getPrice());
+            sec.setName(dto.getName());
             room.addSector(sec);
         } else {
             sec = raw;
             sec.setPrice(dto.getPrice());
+            sec.setName(dto.getName());
             sec.setRoom(room);
         }
 
@@ -531,12 +554,14 @@ public class RoomServiceImpl implements RoomService {
         } else if (raw == null) {
             sec = new StandingSector();
             sec.setPrice(dto.getPrice());
+            sec.setName(dto.getName());
             sec.setCapacity(dto.getCapacity());
             room.addSector(sec);
         } else {
             sec = (StandingSector) raw;
             sec.setPrice(dto.getPrice());
             sec.setCapacity(dto.getCapacity());
+            sec.setName(dto.getName());
             sec.setRoom(room);
         }
 
@@ -566,10 +591,12 @@ public class RoomServiceImpl implements RoomService {
         } else if (raw == null) {
             sec = new StageSector();
             sec.setPrice(null);
+            sec.setName(dto.getName());
             room.addSector(sec);
         } else {
             sec = (StageSector) raw;
             sec.setPrice(null);
+            sec.setName(dto.getName());
             sec.setRoom(room);
         }
 

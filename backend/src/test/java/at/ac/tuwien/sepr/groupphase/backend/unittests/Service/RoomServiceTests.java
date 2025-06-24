@@ -173,6 +173,7 @@ public class RoomServiceTests {
 
         StandingSectorDto standing = new StandingSectorDto();
         standing.setPrice(10);
+        standing.setName("Standing Area");
         standing.setCapacity(5);
 
         RoomDetailDto withSector = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
@@ -398,6 +399,7 @@ public class RoomServiceTests {
         SectorDto defaultSector = room.getSectors().get(0);
 
         SectorDto newSector = new SectorDto();
+        newSector.setName("New Sector");
         newSector.setPrice(50);
 
         RoomDetailDto withNewSector = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
@@ -465,6 +467,7 @@ public class RoomServiceTests {
         StandingSectorDto standing = new StandingSectorDto();
         standing.setId(defaultSector.getId());
         standing.setPrice(15);
+        standing.setName("Standing Area");
         standing.setCapacity(10);
 
         room = roomService.updateRoom(room.getId(), RoomDetailDto.RoomDetailDtoBuilder
@@ -533,6 +536,7 @@ public class RoomServiceTests {
         RoomDetailDto original = roomService.createRoom(createRoomDto);
 
         SectorDto newSector = new SectorDto();
+        newSector.setName("New Sector");
         newSector.setPrice(25);
 
         RoomDetailDto update = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
@@ -582,6 +586,7 @@ public class RoomServiceTests {
         SectorDto defaultSector = original.getSectors().get(0);
 
         SectorDto newNormalSector = new SectorDto();
+        newNormalSector.setName("New Normal Sector");
         newNormalSector.setPrice(55);
 
         RoomDetailDto withNewSector = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
@@ -632,6 +637,7 @@ public class RoomServiceTests {
         StandingSectorDto standing = new StandingSectorDto();
         standing.setId(createdNewNormal.getId());
         standing.setPrice(99);
+        standing.setName("Updated Standing Area");
         standing.setCapacity(50);
 
         RoomDetailDto withStanding = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
@@ -691,6 +697,7 @@ public class RoomServiceTests {
         reservedSeat.setSector(sectorRepository.save(Sector.SectorBuilder.aSector()
             .withRoom(roomRepository.findById(room.getId()).orElseThrow())
             .withPrice(25)
+            .withName("Reserved Sector")
             .build()));
         seatRepository.save(reservedSeat);
 
@@ -729,6 +736,7 @@ public class RoomServiceTests {
         seatWithHold.setSector(sectorRepository.save(Sector.SectorBuilder.aSector()
             .withRoom(roomRepository.findById(room.getId()).orElseThrow())
             .withPrice(20)
+            .withName("Hold Sector")
             .build()));
         seatRepository.save(seatWithHold);
 
@@ -768,6 +776,7 @@ public class RoomServiceTests {
 
         StandingSectorDto standing = new StandingSectorDto();
         standing.setPrice(20);
+        standing.setName("Standing Area");
         standing.setCapacity(10);
 
         RoomDetailDto withStanding = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
@@ -855,6 +864,7 @@ public class RoomServiceTests {
 
         StandingSectorDto additional = new StandingSectorDto();
         additional.setPrice(30);
+        additional.setName("Standing Area");
         additional.setCapacity(50);
 
         RoomDetailDto updated = roomService.updateRoom(original.getId(), RoomDetailDto.RoomDetailDtoBuilder
@@ -893,6 +903,7 @@ public class RoomServiceTests {
 
         StageSectorDto stage = new StageSectorDto();
         stage.setId(defaultSector.getId());
+        stage.setName("Stage Area");
 
         RoomDetailDto updated = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
             .id(created.getId())
@@ -915,6 +926,7 @@ public class RoomServiceTests {
         SectorDto defaultSector = created.getSectors().get(0);
 
         SectorDto normal = new SectorDto();
+        normal.setName("Normal Area");
         normal.setId(defaultSector.getId());
         normal.setPrice(50);
 
@@ -941,6 +953,7 @@ public class RoomServiceTests {
 
         // Ersetze default mit StageSector
         StageSectorDto stage = new StageSectorDto();
+        stage.setName("Stage Area");
         stage.setId(defaultSector.getId());
 
         RoomDetailDto withStage = RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
@@ -955,6 +968,7 @@ public class RoomServiceTests {
 
         // Jetzt nochmal mit selbem ID und StageSectorDto, um den Branch zu triggern:
         StageSectorDto sameStage = new StageSectorDto();
+        sameStage.setName("Same Stage Area");
         sameStage.setId(updated.getSectors().get(0).getId());
 
         RoomDetailDto result = roomService.updateRoom(updated.getId(), RoomDetailDto.RoomDetailDtoBuilder.aRoomDetailDto()
@@ -974,6 +988,7 @@ public class RoomServiceTests {
         RoomDetailDto created = roomService.createRoom(createRoomDto);
 
         StageSectorDto stage = new StageSectorDto();
+        stage.setName("New Stage Area");
 
         List<SectorDto> existingSectors = created.getSectors();
         existingSectors.add(stage);
