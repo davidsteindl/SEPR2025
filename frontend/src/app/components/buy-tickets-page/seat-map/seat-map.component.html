@@ -105,7 +105,7 @@
   let-pop="popover"
 >
   <div class="p-2">
-    <p class="mb-1"><strong>Sector:</strong> {{ sector.id }}</p>
+    <p class="mb-1"><strong>Sector:</strong> {{ sector.name || sector.id }}</p>
     <p class="mb-1"><strong>Row:</strong> {{ seat.rowNumber }}</p>
     <p class="mb-1"><strong>Seat:</strong> {{ seat.columnNumber }}</p>
     <p class="mb-2"><strong>Price:</strong> € {{ sector.price }}</p>
@@ -120,7 +120,7 @@
 
 <ng-template #standingPopoverTpl let-sector="sector" let-pop="popover">
   <div class="p-2">
-    <p class="mb-1"><strong>Sector:</strong> {{ sector.id }}</p>
+    <p class="mb-1"><strong>Sector:</strong> {{ sector.name || sector.id }}</p>
     <p class="mb-1"><strong>Price:</strong> € {{ sector.price }}</p>
     <p class="mb-1"><strong>Available Tickets:</strong> {{ sector.availableCapacity ?? '?' }} / {{ sector.capacity ?? '?' }}</p>
     <div class="mb-2 d-flex align-items-center">

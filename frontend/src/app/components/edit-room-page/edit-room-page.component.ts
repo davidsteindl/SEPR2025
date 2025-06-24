@@ -72,6 +72,7 @@ export class EditRoomPageComponent implements OnInit {
   private buildSectorForm(sector?: Sector) {
     this.sectorForm = this.fb.group({
       id: [sector?.id ?? null],
+      name: [sector?.name ?? "", Validators.required],
       type: [sector?.type ?? SectorType.NORMAL, Validators.required],
       price: [
         {
@@ -166,13 +167,24 @@ export class EditRoomPageComponent implements OnInit {
   }
 
   deleteSector(sector: Sector) {
-    // unassign seats
-    this.room.seats.forEach((seat) => {
-      if (seat.sectorId === sector.id) {
-        seat.sectorId = null;
-      }
-    });
+    // Safety copy
+    const prevSectors = [...this.room.sectors];
+    // Remove sector from array
     this.room.sectors = this.room.sectors.filter((s) => s.id !== sector.id);
+    // Save sectors and update room from backend
+    this.roomService.edit(this.room).subscribe({
+      next: (updatedRoom) => {
+        this.room = updatedRoom;
+        if (this.seatMap) {
+          this.seatMap.refreshSectors();
+        }
+        this.toastr.success("Sector deleted successfully!");
+      },
+      error: (err) => {
+        this.room.sectors = prevSectors;
+        this.toastr.error("Error deleting sector. Please try again.");
+      },
+    });
   }
 
   // Expose sectorColorMap for template

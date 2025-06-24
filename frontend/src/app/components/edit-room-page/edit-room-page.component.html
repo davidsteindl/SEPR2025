@@ -35,11 +35,13 @@
           ></span>
           <div class="flex-grow-1">
             <div class="d-flex align-items-center mb-1">
-              <span class="">Sector number: {{ sec.id }}</span>
+              <span class="">Sector: {{ sec.name || ('#' + sec.id) }}</span>
             </div>
             <div class="d-flex align-items-center mb-1">
               <span class="sector-type-label">Type:</span>
-              <span class="sector-type-value">{{ sec.type }}</span>
+              <span class="sector-type-value">
+                {{ sec.type === 'NORMAL' ? 'Seated' : (sec.type === 'STANDING' ? 'Standing' : (sec.type === 'STAGE' ? 'Stage' : sec.type)) }}
+              </span>
             </div>
 
             <div
@@ -104,6 +106,10 @@
     </div>
     <div class="modal-body">
       <form [formGroup]="sectorForm">
+        <div class="mb-3">
+          <label class="form-label">Name <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" formControlName="name" required />
+        </div>
         <div class="mb-3">
           <label class="form-label">Type</label>
           <select class="form-select" formControlName="type">
