@@ -7,6 +7,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 
@@ -17,6 +19,7 @@ public class EventLocation {
     private Long id;
 
     @Column(nullable = false, length = 100)
+    @NotBlank
     private String name;
 
     @Enumerated(EnumType.STRING)

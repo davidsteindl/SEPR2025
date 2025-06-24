@@ -106,6 +106,7 @@ public class EventServiceTest {
 
         Sector sector = Sector.SectorBuilder.aSector()
             .withPrice(100)
+            .withName("Sector A")
             .withRoom(room)
             .build();
         sectorRepository.save(sector);
@@ -208,6 +209,7 @@ public class EventServiceTest {
 
         Sector sector = Sector.SectorBuilder.aSector()
             .withPrice(100)
+            .withName("Sector for " + eventName)
             .withRoom(room)
             .build();
         sectorRepository.save(sector);

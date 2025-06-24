@@ -1,5 +1,6 @@
 package at.ac.tuwien.sepr.groupphase.backend.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -8,6 +9,8 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 
@@ -20,6 +23,11 @@ public class Sector {
     private Long id;
 
     private Integer price;
+
+    @Column(nullable = false)
+    @NotBlank(message = "Name must not be blank")
+    @Size(max = 100, message = "Name must not exceed 100 characters")
+    private String name;
 
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)
@@ -39,6 +47,14 @@ public class Sector {
 
     public void setPrice(Integer price) {
         this.price = price;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Room getRoom() {
@@ -61,14 +77,15 @@ public class Sector {
         if (!(o instanceof Sector sector)) {
             return false;
         }
-        return price == sector.price
-            && Objects.equals(id, sector.id)
+        return Objects.equals(id, sector.id)
+            && Objects.equals(price, sector.price)
+            && Objects.equals(name, sector.name)
             && Objects.equals(room, sector.room);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, price, room);
+        return Objects.hash(id, price, name, room);
     }
 
     @Override
@@ -76,12 +93,14 @@ public class Sector {
         return "Sector{"
             + "id=" + id
             + ", price=" + price
+            + ", name='" + name + '\''
             + ", room ID=" + (room != null ? room.getId() : "null")
             + '}';
     }
 
     public static final class SectorBuilder {
         private Integer price;
+        private String name;
         private Room room;
 
         private SectorBuilder() {
@@ -96,6 +115,11 @@ public class Sector {
             return this;
         }
 
+        public SectorBuilder withName(String name) {
+            this.name = name;
+            return this;
+        }
+
         public SectorBuilder withRoom(Room room) {
             this.room = room;
             return this;
@@ -104,6 +128,7 @@ public class Sector {
         public Sector build() {
             Sector sector = new Sector();
             sector.setPrice(price);
+            sector.setName(name);
             sector.setRoom(room);
             return sector;
         }

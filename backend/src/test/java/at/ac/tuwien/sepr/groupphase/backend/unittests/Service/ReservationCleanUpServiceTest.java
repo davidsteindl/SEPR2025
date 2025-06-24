@@ -74,6 +74,7 @@ public class ReservationCleanUpServiceTest {
 
         Sector sector = Sector.SectorBuilder.aSector()
             .withPrice(100)
+            .withName("Test Sector")
             .withRoom(room)
             .build();
         room.addSector(sector);
@@ -86,6 +87,7 @@ public class ReservationCleanUpServiceTest {
 
         StandingSector standingSector = StandingSector.StandingSectorBuilder.aStandingSector()
             .withPrice(50)
+            .withName("Standing Area")
             .withCapacity(100)
             .withRoom(room)
             .build();
