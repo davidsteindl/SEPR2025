@@ -28,6 +28,7 @@
     <div class="sidebar-body flex-grow-1 overflow-auto">
       <app-ticket-list
         [items]="currentItems"
+        [room]="room"
         (remove)="onRemoveItem($event)"
       ></app-ticket-list>
     </div>

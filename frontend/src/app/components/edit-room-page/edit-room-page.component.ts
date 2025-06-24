@@ -1,6 +1,6 @@
 // edit-room-page.component.ts
 import { Component, OnInit, ViewChild } from "@angular/core";
-import {ActivatedRoute, ParamMap, Router} from "@angular/router";
+import { ActivatedRoute, ParamMap, Router } from "@angular/router";
 import { RoomService } from "src/app/services/room.service";
 import { Room } from "src/app/dtos/room";
 import { Sector, SectorType } from "src/app/dtos/sector";
@@ -72,20 +72,21 @@ export class EditRoomPageComponent implements OnInit {
   private buildSectorForm(sector?: Sector) {
     this.sectorForm = this.fb.group({
       id: [sector?.id ?? null],
+      name: [sector?.name ?? "", Validators.required],
       type: [sector?.type ?? SectorType.NORMAL, Validators.required],
       price: [
         {
-          value: sector?.price ?? 0,
+          value: sector?.price ?? 1,
           disabled: sector?.type === SectorType.STAGE,
         },
-        Validators.min(0),
+        [Validators.required, Validators.min(1)],
       ],
       capacity: [
         {
-          value: sector?.capacity ?? null,
+          value: sector?.capacity ?? 1,
           disabled: sector?.type !== SectorType.STANDING,
         },
-        Validators.min(1),
+        [Validators.required, Validators.min(1)],
       ],
     });
     // react to type changes
@@ -166,13 +167,37 @@ export class EditRoomPageComponent implements OnInit {
   }
 
   deleteSector(sector: Sector) {
+    // Deep safety copy
+    const prevRoom = JSON.parse(JSON.stringify(this.room));
+    // Remove sector from array
+    this.room.sectors = this.room.sectors.filter((s) => s.id !== sector.id);
     // unassign seats
     this.room.seats.forEach((seat) => {
       if (seat.sectorId === sector.id) {
         seat.sectorId = null;
       }
     });
-    this.room.sectors = this.room.sectors.filter((s) => s.id !== sector.id);
+    this.roomService.edit(this.room).subscribe({
+      next: (updatedRoom) => {
+        this.room = updatedRoom;
+        if (this.seatMap) {
+          this.seatMap.refreshSectors();
+        }
+        this.toastr.success("Sector deleted successfully!");
+      },
+      error: (err) => {
+        // Restore deep copy
+        this.room = prevRoom;
+        if (this.seatMap) {
+          this.seatMap.refreshSectors();
+        }
+        const backendMsg =
+          err?.error?.message ||
+          err?.message ||
+          "Error deleting sector. Please try again.";
+        this.toastr.error(backendMsg);
+      },
+    });
   }
 
   // Expose sectorColorMap for template

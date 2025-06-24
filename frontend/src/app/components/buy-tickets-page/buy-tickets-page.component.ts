@@ -178,9 +178,27 @@ export class BuyTicketsPageComponent implements OnInit, OnDestroy {
       },
       error: err => {
         console.error('Reservation failed', err);
-
-        const msg = err?.error?.detail ?? err?.error?.message ?? err.message ?? 'Unknown error';
-
+        const rawMsg =
+          err?.error?.detail ??
+          err?.error?.message ??
+          err.message ??
+          "Unknown error";
+        let msg = "";
+        // Match "Seat <id> is currently on hold"
+        const seatHoldMatch = /^Seat (\d+) is currently on hold$/.exec(rawMsg);
+        if (seatHoldMatch && this.room && this.room.seats) {
+          const seatId = +seatHoldMatch[1];
+          const seat = this.room.seats.find((s) => s.id === seatId);
+          if (seat) {
+            msg = `Row: ${seat.rowNumber} Seat: ${seat.columnNumber} has already been reserved by another user. Please try to select a different seat.`;
+          } else {
+            msg =
+              "A selected seat has already been reserved by another user. Please try to select a different seat.";
+          }
+        } else {
+          msg =
+            "Something went wrong while trying to reserve your seats, please try again later.";
+        }
         this.toastr.error(msg, 'Reservation failed');
       }
     });
