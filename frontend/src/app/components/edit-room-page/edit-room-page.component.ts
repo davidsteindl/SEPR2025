@@ -1,6 +1,6 @@
 // edit-room-page.component.ts
 import { Component, OnInit, ViewChild } from "@angular/core";
-import {ActivatedRoute, ParamMap, Router} from "@angular/router";
+import { ActivatedRoute, ParamMap, Router } from "@angular/router";
 import { RoomService } from "src/app/services/room.service";
 import { Room } from "src/app/dtos/room";
 import { Sector, SectorType } from "src/app/dtos/sector";
@@ -191,7 +191,11 @@ export class EditRoomPageComponent implements OnInit {
         if (this.seatMap) {
           this.seatMap.refreshSectors();
         }
-        this.toastr.error("Error deleting sector. Please try again.");
+        const backendMsg =
+          err?.error?.message ||
+          err?.message ||
+          "Error deleting sector. Please try again.";
+        this.toastr.error(backendMsg);
       },
     });
   }
