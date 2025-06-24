@@ -11,24 +11,24 @@
 
     <div class="form-group">
       <label for="inputTitle">Title <span class="text-danger">*</span></label>
-      <input id="inputTitle" name="title" class="form-control" required [(ngModel)]="currentMessage.title" />
-      <div *ngIf="submitted && messageForm.controls.title?.invalid" class="text-danger">
+      <input id="inputTitle" name="title" class="form-control" required [(ngModel)]="currentMessage.title" #titleCtrl="ngModel"  />
+      <div *ngIf="(titleCtrl.touched || submitted) && messageForm.controls.title?.invalid" class="text-warning">
         Title is required.
       </div>
     </div>
 
     <div class="form-group mt-3">
       <label for="inputSummary">Summary <span class="text-danger">*</span></label>
-      <textarea id="inputSummary" name="summary" rows="3" class="form-control" required [(ngModel)]="currentMessage.summary"></textarea>
-      <div *ngIf="submitted && messageForm.controls.summary?.invalid" class="text-danger">
+      <textarea id="inputSummary" name="summary" rows="3" class="form-control" required [(ngModel)]="currentMessage.summary"  #summaryCtrl="ngModel"></textarea>
+      <div *ngIf="(summaryCtrl.touched || submitted) && messageForm.controls.summary?.invalid" class="text-warning">
         Summary is required.
       </div>
     </div>
 
     <div class="form-group mt-3">
       <label for="inputText">Text <span class="text-danger">*</span></label>
-      <textarea id="inputText" name="text" rows="6" class="form-control" required [(ngModel)]="currentMessage.text"></textarea>
-      <div *ngIf="submitted && messageForm.controls.text?.invalid" class="text-danger">
+      <textarea id="inputText" name="text" rows="6" class="form-control" required [(ngModel)]="currentMessage.text" #textCtrl="ngModel"></textarea>
+      <div *ngIf=" (textCtrl.touched || submitted) && messageForm.controls.text?.invalid" class="text-warning">
         Text is required.
       </div>
     </div>
