@@ -182,6 +182,29 @@ export class EditRoomSeatMapComponent implements OnChanges {
     return sector ? sector.type : null;
   }
 
+  getSectorDisplayName(sectorId: number | null | undefined): string {
+    if (sectorId == null) return "";
+    const sector = this.allSectors.find((s) => s.id === sectorId);
+    if (!sector) return "" + sectorId;
+    if (sector.name) return sector.name;
+    // Friendly fallback for type
+    let typeLabel = "";
+    switch (sector.type) {
+      case "NORMAL":
+        typeLabel = "Seated";
+        break;
+      case "STANDING":
+        typeLabel = "Standing";
+        break;
+      case "STAGE":
+        typeLabel = "Stage";
+        break;
+      default:
+        typeLabel = sector.type;
+    }
+    return typeLabel + " #" + sector.id;
+  }
+
   isSeatSelected(seat: Seat): boolean {
     return this.selectedSeats.some((s) => s.id === seat.id);
   }

@@ -2,8 +2,9 @@ import {SectorType} from "./sector-type";
 import {Room} from "./room";
 import { Seat } from "./seat";
 
-export abstract class Sector {
+export interface Sector {
   id: number;
+  name?: string; // Optional sector name
   type: SectorType;
   price: number;
   room: Room;
