@@ -107,6 +107,7 @@ public class TicketServiceTest {
             .build();
 
         sector = Sector.SectorBuilder.aSector()
+            .withName("Test Sector")
             .withPrice(100)
             .withRoom(testRoom)
             .build();
@@ -115,6 +116,7 @@ public class TicketServiceTest {
         standingSector = StandingSector.StandingSectorBuilder.aStandingSector()
             .withPrice(50)
             .withCapacity(10)
+            .withName("Standing Area")
             .withRoom(testRoom)
             .build();
         testRoom.addSector(standingSector);

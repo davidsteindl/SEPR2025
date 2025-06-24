@@ -1,11 +1,10 @@
 import {Component} from '@angular/core';
 import {ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators} from "@angular/forms";
 import {AuthService} from "../../services/auth.service";
-import {Router, RouterLink} from "@angular/router";
+import {Router} from "@angular/router";
 import {NgIf} from "@angular/common";
 import {RegisterUser} from "../../dtos/register-user";
 import {ToastrService} from "ngx-toastr";
-import {EmailSentComponent} from "../password/email-sent/email-sent.component";
 import {TermsandconditionsComponent} from "../termsandconditions/termsandconditions.component";
 
 
@@ -16,7 +15,7 @@ import {TermsandconditionsComponent} from "../termsandconditions/termsandconditi
   imports: [
     NgIf,
     ReactiveFormsModule,
-    TermsandconditionsComponent
+    TermsandconditionsComponent,
   ],
   styleUrls: ['./register.component.scss']
 })

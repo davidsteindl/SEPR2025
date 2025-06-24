@@ -8,7 +8,10 @@
     class="ticket-item d-flex align-items-center mb-2 p-2 border rounded"
   >
     <div class="flex-grow-1">
-      <p class="mb-1"><strong>Sector:</strong> {{ item.sectorId }}</p>
+      <p class="mb-1">
+        <strong>Sector:</strong>
+        {{ getSectorName(item.sectorId) }}
+      </p>
       <ng-container *ngIf="item.type === 'SEATED'; else standingTpl">
         <p class="mb-1">
           <strong>Row:</strong> {{ item.rowNumber }} <strong>Seat:</strong>

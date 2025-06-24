@@ -20,7 +20,7 @@
         [required]="!artist.stagename"
       />
 
-      <div *ngIf="!artist.stagename && firstName.invalid && firstName.touched" class="text-danger">
+      <div *ngIf="!artist.stagename && firstName.invalid && firstName.touched" class="text-warning">
         First Name is required when there is no Stage Name.
       </div>
     </div>
@@ -36,7 +36,7 @@
         #lastName="ngModel"
         [required]="!artist.stagename"
       />
-      <div *ngIf="!artist.stagename && lastName.invalid && lastName.touched" class="text-danger">
+      <div *ngIf="!artist.stagename && lastName.invalid && lastName.touched" class="text-warning">
         Last Name is required when there is no Stage Name.
       </div>
     </div>
@@ -53,7 +53,7 @@
         [required]="!artist.firstname || !artist.lastname"
       />
       <div *ngIf="(!artist.firstname || !artist.lastname) && stageName.invalid && stageName.touched"
-           class="text-danger">
+           class="text-warning">
         Stage Name is required when First and/ or Last Name is missing.
       </div>
     </div>
@@ -75,7 +75,7 @@
       </div>
     </div>
 
-    <div class="text-danger text-center mt-2" *ngIf="artistForm.submitted && !isNameValid()">
+    <div class="text-warning text-center mt-2" *ngIf="artistForm.submitted && !isNameValid()">
       Please provide either a Stage Name, or both First and Last Name.
     </div>
 

@@ -96,7 +96,7 @@ public class TicketEndpointTest implements TestData {
         location = eventLocationRepository.save(location);
 
         Room room = Room.RoomBuilder.aRoom().withName("Main Room").withEventLocation(location).build();
-        sector = StandingSector.StandingSectorBuilder.aStandingSector().withPrice(50).withCapacity(20).withRoom(room).build();
+        sector = StandingSector.StandingSectorBuilder.aStandingSector().withPrice(50).withCapacity(20).withName("Standing Area").withRoom(room).build();
         room.addSector(sector);
         room = roomRepository.save(room);
 

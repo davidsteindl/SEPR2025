@@ -63,15 +63,21 @@
           </label>
         </div>
       </div>
-      <!-- Country -->
+
+      <!-- Country-->
       <div class="mb-3">
-        <label class="form-label">Country / Region</label>
-        <input
-          type="text"
+        <label for="country" class="form-label">Country / Region</label>
+        <select
+          id="country"
           formControlName="country"
           class="form-control"
           [class.is-invalid]="paymentForm.get('country')?.invalid && paymentForm.get('country')?.touched"
-        />
+          required>
+          <option value="" disabled selected>Select Country</option>
+          <option *ngFor="let country of countries" [value]="country">
+            {{ country }}
+          </option>
+        </select>
         <div class="invalid-feedback">
           Country is required.
         </div>
@@ -164,7 +170,7 @@
 
   <button
     type="submit"
-    class="btn btn-primary w-100 mt-4"
+    class="btn btn-success w-100 mt-4"
     [disabled]="loading"
   >
     <i class="bi bi-lock-fill"></i>
