@@ -14,6 +14,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -25,8 +26,9 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     @NotBlank(message = "Name must not be blank")
-    @Column(nullable = false, length = 100)
+    @Size(max = 100, message = "Name must not exceed 100 characters")
     private String name;
 
     @Enumerated(EnumType.STRING)

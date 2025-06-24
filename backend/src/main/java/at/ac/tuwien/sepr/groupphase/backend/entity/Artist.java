@@ -9,6 +9,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -20,13 +22,19 @@ public class Artist {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 100)
+    @Column(nullable = false)
+    @NotBlank(message = "Name must not be blank")
+    @Size(max = 100, message = "Name must not exceed 100 characters")
     private String firstname;
 
-    @Column(length = 100)
+    @Column(nullable = false)
+    @NotBlank(message = "Name must not be blank")
+    @Size(max = 100, message = "Name must not exceed 100 characters")
     private String lastname;
 
-    @Column(length = 100)
+    @Column(nullable = false)
+    @NotBlank(message = "Name must not be blank")
+    @Size(max = 100, message = "Name must not exceed 100 characters")
     private String stagename;
 
     @ManyToMany
