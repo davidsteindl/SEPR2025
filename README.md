@@ -21,3 +21,12 @@ mvn spring-boot:run
 npm install <br>
 npm install -g @angular/cli <br>
 ng serve 
+
+## Login
+### Login as admin:
+Email: admin10@email.com <br>
+Password: password10
+
+### Login as user:
+Email: user10@email.com <br>
+Password: password10
