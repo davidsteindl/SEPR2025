@@ -15,13 +15,15 @@ Frontend: Angular
 ## Run the Project
 
 ### Backend
+```bash
 mvn spring-boot:run
-
+```
 ### Frontend
-npm install <br>
-npm install -g @angular/cli <br>
+```bash
+npm install 
+npm install -g @angular/cli 
 ng serve 
-
+```
 ## Login
 ### Login as admin:
 Email: admin10@email.com <br>
